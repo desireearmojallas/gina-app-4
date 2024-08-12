@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "808546057934",
+    "project_id": "gina-app-4",
+    "storage_bucket": "gina-app-4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:808546057934:android:d57a9a9ad94982d1dada9f",
+        "android_client_info": {
+          "package_name": "com.example.gina_app_4"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGaaYbQY22NiTCqst5KlOvAGbieoZ7Pek"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
