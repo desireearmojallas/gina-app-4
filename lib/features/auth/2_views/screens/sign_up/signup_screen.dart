@@ -173,7 +173,8 @@ class _SignupPageState extends State<SignupPage> {
                           if (selectedIndex == 0) ...[
                             const PatientRegistration(),
                           ] else if (selectedIndex == 1) ...[
-                            const DoctorRegistrationStepOne(),
+                            if (currentDoctorStep == 1)
+                              const DoctorRegistrationStepOne(),
                             if (currentDoctorStep == 2)
                               const DoctorRegistrationStepTwo(),
                             if (currentDoctorStep == 3)

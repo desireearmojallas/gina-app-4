@@ -161,7 +161,6 @@ class DoctorRegistrationStepFour extends StatelessWidget {
                                     const Gap(10),
                                     TextButton(
                                       onPressed: () {
-                                        // TODO: TO IMPLEMENT DOCTOR ADDRESS MAP
                                         Navigator.pushNamed(
                                             context, '/doctorAddressMap');
                                       },
@@ -190,9 +189,8 @@ class DoctorRegistrationStepFour extends StatelessWidget {
                                 ),
                               ),
                               onPressed: () {
-                                // TODO: TO IMPLEMENT DOCTOR ADDRESS MAP
-                                // Navigator.pushNamed(
-                                //     context, '/doctorAddressMap');
+                                Navigator.pushNamed(
+                                    context, '/doctorAddressMap');
                               },
                               child: const Text(
                                 '+ Add Office Address',

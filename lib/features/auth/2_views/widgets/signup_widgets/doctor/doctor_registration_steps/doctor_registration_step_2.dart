@@ -62,7 +62,7 @@ class DoctorRegistrationStepTwo extends StatelessWidget {
           const Gap(10),
           styledFormField(
             context,
-            'Name of the board certificaiton organization',
+            'Name of the board certification organization',
             boardCertificationOrganizationController,
             false,
           ),
