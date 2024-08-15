@@ -4,6 +4,7 @@ import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/bloc/home_bloc.dart';
+import 'package:gina_app_4/features/patient_features/profile/2_views/bloc/profile_bloc.dart';
 import 'package:gina_app_4/features/splash/bloc/splash_bloc.dart';
 
 List<BlocProvider> getBlocProviders() {
@@ -27,6 +28,9 @@ List<BlocProvider> getBlocProviders() {
     ),
     BlocProvider<FloatingMenuBloc>(
       create: (context) => sl<FloatingMenuBloc>(),
+    ),
+    BlocProvider<ProfileBloc>(
+      create: (context) => sl<ProfileBloc>(),
     ),
   ];
 }

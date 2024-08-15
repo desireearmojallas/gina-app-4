@@ -8,6 +8,7 @@ import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/d
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/bloc/home_bloc.dart';
 import 'package:gina_app_4/features/patient_features/profile/1_controllers/profile_controller.dart';
+import 'package:gina_app_4/features/patient_features/profile/2_views/bloc/profile_bloc.dart';
 import 'package:gina_app_4/features/splash/bloc/splash_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -66,4 +67,10 @@ Future<void> init() async {
   );
 
   sl.registerFactory(() => ProfileController());
+
+  sl.registerFactory(
+    () => ProfileBloc(
+        // profileController: sl(),
+        ),
+  );
 }
