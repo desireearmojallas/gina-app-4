@@ -7,27 +7,35 @@ class CustomLoadingIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const _RotatingSvg();
+    return const _SeamlessRotatingLoader();
   }
 }
 
-class _RotatingSvg extends StatefulWidget {
-  const _RotatingSvg();
+class _SeamlessRotatingLoader extends StatefulWidget {
+  const _SeamlessRotatingLoader();
 
   @override
-  __RotatingSvgState createState() => __RotatingSvgState();
+  __SeamlessRotatingLoaderState createState() => __SeamlessRotatingLoaderState();
 }
 
-class __RotatingSvgState extends State<_RotatingSvg> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+class __SeamlessRotatingLoaderState extends State<_SeamlessRotatingLoader> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 750),
+      duration: const Duration(seconds: 2),
       vsync: this,
-    )..repeat();  // Repeats the animation indefinitely
+    )..repeat();
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ),
+    );
   }
 
   @override
@@ -38,15 +46,18 @@ class __RotatingSvgState extends State<_RotatingSvg> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return RotationTransition(
-      turns: _controller,
-      child: SvgPicture.asset(
-        'assets/images/gina_logo.svg',
-        width: 35,
-        height: 35,
-        colorFilter: const ColorFilter.mode(
-          GinaAppTheme.lightOnSelectedColorNavBar,
-          BlendMode.srcIn,
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: RotationTransition(
+        turns: _controller.drive(CurveTween(curve: Curves.linear)), // Continuous rotation
+        child: SvgPicture.asset(
+          'assets/images/gina_logo.svg',
+          width: 35,
+          height: 35,
+          colorFilter: const ColorFilter.mode(
+            GinaAppTheme.lightOnSelectedColorNavBar,
+            BlendMode.srcIn,
+          ),
         ),
       ),
     );

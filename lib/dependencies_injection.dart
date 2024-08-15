@@ -70,7 +70,7 @@ Future<void> init() async {
 
   sl.registerFactory(
     () => ProfileBloc(
-        // profileController: sl(),
-        ),
+      profileController: sl(),
+    ),
   );
 }

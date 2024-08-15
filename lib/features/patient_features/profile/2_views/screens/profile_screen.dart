@@ -14,7 +14,7 @@ class ProfileScreenProvider extends StatelessWidget {
     return BlocProvider<ProfileBloc>(
       create: (context) {
         final profileBloc = sl<ProfileBloc>();
-        // profileBloc.add(GetProfileEvent());
+        profileBloc.add(GetProfileEvent());
         return profileBloc;
       },
       child: const ProfileScreen(),
@@ -43,7 +43,9 @@ class ProfileScreen extends StatelessWidget {
             builder: (context, state) {
               if (state is ProfileLoading) {
                 return const Center(child: CustomLoadingIndicator());
-              } else if (state is ProfileLoaded) {}
+              } else if (state is ProfileLoaded) {
+                return const ProfileScreenLoaded();
+              }
               return const SizedBox();
             },
           ),
