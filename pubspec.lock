@@ -776,6 +776,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  loading_indicator:
+    dependency: "direct main"
+    description:
+      name: loading_indicator
+      sha256: a101ffb2aa3e646137d7810bfa90b50525dd3f72c01235b6df7491cf6af6f284
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.1"
   lottie:
     dependency: "direct main"
     description:
@@ -1037,6 +1045,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.0"
+  splash_view:
+    dependency: "direct main"
+    description:
+      name: splash_view
+      sha256: fd556452e8e51842a2797d0da6862fc5fb6d665ffe57be7213744a5d1e83dda8
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   sprintf:
     dependency: transitive
     description:

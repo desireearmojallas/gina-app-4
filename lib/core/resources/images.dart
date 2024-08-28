@@ -22,4 +22,6 @@ class Images {
 
   static String logoutIcon =
       "assets/images/patient_features/profile/logout_icon.svg";
+
+  static String splashPic = "assets/images/splash_pic.png";
 }

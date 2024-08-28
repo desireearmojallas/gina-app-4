@@ -181,8 +181,11 @@ class GinaAppTheme {
   static final NavigationBarThemeData _navigationBarTheme =
       NavigationBarThemeData(
     backgroundColor: appbarColorLight,
-    labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+    labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
     indicatorColor: Colors.transparent,
+    indicatorShape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(100)),
+    ),
     height: 90,
     elevation: 0,
     shadowColor: Colors.transparent,
