@@ -12,6 +12,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final ProfileController profileController;
   ProfileBloc({required this.profileController}) : super(ProfileInitial()) {
     on<GetProfileEvent>(getProfileEvent);
+    on<NavigateToEditProfileEvent>(navigateToEditProfileEvent);
   }
 
   FutureOr<void> getProfileEvent(
@@ -30,5 +31,18 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
       emit(ProfileLoaded(patientData: patientData));
     });
+  }
+
+  FutureOr<void> navigateToEditProfileEvent(
+      NavigateToEditProfileEvent event, Emitter<ProfileState> emit) async {
+    emit(ProfileLoading());
+
+    final getProfileData = await profileController.getPatientProfile();
+
+    getProfileData.fold(
+      (failure) => emit(ProfileError(message: failure.toString())),
+      (patientData) =>
+          emit(NavigateToEditProfileState(patientData: patientData)),
+    );
   }
 }

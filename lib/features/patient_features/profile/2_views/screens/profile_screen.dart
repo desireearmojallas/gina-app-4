@@ -4,6 +4,7 @@ import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/gina_patient_app_bar/gina_patient_app_bar.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/bloc/profile_bloc.dart';
+import 'package:gina_app_4/features/patient_features/profile/2_views/screens/view_states/edit_profile_screen.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/screens/view_states/profile_screen_loaded.dart';
 
 class ProfileScreenProvider extends StatelessWidget {
@@ -44,7 +45,15 @@ class ProfileScreen extends StatelessWidget {
               if (state is ProfileLoading) {
                 return const Center(child: CustomLoadingIndicator());
               } else if (state is ProfileLoaded) {
-                return const ProfileScreenLoaded();
+                final patientData = state.patientData;
+                return ProfileScreenLoaded(
+                  patientData: patientData,
+                );
+              } else if (state is NavigateToEditProfileState) {
+                final patientData = state.patientData;
+                return EditProfileScreen(
+                  patientData: patientData,
+                );
               }
               return const SizedBox();
             },

@@ -3,6 +3,7 @@ class Images {
 
   // Splash Screen
   static String appLogo = "assets/images/gina_logo.svg";
+  static String splashPic = "assets/images/splash_pic.png";
 
   // Doctor Office Address Screen
   static String officeAddressLogo =
@@ -23,5 +24,7 @@ class Images {
   static String logoutIcon =
       "assets/images/patient_features/profile/logout_icon.svg";
 
-  static String splashPic = "assets/images/splash_pic.png";
+  // Profile Screen
+  static String patientCycleHistory = "assets/images/patient_features/profile/cycle_history.png";
+  static String patientForumPost = "assets/images/patient_features/profile/forum_post.png";
 }

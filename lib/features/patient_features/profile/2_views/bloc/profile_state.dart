@@ -30,3 +30,12 @@ class ProfileError extends ProfileState {
 }
 
 class ProfileLoading extends ProfileState {}
+
+class NavigateToEditProfileState extends ProfileState {
+  final UserModel patientData;
+
+  const NavigateToEditProfileState({required this.patientData});
+
+  @override
+  List<Object> get props => [patientData];
+}

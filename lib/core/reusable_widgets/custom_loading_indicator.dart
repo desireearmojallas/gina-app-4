@@ -18,9 +18,9 @@ class CustomLoadingIndicator extends StatelessWidget {
         indicatorType: Indicator.ballScale,
         colors: colors ??
             [
+              GinaAppTheme.lightTertiaryContainer,
               GinaAppTheme.lightTertiary,
               GinaAppTheme.lightSecondary,
-              GinaAppTheme.lightTertiaryContainer,
               GinaAppTheme.lightPrimaryColor,
             ],
         strokeWidth: 1,

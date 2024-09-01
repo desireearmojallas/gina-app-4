@@ -72,11 +72,11 @@ class HomeCalendarTrackerContainer extends StatelessWidget {
               ),
               activeDayStyle: DayStyle(
                 dayNumStyle: ginaTheme.textTheme.headlineSmall
-                    ?.copyWith(color: GinaAppTheme.lightOnPrimaryColor),
+                    ?.copyWith(color: Colors.white),
                 dayStrStyle: ginaTheme.textTheme.labelMedium
-                    ?.copyWith(color: GinaAppTheme.lightOnPrimaryColor),
+                    ?.copyWith(color: Colors.white),
                 monthStrStyle: ginaTheme.textTheme.labelMedium
-                    ?.copyWith(color: GinaAppTheme.lightOnPrimaryColor),
+                    ?.copyWith(color: Colors.white),
               ),
             ),
           ),
@@ -100,6 +100,7 @@ class HomeCalendarTrackerContainer extends StatelessWidget {
                 'Log Period',
                 style: ginaTheme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
+                  color: Colors.white,
                 ),
               ),
               onPressed: () {

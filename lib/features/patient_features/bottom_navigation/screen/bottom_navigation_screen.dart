@@ -50,7 +50,7 @@ class BottomNavigation extends StatelessWidget {
                 ),
                 selectedIcon: Icon(
                   Icons.home_rounded,
-                  color: GinaAppTheme.lightOnSelectedColorNavBar,
+                  color: GinaAppTheme.lightTertiaryContainer,
                   size: 32.0,
                 ),
                 label: 'Home',
@@ -63,7 +63,7 @@ class BottomNavigation extends StatelessWidget {
                 ),
                 selectedIcon: Icon(
                   Icons.search,
-                  color: GinaAppTheme.lightOnSelectedColorNavBar,
+                  color: GinaAppTheme.lightTertiaryContainer,
                   size: 34.0,
                 ),
                 label: 'Find',
@@ -76,7 +76,7 @@ class BottomNavigation extends StatelessWidget {
                 ),
                 selectedIcon: Icon(
                   Icons.chat,
-                  color: GinaAppTheme.lightOnSelectedColorNavBar,
+                  color: GinaAppTheme.lightTertiaryContainer,
                   size: 32.0,
                 ),
                 label: 'Appointments',
@@ -89,7 +89,7 @@ class BottomNavigation extends StatelessWidget {
                 ),
                 selectedIcon: Icon(
                   Icons.forum_outlined,
-                  color: GinaAppTheme.lightOnSelectedColorNavBar,
+                  color: GinaAppTheme.lightTertiaryContainer,
                   size: 32.0,
                 ),
                 label: 'Forums',
@@ -102,7 +102,7 @@ class BottomNavigation extends StatelessWidget {
                 ),
                 selectedIcon: Icon(
                   Icons.person,
-                  color: GinaAppTheme.lightOnSelectedColorNavBar,
+                  color: GinaAppTheme.lightTertiaryContainer,
                   size: 32.0,
                 ),
                 label: 'Profile',

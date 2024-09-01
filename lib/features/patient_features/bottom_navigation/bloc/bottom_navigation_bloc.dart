@@ -18,7 +18,6 @@ class BottomNavigationBloc
     on<BottomNavigationEvent>((event, emit) {
       if (event is TabChangedEvent) {
         switch (event.tab) {
-          // TODO: SELECTED SCREENS ROUTE
           case 0:
             emit(BottomNavigationInitial(
                 currentIndex: event.tab,
@@ -36,11 +35,13 @@ class BottomNavigationBloc
             break;
           case 3:
             emit(BottomNavigationInitial(
-                currentIndex: event.tab, selectedScreen: const ForumScreenProvider()));
+                currentIndex: event.tab,
+                selectedScreen: const ForumScreenProvider()));
             break;
           case 4:
             emit(BottomNavigationInitial(
-                currentIndex: event.tab, selectedScreen: const ProfileScreenProvider()));
+                currentIndex: event.tab,
+                selectedScreen: const ProfileScreenProvider()));
             break;
         }
       }

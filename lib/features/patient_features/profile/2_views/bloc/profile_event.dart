@@ -10,3 +10,5 @@ abstract class ProfileEvent extends Equatable {
 class ProfileInitialEvent extends ProfileEvent {}
 
 class GetProfileEvent extends ProfileEvent {}
+
+class NavigateToEditProfileEvent extends ProfileEvent {}
