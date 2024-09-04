@@ -74,7 +74,7 @@ class ForumScreenLoaded extends StatelessWidget {
                     ),
                     const Row(
                       children: [
-                        Icon(Icons.comment),
+                        Icon(Icons.comment_outlined),
                       ],
                     ),
                   ],
