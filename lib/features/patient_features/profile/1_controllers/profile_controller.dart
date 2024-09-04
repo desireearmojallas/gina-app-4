@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
@@ -32,6 +33,26 @@ class ProfileController with ChangeNotifier {
       return userModel.name;
     } catch (e) {
       throw Exception('Failed to get current user\'s name: ${e.toString()}');
+    }
+  }
+
+  Future<Either<Exception, UserModel>> getPatientProfile() async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+          await FirebaseFirestore.instance
+              .collection('patients')
+              .doc(currentUser!.uid)
+              .get();
+
+      UserModel userModel = UserModel.fromJson(userSnapshot.data()!);
+
+      return Right(userModel);
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException code: ${e.code}');
+      error = e;
+      notifyListeners();
+      return Left(Exception(e.message));
     }
   }
 }

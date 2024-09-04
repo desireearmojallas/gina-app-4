@@ -69,9 +69,13 @@ class BookAppointmentContainer extends StatelessWidget {
                     },
                     child: Row(
                       children: [
-                        Text('Next',
-                            style: ginaTheme.textTheme.labelMedium
-                                ?.copyWith(fontWeight: FontWeight.w700)),
+                        Text(
+                          'Next',
+                          style: ginaTheme.textTheme.labelMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
                         const Gap(8),
                         const Icon(
                           Icons.arrow_forward,

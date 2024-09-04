@@ -183,6 +183,9 @@ class GinaAppTheme {
     backgroundColor: appbarColorLight,
     labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
     indicatorColor: Colors.transparent,
+    indicatorShape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(100)),
+    ),
     height: 90,
     elevation: 0,
     shadowColor: Colors.transparent,
@@ -194,7 +197,7 @@ class GinaAppTheme {
             fontFamily: 'SF UI Display',
             fontWeight: FontWeight.bold,
             fontSize: 11,
-            color: lightOnSelectedColorNavBar,
+            color: lightTertiaryContainer,
           );
         } else {
           // Style for unselected state
@@ -241,8 +244,8 @@ class GinaAppTheme {
     scaffoldBackgroundColor: lightBackground,
     colorScheme: const ColorScheme.light(
       brightness: Brightness.light,
-      primary: lightPrimaryColor,
-      onPrimary: lightOnPrimaryColor,
+      primary: lightTertiaryContainer,
+      onPrimary: lightOnError,
       primaryContainer: lightPrimaryContainer,
       onPrimaryContainer: lightOnPrimaryContainer,
       secondary: lightSecondary,
@@ -285,6 +288,7 @@ class GinaAppTheme {
         width: .5,
       ),
       backgroundColor: lightSurface,
+      // TODO:  CHANGED THIS
       confirmButtonStyle: ButtonStyle(
         backgroundColor: MaterialStateProperty.all<Color>(lightPrimaryColor),
         foregroundColor: MaterialStateProperty.all<Color>(lightOnPrimaryColor),

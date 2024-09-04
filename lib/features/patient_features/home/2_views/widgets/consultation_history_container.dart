@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 
 class ConsultationHistoryContainer extends StatelessWidget {
@@ -68,11 +69,12 @@ class ConsultationHistoryContainer extends StatelessWidget {
           // temporary
           const Expanded(
             child: Center(
-              child: Text(
-                'No History,\nYour consultation history will appear here.',
-                style: TextStyle(color: Color.fromARGB(157, 158, 158, 158)),
-                textAlign: TextAlign.center,
-              ),
+              // child: Text(
+              //   'No History,\nYour consultation history will appear here.',
+              //   style: TextStyle(color: Color.fromARGB(157, 158, 158, 158)),
+              //   textAlign: TextAlign.center,
+              // ),
+              child: CustomLoadingIndicator(),
             ),
           ),
 
