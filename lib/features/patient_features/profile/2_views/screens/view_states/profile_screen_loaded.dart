@@ -314,7 +314,7 @@ class ProfileScreenLoaded extends StatelessWidget {
                         child: WaveWidget(
                           config: CustomConfig(
                             colors: gradientColors.map((color) {
-                              return color.withOpacity(0.2);
+                              return color.withOpacity(0.5);
                             }).toList(),
                             durations: [20000, 18000, 16000],
                             heightPercentages: [0.20, 0.30, 0.40],

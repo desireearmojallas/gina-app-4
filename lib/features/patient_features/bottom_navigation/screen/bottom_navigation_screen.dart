@@ -22,6 +22,7 @@ class BottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const int userIconIndex = 4;
     return Scaffold(
         extendBody: true,
         bottomNavigationBar:
@@ -29,7 +30,9 @@ class BottomNavigation extends StatelessWidget {
           builder: (context, state) {
             return CrystalNavigationBar(
               currentIndex: state.currentIndex,
-              unselectedItemColor: GinaAppTheme.lightOutline,
+              unselectedItemColor: state.currentIndex == userIconIndex
+                  ? Colors.white
+                  : GinaAppTheme.lightOutline,
               onTap: (index) {
                 context
                     .read<BottomNavigationBloc>()
