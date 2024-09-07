@@ -23,12 +23,13 @@ class EditProfileTextField extends StatelessWidget {
       controller: textController,
       decoration: InputDecoration(
         contentPadding: EdgeInsets.zero,
-        labelText: readOnly ? "$labelText (Can't be edited)" : labelText,
+        labelText: labelText,
         labelStyle: ginaTheme.textTheme.bodyLarge?.copyWith(
           color: GinaAppTheme.lightOutline,
         ),
         floatingLabelBehavior: FloatingLabelBehavior.always,
         floatingLabelAlignment: FloatingLabelAlignment.start,
+        enabled: readOnly ? false : true,
         enabledBorder: const UnderlineInputBorder(
           borderSide: BorderSide(
             color: GinaAppTheme.lightOutline,
@@ -38,6 +39,12 @@ class EditProfileTextField extends StatelessWidget {
         focusedBorder: const UnderlineInputBorder(
           borderSide: BorderSide(
             color: GinaAppTheme.lightPrimaryContainer,
+            width: 1,
+          ),
+        ),
+        disabledBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: GinaAppTheme.searchBarColor,
             width: 1,
           ),
         ),

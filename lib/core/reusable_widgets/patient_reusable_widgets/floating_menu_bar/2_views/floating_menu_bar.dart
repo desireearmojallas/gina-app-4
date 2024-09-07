@@ -8,7 +8,9 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/1_controllers/patient_auth_controller.dart';
 
 class FloatingMenuWidget extends StatelessWidget {
-  const FloatingMenuWidget({super.key});
+  bool?
+      hasNotification; //TODO: TO CHANGE THIS, ADD LOGIC TO NOTIFICATION INDICATOR FOR AVATAR MENU BUTTON
+  FloatingMenuWidget({super.key, this.hasNotification});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,7 @@ class FloatingMenuWidget extends StatelessWidget {
         shape: MaterialStatePropertyAll<CircleBorder>(
           CircleBorder(
             side: BorderSide(
-              color: GinaAppTheme.appbarColorLight,
+              color: Colors.transparent,
             ),
           ),
         ),
@@ -47,9 +49,10 @@ class FloatingMenuWidget extends StatelessWidget {
         MenuItemButton(
           child: Row(
             children: [
-              Image.asset(
-                Images.profileIcon,
-                width: 35,
+              CircleAvatar(
+                radius: 20,
+                foregroundImage: AssetImage(Images.patientProfileIcon),
+                backgroundColor: GinaAppTheme.lightPrimaryColor,
               ),
               const Gap(10),
               BlocBuilder<FloatingMenuBloc, FloatingMenuState>(
@@ -75,10 +78,15 @@ class FloatingMenuWidget extends StatelessWidget {
         MenuItemButton(
           child: Row(
             children: [
-              const Icon(
-                Icons.emergency,
-                size: 30,
-                color: GinaAppTheme.lightOnPrimaryColor,
+              Stack(
+                children: [
+                  const Icon(
+                    Icons.emergency,
+                    size: 30,
+                    color: GinaAppTheme.lightOnPrimaryColor,
+                  ),
+                  if (hasNotification == true) notificationCircle(),
+                ],
               ),
               const Gap(10),
               Text(
@@ -145,7 +153,35 @@ class FloatingMenuWidget extends StatelessWidget {
           },
         ),
       ],
-      child: Image.asset(Images.profileIcon, width: 40),
+      child: Stack(
+        children: [
+          CircleAvatar(
+            radius: 20,
+            foregroundImage: AssetImage(Images.patientProfileIcon),
+            backgroundColor: GinaAppTheme.lightPrimaryColor,
+          ),
+          if (hasNotification == true) notificationCircle(),
+        ],
+      ),
+    );
+  }
+
+  Widget notificationCircle() {
+    return Positioned(
+      right: 0,
+      top: 0,
+      child: Container(
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+          color: GinaAppTheme.lightTertiaryContainer,
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Colors.white,
+            width: 1.5,
+          ),
+        ),
+      ),
     );
   }
 }

@@ -35,7 +35,7 @@ class BookAppointmentContainer extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,10 +90,16 @@ class BookAppointmentContainer extends StatelessWidget {
           ),
           Align(
             alignment: Alignment.bottomRight,
-            child: SvgPicture.asset(
+            // child: SvgPicture.asset(
+            //   Images.appointmentImage,
+            //   height: height * 0.085,
+            //   fit: BoxFit.fill,
+            // ),
+            child: Image.asset(
               Images.appointmentImage,
-              height: height * 0.085,
-              fit: BoxFit.fill,
+              height: height * 0.165,
+              // height: 110,
+              fit: BoxFit.fitHeight,
             ),
           ),
           const Gap(5),
