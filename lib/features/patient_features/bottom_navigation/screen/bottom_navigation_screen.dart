@@ -32,7 +32,7 @@ class BottomNavigation extends StatelessWidget {
               currentIndex: state.currentIndex,
               unselectedItemColor: state.currentIndex == userIconIndex
                   ? Colors.white
-                  : GinaAppTheme.lightOutline,
+                  : GinaAppTheme.lightOutline.withOpacity(0.5),
               onTap: (index) {
                 context
                     .read<BottomNavigationBloc>()

@@ -5,6 +5,7 @@ import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/bloc/profile_bloc.dart';
+import 'package:gina_app_4/features/patient_features/profile/2_views/widgets/waves_widget.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
 
@@ -303,29 +304,8 @@ class ProfileScreenLoaded extends StatelessWidget {
                   ),
                 ),
                 const Gap(10),
-                Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      return ClipRRect(
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(8),
-                          bottomRight: Radius.circular(8),
-                        ),
-                        child: WaveWidget(
-                          config: CustomConfig(
-                            colors: gradientColors.map((color) {
-                              return color.withOpacity(0.5);
-                            }).toList(),
-                            durations: [20000, 18000, 16000],
-                            heightPercentages: [0.20, 0.30, 0.40],
-                          ),
-                          backgroundColor: Colors.transparent,
-                          size: Size(constraints.maxWidth, 190),
-                          waveAmplitude: 10,
-                        ),
-                      );
-                    },
-                  ),
+                WavesWidget(
+                  gradientColors: gradientColors,
                 ),
               ],
             ),
