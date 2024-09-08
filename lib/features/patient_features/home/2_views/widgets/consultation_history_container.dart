@@ -24,8 +24,8 @@ class ConsultationHistoryContainer extends StatelessWidget {
           ),
         ],
       ),
-      // height: height * 0.265,
-      height: height * 0.295,
+      // height: height * 0.295,
+      height: height / 2.55,
       width: width / 1.05,
       child: Column(
         children: [

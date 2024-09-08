@@ -1,6 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:icons_plus/icons_plus.dart';
 
 class ForumScreenLoaded extends StatelessWidget {
   const ForumScreenLoaded({super.key});
@@ -13,6 +16,7 @@ class ForumScreenLoaded extends StatelessWidget {
 
     return Scaffold(
       body: ListView.builder(
+        physics: const BouncingScrollPhysics(),
         itemCount: 10,
         itemBuilder: (context, index) {
           return Padding(
@@ -24,14 +28,15 @@ class ForumScreenLoaded extends StatelessWidget {
                 color: Colors.white,
               ),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+                padding: const EdgeInsets.symmetric(
+                    vertical: 15.0, horizontal: 15.0),
                 child: Column(
                   children: [
                     Row(
                       children: [
-                        const CircleAvatar(
+                        CircleAvatar(
                           radius: 20,
+                          foregroundImage: AssetImage(Images.patientProfileIcon),
                         ),
                         const Gap(10),
                         Column(
@@ -69,12 +74,37 @@ class ForumScreenLoaded extends StatelessWidget {
                         "I'm so anxious about my first period. I've heard so many horror stories from other girls about how painful and embarrassing it can be. I'm worried about leaking blood, getting cramps, and smelling bad. I'm also worried about what other people will think of me now that I'm a woman.",
                         style: ginaTheme.textTheme.labelMedium,
                         overflow: TextOverflow.ellipsis,
-                        maxLines: 2,
+                        maxLines: 3,
                       ),
                     ),
-                    const Row(
+                    const Gap(25),
+                    Row(
                       children: [
-                        Icon(Icons.comment),
+                        const Icon(
+                          Bootstrap.heart_fill,
+                          size: 18,
+                          color: GinaAppTheme.lightTertiaryContainer,
+                        ),
+                        const Gap(5),
+                        Text(
+                          '18',
+                          style: ginaTheme.textTheme.bodySmall?.copyWith(
+                            color: GinaAppTheme.lightOnPrimaryColor,
+                          ),
+                        ),
+                        const Gap(20),
+                        const Icon(
+                          Bootstrap.chat_left_text,
+                          size: 18,
+                          color: GinaAppTheme.lightOnPrimaryColor,
+                        ),
+                        const Gap(5),
+                        Text(
+                          '5 replies',
+                          style: ginaTheme.textTheme.bodySmall?.copyWith(
+                            color: GinaAppTheme.lightOnPrimaryColor,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -83,6 +113,15 @@ class ForumScreenLoaded extends StatelessWidget {
             ),
           );
         },
+      ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 78),
+        child: FloatingActionButton(
+          onPressed: () {},
+          child: const Icon(
+            CupertinoIcons.add,
+          ),
+        ),
       ),
     );
   }

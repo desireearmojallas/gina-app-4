@@ -30,6 +30,7 @@ class GinaPatientAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       child: AppBar(
         leading: leading,
+        scrolledUnderElevation: 0,
         title: Text(
           title,
           style: ginaTheme.textTheme.headlineMedium?.copyWith(
@@ -37,9 +38,9 @@ class GinaPatientAppBar extends StatelessWidget implements PreferredSizeWidget {
             fontWeight: FontWeight.w700,
           ),
         ),
-        actions: const [
+        actions:  [
           FloatingMenuWidget(),
-          Gap(10),
+          const Gap(10),
         ],
         notificationPredicate: (notification) => false,
       ),

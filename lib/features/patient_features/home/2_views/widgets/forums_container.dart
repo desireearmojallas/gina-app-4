@@ -17,7 +17,15 @@ class ForumsContainer extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           // color: GinaAppTheme.lightPrimaryColor,
-          color: GinaAppTheme.lightTertiaryContainer,
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              GinaAppTheme.lightTertiaryContainer.withOpacity(0.5),
+              GinaAppTheme.lightTertiaryContainer,
+            ],
+          ),
+          // color: GinaAppTheme.lightTertiaryContainer,
           // gradient: const LinearGradient(
           //   colors: [
           //     GinaAppTheme.lightTertiaryContainer,
@@ -39,11 +47,18 @@ class ForumsContainer extends StatelessWidget {
         height: height * 0.173,
         width: width / 2.99,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          // mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            SvgPicture.asset(
-              Images.forumImage,
-              height: height * 0.10,
+            // SvgPicture.asset(
+            //   Images.forumImage,
+            //   height: height * 0.10,
+            // ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 25, 17, 25),
+              child: Image.asset(
+                Images.forumImage,
+                // height: height * 0.10,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 12.0),

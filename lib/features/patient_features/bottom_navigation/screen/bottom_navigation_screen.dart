@@ -1,7 +1,9 @@
+import 'package:crystal_navigation_bar/crystal_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
+import 'package:icons_plus/icons_plus.dart';
 
 class BottomNavigationProvider extends StatelessWidget {
   const BottomNavigationProvider({super.key});
@@ -20,101 +22,53 @@ class BottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(bottomNavigationBar:
-        BlocBuilder<BottomNavigationBloc, BottomNavigationState>(
-      builder: (context, state) {
-        return Container(
-          decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 3,
-                blurRadius: 5,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: NavigationBar(
-            selectedIndex: state.currentIndex,
-            onDestinationSelected: (index) {
-              context
-                  .read<BottomNavigationBloc>()
-                  .add(TabChangedEvent(tab: index));
-            },
-            destinations: const [
-              NavigationDestination(
-                icon: Icon(
-                  Icons.home_rounded,
-                  color: GinaAppTheme.lightOutline,
-                  size: 26.0,
+    const int userIconIndex = 4;
+    return Scaffold(
+        extendBody: true,
+        bottomNavigationBar:
+            BlocBuilder<BottomNavigationBloc, BottomNavigationState>(
+          builder: (context, state) {
+            return CrystalNavigationBar(
+              currentIndex: state.currentIndex,
+              unselectedItemColor: state.currentIndex == userIconIndex
+                  ? Colors.white
+                  : GinaAppTheme.lightOutline.withOpacity(0.5),
+              onTap: (index) {
+                context
+                    .read<BottomNavigationBloc>()
+                    .add(TabChangedEvent(tab: index));
+              },
+              backgroundColor: Colors.white.withOpacity(0.1),
+              outlineBorderColor: Colors.white.withOpacity(0.1),
+              items: [
+                CrystalNavigationBarItem(
+                  icon: MingCute.home_4_fill,
+                  selectedColor: GinaAppTheme.lightTertiaryContainer,
                 ),
-                selectedIcon: Icon(
-                  Icons.home_rounded,
-                  color: GinaAppTheme.lightTertiaryContainer,
-                  size: 32.0,
+                CrystalNavigationBarItem(
+                  icon: MingCute.search_2_fill,
+                  selectedColor: GinaAppTheme.lightTertiaryContainer,
                 ),
-                label: 'Home',
-              ),
-              NavigationDestination(
-                icon: Icon(
-                  Icons.search,
-                  color: GinaAppTheme.lightOutline,
-                  size: 28.0,
+                CrystalNavigationBarItem(
+                  icon: MingCute.message_3_fill,
+                  selectedColor: GinaAppTheme.lightTertiaryContainer,
                 ),
-                selectedIcon: Icon(
-                  Icons.search,
-                  color: GinaAppTheme.lightTertiaryContainer,
-                  size: 34.0,
+                CrystalNavigationBarItem(
+                  icon: MingCute.comment_2_fill,
+                  selectedColor: GinaAppTheme.lightTertiaryContainer,
                 ),
-                label: 'Find',
-              ),
-              NavigationDestination(
-                icon: Icon(
-                  Icons.chat,
-                  color: GinaAppTheme.lightOutline,
-                  size: 26.0,
+                CrystalNavigationBarItem(
+                  icon: MingCute.user_3_fill,
+                  selectedColor: GinaAppTheme.lightTertiaryContainer,
                 ),
-                selectedIcon: Icon(
-                  Icons.chat,
-                  color: GinaAppTheme.lightTertiaryContainer,
-                  size: 32.0,
-                ),
-                label: 'Appointments',
-              ),
-              NavigationDestination(
-                icon: Icon(
-                  Icons.forum_outlined,
-                  color: GinaAppTheme.lightOutline,
-                  size: 26.0,
-                ),
-                selectedIcon: Icon(
-                  Icons.forum_outlined,
-                  color: GinaAppTheme.lightTertiaryContainer,
-                  size: 32.0,
-                ),
-                label: 'Forums',
-              ),
-              NavigationDestination(
-                icon: Icon(
-                  Icons.person,
-                  color: GinaAppTheme.lightOutline,
-                  size: 26.0,
-                ),
-                selectedIcon: Icon(
-                  Icons.person,
-                  color: GinaAppTheme.lightTertiaryContainer,
-                  size: 32.0,
-                ),
-                label: 'Profile',
-              ),
-            ],
-          ),
-        );
-      },
-    ), body: BlocBuilder<BottomNavigationBloc, BottomNavigationState>(
-      builder: (context, state) {
-        return state.selectedScreen;
-      },
-    ));
+              ],
+            );
+          },
+        ),
+        body: BlocBuilder<BottomNavigationBloc, BottomNavigationState>(
+          builder: (context, state) {
+            return state.selectedScreen;
+          },
+        ));
   }
 }

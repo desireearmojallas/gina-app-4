@@ -30,9 +30,9 @@ class FindScreen extends StatelessWidget {
             fontWeight: FontWeight.w700,
           ),
         ),
-        actions: const [
+        actions:  [
           FloatingMenuWidget(),
-          Gap(10),
+          const Gap(10),
         ],
         surfaceTintColor: Colors.white,
         elevation: 4,

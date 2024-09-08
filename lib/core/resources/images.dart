@@ -10,12 +10,13 @@ class Images {
       "assets/images/patient_features/doctor_office_address/location_address.png";
 
   // AppBar
-  static String profileIcon = "assets/images/avatar_placeholder.png";
+  static String patientProfileIcon = "assets/images/patient_avatar.jpg";
+  static String doctorProfileIcon = "assets/images/doctor_avatar.jpg";
 
   // Home Screen
   static String appointmentImage =
-      "assets/images/patient_features/home/book_appointment.svg";
-  static String forumImage = "assets/images/patient_features/home/forums.svg";
+      "assets/images/patient_features/home/book_appointment.png";
+  static String forumImage = "assets/images/patient_features/home/forums.png";
 
   // Profile Menu Bar
   static String emergencyNotificationIcon =
@@ -25,6 +26,8 @@ class Images {
       "assets/images/patient_features/profile/logout_icon.svg";
 
   // Profile Screen
-  static String patientCycleHistory = "assets/images/patient_features/profile/cycle_history.png";
-  static String patientForumPost = "assets/images/patient_features/profile/forum_post.png";
+  static String patientCycleHistory =
+      "assets/images/patient_features/profile/cycle_history.png";
+  static String patientForumPost =
+      "assets/images/patient_features/profile/forum_post.png";
 }

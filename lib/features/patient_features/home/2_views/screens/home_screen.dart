@@ -31,9 +31,11 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const GinaHeader(size: 45),
-        actions: const [
-          FloatingMenuWidget(),
-          Gap(10),
+        actions: [
+          FloatingMenuWidget(
+            hasNotification: true,
+          ),
+          const Gap(10),
         ],
         surfaceTintColor: Colors.white,
         elevation: 4,

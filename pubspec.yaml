@@ -42,6 +42,9 @@ dependencies:
   flutter_launcher_icons: ^0.13.1
   loading_indicator: ^3.1.1
   splash_view: ^2.0.1
+  icons_plus: ^5.0.0
+  crystal_navigation_bar: ^1.0.0
+  wave: ^0.2.2
 
 dev_dependencies:
   flutter_test:
