@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_consultation_history_container.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/upcoming_appointments_container.dart';
 
 class AppointmentScreenLoaded extends StatelessWidget {
@@ -21,6 +22,7 @@ class AppointmentScreenLoaded extends StatelessWidget {
               const Gap(30),
               _title(context, 'Consultation history'),
               const Gap(17),
+              const AppointmentConsultationHistoryContainer(),
             ],
           ),
         ),

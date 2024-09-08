@@ -11,5 +11,13 @@ enum DoctorVerificationStatus {
   declined, // 2
 }
 
+enum AppointmentStatus {
+  pending, // 0
+  confirmed, // 1
+  completed, // 2
+  cancelled, // 3
+  declined, // 4
+}
+
 
 // TODO:  add other ENUM

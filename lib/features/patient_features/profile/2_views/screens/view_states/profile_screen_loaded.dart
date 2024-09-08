@@ -39,12 +39,7 @@ class ProfileScreenLoaded extends StatelessWidget {
                 Radius.circular(8),
               ),
               boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.05),
-                  spreadRadius: 1,
-                  blurRadius: 5,
-                  offset: const Offset(0, 2),
-                ),
+                GinaAppTheme.defaultBoxShadow,
               ],
             ),
             child: Column(
