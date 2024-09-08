@@ -234,6 +234,17 @@ class GinaAppTheme {
   );
   // ------------------------------------------------------------------------------
 
+  // BoxShadow
+
+  static final BoxShadow defaultBoxShadow = BoxShadow(
+    color: Colors.grey.withOpacity(0.05),
+    spreadRadius: 1,
+    blurRadius: 5,
+    offset: const Offset(0, 2),
+  );
+
+  // ------------------------------------------------------------------------------
+
   // *****************
   // Theme light
   // *****************

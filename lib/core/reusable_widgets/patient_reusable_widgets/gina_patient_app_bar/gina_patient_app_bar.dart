@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/floating_menu_bar/2_views/floating_menu_bar.dart';
+import 'package:gina_app_4/core/theme/theme_service.dart';
 
 class GinaPatientAppBar extends StatelessWidget implements PreferredSizeWidget {
   GinaPatientAppBar({
@@ -20,12 +21,7 @@ class GinaPatientAppBar extends StatelessWidget implements PreferredSizeWidget {
     return Container(
       decoration: BoxDecoration(
         boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
+          GinaAppTheme.defaultBoxShadow,
         ],
       ),
       child: AppBar(
@@ -38,7 +34,7 @@ class GinaPatientAppBar extends StatelessWidget implements PreferredSizeWidget {
             fontWeight: FontWeight.w700,
           ),
         ),
-        actions:  [
+        actions: [
           FloatingMenuWidget(),
           const Gap(10),
         ],
