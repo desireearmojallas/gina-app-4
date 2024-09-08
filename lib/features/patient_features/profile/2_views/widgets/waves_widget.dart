@@ -11,23 +11,32 @@ class WavesWidget extends StatelessWidget {
     return Expanded(
       child: LayoutBuilder(
         builder: (context, constraints) {
-          return ClipRRect(
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(8),
-              bottomRight: Radius.circular(8),
-            ),
-            child: WaveWidget(
-              config: CustomConfig(
-                colors: gradientColors.map((color) {
-                  return color.withOpacity(1);
-                }).toList(),
-                durations: [20000, 18000, 16000],
-                heightPercentages: [0.20, 0.30, 0.40],
-              ),
-              backgroundColor: Colors.transparent,
-              size: Size(constraints.maxWidth, 190),
-              waveAmplitude: 10,
-            ),
+          return FutureBuilder(
+            future: Future.delayed(Duration.zero),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                return ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(8),
+                    bottomRight: Radius.circular(8),
+                  ),
+                  child: WaveWidget(
+                    config: CustomConfig(
+                      colors: gradientColors.map((color) {
+                        return color.withOpacity(1);
+                      }).toList(),
+                      durations: [20000, 18000, 16000],
+                      heightPercentages: [0.20, 0.30, 0.40],
+                    ),
+                    backgroundColor: Colors.transparent,
+                    size: Size(constraints.maxWidth, 190),
+                    waveAmplitude: 10,
+                  ),
+                );
+              } else {
+                return Container();
+              }
+            },
           );
         },
       ),
