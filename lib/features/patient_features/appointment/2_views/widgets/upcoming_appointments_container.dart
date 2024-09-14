@@ -83,7 +83,7 @@ class UpcomingAppointmentsContainer extends StatelessWidget {
                 ],
               ),
               const Spacer(),
-              const AppointmentStatusContainer(
+              AppointmentStatusContainer(
                 appointmentStatus: 1,
               ),
             ],

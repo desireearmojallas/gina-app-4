@@ -9,9 +9,11 @@ class Images {
   static String officeAddressLogo =
       "assets/images/patient_features/doctor_office_address/location_address.png";
 
-  // AppBar
+  // Profile Photos
   static String patientProfileIcon = "assets/images/patient_avatar.jpg";
-  static String doctorProfileIcon = "assets/images/doctor_avatar.jpg";
+  static String doctorProfileIcon1 = "assets/images/doctor_avatar.jpg";
+  static String doctorProfileIcon2 = "assets/images/doctor_avatar_2.jpg";
+  static String doctorProfileIcon3 = "assets/images/doctor_avatar_2.png";
 
   // Home Screen
   static String appointmentImage =

@@ -3,9 +3,11 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 
 class AppointmentStatusContainer extends StatelessWidget {
   final int appointmentStatus;
-  const AppointmentStatusContainer({
+  Color? colorOverride;
+  AppointmentStatusContainer({
     super.key,
     required this.appointmentStatus,
+    this.colorOverride,
   });
 
   @override
@@ -37,14 +39,16 @@ class AppointmentStatusContainer extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: statusColor,
+        color: colorOverride ?? statusColor,
         borderRadius: BorderRadius.circular(9),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 1),
       child: Text(
         statusText,
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: colorOverride == null
+              ? Colors.white
+              : GinaAppTheme.lightTertiaryContainer,
           fontSize: 10,
           fontWeight: FontWeight.w600,
         ),

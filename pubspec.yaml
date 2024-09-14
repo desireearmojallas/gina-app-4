@@ -47,6 +47,7 @@ dependencies:
   wave: ^0.2.2
   shrink_sidemenu: ^2.0.0+2-null-safety
   badges: ^3.1.2
+  swipeable_card_stack: ^0.0.5
 
 dev_dependencies:
   flutter_test:
