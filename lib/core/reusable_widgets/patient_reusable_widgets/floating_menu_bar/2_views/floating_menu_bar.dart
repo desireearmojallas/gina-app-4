@@ -164,6 +164,8 @@ class FloatingMenuWidget extends StatelessWidget {
       //     if (hasNotification == true) notificationCircle(),
       //   ],
       // ),
+
+      // TODO: BADGE LOGIC FOR FLOATING MENU BAR
       child: badges.Badge(
         badgeContent: const Text(
           '3',
