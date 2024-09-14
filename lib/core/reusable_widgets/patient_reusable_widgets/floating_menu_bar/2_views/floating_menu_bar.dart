@@ -6,6 +6,7 @@ import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/floati
 import 'package:gina_app_4/core/storage/shared_preferences/shared_preferences_manager.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/1_controllers/patient_auth_controller.dart';
+import 'package:badges/badges.dart' as badges;
 
 class FloatingMenuWidget extends StatelessWidget {
   bool?
@@ -153,15 +154,29 @@ class FloatingMenuWidget extends StatelessWidget {
           },
         ),
       ],
-      child: Stack(
-        children: [
-          CircleAvatar(
-            radius: 20,
-            foregroundImage: AssetImage(Images.patientProfileIcon),
-            backgroundColor: GinaAppTheme.lightPrimaryColor,
-          ),
-          if (hasNotification == true) notificationCircle(),
-        ],
+      // child: Stack(
+      //   children: [
+      //     CircleAvatar(
+      //       radius: 20,
+      //       foregroundImage: AssetImage(Images.patientProfileIcon),
+      //       backgroundColor: GinaAppTheme.lightPrimaryColor,
+      //     ),
+      //     if (hasNotification == true) notificationCircle(),
+      //   ],
+      // ),
+      child: badges.Badge(
+        badgeContent: const Text(
+          '3',
+          style: TextStyle(color: Colors.white),
+        ),
+        badgeStyle: const badges.BadgeStyle(
+          badgeColor: GinaAppTheme.lightTertiaryContainer,
+        ),
+        position: badges.BadgePosition.topEnd(top: -8, end: -7),
+        child: CircleAvatar(
+          foregroundImage: AssetImage(Images.patientProfileIcon),
+          backgroundColor: GinaAppTheme.lightPrimaryColor,
+        ),
       ),
     );
   }
