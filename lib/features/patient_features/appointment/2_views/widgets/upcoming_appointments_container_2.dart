@@ -5,14 +5,14 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
 import 'package:icons_plus/icons_plus.dart';
 
-class UpcomingAppointmentsContainer2 extends StatelessWidget {
+class UpcomingAppointmentsContainer extends StatelessWidget {
   final String doctorName;
   final String specialty;
   final String date;
   final String time;
   final String appointmentType;
   final int appointmentStatus;
-  const UpcomingAppointmentsContainer2({
+  const UpcomingAppointmentsContainer({
     super.key,
     required this.doctorName,
     required this.specialty,
@@ -32,15 +32,15 @@ class UpcomingAppointmentsContainer2 extends StatelessWidget {
         debugPrint('test');
       },
       child: Container(
-        width: width / 1.05,
-        height: height * 0.16,
+        // width: width / 1.05,
+        // height: height * 0.16,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomCenter,
             colors: [
-              GinaAppTheme.lightTertiaryContainer.withOpacity(0.5),
+              Color(0xffeea0b6),
               GinaAppTheme.lightTertiaryContainer,
             ],
           ),
@@ -50,11 +50,12 @@ class UpcomingAppointmentsContainer2 extends StatelessWidget {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              // mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Gap(height * 0.029),
                 Row(
                   children: [
                     CircleAvatar(
@@ -70,11 +71,15 @@ class UpcomingAppointmentsContainer2 extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Text(
-                              doctorName,
-                              style: ginaTheme.textTheme.bodyLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                            SizedBox(
+                              width: width * 0.35,
+                              child: Text(
+                                'Dr. $doctorName',
+                                style: ginaTheme.textTheme.bodyLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             const Gap(8),
@@ -85,23 +90,28 @@ class UpcomingAppointmentsContainer2 extends StatelessWidget {
                             ),
                           ],
                         ),
-                        Text(
-                          specialty,
-                          style: ginaTheme.textTheme.bodyMedium?.copyWith(
-                            color: Colors.white.withOpacity(0.7),
-                            fontSize: 11,
+                        SizedBox(
+                          width: width * 0.35,
+                          child: Text(
+                            specialty,
+                            style: ginaTheme.textTheme.bodyMedium?.copyWith(
+                              color: Colors.white.withOpacity(0.7),
+                              fontSize: 11,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
                     ),
-                    const Gap(50),
+                    // Gap(width * 0.18),
+                    const Gap(35),
                     AppointmentStatusContainer(
                       appointmentStatus: appointmentStatus,
                       colorOverride: Colors.white,
                     ),
                   ],
                 ),
-                const Gap(25),
+                const Gap(30),
                 Container(
                   width: width * 0.8,
                   height: height * 0.03,

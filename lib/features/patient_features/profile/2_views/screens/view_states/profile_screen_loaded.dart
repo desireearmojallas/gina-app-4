@@ -97,14 +97,14 @@ class ProfileScreenLoaded extends StatelessWidget {
                         Text(
                           patientData.email,
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             color: Colors.grey,
                           ),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                         ),
 
-                        Gap(height * 0.03),
+                        Gap(height * 0.025),
 
                         // Edit profile button
                         SizedBox(

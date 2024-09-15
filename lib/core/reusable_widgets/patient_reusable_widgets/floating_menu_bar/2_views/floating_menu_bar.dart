@@ -190,13 +190,9 @@ class FloatingMenuWidget extends StatelessWidget {
       child: Container(
         width: 10,
         height: 10,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: GinaAppTheme.lightTertiaryContainer,
           shape: BoxShape.circle,
-          border: Border.all(
-            color: Colors.white,
-            width: 1.5,
-          ),
         ),
       ),
     );
