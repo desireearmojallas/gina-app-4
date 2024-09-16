@@ -45,7 +45,7 @@ class SwiperBuilderWidget extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     return SizedBox(
-      height: height * 0.3,
+      height: height * 0.2,
       child: Swiper(
         physics: const BouncingScrollPhysics(),
         itemWidth: width * 0.9,
@@ -82,7 +82,8 @@ class SwiperBuilderWidget extends StatelessWidget {
             size: 8,
             activeSize: 9,
             color: Colors.grey[300],
-            activeColor: const Color.fromARGB(255, 252, 178, 191),
+            // activeColor: const Color.fromARGB(255, 252, 178, 191),
+            activeColor: Colors.white,
           ),
         ),
       ),

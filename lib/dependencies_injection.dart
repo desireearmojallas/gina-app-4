@@ -76,5 +76,4 @@ Future<void> init() async {
   );
 
   //! Features - Patient Appointment
-
 }

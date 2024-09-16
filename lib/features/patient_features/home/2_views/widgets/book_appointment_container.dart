@@ -61,6 +61,8 @@ class BookAppointmentContainer extends StatelessWidget {
                     onPressed: () {
                       // TODO: ONPRESS BOOK APPT CONTAINER
                       // homeBloc.add();
+                      //TODO: TO CHANGE?
+                      Navigator.pushNamed(context, '/bookAppointment');
                     },
                     child: Row(
                       children: [

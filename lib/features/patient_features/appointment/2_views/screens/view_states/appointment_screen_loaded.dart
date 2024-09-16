@@ -20,10 +20,8 @@ class AppointmentScreenLoaded extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _title(context, 'Upcoming appointments'),
-
-              const SwiperBuilderWidget(),
               const Gap(17),
-          
+              const SwiperBuilderWidget(),
               const Gap(30),
               _title(context, 'Consultation history'),
               const Gap(17),
