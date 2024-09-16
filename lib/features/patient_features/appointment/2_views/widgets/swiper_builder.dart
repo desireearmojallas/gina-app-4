@@ -50,7 +50,7 @@ class SwiperBuilderWidget extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         itemWidth: width * 0.9,
         itemHeight: height * 0.2,
-        loop: true,
+        // loop: true,
         // autoplay: true,
         curve: Curves.fastEaseInToSlowEaseOut,
         duration: 100,

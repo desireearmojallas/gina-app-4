@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 class ThemeService extends ChangeNotifier {
@@ -56,6 +58,26 @@ class GinaAppTheme {
   static const Color searchBarColor = Color(0xffF1F1F1);
   static const Color verifiedColor = Color(0xff29A5FF);
 // ------------------------------------------------------------------------------
+
+  // *****************
+  // Backdrop Filter Blur
+  static final BackdropFilter blurFilter = BackdropFilter(
+    filter: ImageFilter.blur(sigmaX: 100.0, sigmaY: 100.0),
+    child: Container(
+      decoration: const BoxDecoration(color: Colors.transparent),
+    ),
+  );
+
+  // ------------------------------------------------------------------------------
+
+  // *****************
+  // Gradient Colors
+  static final List<Color> gradientColors = [
+    GinaAppTheme.lightTertiaryContainer,
+    GinaAppTheme.lightSecondary,
+    GinaAppTheme.lightPrimaryColor,
+  ];
+  // ------------------------------------------------------------------------------
 
   // *****************
   // Text Style - light
