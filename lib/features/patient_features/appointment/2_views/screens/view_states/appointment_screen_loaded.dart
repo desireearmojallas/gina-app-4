@@ -20,17 +20,10 @@ class AppointmentScreenLoaded extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _title(context, 'Upcoming appointments'),
-              const Gap(17),
+
               const SwiperBuilderWidget(),
               const Gap(17),
-              // const UpcomingAppointmentsContainer2(
-              //   doctorName: 'Dr. Maria Santos',
-              //   specialty: 'Obstetrician & Gynecologist',
-              //   date: 'Sep 15, 2024',
-              //   time: '9:30 AM',
-              //   appointmentType: 'Online',
-              //   appointmentStatus: 1,
-              // ),
+          
               const Gap(30),
               _title(context, 'Consultation history'),
               const Gap(17),

@@ -36,39 +36,54 @@ class SwiperBuilderWidget extends StatelessWidget {
       ),
     ];
 
+    List<List<Color>> gradientBGColors = [
+      [const Color(0xffeea0b6), GinaAppTheme.lightTertiaryContainer],
+      [const Color(0xffd3c5f7), const Color(0xffa491d3)],
+      [const Color(0xffffdab5), const Color(0xfff08b60)],
+    ];
+
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
-    return Container(
-      height: height * 0.2,
+    return SizedBox(
+      height: height * 0.3,
       child: Swiper(
         physics: const BouncingScrollPhysics(),
-        itemWidth: width * 0.9, // Adjusted for better overlap
+        itemWidth: width * 0.9,
         itemHeight: height * 0.2,
         loop: true,
-        autoplay: true,
-        autoplayDelay: 3000,
-        autoplayDisableOnInteraction: true,
+        // autoplay: true,
         curve: Curves.fastEaseInToSlowEaseOut,
-        duration: 1800,
+        duration: 100,
         scrollDirection: Axis.horizontal,
         axisDirection: AxisDirection.left,
         itemBuilder: (context, index) {
-          return hardCodedAppointments[index];
+          final colors = gradientBGColors[index % gradientBGColors.length];
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: colors,
+              ),
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                GinaAppTheme.defaultBoxShadow,
+              ],
+            ),
+            child: hardCodedAppointments[index],
+          );
         },
         itemCount: hardCodedAppointments.length,
         layout: SwiperLayout.STACK,
 
-        pagination: const SwiperPagination(
+        pagination: SwiperPagination(
           alignment: Alignment.bottomCenter,
           builder: DotSwiperPaginationBuilder(
             size: 8,
             activeSize: 9,
-            color: GinaAppTheme.lightPrimaryColor,
-            activeColor: GinaAppTheme.lightOnTertiaryContainer,
+            color: Colors.grey[300],
+            activeColor: const Color.fromARGB(255, 252, 178, 191),
           ),
-
-          // viewportFraction: 0.8,
-          // scale: 0.85,
         ),
       ),
     );

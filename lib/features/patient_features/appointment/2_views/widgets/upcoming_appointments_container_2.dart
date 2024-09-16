@@ -32,18 +32,8 @@ class UpcomingAppointmentsContainer extends StatelessWidget {
         debugPrint('test');
       },
       child: Container(
-        // width: width / 1.05,
-        // height: height * 0.16,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xffeea0b6),
-              GinaAppTheme.lightTertiaryContainer,
-            ],
-          ),
           boxShadow: [
             GinaAppTheme.defaultBoxShadow,
           ],
@@ -52,7 +42,6 @@ class UpcomingAppointmentsContainer extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Column(
-              // mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Gap(height * 0.029),
@@ -103,7 +92,6 @@ class UpcomingAppointmentsContainer extends StatelessWidget {
                         ),
                       ],
                     ),
-                    // Gap(width * 0.18),
                     const Gap(35),
                     AppointmentStatusContainer(
                       appointmentStatus: appointmentStatus,
