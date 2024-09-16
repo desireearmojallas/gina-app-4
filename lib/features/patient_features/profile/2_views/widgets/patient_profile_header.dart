@@ -29,8 +29,10 @@ class PatientProfileHeader extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFFffffff).withOpacity(0.1),
-            const Color(0xFFFFFFFF).withOpacity(0.05),
+            // const Color(0xFFffffff),
+            // const Color(0xFFFFFFFF).withOpacity(0.05),
+            const Color(0xFFffffff).withOpacity(0.2),
+            const Color(0xFFFFFFFF).withOpacity(0.08),
           ],
           stops: const [
             0.1,
@@ -95,9 +97,9 @@ class PatientProfileHeader extends StatelessWidget {
           ),
           Text(
             patientData.email,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: Colors.white,
+              color: Colors.grey[200],
             ),
             overflow: TextOverflow.ellipsis,
             maxLines: 1,

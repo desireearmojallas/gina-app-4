@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/bloc/profile_bloc.dart';
+import 'package:glassmorphism/glassmorphism.dart';
 
 class PatientProfileDetails extends StatelessWidget {
   final UserModel patientData;
@@ -14,14 +15,33 @@ class PatientProfileDetails extends StatelessWidget {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
-    return Container(
+    return GlassmorphicContainer(
       width: width * 0.94,
       height: height * 0.2,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(
-          Radius.circular(8),
-        ),
+      borderRadius: 20,
+      blur: 20,
+      alignment: Alignment.bottomCenter,
+      border: 2,
+      linearGradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            // const Color(0xFFffffff).withOpacity(0.1),
+            // const Color(0xFFFFFFFF).withOpacity(0.05),
+            const Color(0xFFffffff).withOpacity(0.2),
+            const Color(0xFFFFFFFF).withOpacity(0.08),
+          ],
+          stops: const [
+            0.1,
+            1,
+          ]),
+      borderGradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          const Color(0xFFffffff).withOpacity(0.5),
+          const Color((0xFFFFFFFF)).withOpacity(0.5),
+        ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -61,6 +81,7 @@ class PatientProfileDetails extends StatelessWidget {
           const Divider(
             thickness: 0.2,
             height: 2,
+            color: Colors.white,
           ),
           Gap(height * 0.02),
           Padding(
@@ -95,10 +116,10 @@ class PatientProfileDetails extends StatelessWidget {
   Widget textHeadlineSmall(String text) {
     return Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w500,
-        color: GinaAppTheme.lightOutline,
+        color: Colors.grey[200],
       ),
     );
   }
@@ -109,7 +130,7 @@ class PatientProfileDetails extends StatelessWidget {
       style: const TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w600,
-        color: GinaAppTheme.lightInverseSurface,
+        color: Colors.white,
       ),
       overflow: TextOverflow.ellipsis,
     );

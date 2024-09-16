@@ -5,6 +5,9 @@ class Images {
   static String appLogo = "assets/images/gina_logo.svg";
   static String splashPic = "assets/images/splash_pic.png";
 
+  // Background Pics
+
+
   // Doctor Office Address Screen
   static String officeAddressLogo =
       "assets/images/patient_features/doctor_office_address/location_address.png";

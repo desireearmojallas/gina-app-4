@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/features/patient_features/profile/2_views/widgets/waves_widget.dart';
 
 class GradientBackground extends StatelessWidget {
   const GradientBackground({super.key});
@@ -9,6 +8,7 @@ class GradientBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       body: Column(
         children: [
