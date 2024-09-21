@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
+import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/gina_header.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/login_button.dart';
@@ -131,7 +132,9 @@ class _LoginScreenLoadedState extends State<LoginScreenLoaded> {
         width: 100,
         height: height,
         decoration: ShapeDecoration(
-          color: isSelected ? const Color(0xFFFFC0CB) : const Color(0xFFF3F3F3),
+          color: isSelected
+              ? GinaAppTheme.lightTertiaryContainer
+              : const Color(0xFFF3F3F3),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(23),
           ),
@@ -141,7 +144,7 @@ class _LoginScreenLoadedState extends State<LoginScreenLoaded> {
             label,
             style: TextStyle(
               color: isSelected
-                  ? const Color(0xFF36344E)
+                  ? GinaAppTheme.lightOnTertiaryContainer
                   : const Color(0XFF9493A0),
               fontSize: 12,
               fontFamily: 'SF UI Display',

@@ -218,8 +218,9 @@ class _SignupPageState extends State<SignupPage> {
         width: 100,
         height: height,
         decoration: ShapeDecoration(
-            color:
-                isSelected ? const Color(0xFFFFC0CB) : const Color(0xFFF3F3F3),
+            color: isSelected
+                ? GinaAppTheme.lightTertiaryContainer
+                : const Color(0xFFF3F3F3),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(23),
             )),
@@ -228,7 +229,7 @@ class _SignupPageState extends State<SignupPage> {
             label,
             style: TextStyle(
               color: isSelected
-                  ? const Color(0xFF36344E)
+                  ? GinaAppTheme.lightOnTertiaryContainer
                   : const Color(0xFF9493A0),
               fontSize: 12,
               fontFamily: 'SF UI Display',
@@ -273,7 +274,7 @@ class _SignupPageState extends State<SignupPage> {
         ));
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: GinaAppTheme.lightPrimaryColor,
+        backgroundColor: GinaAppTheme.lightTertiaryContainer,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
@@ -290,7 +291,7 @@ class _SignupPageState extends State<SignupPage> {
                       height: 20,
                       width: 20,
                       child: CircularProgressIndicator(
-                        color: GinaAppTheme.lightOnSecondary,
+                        color: GinaAppTheme.lightOnTertiaryContainer,
                       ),
                     )
                   : const Text(
@@ -298,7 +299,7 @@ class _SignupPageState extends State<SignupPage> {
                       style: TextStyle(
                         fontSize: 16,
                         fontFamily: 'SF UI Display',
-                        color: GinaAppTheme.lightOnSecondary,
+                        color: GinaAppTheme.lightOnTertiaryContainer,
                         fontWeight: FontWeight.w700,
                         height: 0,
                       ),
@@ -338,7 +339,7 @@ class _SignupPageState extends State<SignupPage> {
         }
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: GinaAppTheme.lightPrimaryColor,
+        backgroundColor: GinaAppTheme.lightTertiaryContainer,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
@@ -351,7 +352,7 @@ class _SignupPageState extends State<SignupPage> {
             'Next',
             style: TextStyle(
               fontSize: 16,
-              color: GinaAppTheme.lightOnSecondary,
+              color: GinaAppTheme.lightOnTertiaryContainer,
               fontFamily: 'SF UI Display',
               fontWeight: FontWeight.w700,
               height: 0,

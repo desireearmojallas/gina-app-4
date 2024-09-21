@@ -31,7 +31,7 @@ class DoctorsNearMe extends StatelessWidget {
               child: CircleAvatar(
                 radius: 30,
                 backgroundImage: AssetImage(
-                  Images.doctorProfileIcon1,
+                  Images.doctorProfileIcon2,
                 ),
                 backgroundColor: Colors.white,
               ),

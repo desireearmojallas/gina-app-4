@@ -96,7 +96,7 @@ class _DoctorRegistrationStepOneState extends State<DoctorRegistrationStepOne> {
       height: 12,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: isActive ? GinaAppTheme.lightPrimaryColor : Colors.grey,
+        color: isActive ? GinaAppTheme.lightTertiaryContainer : Colors.grey,
       ),
     );
   }
@@ -190,7 +190,7 @@ class _DoctorRegistrationStepOneState extends State<DoctorRegistrationStepOne> {
         // TODO: sign up logic here
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: GinaAppTheme.lightPrimaryColor,
+        backgroundColor: GinaAppTheme.lightTertiaryContainer,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
