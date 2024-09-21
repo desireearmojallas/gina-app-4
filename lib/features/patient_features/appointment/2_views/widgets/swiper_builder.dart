@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper_view/flutter_swiper_view.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/upcoming_appointments_container_2.dart';
+import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/upcoming_appointments_container.dart';
 
 class SwiperBuilderWidget extends StatelessWidget {
   const SwiperBuilderWidget({super.key});
