@@ -22,7 +22,6 @@ class BottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: () async {
         final currentIndex =
@@ -41,7 +40,9 @@ class BottomNavigation extends StatelessWidget {
           builder: (context, state) {
             return CrystalNavigationBar(
               currentIndex: state.currentIndex,
-              unselectedItemColor: GinaAppTheme.lightOutline.withOpacity(0.5),
+              unselectedItemColor: state.currentIndex == 4
+                  ? Colors.white
+                  : GinaAppTheme.lightOutline.withOpacity(0.5),
               onTap: (index) {
                 context
                     .read<BottomNavigationBloc>()
