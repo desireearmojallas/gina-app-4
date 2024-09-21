@@ -20,7 +20,6 @@ class ConsultationHistoryContainer extends StatelessWidget {
           GinaAppTheme.defaultBoxShadow,
         ],
       ),
-      // height: height * 0.295,
       height: height / 2.55,
       width: width / 1.05,
       child: Column(

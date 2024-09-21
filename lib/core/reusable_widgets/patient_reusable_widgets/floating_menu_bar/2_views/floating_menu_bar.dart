@@ -7,6 +7,7 @@ import 'package:gina_app_4/core/storage/shared_preferences/shared_preferences_ma
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/1_controllers/patient_auth_controller.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:icons_plus/icons_plus.dart';
 
 class FloatingMenuWidget extends StatelessWidget {
   bool?
@@ -82,8 +83,37 @@ class FloatingMenuWidget extends StatelessWidget {
               Stack(
                 children: [
                   const Icon(
+                    MingCute.notification_fill,
+                    size: 20,
+                    color: GinaAppTheme.lightOnPrimaryColor,
+                  ),
+                  if (hasNotification == true) notificationCircle(),
+                ],
+              ),
+              const Gap(10),
+              Text(
+                'Notifications',
+                style: textStyle,
+              ),
+            ],
+          ),
+          onPressed: () {
+            // TODO: EMERGENCY ANNOUNCEMENTS ROUTE
+            // Navigator.pushNamed(context, '/emergencyAnnouncements');
+          },
+        ),
+        const Divider(
+          thickness: 0.2,
+          height: 3,
+        ),
+        MenuItemButton(
+          child: Row(
+            children: [
+              Stack(
+                children: [
+                  const Icon(
                     Icons.emergency,
-                    size: 30,
+                    size: 22,
                     color: GinaAppTheme.lightOnPrimaryColor,
                   ),
                   if (hasNotification == true) notificationCircle(),
@@ -108,12 +138,13 @@ class FloatingMenuWidget extends StatelessWidget {
         MenuItemButton(
           child: Row(
             children: [
+              const Gap(2),
               const Icon(
-                Icons.info_outline_rounded,
-                size: 32,
+                Bootstrap.info_circle_fill,
+                size: 20,
                 color: GinaAppTheme.lightOnPrimaryColor,
               ),
-              const Gap(10),
+              const Gap(8),
               Text(
                 'About Us',
                 style: textStyle,
@@ -132,12 +163,13 @@ class FloatingMenuWidget extends StatelessWidget {
         MenuItemButton(
           child: Row(
             children: [
+              const Gap(2),
               const Icon(
-                Icons.logout_outlined,
-                size: 32,
+                MingCute.exit_fill,
+                size: 20,
                 color: GinaAppTheme.lightOnPrimaryColor,
               ),
-              const Gap(10),
+              const Gap(8),
               Text(
                 'Logout',
                 style: textStyle,
@@ -154,16 +186,6 @@ class FloatingMenuWidget extends StatelessWidget {
           },
         ),
       ],
-      // child: Stack(
-      //   children: [
-      //     CircleAvatar(
-      //       radius: 20,
-      //       foregroundImage: AssetImage(Images.patientProfileIcon),
-      //       backgroundColor: GinaAppTheme.lightPrimaryColor,
-      //     ),
-      //     if (hasNotification == true) notificationCircle(),
-      //   ],
-      // ),
 
       // TODO: BADGE LOGIC FOR FLOATING MENU BAR
       child: badges.Badge(
@@ -188,8 +210,8 @@ class FloatingMenuWidget extends StatelessWidget {
       right: 0,
       top: 0,
       child: Container(
-        width: 10,
-        height: 10,
+        width: 8,
+        height: 8,
         decoration: const BoxDecoration(
           color: GinaAppTheme.lightTertiaryContainer,
           shape: BoxShape.circle,

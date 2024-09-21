@@ -12,7 +12,7 @@ class FindDoctorsSearchBar extends StatelessWidget {
     return Center(
       child: SizedBox(
         height: 50,
-        width: width * 0.9,
+        width: width / 1.05,
         //TODO: KUWANG PA NI
         child: SearchBar(
           shape: MaterialStatePropertyAll<RoundedRectangleBorder>(

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:icons_plus/icons_plus.dart';
 
 class DoctorsNearMe extends StatelessWidget {
   const DoctorsNearMe({super.key});
@@ -24,20 +26,87 @@ class DoctorsNearMe extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(),
-            const Gap(10),
-            const Column(
-              children: [
-                Row(
-                  children: [
-                    Text('Dr. Maria Santos'),
-                    Gap(8),
-                    Icon(Icons.check_circle_outline),
-                  ],
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: CircleAvatar(
+                radius: 30,
+                backgroundImage: AssetImage(
+                  Images.doctorProfileIcon1,
                 ),
-                Text('General Practitioner'),
-                Text('123 Main Street, Suite 201, Lapu-lapu City, Philippines'),
-              ],
+                backgroundColor: Colors.white,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Dr. Maria Santos',
+                        style: ginaTheme.textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const Gap(8),
+                      const Icon(
+                        Bootstrap.patch_check_fill,
+                        color: Colors.blue,
+                        size: 12,
+                      ),
+                    ],
+                  ),
+                  const Gap(5),
+                  Container(
+                    height: 19,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: const Color(0xffF2F2F2),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Center(
+                        child: Text(
+                          'General Practitioner'.toUpperCase(),
+                          style: const TextStyle(
+                            color: GinaAppTheme.lightInverseSurface,
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Gap(8),
+                  Row(
+                    children: [
+                      // Icon(
+                      //   MingCute.map_pin_fill,
+                      //   size: 12,
+                      //   color: GinaAppTheme.lightTertiaryContainer,
+                      // ),
+                      Image.asset(
+                        Images.officeAddressLogo,
+                        width: 10,
+                      ),
+                      const Gap(5),
+                      const Text(
+                        '123 Main Street, Suite 201, Lapu-lapu City, Philippines',
+                        style: TextStyle(
+                          color: GinaAppTheme.lightInverseSurface,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
