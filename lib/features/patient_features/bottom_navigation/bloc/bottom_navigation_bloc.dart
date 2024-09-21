@@ -13,38 +13,57 @@ part 'bottom_navigation_state.dart';
 class BottomNavigationBloc
     extends Bloc<BottomNavigationEvent, BottomNavigationState> {
   BottomNavigationBloc()
-      : super(const BottomNavigationInitial(
-            currentIndex: 0, selectedScreen: HomeScreenProvider())) {
-    on<BottomNavigationEvent>((event, emit) {
-      if (event is TabChangedEvent) {
-        switch (event.tab) {
-          case 0:
-            emit(BottomNavigationInitial(
-                currentIndex: event.tab,
-                selectedScreen: const HomeScreenProvider()));
-            break;
-          case 1:
-            emit(BottomNavigationInitial(
-                currentIndex: event.tab,
-                selectedScreen: const FindScreenProvider()));
-            break;
-          case 2:
-            emit(BottomNavigationInitial(
-                currentIndex: event.tab,
-                selectedScreen: const AppointmentScreenProvider()));
-            break;
-          case 3:
-            emit(BottomNavigationInitial(
-                currentIndex: event.tab,
-                selectedScreen: const ForumScreenProvider()));
-            break;
-          case 4:
-            emit(BottomNavigationInitial(
-                currentIndex: event.tab,
-                selectedScreen: const ProfileScreenProvider()));
-            break;
-        }
+      : super(
+          const BottomNavigationInitial(
+            currentIndex: 0,
+            selectedScreen: HomeScreenProvider(),
+            navigationHistory: [0],
+          ),
+        ) {
+    on<TabChangedEvent>((event, emit) {
+      final newHistory = List<int>.from(state.navigationHistory);
+
+      if (newHistory.last != event.tab) {
+        newHistory.add(event.tab);
+      }
+
+      emit(BottomNavigationInitial(
+        currentIndex: event.tab,
+        selectedScreen: _getScreenForIndex(event.tab),
+        navigationHistory: newHistory,
+      ));
+    });
+
+    on<BackPressedEvent>((event, emit) {
+      final newHistory = List<int>.from(state.navigationHistory);
+
+      if (newHistory.length > 1) {
+        newHistory.removeLast();
+        int previousIndex = newHistory.last;
+
+        emit(BottomNavigationInitial(
+          currentIndex: previousIndex,
+          selectedScreen: _getScreenForIndex(previousIndex),
+          navigationHistory: newHistory,
+        ));
       }
     });
+  }
+
+  Widget _getScreenForIndex(int index) {
+    switch (index) {
+      case 0:
+        return const HomeScreenProvider();
+      case 1:
+        return const FindScreenProvider();
+      case 2:
+        return const AppointmentScreenProvider();
+      case 3:
+        return const ForumScreenProvider();
+      case 4:
+        return const ProfileScreenProvider();
+      default:
+        return const HomeScreenProvider();
+    }
   }
 }

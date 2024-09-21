@@ -15,3 +15,5 @@ class TabChangedEvent extends BottomNavigationEvent {
   @override
   List<Object> get props => [tab];
 }
+
+class BackPressedEvent extends BottomNavigationEvent {}
