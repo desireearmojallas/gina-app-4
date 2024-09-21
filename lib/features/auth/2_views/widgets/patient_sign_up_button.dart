@@ -53,7 +53,7 @@ class SignUpButton extends StatelessWidget {
             }
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: GinaAppTheme.lightPrimaryColor,
+            backgroundColor: GinaAppTheme.lightTertiaryContainer,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
@@ -67,13 +67,13 @@ class SignUpButton extends StatelessWidget {
                       height: 20,
                       width: 20,
                       child: CircularProgressIndicator(
-                        color: GinaAppTheme.lightOnBackground,
+                        color: GinaAppTheme.lightOnTertiaryContainer,
                       ),
                     )
                   : const Text(
                       'Sign Up',
                       style: TextStyle(
-                        color: GinaAppTheme.lightInverseSurface,
+                        color: GinaAppTheme.lightOnTertiaryContainer,
                         fontSize: 16,
                         fontFamily: 'SF UI Display',
                         fontWeight: FontWeight.w700,

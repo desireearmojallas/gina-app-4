@@ -39,7 +39,7 @@ SizedBox loginButton({
         // TODO: FOCUS SCOPE
         FocusScope.of(context).unfocus();
       },
-      backgroundColor: const Color(0xFFFFC0CB),
+      backgroundColor: GinaAppTheme.lightTertiaryContainer,
       isLoading: authBloc.state is AuthLoginLoadingState,
     ),
   );
@@ -60,6 +60,7 @@ SizedBox signUpButton(BuildContext context) {
       },
       backgroundColor: const Color(0xFFF3F3F3),
       isLoading: false,
+      isSignUpButton: true,
     ),
   );
 }
@@ -69,6 +70,7 @@ Widget buildButton({
   required void Function() onPressed,
   required Color backgroundColor,
   required bool isLoading,
+  bool isSignUpButton = false,
 }) {
   return BlocBuilder<AuthBloc, AuthState>(
     builder: (context, state) {
@@ -87,13 +89,15 @@ Widget buildButton({
                   height: 20,
                   width: 20,
                   child: CircularProgressIndicator(
-                    color: GinaAppTheme.lightOnBackground,
+                    color: GinaAppTheme.lightOnTertiaryContainer,
                   ),
                 )
               : Text(
                   label,
-                  style: const TextStyle(
-                    color: GinaAppTheme.lightOnBackground,
+                  style: TextStyle(
+                    color: isSignUpButton
+                        ? GinaAppTheme.lightOnBackground
+                        : GinaAppTheme.lightOnTertiaryContainer,
                     fontSize: 16,
                     fontFamily: 'SF UI Display',
                     fontWeight: FontWeight.w700,

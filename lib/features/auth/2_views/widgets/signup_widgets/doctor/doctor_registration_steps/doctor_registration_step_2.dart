@@ -28,54 +28,64 @@ class DoctorRegistrationStepTwo extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Step 2',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'SF UI Display',
-            ),
-          ),
-          const Gap(10),
-          styledFormField(
-            context,
-            'Medical Specialty (ob-gyne)',
-            medicalSpecialtyController,
-            false,
-          ),
-          const Gap(10),
-          styledFormField(
-            context,
-            'License Number',
-            medicalLicenseNumberController,
-            false,
-          ),
-          const Gap(15),
-          const Text(
-            'Board Certication',
-            style: TextStyle(
-              fontFamily: 'SF UI Display',
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const Gap(10),
-          styledFormField(
-            context,
-            'Name of the board certification organization',
-            boardCertificationOrganizationController,
-            false,
-          ),
-          const Gap(10),
-          styledFormField(
-            context,
-            'Date of board certification',
-            boardCertificationDateController,
-            false,
-            icon: Icons.calendar_today,
-            onTap: () => authBloc.selectDate(
-              context,
-              boardCertificationDateController,
+          buildPageIndicator(),
+          Align(
+            alignment: Alignment.topCenter,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Step 2',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'SF UI Display',
+                  ),
+                  textAlign: TextAlign.left,
+                ),
+                const Gap(10),
+                styledFormField(
+                  context,
+                  'Medical Specialty (ob-gyne)',
+                  medicalSpecialtyController,
+                  false,
+                ),
+                const Gap(10),
+                styledFormField(
+                  context,
+                  'License Number',
+                  medicalLicenseNumberController,
+                  false,
+                ),
+                const Gap(15),
+                const Text(
+                  'Board Certification',
+                  style: TextStyle(
+                    fontFamily: 'SF UI Display',
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Gap(10),
+                styledFormField(
+                  context,
+                  'Name of the board certification organization',
+                  boardCertificationOrganizationController,
+                  false,
+                ),
+                const Gap(10),
+                styledFormField(
+                  context,
+                  'Date of board certification',
+                  boardCertificationDateController,
+                  false,
+                  icon: Icons.calendar_today,
+                  onTap: () => authBloc.selectDate(
+                    context,
+                    boardCertificationDateController,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -103,7 +113,7 @@ class DoctorRegistrationStepTwo extends StatelessWidget {
       height: 12,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: isActive ? GinaAppTheme.lightPrimaryColor : Colors.grey,
+        color: isActive ? GinaAppTheme.lightTertiaryContainer : Colors.grey,
       ),
     );
   }

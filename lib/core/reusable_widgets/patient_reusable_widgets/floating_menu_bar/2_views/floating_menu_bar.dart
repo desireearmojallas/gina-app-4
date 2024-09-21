@@ -141,7 +141,7 @@ class FloatingMenuWidget extends StatelessWidget {
               const Gap(2),
               const Icon(
                 Bootstrap.info_circle_fill,
-                size: 20,
+                size: 18,
                 color: GinaAppTheme.lightOnPrimaryColor,
               ),
               const Gap(8),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/styled_form_field_widget.dart';
 
@@ -166,7 +167,7 @@ class DoctorRegistrationStepThree extends StatelessWidget {
       height: 12,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: isActive ? const Color(0xFFFFC0CB) : Colors.grey,
+        color: isActive ? GinaAppTheme.lightTertiaryContainer : Colors.grey,
       ),
     );
   }
