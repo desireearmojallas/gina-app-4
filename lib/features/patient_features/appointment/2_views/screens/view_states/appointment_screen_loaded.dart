@@ -3,8 +3,6 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_consultation_history_container.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/swiper_builder.dart';
 
-import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/upcoming_appointments_container_2.dart';
-
 class AppointmentScreenLoaded extends StatelessWidget {
   const AppointmentScreenLoaded({super.key});
 
@@ -12,21 +10,30 @@ class AppointmentScreenLoaded extends StatelessWidget {
   Widget build(BuildContext context) {
     final ginaTheme = Theme.of(context);
     return Scaffold(
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
+      body: RefreshIndicator(
+        onRefresh: () async {},
         child: Padding(
           padding: const EdgeInsets.all(15.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _title(context, 'Upcoming appointments'),
-              const Gap(17),
-              const SwiperBuilderWidget(),
-              const Gap(30),
-              _title(context, 'Consultation history'),
-              const Gap(17),
-              const AppointmentConsultationHistoryContainer(),
-            ],
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _title(context, 'Upcoming appointments'),
+                const Gap(17),
+                const SwiperBuilderWidget(),
+                const Gap(30),
+                _title(context, 'Consultation history'),
+                const Gap(17),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: 10,
+                  itemBuilder: (context, index) {
+                    return const AppointmentConsultationHistoryContainer();
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

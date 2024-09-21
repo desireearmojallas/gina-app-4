@@ -15,80 +15,85 @@ class AppointmentConsultationHistoryContainer extends StatelessWidget {
       onTap: () {
         debugPrint('test');
       },
-      child: Container(
-        width: width / 1.05,
-        height: height * 0.09,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: Colors.white,
-          boxShadow: [
-            GinaAppTheme.defaultBoxShadow,
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Row(
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+      child: Column(
+        children: [
+          Container(
+            width: width / 1.05,
+            height: height * 0.09,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.white,
+              boxShadow: [
+                GinaAppTheme.defaultBoxShadow,
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: Row(
                 children: [
-                  Text(
-                    'Oct',
-                    style: ginaTheme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 20,
-                    ),
-                  ),
-                  Text(
-                    '20',
-                    style: ginaTheme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 20,
-                    ),
-                  ),
-                ],
-              ),
-              const Gap(35),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Dr. Maria Santos',
-                    style: ginaTheme.textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Row(
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        '10:00 AM',
-                        style: ginaTheme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: GinaAppTheme.lightOutline,
+                        'Oct',
+                        style: ginaTheme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 20,
                         ),
                       ),
-                      const Gap(5),
-                      Text('•', style: ginaTheme.textTheme.titleMedium),
-                      const Gap(5),
                       Text(
-                        'Online',
-                        style: ginaTheme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: GinaAppTheme.lightTertiaryContainer,
+                        '20',
+                        style: ginaTheme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 20,
                         ),
                       ),
                     ],
                   ),
+                  const Gap(35),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Dr. Maria Santos',
+                        style: ginaTheme.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Row(
+                        children: [
+                          Text(
+                            '10:00 AM',
+                            style: ginaTheme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: GinaAppTheme.lightOutline,
+                            ),
+                          ),
+                          const Gap(5),
+                          Text('•', style: ginaTheme.textTheme.titleMedium),
+                          const Gap(5),
+                          Text(
+                            'Online',
+                            style: ginaTheme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: GinaAppTheme.lightTertiaryContainer,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  AppointmentStatusContainer(
+                    appointmentStatus: 2,
+                  ),
                 ],
               ),
-              const Spacer(),
-              AppointmentStatusContainer(
-                appointmentStatus: 2,
-              ),
-            ],
+            ),
           ),
-        ),
+          const Gap(10),
+        ],
       ),
     );
   }
