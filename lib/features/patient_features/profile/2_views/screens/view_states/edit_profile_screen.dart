@@ -6,7 +6,6 @@ import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/bloc/profile_bloc.dart';
-import 'package:gina_app_4/features/patient_features/profile/2_views/screens/profile_screen.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/widgets/edit_text_fields_form.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/widgets/waves_widget.dart';
 
@@ -137,11 +136,7 @@ class EditProfileScreen extends StatelessWidget {
                                   width: width * 0.38,
                                   child: FilledButton(
                                     onPressed: () {
-                                      // TODO : CHANGE THIS, FOR DEBUGGING PURPOSES ONLY
-                                      Navigator.pushReplacementNamed(
-                                        context,
-                                        '/bottomNavigation',
-                                      );
+                                      profileBloc.add(GetProfileEvent());
                                     },
                                     style: ButtonStyle(
                                       shape: MaterialStatePropertyAll(

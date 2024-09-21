@@ -22,15 +22,25 @@ class BottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const int userIconIndex = 4;
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        final currentIndex =
+            context.read<BottomNavigationBloc>().state.currentIndex;
+        if (currentIndex == 0) {
+          return true;
+        } else {
+          context.read<BottomNavigationBloc>().add(BackPressedEvent());
+          return false;
+        }
+      },
+      child: Scaffold(
         extendBody: true,
         bottomNavigationBar:
             BlocBuilder<BottomNavigationBloc, BottomNavigationState>(
           builder: (context, state) {
             return CrystalNavigationBar(
               currentIndex: state.currentIndex,
-              unselectedItemColor: state.currentIndex == userIconIndex
+              unselectedItemColor: state.currentIndex == 4
                   ? Colors.white
                   : GinaAppTheme.lightOutline.withOpacity(0.5),
               onTap: (index) {
@@ -69,6 +79,8 @@ class BottomNavigation extends StatelessWidget {
           builder: (context, state) {
             return state.selectedScreen;
           },
-        ));
+        ),
+      ),
+    );
   }
 }
