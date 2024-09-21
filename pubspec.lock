@@ -478,6 +478,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.9"
+  flutter_swiper_view:
+    dependency: "direct main"
+    description:
+      name: flutter_swiper_view
+      sha256: "2a165b259e8a4c49d4da5626b967ed42a73dac2d075bd9e266ad8d23b9f01879"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.8"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -560,6 +568,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.7.0"
+  glassmorphism:
+    dependency: "direct main"
+    description:
+      name: glassmorphism
+      sha256: c0f65ea2681d4ee6d4125b947946d983335cd44765e835cdc039894b076a6e31
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
   google_maps:
     dependency: transitive
     description:
@@ -1056,14 +1072,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.0"
-  shrink_sidemenu:
-    dependency: "direct main"
-    description:
-      name: shrink_sidemenu
-      sha256: "556436717d004ed4573522dcc8772da50f4b7ed3b3a238c0c0e11bc265a0c95a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0+2-null-safety"
   sky_engine:
     dependency: transitive
     description: flutter

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/patient_features/find/2_views/widgets/doctors_near_me_lists.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/widgets/find_doctors_search_bar.dart';
 import 'package:icons_plus/icons_plus.dart';
 
@@ -36,6 +37,20 @@ class FindScreenLoaded extends StatelessWidget {
               ],
             ),
             const Gap(5),
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: 2,
+              itemBuilder: (BuildContext context, int index) {
+                return const Column(
+                  children: [
+                    DoctorsNearMe(),
+                    Gap(5),
+                  ],
+                );
+              },
+            ),
+            const Gap(25),
+            const Divider(),
           ],
         ),
       ),

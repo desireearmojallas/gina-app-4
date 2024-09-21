@@ -5,13 +5,18 @@ class Images {
   static String appLogo = "assets/images/gina_logo.svg";
   static String splashPic = "assets/images/splash_pic.png";
 
+  // Background Pics
+
+
   // Doctor Office Address Screen
   static String officeAddressLogo =
       "assets/images/patient_features/doctor_office_address/location_address.png";
 
-  // AppBar
+  // Profile Photos
   static String patientProfileIcon = "assets/images/patient_avatar.jpg";
-  static String doctorProfileIcon = "assets/images/doctor_avatar.jpg";
+  static String doctorProfileIcon1 = "assets/images/doctor_avatar.jpg";
+  static String doctorProfileIcon2 = "assets/images/doctor_avatar_2.jpg";
+  static String doctorProfileIcon3 = "assets/images/doctor_avatar_2.png";
 
   // Home Screen
   static String appointmentImage =

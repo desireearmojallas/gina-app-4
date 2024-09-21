@@ -12,7 +12,9 @@ class ForumsContainer extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
     final ginaTheme = Theme.of(context);
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        Navigator.pushNamed(context, '/forums');
+      },
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),

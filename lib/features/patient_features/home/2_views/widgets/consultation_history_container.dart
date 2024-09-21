@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_consultation_history_container.dart';
 
 class ConsultationHistoryContainer extends StatelessWidget {
   const ConsultationHistoryContainer({super.key});
@@ -42,7 +43,7 @@ class ConsultationHistoryContainer extends StatelessWidget {
               GestureDetector(
                 onTap: () {
                   // TODO: APPOINTMENT ROUTE
-                  Navigator.pushNamed(context, '/appointment');
+                  Navigator.pushNamed(context, '/appointments');
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(right: 14.0, top: 12),
@@ -62,14 +63,24 @@ class ConsultationHistoryContainer extends StatelessWidget {
           // const Gap(15),
 
           // temporary
-          const Expanded(
+          /* const Expanded(
             child: Center(
-              // child: Text(
-              //   'No History,\nYour consultation history will appear here.',
-              //   style: TextStyle(color: Color.fromARGB(157, 158, 158, 158)),
-              //   textAlign: TextAlign.center,
-              // ),
-              child: CustomLoadingIndicator(),
+              child: Text(
+                'No History,\nYour consultation history will appear here.',
+                style: TextStyle(color: Color.fromARGB(157, 158, 158, 158)),
+                textAlign: TextAlign.center,
+              ),
+             // child: CustomLoadingIndicator(),
+            ),
+          ), */
+
+          Expanded(
+            child: ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: 3,
+              itemBuilder: (context, index) {
+                return const AppointmentConsultationHistoryContainer();
+              },
             ),
           ),
 

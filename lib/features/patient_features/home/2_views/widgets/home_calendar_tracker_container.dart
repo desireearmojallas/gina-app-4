@@ -34,7 +34,7 @@ class HomeCalendarTrackerContainer extends StatelessWidget {
               monthStyle:
                   ginaTheme.textTheme.headlineSmall?.copyWith(fontSize: 16),
               monthPickerType: MonthPickerType.dropDown,
-              selectedDateFormat: SelectedDateFormat.fullDateMonthAsStrDY,
+              selectedDateFormat: SelectedDateFormat.dayOnly,
               selectedDateStyle:
                   ginaTheme.textTheme.headlineSmall?.copyWith(fontSize: 20),
             ),
@@ -100,7 +100,7 @@ class HomeCalendarTrackerContainer extends StatelessWidget {
               ),
               onPressed: () {
                 // TODO PERIOD TRACKER ROUTE
-                Navigator.pushNamed(context, '/periodTracker');
+                // Navigator.pushNamed(context, '/periodTracker');
               },
             ),
           ),
