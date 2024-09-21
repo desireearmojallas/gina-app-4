@@ -99,8 +99,7 @@ class HomeCalendarTrackerContainer extends StatelessWidget {
                 ),
               ),
               onPressed: () {
-                // TODO PERIOD TRACKER ROUTE
-                // Navigator.pushNamed(context, '/periodTracker');
+                Navigator.pushNamed(context, '/periodTracker');
               },
             ),
           ),
