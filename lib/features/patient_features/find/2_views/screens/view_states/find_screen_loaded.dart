@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/widgets/doctors_in_the_nearest_city_list.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/widgets/doctors_near_me_lists.dart';
@@ -30,17 +31,16 @@ class FindScreenLoaded extends StatelessWidget {
                     Row(
                       children: [
                         const Gap(10),
-                        const Icon(
-                          MingCute.location_fill,
-                          size: 20,
-                          color: GinaAppTheme.lightOnPrimaryColor,
+                        Image.asset(
+                          Images.officeAddressLogo,
+                          width: 20,
                         ),
                         const Gap(10),
                         Text(
                           'Near me',
-                          style: ginaTheme.textTheme.bodyMedium?.copyWith(
+                          style: ginaTheme.textTheme.bodyLarge?.copyWith(
                             color: GinaAppTheme.lightOnPrimaryColor,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
@@ -58,11 +58,29 @@ class FindScreenLoaded extends StatelessWidget {
                     ),
 
                     //--- Cebu City ---
-                    const Gap(15),
+                    const Gap(5),
                     const Divider(
                       color: GinaAppTheme.lightSurfaceVariant,
                     ),
-                    const Gap(10),
+                    const Gap(5),
+                    Row(
+                      children: [
+                        const Gap(10),
+                        Image.asset(
+                          Images.officeAddressLogo,
+                          width: 20,
+                        ),
+                        const Gap(10),
+                        Text(
+                          'Other Cities',
+                          style: ginaTheme.textTheme.bodyLarge?.copyWith(
+                            color: GinaAppTheme.lightOnPrimaryColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Gap(15),
                     Row(
                       children: [
                         const Gap(10),
@@ -91,11 +109,11 @@ class FindScreenLoaded extends StatelessWidget {
                     ),
 
                     //--- Lapu-Lapu City ---
-                    const Gap(15),
+                    const Gap(5),
                     const Divider(
                       color: GinaAppTheme.lightSurfaceVariant,
                     ),
-                    const Gap(10),
+                    const Gap(5),
                     Row(
                       children: [
                         const Gap(10),
