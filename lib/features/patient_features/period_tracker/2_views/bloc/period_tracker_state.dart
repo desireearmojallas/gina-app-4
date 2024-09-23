@@ -1,10 +1,29 @@
 part of 'period_tracker_bloc.dart';
 
-sealed class PeriodTrackerState extends Equatable {
+abstract class PeriodTrackerState extends Equatable {
   const PeriodTrackerState();
-  
+
   @override
   List<Object> get props => [];
 }
 
-final class PeriodTrackerInitial extends PeriodTrackerState {}
+abstract class PeriodTrackerActionState extends PeriodTrackerState {}
+
+class PeriodTrackerInitial extends PeriodTrackerState {}
+
+class PeriodTrackerLoading extends PeriodTrackerState {}
+
+class PeriodTrackerLoaded extends PeriodTrackerState {
+  final List<PeriodTrackerModel> periodDates;
+
+  const PeriodTrackerLoaded(this.periodDates);
+}
+
+class PeriodTrackerError extends PeriodTrackerState {
+  final String message;
+
+  const PeriodTrackerError(this.message);
+}
+
+
+class NavigateToPeriodTrackerEditDatesState extends PeriodTrackerState {}
