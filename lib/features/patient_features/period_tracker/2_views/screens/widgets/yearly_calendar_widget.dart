@@ -1,3 +1,4 @@
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
@@ -61,6 +62,13 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
       DateTime(year, month, 17),
     ];
 
+    // Sample period dates for demonstration
+    List<DateTime> periodDates = [
+      DateTime(year, month, 10),
+      DateTime(year, month, 11),
+      DateTime(year, month, 12),
+    ];
+
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 8.0,
@@ -84,26 +92,24 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
               ),
             ),
             calendarFormat: CalendarFormat.month,
-            calendarStyle: const CalendarStyle(
-                // todayDecoration: BoxDecoration(
-                //   color: GinaAppTheme.lightTertiaryContainer,
-                //   shape: BoxShape.circle,
-                // ),
-                // todayTextStyle: TextStyle(
-                //   color: GinaAppTheme.lightOnTertiary,
-                //   fontWeight: FontWeight.bold,
-                // ),
-                ),
             calendarBuilders: CalendarBuilders(
               todayBuilder: (context, date, _) {
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
-                        Bootstrap.brightness_alt_high_fill,
-                        size: 14,
-                        color: GinaAppTheme.lightTertiaryContainer,
+                      // const Icon(
+                      //   Bootstrap.brightness_alt_high_fill,
+                      //   size: 14,
+                      //   color: GinaAppTheme.lightTertiaryContainer,
+                      // ),
+                      const Text(
+                        'Today',
+                        style: TextStyle(
+                          color: GinaAppTheme.lightTertiaryContainer,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10.0,
+                        ),
                       ),
                       Text(
                         date.day.toString(),
@@ -116,6 +122,67 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
                     ],
                   ),
                 );
+              },
+              defaultBuilder: (context, day, focusedDay) {
+                Color? backgroundColor;
+                bool isAverageBasedPredictionDate = false;
+                bool isPeriodDate = false;
+
+                if (averageBasedPredictionDates.any((date) =>
+                    date.year == day.year &&
+                    date.month == day.month &&
+                    date.day == day.day)) {
+                  isAverageBasedPredictionDate = true;
+                }
+
+                if (day28PredictionDates.any((date) =>
+                    date.year == day.year &&
+                    date.month == day.month &&
+                    date.day == day.day)) {
+                  backgroundColor =
+                      GinaAppTheme.lightPrimaryColor.withOpacity(0.5);
+                }
+
+                if (periodDates.any((date) =>
+                    date.year == day.year &&
+                    date.month == day.month &&
+                    date.day == day.day)) {
+                  backgroundColor = GinaAppTheme.lightTertiaryContainer;
+                  isPeriodDate = true;
+                }
+
+                Widget child = Container(
+                  width: 35.0,
+                  decoration: BoxDecoration(
+                    color: backgroundColor,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    day.day.toString(),
+                    style: TextStyle(
+                      color: isPeriodDate
+                          ? Colors.white
+                          : GinaAppTheme.lightOnPrimaryColor,
+                    ),
+                  ),
+                );
+
+                if (isAverageBasedPredictionDate) {
+                  child = DottedBorder(
+                    borderType: BorderType.Circle,
+                    color: GinaAppTheme.lightTertiaryContainer,
+                    dashPattern: const [4, 2],
+                    child: Container(
+                      width: 30.0,
+                      height: 30.0,
+                      alignment: Alignment.center,
+                      child: child,
+                    ),
+                  );
+                }
+
+                return child;
               },
             ),
           ),

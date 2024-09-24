@@ -27,7 +27,7 @@ Widget periodTrackerLegend(ThemeData ginaTheme) {
       Row(
         children: [
           DottedBorder(
-            color: GinaAppTheme.lightOnPrimaryColor,
+            color: GinaAppTheme.lightTertiaryContainer,
             strokeWidth: 1.5,
             dashPattern: const [2, 2],
             borderType: BorderType.Circle,
@@ -36,7 +36,7 @@ Widget periodTrackerLegend(ThemeData ginaTheme) {
               height: 10,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: GinaAppTheme.lightSurfaceTint,
+                color: Colors.transparent,
               ),
             ),
           ),
@@ -53,9 +53,9 @@ Widget periodTrackerLegend(ThemeData ginaTheme) {
           Container(
             width: 10,
             height: 10,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: GinaAppTheme.lightPrimaryColor,
+              color: GinaAppTheme.lightPrimaryColor.withOpacity(0.5),
             ),
           ),
           const Gap(8),
