@@ -1,13 +1,16 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:icons_plus/icons_plus.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import 'package:gina_app_4/core/theme/theme_service.dart';
+
 class YearlyCalendarWidget extends StatefulWidget {
+  final bool isEditMode;
   const YearlyCalendarWidget({
     super.key,
+    this.isEditMode = false,
   });
 
   @override
@@ -39,7 +42,7 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
     children: [
       const Gap(10),
       Divider(
-        color: Colors.grey[300],
+        color: Colors.grey[300] ?? Colors.grey,
         thickness: 1,
       ),
       const Gap(10),
@@ -94,23 +97,26 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
             calendarFormat: CalendarFormat.month,
             calendarBuilders: CalendarBuilders(
               todayBuilder: (context, date, _) {
-                return Center(
+                bool isPeriodDate = periodDates.any((d) =>
+                    d.year == date.year &&
+                    d.month == date.month &&
+                    d.day == date.day);
+
+                Widget child = Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // const Icon(
-                      //   Bootstrap.brightness_alt_high_fill,
-                      //   size: 14,
-                      //   color: GinaAppTheme.lightTertiaryContainer,
-                      // ),
-                      const Text(
-                        'Today',
-                        style: TextStyle(
-                          color: GinaAppTheme.lightTertiaryContainer,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10.0,
-                        ),
-                      ),
+                      if (widget.isEditMode == false)
+                        const Text(
+                          'Today',
+                          style: TextStyle(
+                            color: GinaAppTheme.lightTertiaryContainer,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10.0,
+                          ),
+                        )
+                      else
+                        const SizedBox.shrink(),
                       Text(
                         date.day.toString(),
                         style: const TextStyle(
@@ -122,6 +128,47 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
                     ],
                   ),
                 );
+
+                if (widget.isEditMode) {
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (isPeriodDate) {
+                          periodDates.removeWhere((d) =>
+                              d.year == date.year &&
+                              d.month == date.month &&
+                              d.day == date.day);
+                        } else {
+                          periodDates.add(date);
+                        }
+                      });
+                    },
+                    child: Column(
+                      children: [
+                        child,
+                        Container(
+                          margin: const EdgeInsets.only(top: 2.0),
+                          width: 20.0,
+                          height: 20.0,
+                          decoration: BoxDecoration(
+                            color: isPeriodDate
+                                ? GinaAppTheme.lightTertiaryContainer
+                                : Colors.transparent,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isPeriodDate
+                                  ? Colors.transparent
+                                  : Colors.grey,
+                              width: 1.0,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return child;
               },
               defaultBuilder: (context, day, focusedDay) {
                 Color? backgroundColor;
@@ -167,6 +214,52 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
                     ),
                   ),
                 );
+
+                if (widget.isEditMode) {
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (isPeriodDate) {
+                          periodDates.removeWhere((date) =>
+                              date.year == day.year &&
+                              date.month == day.month &&
+                              date.day == day.day);
+                        } else {
+                          periodDates.add(day);
+                        }
+                      });
+                    },
+                    child: Column(
+                      children: [
+                        child,
+                        Container(
+                          margin: const EdgeInsets.only(top: 5.0),
+                          width: 20.0,
+                          height: 20.0,
+                          decoration: BoxDecoration(
+                            color: isPeriodDate
+                                ? GinaAppTheme.lightTertiaryContainer
+                                : Colors.transparent,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isPeriodDate
+                                  ? Colors.transparent
+                                  : Colors.grey,
+                              width: 1.0,
+                            ),
+                          ),
+                          child: isPeriodDate
+                              ? const Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 15,
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                      ],
+                    ),
+                  );
+                }
 
                 if (isAverageBasedPredictionDate) {
                   child = DottedBorder(
