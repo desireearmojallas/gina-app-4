@@ -14,7 +14,7 @@ class PeriodTrackerScreenProvider extends StatelessWidget {
     return BlocProvider<PeriodTrackerBloc>(
       create: (context) {
         final periodTrackerBloc = sl<PeriodTrackerBloc>();
-        periodTrackerBloc.add(FetchPeriodData());
+
         return periodTrackerBloc;
       },
       child: const PeriodTrackerScreen(),
@@ -27,7 +27,7 @@ class PeriodTrackerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final periodTrackerBloc = context.read<PeriodTrackerBloc>();
+    context.read<PeriodTrackerBloc>();
     return Scaffold(
         appBar: GinaPatientAppBar(
           title: 'Period Tracker',
