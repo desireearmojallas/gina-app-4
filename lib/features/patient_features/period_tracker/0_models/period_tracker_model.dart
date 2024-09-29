@@ -1,22 +1,53 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: public_member_api_docs, sort_constructors_first, must_be_immutable
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 
 class PeriodTrackerModel extends Equatable {
+  final List<DateTime> periodDates;
+  final List<DateTime> averageBasedPredictionDates;
+  final List<DateTime> day28PredictionDates;
   final DateTime startDate;
   final DateTime endDate;
+  final int periodLength;
+  final bool isLog;
+  int cycleLength;
 
-  const PeriodTrackerModel({
+  PeriodTrackerModel({
+    required this.periodDates,
+    required this.averageBasedPredictionDates,
+    required this.day28PredictionDates,
     required this.startDate,
     required this.endDate,
-  });
+    required this.isLog,
+    this.cycleLength = 0,
+  }) : periodLength = endDate.difference(startDate).inDays + 1;
 
   factory PeriodTrackerModel.fromFirestore(
       DocumentSnapshot<Map<String, dynamic>> snap) {
-    final data = snap.data()!;
+    Map<String, dynamic> data = {};
+    if (snap.data() != null) {
+      data = snap.data() as Map<String, dynamic>;
+    }
     return PeriodTrackerModel(
       startDate: (data['startDate'] as Timestamp).toDate(),
       endDate: (data['endDate'] as Timestamp).toDate(),
+      isLog: data['isLog'],
+      periodDates: data['periodDates'] != null
+          ? (data['periodDates'] as List)
+              .map((date) => (date as Timestamp).toDate())
+              .toList()
+          : [],
+      averageBasedPredictionDates: data['averageBasedPredictionDates'] != null
+          ? (data['averageBasedPredictionDates'] as List)
+              .map((date) => (date as Timestamp).toDate())
+              .toList()
+          : [],
+      day28PredictionDates: data['day28PredictionDates'] != null
+          ? (data['day28PredictionDates'] as List)
+              .map((date) => (date as Timestamp).toDate())
+              .toList()
+          : [],
+      cycleLength: data['cycleLength'],
     );
   }
 
@@ -24,13 +55,32 @@ class PeriodTrackerModel extends Equatable {
     return {
       'startDate': Timestamp.fromDate(startDate),
       'endDate': Timestamp.fromDate(endDate),
+      'isLog': isLog,
+      'cycleLength': cycleLength,
     };
   }
 
   factory PeriodTrackerModel.fromJson(Map<String, dynamic> json) {
     return PeriodTrackerModel(
-      startDate: (json['startDate'] as Timestamp).toDate(),
-      endDate: (json['endDate'] as Timestamp).toDate(),
+      startDate: DateTime.parse(json['startDate']),
+      endDate: DateTime.parse(json['endDate']),
+      isLog: json['isLog'],
+      periodDates: json['periodDates'] != null
+          ? (json['periodDates'] as List)
+              .map((date) => DateTime.parse(date))
+              .toList()
+          : [],
+      averageBasedPredictionDates: json['periodDates'] != null
+          ? (json['averageBasedPredictionDates'] as List)
+              .map((date) => DateTime.parse(date))
+              .toList()
+          : [],
+      day28PredictionDates: json['periodDates'] != null
+          ? (json['day28PredictionDates'] as List)
+              .map((date) => DateTime.parse(date))
+              .toList()
+          : [],
+      cycleLength: json['cycleLength'],
     );
   }
 
@@ -38,9 +88,19 @@ class PeriodTrackerModel extends Equatable {
     return {
       'startDate': Timestamp.fromDate(startDate),
       'endDate': Timestamp.fromDate(endDate),
+      'cycleLength': cycleLength,
     };
   }
 
   @override
-  List<Object?> get props => [startDate, endDate];
+  List<Object?> get props => [
+        periodDates,
+        averageBasedPredictionDates,
+        day28PredictionDates,
+        startDate,
+        endDate,
+        periodLength,
+        isLog,
+        cycleLength,
+      ];
 }

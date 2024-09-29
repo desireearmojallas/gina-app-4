@@ -14,41 +14,8 @@ class PeriodTrackerBloc extends Bloc<PeriodTrackerEvent, PeriodTrackerState> {
   PeriodTrackerBloc({required this.periodTrackerController})
       : super(PeriodTrackerInitialState()) {
     on<PeriodTrackerInitialEvent>(periodTrackerInitial);
-    on<FetchPeriodData>(fetchPeriodData);
-    on<LogPeriod>(logPeriod);
-    on<DeletePeriod>(deletePeriod);
+
     on<NavigateToPeriodTrackerEditDatesEvent>(navigateToPeriodTrackerEditDates);
-  }
-
-  FutureOr<void> fetchPeriodData(
-      FetchPeriodData event, Emitter<PeriodTrackerState> emit) async {
-    emit(PeriodTrackerLoading());
-    try {
-      await periodTrackerController.fetchPeriods();
-      emit(PeriodTrackerLoaded(periodTrackerController.periods));
-    } catch (e) {
-      emit(PeriodTrackerError(e.toString()));
-    }
-  }
-
-  FutureOr<void> logPeriod(
-      LogPeriod event, Emitter<PeriodTrackerState> emit) async {
-    try {
-      await periodTrackerController.logPeriod(event.startDate, event.endDate);
-      add(FetchPeriodData());
-    } catch (e) {
-      emit(PeriodTrackerError(e.toString()));
-    }
-  }
-
-  FutureOr<void> deletePeriod(
-      DeletePeriod event, Emitter<PeriodTrackerState> emit) async {
-    try {
-      await periodTrackerController.deletePeriod(event.id);
-      add(FetchPeriodData());
-    } catch (e) {
-      emit(PeriodTrackerError(e.toString()));
-    }
   }
 
   FutureOr<void> navigateToPeriodTrackerEditDates(

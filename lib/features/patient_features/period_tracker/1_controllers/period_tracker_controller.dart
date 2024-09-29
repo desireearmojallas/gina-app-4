@@ -12,7 +12,6 @@ class PeriodTrackerController with ChangeNotifier {
   User? currentUser;
   FirebaseAuthException? error;
   bool working = false;
-  List<PeriodTrackerModel> _periodDates = [];
 
   PeriodTrackerController() {
     authStream = auth.authStateChanges().listen((User? user) {
@@ -21,71 +20,14 @@ class PeriodTrackerController with ChangeNotifier {
     });
   }
 
-  List<PeriodTrackerModel> get periods => _periodDates;
-
-  Future<void> fetchPeriods() async {
-    if (currentUser == null) return;
-
-    working = true;
-    notifyListeners();
-
+  //------------------Log Menstrual Period------------------
+  Future<void> logMenstrualPeriod({
+    required DateTime startDate,
+    required DateTime endDate,
+    required List<DateTime> periodDates,
+  }) async {
     try {
-      final snapshot = await firestore
-          .collection('patients')
-          .doc(currentUser!.uid)
-          .collection('periods')
-          .get();
-
-      _periodDates = snapshot.docs
-          .map((doc) => PeriodTrackerModel.fromFirestore(doc))
-          .toList();
-    } catch (e) {
-      error = FirebaseAuthException(code: 'unknown', message: e.toString());
-    } finally {
-      working = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> logPeriod(DateTime startDate, DateTime endDate) async {
-    if (currentUser == null) return;
-
-    try {
-      await firestore
-          .collection('patients')
-          .doc(currentUser!.uid)
-          .collection('periods')
-          .add({
-        'startDate': startDate,
-        'endDate': endDate,
-      });
-      await fetchPeriods();
-    } catch (e) {
-      error = FirebaseAuthException(message: e.toString(), code: 'unknown');
-      notifyListeners();
-    }
-  }
-
-  Future<void> deletePeriod(String id) async {
-    if (currentUser == null) return;
-
-    try {
-      await firestore
-          .collection('patients')
-          .doc(currentUser!.uid)
-          .collection('periods')
-          .doc(id)
-          .delete();
-      await fetchPeriods();
-    } catch (e) {
-      error = FirebaseAuthException(message: e.toString(), code: 'unknown');
-      notifyListeners();
-    }
-  }
-
-  @override
-  void dispose() {
-    authStream.cancel();
-    super.dispose();
+      //TODO: Add the code to log the menstrual period
+    } catch (e) {}
   }
 }

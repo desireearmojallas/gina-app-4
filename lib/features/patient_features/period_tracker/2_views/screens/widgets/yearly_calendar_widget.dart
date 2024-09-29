@@ -21,14 +21,12 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
   int selectedYear = DateTime.now().year;
   final ScrollController _scrollController = ScrollController();
 
-  // This will store the user-selected period dates
   List<DateTime> periodDates = [];
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Scroll to the current month
       _scrollToCurrentMonth();
     });
   }
@@ -159,6 +157,13 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
                               width: 1.0,
                             ),
                           ),
+                          child: isPeriodDate
+                              ? const Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 15,
+                                )
+                              : const SizedBox.shrink(),
                         ),
                       ],
                     ),
@@ -191,7 +196,9 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
                     date.year == day.year &&
                     date.month == day.month &&
                     date.day == day.day)) {
-                  backgroundColor = GinaAppTheme.lightTertiaryContainer;
+                  backgroundColor = widget.isEditMode
+                      ? Colors.transparent
+                      : GinaAppTheme.lightTertiaryContainer;
                   isPeriodDate = true;
                 }
 
@@ -204,10 +211,8 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
                   alignment: Alignment.center,
                   child: Text(
                     day.day.toString(),
-                    style: TextStyle(
-                      color: isPeriodDate
-                          ? Colors.white
-                          : GinaAppTheme.lightOnPrimaryColor,
+                    style: const TextStyle(
+                      color: GinaAppTheme.lightOnPrimaryColor,
                     ),
                   ),
                 );
