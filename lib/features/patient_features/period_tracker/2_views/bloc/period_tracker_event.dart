@@ -7,6 +7,8 @@ abstract class PeriodTrackerEvent extends Equatable {
   List<Object> get props => [];
 }
 
+class PeriodTrackerInitialEvent extends PeriodTrackerEvent {}
+
 class FetchPeriodData extends PeriodTrackerEvent {}
 
 class LogPeriod extends PeriodTrackerEvent {

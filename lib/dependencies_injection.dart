@@ -80,12 +80,11 @@ Future<void> init() async {
   //! Features - Patient Appointment
 
   //! Features - Period Tracker
+  sl.registerFactory(() => PeriodTrackerController());
+
   sl.registerFactory(
     () => PeriodTrackerBloc(
-      sl(),
-      periodTrackerController: sl<PeriodTrackerController>(),
+      periodTrackerController: sl(),
     ),
   );
-
-  sl.registerFactory(() => PeriodTrackerController());
 }

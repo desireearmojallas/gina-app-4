@@ -26,10 +26,8 @@ class PeriodTrackerInitialScreen extends StatelessWidget {
                 periodTrackerLegend(ginaTheme),
                 const Gap(10),
                 // --- Calendar List ---
-                SizedBox(
-                  height: height * 0.8,
-                  width: width * 0.9,
-                  child: const YearlyCalendarWidget(),
+                const Expanded(
+                  child: YearlyCalendarWidget(),
                 ),
               ],
             ),
@@ -42,37 +40,32 @@ class PeriodTrackerInitialScreen extends StatelessWidget {
 
   Widget editPeriodDatesButton(
       ThemeData ginaTheme, BuildContext context, Bloc periodTrackerBloc) {
-    return GestureDetector(
-      onTap: () {
-        periodTrackerBloc.add(NavigateToPeriodTrackerEditDatesEvent());
-      },
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 60.0),
-          child: Container(
-            width: 150,
-            height: 40,
-            decoration: BoxDecoration(
-              color: GinaAppTheme.lightTertiaryContainer,
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 30.0),
+        child: ElevatedButton(
+          onPressed: () {
+            periodTrackerBloc.add(NavigateToPeriodTrackerEditDatesEvent());
+          },
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: GinaAppTheme.lightTertiaryContainer,
+            shadowColor: GinaAppTheme.defaultBoxShadow.color,
+            elevation: 5,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                GinaAppTheme.defaultBoxShadow,
-              ],
             ),
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                child: Text(
-                  'Edit Period Dates',
-                  style: ginaTheme.textTheme.labelLarge?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            minimumSize: const Size(150, 40),
+          ),
+          child: Text(
+            'Edit Period Dates',
+            style: ginaTheme.textTheme.labelLarge?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
+            textAlign: TextAlign.center,
           ),
         ),
       ),

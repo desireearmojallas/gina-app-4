@@ -78,6 +78,7 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
       ),
       child: Column(
         children: [
+          const Gap(10),
           TableCalendar(
             firstDay: firstDayOfMonth,
             lastDay: DateTime(year, month + 1, 0),
@@ -330,6 +331,7 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
           ),
           Expanded(
             child: ListView.builder(
+              cacheExtent: 1000,
               controller: _scrollController,
               physics: const BouncingScrollPhysics(),
               itemCount: 12,

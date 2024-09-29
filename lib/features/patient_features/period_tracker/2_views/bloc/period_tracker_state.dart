@@ -9,7 +9,7 @@ abstract class PeriodTrackerState extends Equatable {
 
 abstract class PeriodTrackerActionState extends PeriodTrackerState {}
 
-class PeriodTrackerInitial extends PeriodTrackerState {}
+class PeriodTrackerInitialState extends PeriodTrackerState {}
 
 class PeriodTrackerLoading extends PeriodTrackerState {}
 
