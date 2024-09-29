@@ -21,6 +21,9 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
   int selectedYear = DateTime.now().year;
   final ScrollController _scrollController = ScrollController();
 
+  // This will store the user-selected period dates
+  List<DateTime> periodDates = [];
+
   @override
   void initState() {
     super.initState();
@@ -65,13 +68,6 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
       DateTime(year, month, 17),
     ];
 
-    // Sample period dates for demonstration
-    List<DateTime> periodDates = [
-      DateTime(year, month, 10),
-      DateTime(year, month, 11),
-      DateTime(year, month, 12),
-    ];
-
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 8.0,
@@ -107,7 +103,7 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      if (widget.isEditMode == false)
+                      if (!widget.isEditMode)
                         const Text(
                           'Today',
                           style: TextStyle(
