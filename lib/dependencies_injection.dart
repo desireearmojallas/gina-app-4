@@ -8,6 +8,8 @@ import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/d
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/bloc/home_bloc.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/1_controllers/period_tracker_controller.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/2_views/bloc/period_tracker_bloc.dart';
 import 'package:gina_app_4/features/patient_features/profile/1_controllers/profile_controller.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/bloc/profile_bloc.dart';
 import 'package:gina_app_4/features/splash/bloc/splash_bloc.dart';
@@ -76,4 +78,13 @@ Future<void> init() async {
   );
 
   //! Features - Patient Appointment
+
+  //! Features - Period Tracker
+  sl.registerFactory(() => PeriodTrackerController());
+
+  sl.registerFactory(
+    () => PeriodTrackerBloc(
+      periodTrackerController: sl(),
+    ),
+  );
 }

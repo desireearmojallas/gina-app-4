@@ -13,98 +13,103 @@ class HomeCalendarTrackerContainer extends StatelessWidget {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     final ginaTheme = Theme.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: GinaAppTheme.lightOnTertiary,
-        boxShadow: [
-          GinaAppTheme.defaultBoxShadow,
-        ],
-      ),
-      height: height * 0.28,
-      width: width / 1.05,
-      // TODO: WRAP THE COLUMN WITH BLOC BUILDER
-      child: Column(
-        children: [
-          const Gap(15),
-          EasyDateTimeLine(
-            initialDate: DateTime.now(),
-            // disabledDates: periodTrackerModel,
-            headerProps: EasyHeaderProps(
-              monthStyle:
-                  ginaTheme.textTheme.headlineSmall?.copyWith(fontSize: 16),
-              monthPickerType: MonthPickerType.dropDown,
-              selectedDateFormat: SelectedDateFormat.dayOnly,
-              selectedDateStyle:
-                  ginaTheme.textTheme.headlineSmall?.copyWith(fontSize: 20),
-            ),
-            dayProps: EasyDayProps(
-              height: 100,
-              width: 75,
-              disabledDayStyle: DayStyle(
-                decoration: BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  borderRadius: BorderRadius.circular(10),
-                  color: GinaAppTheme.lightSecondaryContainer.withOpacity(0.2),
-                ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, '/periodTracker');
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: GinaAppTheme.lightOnTertiary,
+          boxShadow: [
+            GinaAppTheme.defaultBoxShadow,
+          ],
+        ),
+        height: height * 0.28,
+        width: width / 1.05,
+        // TODO: WRAP THE COLUMN WITH BLOC BUILDER
+        child: Column(
+          children: [
+            const Gap(15),
+            EasyDateTimeLine(
+              initialDate: DateTime.now(),
+              // disabledDates: periodTrackerModel,
+              headerProps: EasyHeaderProps(
+                monthStyle:
+                    ginaTheme.textTheme.headlineSmall?.copyWith(fontSize: 16),
+                monthPickerType: MonthPickerType.dropDown,
+                selectedDateFormat: SelectedDateFormat.dayOnly,
+                selectedDateStyle:
+                    ginaTheme.textTheme.headlineSmall?.copyWith(fontSize: 20),
               ),
-              inactiveDayNumStyle: ginaTheme.textTheme.headlineSmall
-                  ?.copyWith(color: GinaAppTheme.lightOutline),
-              inactiveDayStrStyle: ginaTheme.textTheme.labelMedium
-                  ?.copyWith(color: GinaAppTheme.lightOutline),
-              todayHighlightStyle: TodayHighlightStyle.withBackground,
-              todayHighlightColor: GinaAppTheme.lightPrimaryContainer,
-              todayStyle: DayStyle(
-                dayNumStyle: ginaTheme.textTheme.headlineSmall
-                    ?.copyWith(color: GinaAppTheme.lightOutline),
-              ),
-              dayStructure: DayStructure.monthDayNumDayStr,
-              inactiveDayStyle: DayStyle(
-                dayNumStyle: ginaTheme.textTheme.headlineSmall
-                    ?.copyWith(color: GinaAppTheme.lightOutline),
-                dayStrStyle: ginaTheme.textTheme.labelMedium
-                    ?.copyWith(color: GinaAppTheme.lightOutline),
-              ),
-              activeDayStyle: DayStyle(
-                dayNumStyle: ginaTheme.textTheme.headlineSmall
-                    ?.copyWith(color: Colors.white),
-                dayStrStyle: ginaTheme.textTheme.labelMedium
-                    ?.copyWith(color: Colors.white),
-                monthStrStyle: ginaTheme.textTheme.labelMedium
-                    ?.copyWith(color: Colors.white),
-              ),
-            ),
-          ),
-          const Gap(25),
-          SizedBox(
-            height: 35,
-            child: FilledButton(
-              style: ButtonStyle(
-                shape: MaterialStateProperty.all(
-                  RoundedRectangleBorder(
+              dayProps: EasyDayProps(
+                height: 100,
+                width: 75,
+                disabledDayStyle: DayStyle(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
                     borderRadius: BorderRadius.circular(10),
+                    color:
+                        GinaAppTheme.lightSecondaryContainer.withOpacity(0.2),
                   ),
                 ),
-                padding: MaterialStateProperty.all(
-                  const EdgeInsets.symmetric(
-                    horizontal: 30,
-                  ),
+                inactiveDayNumStyle: ginaTheme.textTheme.headlineSmall
+                    ?.copyWith(color: GinaAppTheme.lightOutline),
+                inactiveDayStrStyle: ginaTheme.textTheme.labelMedium
+                    ?.copyWith(color: GinaAppTheme.lightOutline),
+                todayHighlightStyle: TodayHighlightStyle.withBackground,
+                todayHighlightColor: GinaAppTheme.lightPrimaryContainer,
+                todayStyle: DayStyle(
+                  dayNumStyle: ginaTheme.textTheme.headlineSmall
+                      ?.copyWith(color: GinaAppTheme.lightOutline),
+                ),
+                dayStructure: DayStructure.monthDayNumDayStr,
+                inactiveDayStyle: DayStyle(
+                  dayNumStyle: ginaTheme.textTheme.headlineSmall
+                      ?.copyWith(color: GinaAppTheme.lightOutline),
+                  dayStrStyle: ginaTheme.textTheme.labelMedium
+                      ?.copyWith(color: GinaAppTheme.lightOutline),
+                ),
+                activeDayStyle: DayStyle(
+                  dayNumStyle: ginaTheme.textTheme.headlineSmall
+                      ?.copyWith(color: Colors.white),
+                  dayStrStyle: ginaTheme.textTheme.labelMedium
+                      ?.copyWith(color: Colors.white),
+                  monthStrStyle: ginaTheme.textTheme.labelMedium
+                      ?.copyWith(color: Colors.white),
                 ),
               ),
-              child: Text(
-                'Log Period',
-                style: ginaTheme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-              onPressed: () {
-                // TODO PERIOD TRACKER ROUTE
-                // Navigator.pushNamed(context, '/periodTracker');
-              },
             ),
-          ),
-        ],
+            const Gap(25),
+            SizedBox(
+              height: 35,
+              child: FilledButton(
+                style: ButtonStyle(
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  padding: MaterialStateProperty.all(
+                    const EdgeInsets.symmetric(
+                      horizontal: 30,
+                    ),
+                  ),
+                ),
+                child: Text(
+                  'Log Period',
+                  style: ginaTheme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/periodTracker');
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

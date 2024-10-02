@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
+import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:icons_plus/icons_plus.dart';
 
@@ -21,108 +22,114 @@ class ForumScreenLoaded extends StatelessWidget {
           const GradientBackground(),
           RefreshIndicator(
             onRefresh: () async {},
-            child: ListView.builder(
-              physics: const BouncingScrollPhysics(),
-              itemCount: 10,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-                  child: Container(
-                    width: width * 0.94,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.white,
-                      boxShadow: [
-                        GinaAppTheme.defaultBoxShadow,
-                      ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 15.0, horizontal: 15.0),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 20,
-                                foregroundImage:
-                                    AssetImage(Images.patientProfileIcon),
-                              ),
-                              const Gap(10),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Chona Mae Taas',
-                                    style: ginaTheme.textTheme.labelLarge?.copyWith(
-                                      fontWeight: FontWeight.w700,
+            child: ScrollbarCustom(
+              child: ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                itemCount: 10,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                    child: Container(
+                      width: width * 0.94,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.white,
+                        boxShadow: [
+                          GinaAppTheme.defaultBoxShadow,
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15.0, horizontal: 15.0),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 20,
+                                  foregroundImage:
+                                      AssetImage(Images.patientProfileIcon),
+                                ),
+                                const Gap(10),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Chona Mae Taas',
+                                      style: ginaTheme.textTheme.labelLarge
+                                          ?.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    'Posted 5 hours ago',
-                                    style: ginaTheme.textTheme.bodySmall?.copyWith(
-                                      color: GinaAppTheme.lightOutline,
+                                    Text(
+                                      'Posted 5 hours ago',
+                                      style: ginaTheme.textTheme.bodySmall
+                                          ?.copyWith(
+                                        color: GinaAppTheme.lightOutline,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const Gap(10),
-                          Text(
-                            'I just had my first period and I\'m really anxious about it. What should I do?',
-                            style: ginaTheme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
+                                  ],
+                                ),
+                              ],
                             ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 3,
-                          ),
-                          const Gap(10),
-                          SizedBox(
-                            width: width * 0.9,
-                            child: Text(
-                              "I'm so anxious about my first period. I've heard so many horror stories from other girls about how painful and embarrassing it can be. I'm worried about leaking blood, getting cramps, and smelling bad. I'm also worried about what other people will think of me now that I'm a woman.",
-                              style: ginaTheme.textTheme.labelMedium,
+                            const Gap(10),
+                            Text(
+                              'I just had my first period and I\'m really anxious about it. What should I do?',
+                              style: ginaTheme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 3,
                             ),
-                          ),
-                          const Gap(25),
-                          Row(
-                            children: [
-                              const Icon(
-                                CupertinoIcons.heart_fill,
-                                size: 20,
-                                color: GinaAppTheme.lightTertiaryContainer,
+                            const Gap(10),
+                            SizedBox(
+                              width: width * 0.9,
+                              child: Text(
+                                "I'm so anxious about my first period. I've heard so many horror stories from other girls about how painful and embarrassing it can be. I'm worried about leaking blood, getting cramps, and smelling bad. I'm also worried about what other people will think of me now that I'm a woman.",
+                                style: ginaTheme.textTheme.labelMedium,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 3,
                               ),
-                              const Gap(5),
-                              Text(
-                                '18',
-                                style: ginaTheme.textTheme.bodySmall?.copyWith(
+                            ),
+                            const Gap(25),
+                            Row(
+                              children: [
+                                const Icon(
+                                  CupertinoIcons.heart_fill,
+                                  size: 20,
+                                  color: GinaAppTheme.lightTertiaryContainer,
+                                ),
+                                const Gap(5),
+                                Text(
+                                  '18',
+                                  style:
+                                      ginaTheme.textTheme.bodySmall?.copyWith(
+                                    color: GinaAppTheme.lightOnPrimaryColor,
+                                  ),
+                                ),
+                                const Gap(20),
+                                const Icon(
+                                  Bootstrap.chat_left_text,
+                                  size: 18,
                                   color: GinaAppTheme.lightOnPrimaryColor,
                                 ),
-                              ),
-                              const Gap(20),
-                              const Icon(
-                                Bootstrap.chat_left_text,
-                                size: 18,
-                                color: GinaAppTheme.lightOnPrimaryColor,
-                              ),
-                              const Gap(5),
-                              Text(
-                                '5 replies',
-                                style: ginaTheme.textTheme.bodySmall?.copyWith(
-                                  color: GinaAppTheme.lightOnPrimaryColor,
+                                const Gap(5),
+                                Text(
+                                  '5 replies',
+                                  style:
+                                      ginaTheme.textTheme.bodySmall?.copyWith(
+                                    color: GinaAppTheme.lightOnPrimaryColor,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
         ],
