@@ -3,14 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 
-Widget periodTrackerLegend(ThemeData ginaTheme) {
+Widget periodTrackerLegend(
+  ThemeData ginaTheme, {
+  bool isEditMode = false,
+}) {
   return Row(
     children: [
       Row(
         children: [
           Container(
-            width: 10,
-            height: 10,
+            width: 14,
+            height: 14,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               color: GinaAppTheme.lightTertiaryContainer,
@@ -51,11 +54,19 @@ Widget periodTrackerLegend(ThemeData ginaTheme) {
       Row(
         children: [
           Container(
-            width: 10,
-            height: 10,
+            width: 15,
+            height: 15,
             decoration: BoxDecoration(
+              border: isEditMode
+                  ? Border.all(
+                      color: GinaAppTheme.lightPrimaryColor,
+                      width: 1.5,
+                    )
+                  : null,
               shape: BoxShape.circle,
-              color: GinaAppTheme.lightPrimaryColor.withOpacity(0.5),
+              color: isEditMode
+                  ? null
+                  : GinaAppTheme.lightPrimaryColor.withOpacity(0.5),
             ),
           ),
           const Gap(8),

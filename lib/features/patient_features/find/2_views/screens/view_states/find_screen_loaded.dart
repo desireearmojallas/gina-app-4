@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
+import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/widgets/doctors_in_the_nearest_city_list.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/widgets/doctors_near_me_lists.dart';
@@ -24,126 +25,128 @@ class FindScreenLoaded extends StatelessWidget {
                 const EdgeInsets.only(top: 70.0), // Adjust this value as needed
             child: RefreshIndicator(
               onRefresh: () async {},
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        const Gap(10),
-                        Image.asset(
-                          Images.officeAddressLogo,
-                          width: 20,
-                        ),
-                        const Gap(10),
-                        Text(
-                          'Near me',
-                          style: ginaTheme.textTheme.bodyLarge?.copyWith(
-                            color: GinaAppTheme.lightOnPrimaryColor,
-                            fontWeight: FontWeight.bold,
+              child: ScrollbarCustom(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          const Gap(10),
+                          Image.asset(
+                            Images.officeAddressLogo,
+                            width: 20,
                           ),
-                        ),
-                      ],
-                    ),
-                    const Gap(10),
-                    Column(
-                      children: List.generate(2, (index) {
-                        return const Column(
-                          children: [
-                            DoctorsNearMe(),
-                            Gap(10),
-                          ],
-                        );
-                      }),
-                    ),
-
-                    //--- Cebu City ---
-                    const Gap(5),
-                    const Divider(
-                      color: GinaAppTheme.lightSurfaceVariant,
-                    ),
-                    const Gap(5),
-                    Row(
-                      children: [
-                        const Gap(10),
-                        Image.asset(
-                          Images.officeAddressLogo,
-                          width: 20,
-                        ),
-                        const Gap(10),
-                        Text(
-                          'Other Cities',
-                          style: ginaTheme.textTheme.bodyLarge?.copyWith(
-                            color: GinaAppTheme.lightOnPrimaryColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Gap(15),
-                    Row(
-                      children: [
-                        const Gap(10),
-                        Align(
-                          alignment: Alignment.topLeft,
-                          child: Text(
-                            'Cebu City',
-                            style: ginaTheme.textTheme.bodyMedium?.copyWith(
+                          const Gap(10),
+                          Text(
+                            'Near me',
+                            style: ginaTheme.textTheme.bodyLarge?.copyWith(
                               color: GinaAppTheme.lightOnPrimaryColor,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const Gap(10),
-                    Column(
-                      children: List.generate(3, (index) {
-                        return const Column(
-                          children: [
-                            DoctorsInTheNearestCity(),
-                            Gap(10),
-                          ],
-                        );
-                      }),
-                    ),
+                        ],
+                      ),
+                      const Gap(10),
+                      Column(
+                        children: List.generate(2, (index) {
+                          return const Column(
+                            children: [
+                              DoctorsNearMe(),
+                              Gap(10),
+                            ],
+                          );
+                        }),
+                      ),
 
-                    //--- Lapu-Lapu City ---
-                    const Gap(5),
-                    const Divider(
-                      color: GinaAppTheme.lightSurfaceVariant,
-                    ),
-                    const Gap(5),
-                    Row(
-                      children: [
-                        const Gap(10),
-                        Align(
-                          alignment: Alignment.topLeft,
-                          child: Text(
-                            'Lapu-Lapu City',
-                            style: ginaTheme.textTheme.bodyMedium?.copyWith(
+                      //--- Cebu City ---
+                      const Gap(5),
+                      const Divider(
+                        color: GinaAppTheme.lightSurfaceVariant,
+                      ),
+                      const Gap(5),
+                      Row(
+                        children: [
+                          const Gap(10),
+                          Image.asset(
+                            Images.officeAddressLogo,
+                            width: 20,
+                          ),
+                          const Gap(10),
+                          Text(
+                            'Other Cities',
+                            style: ginaTheme.textTheme.bodyLarge?.copyWith(
                               color: GinaAppTheme.lightOnPrimaryColor,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const Gap(10),
-                    Column(
-                      children: List.generate(5, (index) {
-                        return const Column(
-                          children: [
-                            DoctorsInTheNearestCity(),
-                            Gap(10),
-                          ],
-                        );
-                      }),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(bottom: bottomPadding),
-                    ),
-                  ],
+                        ],
+                      ),
+                      const Gap(15),
+                      Row(
+                        children: [
+                          const Gap(10),
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                              'Cebu City',
+                              style: ginaTheme.textTheme.bodyMedium?.copyWith(
+                                color: GinaAppTheme.lightOnPrimaryColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Gap(10),
+                      Column(
+                        children: List.generate(3, (index) {
+                          return const Column(
+                            children: [
+                              DoctorsInTheNearestCity(),
+                              Gap(10),
+                            ],
+                          );
+                        }),
+                      ),
+
+                      //--- Lapu-Lapu City ---
+                      const Gap(5),
+                      const Divider(
+                        color: GinaAppTheme.lightSurfaceVariant,
+                      ),
+                      const Gap(5),
+                      Row(
+                        children: [
+                          const Gap(10),
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                              'Lapu-Lapu City',
+                              style: ginaTheme.textTheme.bodyMedium?.copyWith(
+                                color: GinaAppTheme.lightOnPrimaryColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Gap(10),
+                      Column(
+                        children: List.generate(5, (index) {
+                          return const Column(
+                            children: [
+                              DoctorsInTheNearestCity(),
+                              Gap(10),
+                            ],
+                          );
+                        }),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(bottom: bottomPadding),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

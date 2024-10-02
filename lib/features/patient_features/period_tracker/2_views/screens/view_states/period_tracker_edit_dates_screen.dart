@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/2_views/screens/widgets/period_tracker_legend.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/screens/widgets/yearly_calendar_widget.dart';
 
 class PeriodTrackerEditDatesScreen extends StatelessWidget {
@@ -7,19 +9,22 @@ class PeriodTrackerEditDatesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Theme.of(context);
+    final ginaTheme = Theme.of(context);
 
     return Scaffold(
       body: Stack(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(15.0),
+          Padding(
+            padding: const EdgeInsets.all(15.0),
             child: Column(
               children: [
-                // periodTrackerLegend(ginaTheme),
-                // const Gap(10),
+                periodTrackerLegend(
+                  ginaTheme,
+                  isEditMode: true,
+                ),
+                const Gap(10),
                 // --- Calendar List ---
-                Expanded(
+                const Expanded(
                   child: YearlyCalendarWidget(
                     isEditMode: true,
                   ),

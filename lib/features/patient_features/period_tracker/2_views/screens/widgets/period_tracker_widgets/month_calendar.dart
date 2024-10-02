@@ -1,57 +1,43 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
+import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/2_views/screens/widgets/period_tracker_widgets/custom_divider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import 'package:gina_app_4/core/theme/theme_service.dart';
-
-class YearlyCalendarWidget extends StatefulWidget {
+class MonthCalendar extends StatefulWidget {
+  final int year;
+  final int month;
+  final List<DateTime> periodDates;
   final bool isEditMode;
-  const YearlyCalendarWidget({
+
+  const MonthCalendar({
     super.key,
-    this.isEditMode = false,
+    required this.year,
+    required this.month,
+    required this.periodDates,
+    required this.isEditMode, required Null Function(dynamic newDates) onPeriodDatesChanged,
   });
 
   @override
-  State<YearlyCalendarWidget> createState() => _YearlyCalendarWidgetState();
+  _MonthCalendarState createState() => _MonthCalendarState();
 }
 
-class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
-  int selectedYear = DateTime.now().year;
-  final ScrollController _scrollController = ScrollController();
-
-  List<DateTime> periodDates = [];
-
+class _MonthCalendarState extends State<MonthCalendar> {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollToCurrentMonth();
-    });
+  Widget build(BuildContext context) {
+    return buildMonthCalendar(
+      widget.year,
+      widget.month,
+      widget.periodDates,
+      widget.isEditMode,
+    );
   }
 
-  void _scrollToCurrentMonth() {
-    final currentMonth = DateTime.now().month;
-    const itemHeight = 375.0;
-    const monthNameHeight = 10.0;
-    final scrollPosition = (currentMonth - 1) * (itemHeight + monthNameHeight);
-    _scrollController.jumpTo(scrollPosition);
-  }
-
-  final divider = Column(
-    children: [
-      const Gap(10),
-      Divider(
-        color: Colors.grey[300] ?? Colors.grey,
-        thickness: 1,
-      ),
-      const Gap(10),
-    ],
-  );
-
-  Widget buildMonthCalendar(int year, int month) {
+  Widget buildMonthCalendar(
+      int year, int month, List<DateTime> periodDates, bool isEditMode) {
     DateTime firstDayOfMonth = DateTime(year, month, 1);
 
     // Sample predicted dates for demonstration
@@ -103,7 +89,7 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      if (!widget.isEditMode)
+                      if (!isEditMode)
                         const Text(
                           'Today',
                           style: TextStyle(
@@ -126,7 +112,7 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
                   ),
                 );
 
-                if (widget.isEditMode) {
+                if (isEditMode) {
                   return InkWell(
                     onTap: () {
                       setState(() {
@@ -197,7 +183,7 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
                       GinaAppTheme.lightPrimaryColor.withOpacity(0.5);
                 }
 
-                if (periodDates.any((date) =>
+                if (widget.periodDates.any((date) =>
                     date.year == day.year &&
                     date.month == day.month &&
                     date.day == day.day)) {
@@ -327,102 +313,7 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
             ),
           ),
           const Gap(20),
-          if (month != 12) divider,
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 10.0,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: const Icon(
-                    Icons.chevron_left,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      selectedYear--;
-                    });
-                  },
-                ),
-                Text(
-                  '$selectedYear',
-                  style: const TextStyle(
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.bold,
-                    color: GinaAppTheme.lightTertiaryContainer,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.chevron_right,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      selectedYear++;
-                    });
-                  },
-                ),
-              ],
-            ),
-          ),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Text(
-                'Sun',
-                style: TextStyle(
-                  color: GinaAppTheme.lightTertiaryContainer,
-                ),
-              ),
-              Text(
-                'Mon',
-              ),
-              Text(
-                'Tue',
-              ),
-              Text(
-                'Wed',
-              ),
-              Text(
-                'Thu',
-              ),
-              Text(
-                'Fri',
-              ),
-              Text(
-                'Sat',
-                style: TextStyle(
-                  color: GinaAppTheme.lightOutline,
-                ),
-              ),
-            ],
-          ),
-          const Gap(20),
-          Expanded(
-            child: ScrollbarCustom(
-              scrollController: _scrollController,
-              child: ListView.builder(
-                cacheExtent: 1000,
-                controller: _scrollController,
-                physics: const BouncingScrollPhysics(),
-                itemCount: 12,
-                itemBuilder: (context, index) {
-                  return buildMonthCalendar(selectedYear, index + 1);
-                },
-              ),
-            ),
-          ),
+          if (month != 12) const CustomDivider(),
         ],
       ),
     );

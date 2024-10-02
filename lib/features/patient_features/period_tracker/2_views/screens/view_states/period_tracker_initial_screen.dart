@@ -4,7 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/bloc/period_tracker_bloc.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/screens/widgets/period_tracker_legend.dart';
-import 'package:gina_app_4/features/patient_features/period_tracker/2_views/screens/widgets/yearly_calendar_widget.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/2_views/screens/widgets/period_tracker_widgets/yearly_calendar_widget.dart';
 
 class PeriodTrackerInitialScreen extends StatelessWidget {
   const PeriodTrackerInitialScreen({super.key});
