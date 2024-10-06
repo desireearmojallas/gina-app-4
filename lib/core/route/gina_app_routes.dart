@@ -5,6 +5,7 @@ import 'package:gina_app_4/features/patient_features/appointment/2_views/screens
 import 'package:gina_app_4/features/patient_features/bottom_navigation/screen/bottom_navigation_screen.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/screens/find_screen.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/screens/forum_screen.dart';
+import 'package:gina_app_4/features/patient_features/forums/2_views/screens/view_states/create_post_screen_state.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/screens/period_tracker_screen.dart';
 import 'package:gina_app_4/features/splash/screens/splash_screen.dart';
 
@@ -20,6 +21,7 @@ Map<String, WidgetBuilder> ginaAppRoutes() {
     '/doctorAddressMap': (context) => const DoctorAddOfficeAddressProvider(),
     '/bottomNavigation': (context) => const BottomNavigationProvider(),
     '/forums': (context) => const ForumScreenProvider(),
+    '/forumsCreatePost': (context) => CreatePostScreenState(),
     '/bookAppointment': (context) => const FindScreenProvider(),
     '/appointments': (context) => const AppointmentScreenProvider(),
     '/periodTracker': (context) => const PeriodTrackerScreenProvider(),

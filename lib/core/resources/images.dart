@@ -7,7 +7,6 @@ class Images {
 
   // Background Pics
 
-
   // Doctor Office Address Screen
   static String officeAddressLogo =
       "assets/images/patient_features/doctor_office_address/location_address.png";
@@ -35,4 +34,8 @@ class Images {
       "assets/images/patient_features/profile/cycle_history.png";
   static String patientForumPost =
       "assets/images/patient_features/profile/forum_post.png";
+
+  // Forums Screen
+  static String forumsEmptyPlaceholder =
+      "assets/images/patient_features/forums/forums_empty_placeholder.png";
 }

@@ -7,6 +7,8 @@ import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_office_address/bloc/doctor_address_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
+import 'package:gina_app_4/features/patient_features/forums/1_controllers/forums_controller.dart';
+import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_bloc.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/bloc/home_bloc.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/1_controllers/period_tracker_controller.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/bloc/period_tracker_bloc.dart';
@@ -85,6 +87,15 @@ Future<void> init() async {
   sl.registerFactory(
     () => PeriodTrackerBloc(
       periodTrackerController: sl(),
+    ),
+  );
+
+  //! Features - Forums (Patient)
+  sl.registerFactory(() => ForumsController());
+
+  sl.registerFactory(
+    () => ForumsBloc(
+      forumsController: sl(),
     ),
   );
 }
