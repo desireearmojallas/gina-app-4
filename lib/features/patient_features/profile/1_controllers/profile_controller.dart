@@ -55,4 +55,44 @@ class ProfileController with ChangeNotifier {
       return Left(Exception(e.message));
     }
   }
+
+  Future<void> editPatientData({
+    required String name,
+    required String dateOfBirth,
+    required String address,
+  }) async {
+    try {
+      working = true;
+      notifyListeners();
+
+      await FirebaseFirestore.instance
+          .collection('patients')
+          .doc(currentUser!.uid)
+          .update({
+        'name': name,
+        'dateOfBirth': dateOfBirth,
+        'address': address,
+        'updated': Timestamp.now(),
+      });
+      working = false;
+      notifyListeners();
+      error = null;
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException code: ${e.code}');
+      working = false;
+      error = e;
+      notifyListeners();
+      throw Exception(e.message);
+    } catch (e) {
+      debugPrint('Error editing patient data: $e');
+      working = false;
+      error = FirebaseAuthException(
+        code: 'unknown',
+        message: e.toString(),
+      );
+      notifyListeners();
+      throw Exception(e.toString());
+    }
+  }
 }

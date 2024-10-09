@@ -1,148 +1,243 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
+import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/doctor_rating_badge/doctor_rating_badge.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/patient_features/forums/0_models/forums_model.dart';
+import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_bloc.dart';
+import 'package:gina_app_4/features/patient_features/forums/2_views/widgets/forum_header.dart';
+import 'package:gina_app_4/features/patient_features/my_forums/2_views/screens/view_states/my_forums_post_empty_screen_state.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class ForumScreenLoaded extends StatelessWidget {
-  const ForumScreenLoaded({super.key});
+  final List<ForumModel> forumsPosts;
+  final List<int> doctorRatingIds;
+  const ForumScreenLoaded({
+    super.key,
+    required this.forumsPosts,
+    required this.doctorRatingIds,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
+    final forumsBloc = context.read<ForumsBloc>();
     final width = MediaQuery.of(context).size.width;
     final ginaTheme = Theme.of(context);
 
     return Scaffold(
-      body: Stack(
-        children: [
-          const GradientBackground(),
-          RefreshIndicator(
-            onRefresh: () async {},
-            child: ScrollbarCustom(
-              child: ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                itemCount: 10,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-                    child: Container(
-                      width: width * 0.94,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.white,
-                        boxShadow: [
-                          GinaAppTheme.defaultBoxShadow,
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 15.0, horizontal: 15.0),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 20,
-                                  foregroundImage:
-                                      AssetImage(Images.patientProfileIcon),
-                                ),
-                                const Gap(10),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Chona Mae Taas',
-                                      style: ginaTheme.textTheme.labelLarge
-                                          ?.copyWith(
-                                        fontWeight: FontWeight.w700,
-                                      ),
+      body: forumsPosts.isEmpty
+          ? const MyForumsEmptyScreenState()
+          : Stack(
+              children: [
+                const GradientBackground(),
+                RefreshIndicator(
+                  onRefresh: () async {
+                    forumsBloc.add(ForumsFetchRequestedEvent());
+                  },
+                  child: ScrollbarCustom(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: forumsPosts.length,
+                      itemBuilder: (context, index) {
+                        final forumPost = forumsPosts[index];
+                        final doctorRatingId = doctorRatingIds[index];
+                        return BlocBuilder<ForumsBloc, ForumsState>(
+                          builder: (context, state) {
+                            return InkWell(
+                              onTap: () {
+                                forumsBloc.add(
+                                  NavigateToForumsDetailedPostEvent(
+                                    forumPost: forumPost,
+                                    doctorRatingId: doctorRatingId,
+                                  ),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                                child: Container(
+                                  width: width * 0.94,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.white,
+                                    boxShadow: [
+                                      GinaAppTheme.defaultBoxShadow,
+                                    ],
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 15.0, horizontal: 15.0),
+                                    child: Column(
+                                      children: [
+                                        // TODO: FORUMS DOCTOR
+                                        forumHeader(
+                                          forumPost: forumPost,
+                                          doctorRatingId: doctorRatingId,
+                                          context: context,
+                                        ),
+                                        const Gap(10),
+                                        Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            forumPost.title,
+                                            style: ginaTheme
+                                                .textTheme.bodyMedium
+                                                ?.copyWith(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 18,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 3,
+                                          ),
+                                        ),
+                                        const Gap(10),
+                                        SizedBox(
+                                          width: width * 0.9,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              LayoutBuilder(
+                                                builder:
+                                                    (context, constraints) {
+                                                  final textSpan = TextSpan(
+                                                    text: forumPost.content,
+                                                    style: ginaTheme
+                                                        .textTheme.labelLarge
+                                                        ?.copyWith(
+                                                      height: 1.8,
+                                                    ),
+                                                  );
+
+                                                  final textPainter =
+                                                      TextPainter(
+                                                    text: textSpan,
+                                                    maxLines: 8,
+                                                    textDirection:
+                                                        TextDirection.ltr,
+                                                  );
+
+                                                  textPainter.layout(
+                                                      maxWidth:
+                                                          constraints.maxWidth);
+
+                                                  final exceedsMaxLines =
+                                                      textPainter
+                                                          .didExceedMaxLines;
+
+                                                  return RichText(
+                                                    textAlign: TextAlign.left,
+                                                    text: TextSpan(
+                                                      text: exceedsMaxLines
+                                                          ? '${forumPost.content.substring(0, textPainter.getPositionForOffset(Offset(constraints.maxWidth, textPainter.height)).offset)}... '
+                                                          : forumPost.content,
+                                                      style: ginaTheme.textTheme
+                                                          .labelMedium,
+                                                      children: [
+                                                        if (exceedsMaxLines)
+                                                          WidgetSpan(
+                                                            child: Material(
+                                                              color: Colors
+                                                                  .transparent,
+                                                              child: InkWell(
+                                                                onTap: () {
+                                                                  forumsBloc
+                                                                      .add(
+                                                                    NavigateToForumsDetailedPostEvent(
+                                                                      forumPost:
+                                                                          forumPost,
+                                                                      doctorRatingId:
+                                                                          doctorRatingId,
+                                                                    ),
+                                                                  );
+                                                                },
+                                                                splashColor:
+                                                                    GinaAppTheme
+                                                                        .lightPrimaryColor,
+                                                                splashFactory:
+                                                                    InkSplash
+                                                                        .splashFactory,
+                                                                child: Text(
+                                                                  'See more',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: ginaTheme
+                                                                        .primaryColor,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                              const Gap(10),
+                                            ],
+                                          ),
+                                        ),
+                                        const Gap(25),
+                                        Row(
+                                          children: [
+                                            //TODO: IMPLEMENT LIKES
+                                            // const Icon(
+                                            //   CupertinoIcons.heart_fill,
+                                            //   size: 20,
+                                            //   color: GinaAppTheme
+                                            //       .lightTertiaryContainer,
+                                            // ),
+                                            // const Gap(5),
+                                            // Text(
+                                            //   '18',
+                                            //   style: ginaTheme
+                                            //       .textTheme.bodySmall
+                                            //       ?.copyWith(
+                                            //     color:
+                                            //         GinaAppTheme.lightOutline,
+                                            //   ),
+                                            // ),
+                                            // const Gap(20),
+                                            const Icon(
+                                              MingCute.message_3_line,
+                                              size: 20,
+                                              color: GinaAppTheme.lightOutline,
+                                            ),
+                                            const Gap(5),
+                                            Text(
+                                              //TODO: IMPLEMENT REPLIES
+                                              '${forumPost.replies.length} ${forumPost.replies.length == 1 ? 'reply' : 'replies'}',
+                                              style: ginaTheme
+                                                  .textTheme.bodySmall
+                                                  ?.copyWith(
+                                                color:
+                                                    GinaAppTheme.lightOutline,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
-                                    Text(
-                                      'Posted 5 hours ago',
-                                      style: ginaTheme.textTheme.bodySmall
-                                          ?.copyWith(
-                                        color: GinaAppTheme.lightOutline,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            const Gap(10),
-                            Text(
-                              'I just had my first period and I\'m really anxious about it. What should I do?',
-                              style: ginaTheme.textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w700,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 3,
-                            ),
-                            const Gap(10),
-                            SizedBox(
-                              width: width * 0.9,
-                              child: Text(
-                                "I'm so anxious about my first period. I've heard so many horror stories from other girls about how painful and embarrassing it can be. I'm worried about leaking blood, getting cramps, and smelling bad. I'm also worried about what other people will think of me now that I'm a woman.",
-                                style: ginaTheme.textTheme.labelMedium,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 3,
-                              ),
-                            ),
-                            const Gap(25),
-                            Row(
-                              children: [
-                                const Icon(
-                                  CupertinoIcons.heart_fill,
-                                  size: 20,
-                                  color: GinaAppTheme.lightTertiaryContainer,
-                                ),
-                                const Gap(5),
-                                Text(
-                                  '18',
-                                  style:
-                                      ginaTheme.textTheme.bodySmall?.copyWith(
-                                    color: GinaAppTheme.lightOnPrimaryColor,
                                   ),
                                 ),
-                                const Gap(20),
-                                const Icon(
-                                  Bootstrap.chat_left_text,
-                                  size: 18,
-                                  color: GinaAppTheme.lightOnPrimaryColor,
-                                ),
-                                const Gap(5),
-                                Text(
-                                  '5 replies',
-                                  style:
-                                      ginaTheme.textTheme.bodySmall?.copyWith(
-                                    color: GinaAppTheme.lightOnPrimaryColor,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
+                              ),
+                            );
+                          },
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 78),
-        child: FloatingActionButton(
-          onPressed: () {},
-          child: const Icon(
-            CupertinoIcons.add,
-          ),
-        ),
-      ),
     );
   }
 }

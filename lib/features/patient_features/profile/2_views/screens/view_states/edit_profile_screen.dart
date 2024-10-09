@@ -35,7 +35,9 @@ class EditProfileScreen extends StatelessWidget {
       GinaAppTheme.lightPrimaryColor,
       GinaAppTheme.lightSecondary,
     ];
+
     return Scaffold(
+      resizeToAvoidBottomInset: true, // Allow resizing
       body: Stack(
         children: [
           const GradientBackground(),
@@ -43,20 +45,19 @@ class EditProfileScreen extends StatelessWidget {
             padding: const EdgeInsets.only(top: 8.0),
             child: Align(
               alignment: Alignment.topCenter,
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Container(
-                  height: height * 0.87,
-                  width: width * 0.94,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(8),
-                    ),
-                    boxShadow: [
-                      GinaAppTheme.defaultBoxShadow,
-                    ],
+              child: Container(
+                height: height * 0.87,
+                width: width * 0.94,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(8),
                   ),
+                  boxShadow: [
+                    GinaAppTheme.defaultBoxShadow,
+                  ],
+                ),
+                child: SingleChildScrollView(
                   child: Column(
                     children: [
                       Padding(
@@ -188,8 +189,12 @@ class EditProfileScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      WavesWidget(
-                        gradientColors: gradientColors,
+                      const Gap(10),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: WavesWidget(
+                          gradientColors: gradientColors,
+                        ),
                       ),
                     ],
                   ),

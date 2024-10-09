@@ -20,7 +20,7 @@ class PeriodTrackerEditDatesScreen extends StatelessWidget {
               children: [
                 periodTrackerLegend(
                   ginaTheme,
-                  isEditMode: true,
+                  isEditMode: true,                      
                 ),
                 const Gap(10),
                 // --- Calendar List ---
