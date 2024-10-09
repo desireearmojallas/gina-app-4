@@ -12,7 +12,6 @@ class ProfileScreenLoaded extends StatelessWidget {
   final UserModel patientData;
   const ProfileScreenLoaded({super.key, required this.patientData});
 
-// TODO : UI ONLY, ADD LOGIC LATER
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -83,9 +82,9 @@ class ProfileScreenLoaded extends StatelessWidget {
                                 ),
                               ),
                             ),
-          
+                                    
                             Gap(height * 0.025),
-          
+                                    
                             // Name & email
                             Text(
                               patientData.name,
@@ -105,9 +104,9 @@ class ProfileScreenLoaded extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                             ),
-          
+                                    
                             Gap(height * 0.025),
-          
+                                    
                             // Edit profile button
                             SizedBox(
                               height: height * 0.045,
@@ -148,7 +147,7 @@ class ProfileScreenLoaded extends StatelessWidget {
                                 ),
                               ),
                             ),
-          
+                                    
                             // Personal Details
                             Gap(height * 0.06),
                             Padding(
@@ -210,10 +209,10 @@ class ProfileScreenLoaded extends StatelessWidget {
                               thickness: 0.2,
                               height: 2,
                             ),
-          
+                                    
                             // 2 cards (view cycle history, my forum posts)
                             Gap(height * 0.05),
-          
+                                    
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
