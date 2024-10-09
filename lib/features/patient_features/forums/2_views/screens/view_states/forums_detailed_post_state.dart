@@ -31,7 +31,7 @@ class ForumsDetailedPostState extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          const GradientBackground(), // First child of Stack
+          const GradientBackground(),
           RefreshIndicator(
             onRefresh: () async {
               forumsBloc.add(GetRepliesForumsPostEvent(
@@ -43,7 +43,7 @@ class ForumsDetailedPostState extends StatelessWidget {
                 physics: const BouncingScrollPhysics(),
                 child: Center(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 100),
+                    padding: const EdgeInsets.fromLTRB(8, 18, 8, 100),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
