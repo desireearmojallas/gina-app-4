@@ -54,39 +54,7 @@ class MainDetailedPostContainer extends StatelessWidget {
                 style: const TextStyle(height: 1.8),
               ),
             ),
-            const Gap(25),
-            Row(
-              children: [
-                //TODO: IMPLEMENT LIKES
-                const Icon(
-                  CupertinoIcons.heart_fill,
-                  size: 25,
-                  color: GinaAppTheme.lightTertiaryContainer,
-                ),
-                const Gap(5),
-                Text(
-                  '18',
-                  style: ginaTheme.textTheme.bodySmall?.copyWith(
-                    color: GinaAppTheme.lightOutline,
-                  ),
-                ),
-                // const Gap(20),
-                // const Icon(
-                //   MingCute.message_3_line,
-                //   size: 20,
-                //   color: GinaAppTheme.lightOutline,
-                // ),
-                // const Gap(5),
-                // Text(
-                //   //TODO: IMPLEMENT REPLIES
-                //   '5 replies',
-                //   style: ginaTheme.textTheme.bodySmall?.copyWith(
-                //     color: GinaAppTheme.lightOutline,
-                //   ),
-                // ),
-              ],
-            ),
-            const Gap(10),
+            const Gap(20),
           ],
         ),
       ),
