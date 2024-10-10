@@ -14,6 +14,7 @@ import 'package:gina_app_4/features/patient_features/period_tracker/1_controller
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/bloc/period_tracker_bloc.dart';
 import 'package:gina_app_4/features/patient_features/profile/1_controllers/profile_controller.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/bloc/profile_bloc.dart';
+import 'package:gina_app_4/features/patient_features/profile/2_views/widgets/profile_update_dialog/bloc/profile_update_bloc.dart';
 import 'package:gina_app_4/features/splash/bloc/splash_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -59,10 +60,14 @@ Future<void> init() async {
     () => BottomNavigationBloc(),
   );
 
+//------------------------------------------------------------------------------
+
 //! Features - Home
   sl.registerFactory(
     () => HomeBloc(),
   );
+
+//------------------------------------------------------------------------------
 
 //! Features - Floating Menu Bar
   sl.registerFactory(
@@ -71,15 +76,11 @@ Future<void> init() async {
     ),
   );
 
-  sl.registerFactory(() => ProfileController());
-
-  sl.registerFactory(
-    () => ProfileBloc(
-      profileController: sl(),
-    ),
-  );
+//------------------------------------------------------------------------------
 
   //! Features - Patient Appointment
+
+//------------------------------------------------------------------------------
 
   //! Features - Period Tracker
   sl.registerFactory(() => PeriodTrackerController());
@@ -90,6 +91,8 @@ Future<void> init() async {
     ),
   );
 
+//------------------------------------------------------------------------------
+
   //! Features - Forums (Patient)
   sl.registerFactory(() => ForumsController());
 
@@ -98,4 +101,21 @@ Future<void> init() async {
       forumsController: sl(),
     ),
   );
+
+//------------------------------------------------------------------------------
+
+  //! Features - Patient Profile
+  sl.registerFactory(() => ProfileBloc(
+        profileController: sl(),
+      ));
+
+  sl.registerFactory(
+    () => ProfileUpdateBloc(
+      profileController: sl(),
+    ),
+  );
+
+  sl.registerFactory(() => ProfileController());
 }
+
+//------------------------------------------------------------------------------

@@ -33,7 +33,19 @@ class ProfileScreen extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
           appBar: GinaPatientAppBar(
-            title: 'Profile',
+            title: (state is NavigateToEditProfileState)
+                ? 'Edit Profile'
+                : 'Profile',
+            leading: (state is NavigateToEditProfileState)
+                ? IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () {
+                      profileBloc.add(
+                        GetProfileEvent(),
+                      );
+                    },
+                  )
+                : null,
           ),
           body: BlocConsumer<ProfileBloc, ProfileState>(
             listenWhen: (previous, current) => current is ProfileActionState,

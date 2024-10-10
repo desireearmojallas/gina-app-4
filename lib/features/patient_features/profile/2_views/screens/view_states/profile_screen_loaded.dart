@@ -65,7 +65,8 @@ class ProfileScreenLoaded extends StatelessWidget {
                                 ),
                               ),
                               child: Padding(
-                                padding: const EdgeInsets.all(5.0), // Border width
+                                padding:
+                                    const EdgeInsets.all(5.0), // Border width
                                 child: Container(
                                   decoration: const BoxDecoration(
                                     shape: BoxShape.circle,
@@ -82,9 +83,9 @@ class ProfileScreenLoaded extends StatelessWidget {
                                 ),
                               ),
                             ),
-                                    
+
                             Gap(height * 0.025),
-                                    
+
                             // Name & email
                             Text(
                               patientData.name,
@@ -104,9 +105,9 @@ class ProfileScreenLoaded extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                             ),
-                                    
+
                             Gap(height * 0.025),
-                                    
+
                             // Edit profile button
                             SizedBox(
                               height: height * 0.045,
@@ -134,11 +135,13 @@ class ProfileScreenLoaded extends StatelessWidget {
                                     ),
                                   ),
                                   onPressed: () {
-                                    profileBloc.add(NavigateToEditProfileEvent());
+                                    profileBloc
+                                        .add(NavigateToEditProfileEvent());
                                   },
                                   child: Text(
                                     'Edit Profile',
-                                    style: ginaTheme.textTheme.labelLarge?.copyWith(
+                                    style: ginaTheme.textTheme.labelLarge
+                                        ?.copyWith(
                                       color: Colors
                                           .white, // Change text color to white
                                       fontWeight: FontWeight.w600,
@@ -147,28 +150,32 @@ class ProfileScreenLoaded extends StatelessWidget {
                                 ),
                               ),
                             ),
-                                    
+
                             // Personal Details
                             Gap(height * 0.06),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         textHeadlineSmall('Birth date'),
                                         const Gap(5),
-                                        textTitleMedium(patientData.dateOfBirth),
+                                        textTitleMedium(
+                                            patientData.dateOfBirth),
                                       ],
                                     ),
                                   ),
                                   Gap(width * 0.1),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         textHeadlineSmall('Gender'),
                                         const Gap(5),
@@ -186,14 +193,17 @@ class ProfileScreenLoaded extends StatelessWidget {
                             ),
                             Gap(height * 0.03),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
                                       children: [
                                         textHeadlineSmall('Address'),
                                         const Gap(5),
@@ -209,10 +219,10 @@ class ProfileScreenLoaded extends StatelessWidget {
                               thickness: 0.2,
                               height: 2,
                             ),
-                                    
+
                             // 2 cards (view cycle history, my forum posts)
                             Gap(height * 0.05),
-                                    
+
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -223,8 +233,8 @@ class ProfileScreenLoaded extends StatelessWidget {
                                     height: height * 0.12,
                                     decoration: BoxDecoration(
                                       image: DecorationImage(
-                                        image:
-                                            AssetImage(Images.patientCycleHistory),
+                                        image: AssetImage(
+                                            Images.patientCycleHistory),
                                         fit: BoxFit.cover,
                                       ),
                                       borderRadius: BorderRadius.circular(8),
@@ -244,7 +254,8 @@ class ProfileScreenLoaded extends StatelessWidget {
                                             horizontal: 20.0),
                                         child: Text(
                                           'View \nCycle history',
-                                          style: ginaTheme.textTheme.headlineSmall
+                                          style: ginaTheme
+                                              .textTheme.headlineSmall
                                               ?.copyWith(
                                             color: GinaAppTheme.lightOnTertiary,
                                             fontSize: 18,
@@ -262,7 +273,8 @@ class ProfileScreenLoaded extends StatelessWidget {
                                     height: height * 0.12,
                                     decoration: BoxDecoration(
                                       image: DecorationImage(
-                                        image: AssetImage(Images.patientForumPost),
+                                        image:
+                                            AssetImage(Images.patientForumPost),
                                         fit: BoxFit.cover,
                                       ),
                                       borderRadius: BorderRadius.circular(8),
@@ -282,7 +294,8 @@ class ProfileScreenLoaded extends StatelessWidget {
                                             horizontal: 20.0),
                                         child: Text(
                                           'My Forum\nPosts',
-                                          style: ginaTheme.textTheme.headlineSmall
+                                          style: ginaTheme
+                                              .textTheme.headlineSmall
                                               ?.copyWith(
                                             color: GinaAppTheme.lightOnTertiary,
                                             fontSize: 18,
