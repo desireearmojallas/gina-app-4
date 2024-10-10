@@ -8,6 +8,7 @@ import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_
 import 'package:gina_app_4/features/patient_features/home/2_views/bloc/home_bloc.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/bloc/period_tracker_bloc.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/bloc/profile_bloc.dart';
+import 'package:gina_app_4/features/patient_features/profile/2_views/widgets/profile_update_dialog/bloc/profile_update_bloc.dart';
 import 'package:gina_app_4/features/splash/bloc/splash_bloc.dart';
 
 List<BlocProvider> getBlocProviders() {
@@ -34,6 +35,9 @@ List<BlocProvider> getBlocProviders() {
     ),
     BlocProvider<ProfileBloc>(
       create: (context) => sl<ProfileBloc>(),
+    ),
+    BlocProvider<ProfileUpdateBloc>(
+      create: (context) => sl<ProfileUpdateBloc>(),
     ),
     BlocProvider<PeriodTrackerBloc>(
       create: (context) => sl<PeriodTrackerBloc>(),
