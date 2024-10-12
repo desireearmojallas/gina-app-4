@@ -2,9 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
-import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
-import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/doctor_rating_badge/doctor_rating_badge.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/forums/0_models/forums_model.dart';
@@ -12,7 +10,6 @@ import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_
 import 'package:gina_app_4/features/patient_features/forums/2_views/widgets/forum_header.dart';
 import 'package:gina_app_4/features/patient_features/my_forums/2_views/screens/view_states/my_forums_post_empty_screen_state.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
 class ForumScreenLoaded extends StatelessWidget {
   final List<ForumModel> forumsPosts;
