@@ -6,6 +6,7 @@ import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/bloc/profile_bloc.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/screens/view_states/edit_profile_screen.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/screens/view_states/profile_screen_loaded.dart';
+import 'package:gina_app_4/features/patient_features/profile/2_views/screens/view_states/profile_screen_loading_skeleton.dart';
 
 class ProfileScreenProvider extends StatelessWidget {
   const ProfileScreenProvider({super.key});
@@ -55,7 +56,7 @@ class ProfileScreen extends StatelessWidget {
             },
             builder: (context, state) {
               if (state is ProfileLoading) {
-                return const Center(child: CustomLoadingIndicator());
+                return const ProfileScreenLoadingSkeleton();
               } else if (state is ProfileLoaded) {
                 final patientData = state.patientData;
                 return ProfileScreenLoaded(

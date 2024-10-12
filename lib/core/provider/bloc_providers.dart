@@ -4,6 +4,7 @@ import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
+import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_bloc.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/bloc/home_bloc.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/bloc/period_tracker_bloc.dart';
@@ -44,6 +45,9 @@ List<BlocProvider> getBlocProviders() {
     ),
     BlocProvider<ForumsBloc>(
       create: (context) => sl<ForumsBloc>(),
+    ),
+    BlocProvider<FindBloc>(
+      create: (context) => sl<FindBloc>(),
     ),
   ];
 }

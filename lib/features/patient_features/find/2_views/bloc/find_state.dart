@@ -1,10 +1,16 @@
 part of 'find_bloc.dart';
 
-sealed class FindState extends Equatable {
+abstract class FindState extends Equatable {
   const FindState();
-  
+
   @override
   List<Object> get props => [];
 }
 
-final class FindInitial extends FindState {}
+abstract class FindActionState extends FindState {}
+
+class FindInitial extends FindState {}
+
+class OtherCitiesHiddenState extends FindState {}
+
+class OtherCitiesVisibleState extends FindState {}

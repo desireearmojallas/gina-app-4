@@ -6,6 +6,7 @@ import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/gina_p
 import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/screens/view_states/forum_screen_loaded.dart';
+import 'package:gina_app_4/features/patient_features/forums/2_views/screens/view_states/forum_screen_loading_skeleton.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/screens/view_states/forums_detailed_post_state.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/screens/view_states/reply_post_screen_state.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/widgets/posted_confirmation_dialog.dart';
@@ -96,7 +97,7 @@ class ForumScreen extends StatelessWidget {
                     child: Text('No Forum Posts'),
                   );
                 } else if (state is GetForumsPostsLoadingState) {
-                  return const Center(child: CustomLoadingIndicator());
+                  return const ForumScreenLoadingSkeleton();
                 } else if (state is GetForumsPostsFailedState) {
                   return Center(child: Text(state.message));
                 } else if (state is NavigateToForumsDetailedPostState) {
