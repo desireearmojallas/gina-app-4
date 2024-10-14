@@ -45,17 +45,22 @@ SizedBox loginButton({
   );
 }
 
-SizedBox signUpButton(BuildContext context) {
+SizedBox signUpButton({
+  required BuildContext context,
+  required String selectedType,
+}) {
   return SizedBox(
     width: MediaQuery.of(context).size.width / 1.45,
     height: 49,
     child: buildButton(
       label: 'Sign Up',
       onPressed: () {
-        // Navigate to the SignupPage when the Sign Up button is clicked
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const SignupPage()),
+          MaterialPageRoute(
+              builder: (context) => SignupPage(
+                    isDoctor: selectedType == 'Doctor',
+                  )),
         );
       },
       backgroundColor: const Color(0xFFF3F3F3),

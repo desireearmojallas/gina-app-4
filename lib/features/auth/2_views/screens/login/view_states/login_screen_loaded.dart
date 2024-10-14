@@ -26,9 +26,17 @@ class _LoginScreenLoadedState extends State<LoginScreenLoaded> {
   final formKey = GlobalKey<FormState>();
 
   @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final authBloc = context.read<AuthBloc>();
     double screenWidth = MediaQuery.of(context).size.width;
+
     return Form(
       key: formKey,
       child: Column(
@@ -49,14 +57,13 @@ class _LoginScreenLoadedState extends State<LoginScreenLoaded> {
                     width: 250,
                     height: 250,
                     fit: BoxFit.contain,
+                    semanticsLabel: 'App Logo', // Accessibility improvement
                   ),
                 ),
               ),
             ),
           ),
-          const GinaHeader(
-            size: 60,
-          ),
+          const GinaHeader(size: 60),
           const Gap(20),
           Container(
             width: 250,
@@ -115,7 +122,10 @@ class _LoginScreenLoadedState extends State<LoginScreenLoaded> {
             context: context,
           ),
           const Gap(10),
-          signUpButton(context),
+          signUpButton(
+            context: context,
+            selectedType: selectedType,
+          ),
           const Spacer(),
         ],
       ),

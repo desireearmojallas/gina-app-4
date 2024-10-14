@@ -12,13 +12,24 @@ import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/d
 import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/patient/patient_registration.dart';
 
 class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
+  final bool isDoctor;
+  const SignupPage({
+    super.key,
+    required this.isDoctor,
+  });
 
   @override
   State<SignupPage> createState() => _SignupPageState();
 }
 
 class _SignupPageState extends State<SignupPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Initialize selectedIndex based on isDoctor
+    selectedIndex = widget.isDoctor ? 1 : 0;
+  }
+
   int selectedIndex = 0; // 0 for patient, 1 for doctor
   bool obscurePassword = true;
   int currentDoctorStep = 1;

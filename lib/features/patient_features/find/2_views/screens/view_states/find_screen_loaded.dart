@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
@@ -21,7 +19,7 @@ class FindScreenLoaded extends StatelessWidget {
     final findBloc = context.read<FindBloc>();
 
     return Padding(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.all(15.0),
       child: Stack(
         children: [
           Padding(
@@ -201,11 +199,10 @@ class FindScreenLoaded extends StatelessWidget {
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                       (Set<MaterialState> states) {
                         if (state is OtherCitiesVisibleState) {
-                          return Colors.grey.shade400
-                              .withOpacity(0.95); // Color for "Hide" state
+                          return Colors.grey.shade400.withOpacity(0.95);
                         }
                         return GinaAppTheme.lightTertiaryContainer
-                            .withOpacity(0.95); // Color for "Show" state
+                            .withOpacity(0.95);
                       },
                     ),
                   ),
