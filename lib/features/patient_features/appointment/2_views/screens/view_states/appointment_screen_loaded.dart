@@ -17,6 +17,7 @@ class AppointmentScreenLoaded extends StatelessWidget {
           padding: const EdgeInsets.all(15.0),
           child: ScrollbarCustom(
             child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

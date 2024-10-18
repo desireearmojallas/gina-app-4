@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_account_verification/doctor_verification_status.dart';
+import 'package:icons_plus/icons_plus.dart';
 
 Future<dynamic> signUpSuccessDialog(
   BuildContext context,
@@ -23,7 +24,7 @@ Future<dynamic> signUpSuccessDialog(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Icon(
-              Icons.check_circle_rounded,
+              MingCute.check_circle_fill,
               color: Colors.green,
               size: 80,
             ),
@@ -66,6 +67,7 @@ Future<dynamic> signUpSuccessDialog(
                   'Get verified',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
+                        color: Colors.white,
                       ),
                 ),
               ),

@@ -66,8 +66,7 @@ class DoctorAddOfficeAddressScreen extends StatelessWidget {
             if (state is DoctorSuccessLocationState ||
                 state is DoctorSuccessMarkersState) {
               return GoogleMap(
-                mapType: MapType.hybrid,
-                // mapType: MapType.normal,
+                mapType: MapType.normal,
                 myLocationEnabled: true,
                 myLocationButtonEnabled: true,
                 initialCameraPosition: CameraPosition(
@@ -125,9 +124,7 @@ class DoctorAddOfficeAddressScreen extends StatelessWidget {
                               state is DoctorSuccessMarkersState) {
                             return SearchGooglePlacesWidget(
                               placeholder: 'Search Location',
-                              // TODO : TO CHANGE API KEY
                               apiKey: 'AIzaSyBg5KxB2Rdw7UV86btx0YJFmGkfF3CXUbc',
-                              // apiKey: 'API_KEY',
                               language: 'en',
                               radius: 500000,
                               location: currentLocationLatLng != null
