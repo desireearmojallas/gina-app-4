@@ -41,6 +41,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SubmitDoctorMedicalVerificationEvent>(
         submitDoctorMedicalVerificationEvent);
     on<ChangeWaitingForApprovalEvent>(changeWaitingForApprovalEvent);
+    on<ProgressBarCompletedEvent>(progressBarCompletedEvent);
   }
 
   FutureOr<void> authInitialEvent(
@@ -152,7 +153,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-// TODO: DISPOSE CONTROLLERS STUDY
+// TODO: DISPOSE CONTROLLERS
   void dispose() {
     nameController.clear();
     emailController.clear();
@@ -253,5 +254,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   FutureOr<void> changeWaitingForApprovalEvent(
       ChangeWaitingForApprovalEvent event, Emitter<AuthState> emit) async {
     await doctorAuthenticationController.changeWaitingApprovalStatus();
+  }
+
+  FutureOr<void> progressBarCompletedEvent(
+      ProgressBarCompletedEvent event, Emitter<AuthState> emit) {
+    if (state is UploadMedicalImageState) {
+      emit((state as UploadMedicalImageState)
+          .copyWith(hasShownProgressBar: true));
+    }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:icons_plus/icons_plus.dart';
 
 Future<dynamic> postedConfirmationDialog(BuildContext context, String content) {
   return showDialog(
@@ -12,7 +13,7 @@ Future<dynamic> postedConfirmationDialog(BuildContext context, String content) {
       shadowColor: GinaAppTheme.appbarColorLight,
       surfaceTintColor: GinaAppTheme.appbarColorLight,
       icon: const Icon(
-        Icons.check_circle_rounded,
+        MingCute.check_circle_fill,
         color: Colors.green,
         size: 80,
       ),

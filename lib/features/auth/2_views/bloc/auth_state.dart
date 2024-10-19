@@ -79,14 +79,32 @@ class NavigateToAdminLoginScreenState extends AuthActionState {}
 class UploadMedicalImageState extends AuthState {
   final File medicalImageId;
   final File medicalImageIdTitle;
+  final bool hasShownProgressBar;
 
   const UploadMedicalImageState({
     required this.medicalImageId,
     required this.medicalImageIdTitle,
+    this.hasShownProgressBar = false,
   });
 
   @override
-  List<Object> get props => [medicalImageId, medicalImageIdTitle];
+  List<Object> get props => [
+        medicalImageId,
+        medicalImageIdTitle,
+        hasShownProgressBar,
+      ];
+
+  UploadMedicalImageState copyWith({
+    File? medicalImageId,
+    File? medicalImageIdTitle,
+    bool? hasShownProgressBar,
+  }) {
+    return UploadMedicalImageState(
+      medicalImageId: medicalImageId ?? this.medicalImageId,
+      medicalImageIdTitle: medicalImageIdTitle ?? this.medicalImageIdTitle,
+      hasShownProgressBar: hasShownProgressBar ?? this.hasShownProgressBar,
+    );
+  }
 }
 
 class UploadMedicalImageLoadingState extends AuthActionState {}

@@ -151,3 +151,5 @@ class SubmitDoctorMedicalVerificationEvent extends AuthEvent {
 }
 
 class ChangeWaitingForApprovalEvent extends AuthEvent {}
+
+class ProgressBarCompletedEvent extends AuthEvent {}
