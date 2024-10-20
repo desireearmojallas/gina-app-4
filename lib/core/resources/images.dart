@@ -11,6 +11,14 @@ class Images {
   static String officeAddressLogo =
       "assets/images/patient_features/doctor_office_address/location_address.png";
 
+  // Doctor Verification Status Lottie Animations
+  static String waitingForApprovalLottie =
+      "assets/images/lotties/waiting_for_approval_animation.json";
+  static String declinedVerificationLottie =
+      "assets/images/lotties/declined_verification_animation.json";
+  static String approvedVerificationLottie =
+      "assets/images/lotties/approved_verification_animation.json";
+
   // Profile Photos
   static String patientProfileIcon = "assets/images/patient_avatar.jpg";
   static String doctorProfileIcon1 = "assets/images/doctor_avatar.jpg";

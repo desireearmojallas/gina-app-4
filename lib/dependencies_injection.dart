@@ -5,6 +5,7 @@ import 'package:gina_app_4/features/auth/1_controllers/doctor_auth_controller.da
 import 'package:gina_app_4/features/auth/1_controllers/patient_auth_controller.dart';
 import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_office_address/bloc/doctor_address_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_bottom_navigation/bloc/doctor_bottom_navigation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/1_controllers/forums_controller.dart';
@@ -122,5 +123,18 @@ Future<void> init() async {
   //! Features - Find Doctors Bloc (Patient)
   sl.registerFactory(
     () => FindBloc(),
+  );
+
+  //------------------------------------------------------------------------------
+
+  //------------------------------------------------------------------------------
+
+  //------------------------------------------------------------------------------
+
+  // -------DOCTOR FEATURES-------
+
+  //! Features - Doctor Bottom Navigation Bar
+  sl.registerFactory(
+    () => DoctorBottomNavigationBloc(),
   );
 }

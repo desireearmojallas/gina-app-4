@@ -3,23 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
-import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_bottom_navigation/bloc/doctor_bottom_navigation_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 
-class BottomNavigationProvider extends StatelessWidget {
-  const BottomNavigationProvider({super.key});
+class DoctorBottomNavigationProvider extends StatelessWidget {
+  const DoctorBottomNavigationProvider({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<BottomNavigationBloc>(
-      create: (context) => sl<BottomNavigationBloc>(),
-      child: const BottomNavigation(),
+    return BlocProvider(
+      create: (context) => sl<DoctorBottomNavigationBloc>(),
+      child: const DoctorBottomNavigation(),
     );
   }
 }
 
-class BottomNavigation extends StatelessWidget {
-  const BottomNavigation({super.key});
+class DoctorBottomNavigation extends StatelessWidget {
+  const DoctorBottomNavigation({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,18 +27,18 @@ class BottomNavigation extends StatelessWidget {
     return WillPopScope(
       onWillPop: () async {
         final currentIndex =
-            context.read<BottomNavigationBloc>().state.currentIndex;
+            context.read<DoctorBottomNavigationBloc>().state.currentIndex;
         if (currentIndex == 0) {
           return true;
         } else {
-          context.read<BottomNavigationBloc>().add(BackPressedEvent());
+          context.read<DoctorBottomNavigationBloc>().add(BackPressedEvent());
           return false;
         }
       },
       child: Scaffold(
         extendBody: true,
         bottomNavigationBar:
-            BlocBuilder<BottomNavigationBloc, BottomNavigationState>(
+            BlocBuilder<DoctorBottomNavigationBloc, DoctorBottomNavigationState>(
           builder: (context, state) {
             return CrystalNavigationBar(
               currentIndex: state.currentIndex,
@@ -47,7 +47,7 @@ class BottomNavigation extends StatelessWidget {
                   : GinaAppTheme.lightOutline.withOpacity(0.5),
               onTap: (index) {
                 context
-                    .read<BottomNavigationBloc>()
+                    .read<DoctorBottomNavigationBloc>()
                     .add(TabChangedEvent(tab: index));
               },
               backgroundColor: Colors.white.withOpacity(0.1),
@@ -77,7 +77,7 @@ class BottomNavigation extends StatelessWidget {
             );
           },
         ),
-        body: BlocBuilder<BottomNavigationBloc, BottomNavigationState>(
+        body: BlocBuilder<DoctorBottomNavigationBloc, DoctorBottomNavigationState>(
           builder: (context, state) {
             return state.selectedScreen;
           },

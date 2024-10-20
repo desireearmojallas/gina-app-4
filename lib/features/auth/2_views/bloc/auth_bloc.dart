@@ -153,7 +153,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-// TODO: DISPOSE CONTROLLERS
   void dispose() {
     nameController.clear();
     emailController.clear();

@@ -64,6 +64,7 @@ flutter:
   assets:
     - assets/
     - assets/images/
+    - assets/images/lotties/
     - assets/images/patient_features/
     - assets/images/patient_features/doctor_office_address/
     - assets/images/patient_features/profile/

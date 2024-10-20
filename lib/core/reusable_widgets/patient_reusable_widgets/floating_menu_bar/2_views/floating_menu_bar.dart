@@ -177,6 +177,7 @@ class FloatingMenuWidget extends StatelessWidget {
             ],
           ),
           onPressed: () {
+            debugPrint('logout clicked floating menu bar');
             AuthenticationController().logout().then(
                   (value) => {
                     SharedPreferencesManager().logout,

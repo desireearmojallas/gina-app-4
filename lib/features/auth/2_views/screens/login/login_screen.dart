@@ -1,9 +1,13 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/core/storage/shared_preferences/shared_preferences_manager.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/screens/login/view_states/login_screen_loaded.dart';
+import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_account_verification_status/doctor_approved_verification_state.dart';
+import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_account_verification_status/doctor_declined_verification_state.dart';
+import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_account_verification_status/doctor_waiting_for_approval_state.dart';
 
 class LoginScreenProvider extends StatelessWidget {
   const LoginScreenProvider({super.key});
@@ -42,17 +46,36 @@ class LoginScreen extends StatelessWidget {
             );
             authBloc.add(AuthInitialEvent());
           } else if (state is AuthLoginDoctorSuccessState) {
-            // TODO: AUTH LOGIN DOCTOR SUCCESS STATE
+            Navigator.pushReplacementNamed(context, '/doctorBottomNavigation');
+            await sharedPreferencesManager.setDoctorIsLoggedIn(true);
           } else if (state is AuthWaitingForApprovalState) {
-            // TODO: AUTH WAITING FOR APPROVAL STATE
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const DoctorWaitingForApprovalState(),
+              ),
+            );
           } else if (state is AuthVerificationDeclinedState) {
-            // TODO: AUTH VERIFICATION DECLINED STATE
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const DoctorDeclinedVerificationState(),
+              ),
+            );
           } else if (state is AuthVerificationApprovedState) {
-            // TODO: AUTH VERIFICATION APPROVED STATE
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const DoctorApprovedVerificationState(),
+              ),
+            );
           } else if (state is AuthLoginDoctorFailureState) {
             // TODO: AUTH LOGIN DOCTOR FAILURE STATE
           } else if (state is NavigateToAdminLoginScreenState) {
             // TODO: NAVIGATE TO ADMIN LOGIN SCREEN STATE
+            if (kIsWeb) {
+              // TODO: NAVIGATE TO ADMIN LOGIN SCREEN STATE
+            }
           }
         },
         builder: (context, state) {

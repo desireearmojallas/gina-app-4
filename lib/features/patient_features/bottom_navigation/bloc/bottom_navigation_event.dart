@@ -1,6 +1,6 @@
 part of 'bottom_navigation_bloc.dart';
 
-sealed class BottomNavigationEvent extends Equatable {
+abstract class BottomNavigationEvent extends Equatable {
   const BottomNavigationEvent();
 
   @override
