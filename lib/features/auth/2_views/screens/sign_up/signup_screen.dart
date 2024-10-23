@@ -121,10 +121,10 @@ class _SignupPageState extends State<SignupPage> {
                         ),
                       ),
                     ),
-                    const Align(
+                    Align(
                       alignment: Alignment.center,
                       child: Padding(
-                        padding: EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: GinaHeader(
                           size: 60,
                         ),

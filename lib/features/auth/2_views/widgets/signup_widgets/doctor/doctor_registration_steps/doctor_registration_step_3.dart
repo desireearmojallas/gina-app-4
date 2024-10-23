@@ -167,7 +167,8 @@ class DoctorRegistrationStepThree extends StatelessWidget {
       height: 12,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: isActive ? GinaAppTheme.lightTertiaryContainer : Colors.grey,
+        color:
+            isActive ? GinaAppTheme.lightTertiaryContainer : Colors.grey[300],
       ),
     );
   }

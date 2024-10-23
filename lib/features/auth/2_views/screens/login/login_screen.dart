@@ -59,7 +59,9 @@ class LoginScreen extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const DoctorDeclinedVerificationState(),
+                builder: (context) => DoctorDeclinedVerificationState(
+                  declineReason: state.declineReason,
+                ),
               ),
             );
           } else if (state is AuthVerificationApprovedState) {

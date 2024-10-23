@@ -5,7 +5,11 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:lottie/lottie.dart';
 
 class DoctorDeclinedVerificationState extends StatelessWidget {
-  const DoctorDeclinedVerificationState({super.key});
+  final String declineReason;
+  const DoctorDeclinedVerificationState({
+    super.key,
+    required this.declineReason,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -81,8 +85,7 @@ class DoctorDeclinedVerificationState extends StatelessWidget {
                   ),
                 ),
                 controller: TextEditingController(
-                  text:
-                      'Your verification was declined because of missing documents. Please review the requirements and resubmit.',
+                  text: declineReason,
                 ),
               ),
             ),

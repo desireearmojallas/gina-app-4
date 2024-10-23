@@ -63,7 +63,7 @@ class _LoginScreenLoadedState extends State<LoginScreenLoaded> {
               ),
             ),
           ),
-          const GinaHeader(size: 60),
+          GinaHeader(size: 60),
           const Gap(20),
           Container(
             width: 250,

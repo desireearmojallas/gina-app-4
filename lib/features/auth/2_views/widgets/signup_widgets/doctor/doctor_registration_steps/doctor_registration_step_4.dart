@@ -166,7 +166,8 @@ class DoctorRegistrationStepFour extends StatelessWidget {
                                       child: const Text(
                                         'Change',
                                         style: TextStyle(
-                                          color: GinaAppTheme.lightTertiaryContainer,
+                                          color: GinaAppTheme
+                                              .lightTertiaryContainer,
                                         ),
                                       ),
                                     ),
@@ -229,7 +230,8 @@ class DoctorRegistrationStepFour extends StatelessWidget {
       height: 12,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: isActive ? GinaAppTheme.lightTertiaryContainer : Colors.grey,
+        color:
+            isActive ? GinaAppTheme.lightTertiaryContainer : Colors.grey[300],
       ),
     );
   }

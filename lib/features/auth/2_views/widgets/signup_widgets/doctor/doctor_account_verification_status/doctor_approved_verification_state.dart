@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/gina_header.dart';
 import 'package:lottie/lottie.dart';
 
@@ -12,6 +13,7 @@ class DoctorApprovedVerificationState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ginaTheme = Theme.of(context);
+    final authBloc = context.read<AuthBloc>();
 
     return Scaffold(
       appBar: AppBar(
@@ -45,7 +47,7 @@ class DoctorApprovedVerificationState extends StatelessWidget {
                   const TextSpan(
                       text:
                           // TODO: Add the doctor's name here
-                          'Congrats, Dr. Desiree Armojallas!\nYour doctor verification has been '),
+                          'Congrats, Doc!\nYour doctor verification has been '),
                   TextSpan(
                     text: 'approved.',
                     style: ginaTheme.textTheme.bodyMedium?.copyWith(
@@ -68,7 +70,9 @@ class DoctorApprovedVerificationState extends StatelessWidget {
                   ),
                 ),
                 const Gap(3),
-                const GinaHeader(size: 24.0),
+                GinaHeader(
+                  size: 24.0,
+                ),
                 const Gap(3),
                 Text(
                   '🎉', // Celebration emoji
@@ -80,7 +84,15 @@ class DoctorApprovedVerificationState extends StatelessWidget {
             ),
             const Gap(40),
             FilledButton(
-              onPressed: () {},
+              onPressed: () {
+                authBloc.add(
+                  ChangeWaitingForApprovalEvent(),
+                );
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/doctorBottomNavigation',
+                );
+              },
               child: const Text('Proceed to Doctor Dashboard'),
             ),
           ],

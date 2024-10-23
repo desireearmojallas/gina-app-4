@@ -37,8 +37,8 @@ class DoctorBottomNavigation extends StatelessWidget {
       },
       child: Scaffold(
         extendBody: true,
-        bottomNavigationBar:
-            BlocBuilder<DoctorBottomNavigationBloc, DoctorBottomNavigationState>(
+        bottomNavigationBar: BlocBuilder<DoctorBottomNavigationBloc,
+            DoctorBottomNavigationState>(
           builder: (context, state) {
             return CrystalNavigationBar(
               currentIndex: state.currentIndex,
@@ -58,7 +58,7 @@ class DoctorBottomNavigation extends StatelessWidget {
                   selectedColor: GinaAppTheme.lightTertiaryContainer,
                 ),
                 CrystalNavigationBarItem(
-                  icon: MingCute.search_2_fill,
+                  icon: MingCute.calendar_fill,
                   selectedColor: GinaAppTheme.lightTertiaryContainer,
                 ),
                 CrystalNavigationBarItem(
@@ -77,7 +77,8 @@ class DoctorBottomNavigation extends StatelessWidget {
             );
           },
         ),
-        body: BlocBuilder<DoctorBottomNavigationBloc, DoctorBottomNavigationState>(
+        body: BlocBuilder<DoctorBottomNavigationBloc,
+            DoctorBottomNavigationState>(
           builder: (context, state) {
             return state.selectedScreen;
           },
