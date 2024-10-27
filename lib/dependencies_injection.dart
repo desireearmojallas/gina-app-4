@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/floating_doctor_menu_bar/bloc/floating_doctor_menu_bar_bloc.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/floating_menu_bar/2_views/bloc/floating_menu_bloc.dart';
 import 'package:gina_app_4/core/storage/shared_preferences/shared_preferences_manager.dart';
 import 'package:gina_app_4/features/auth/1_controllers/doctor_auth_controller.dart';
@@ -7,6 +8,7 @@ import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/screens/forgot_password/2_views/bloc/forgot_password_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_office_address/bloc/doctor_address_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_bottom_navigation/bloc/doctor_bottom_navigation_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_profile/1_controllers/doctor_profile_controller.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/1_controllers/forums_controller.dart';
@@ -142,4 +144,13 @@ Future<void> init() async {
   sl.registerFactory(
     () => DoctorBottomNavigationBloc(),
   );
+
+  //! Features - Floating Doctor Menu Bar
+  sl.registerFactory(
+    () => FloatingDoctorMenuBarBloc(
+      doctorProfileController: sl(),
+    ),
+  );
+
+  sl.registerFactory(() => DoctorProfileController());
 }

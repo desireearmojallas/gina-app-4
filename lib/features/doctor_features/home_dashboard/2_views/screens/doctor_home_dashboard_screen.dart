@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/floating_menu_bar/2_views/floating_menu_bar.dart';
+import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/floating_doctor_menu_bar/floating_doctor_menu_bar.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/gina_header.dart';
 
 class DoctorHomeScreenDashboardProvider extends StatelessWidget {
@@ -19,9 +19,13 @@ class DoctorHomeScreenDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:  GinaHeader(size: 45, isDoctor: true,),
+        automaticallyImplyLeading: false,
+        title: GinaHeader(
+          size: 45,
+          isDoctor: true,
+        ),
         actions: [
-          FloatingMenuWidget(
+          FloatingDoctorMenuWidget(
             hasNotification: true,
           ),
           const Gap(10),

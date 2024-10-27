@@ -38,7 +38,9 @@ class SplashScreen extends StatelessWidget {
             '/bottomNavigation',
           );
         } else if (state is SplashNavigateToDoctorHomeState) {
-          // TODO: SPLASH NAVIGATE TO DOCTOR HOME STATE
+          Navigator.of(context).pushReplacementNamed(
+            '/doctorBottomNavigation',
+          );
         } else if (state is SplashNavigateToLoginState) {
           Navigator.of(context).pushReplacementNamed(
             '/login',

@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/floating_doctor_menu_bar/bloc/floating_doctor_menu_bar_bloc.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/floating_menu_bar/2_views/bloc/floating_menu_bloc.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
@@ -57,6 +58,9 @@ List<BlocProvider> getBlocProviders() {
     // Doctor Blocs
     BlocProvider<DoctorBottomNavigationBloc>(
       create: (context) => sl<DoctorBottomNavigationBloc>(),
+    ),
+    BlocProvider<FloatingDoctorMenuBarBloc>(
+      create: (context) => sl<FloatingDoctorMenuBarBloc>(),
     ),
   ];
 }

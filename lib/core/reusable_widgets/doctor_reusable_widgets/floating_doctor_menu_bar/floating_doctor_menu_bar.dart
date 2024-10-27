@@ -1,30 +1,33 @@
+// ignore_for_file: must_be_immutable
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
-import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/floating_menu_bar/2_views/bloc/floating_menu_bloc.dart';
+import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/floating_doctor_menu_bar/bloc/floating_doctor_menu_bar_bloc.dart';
 import 'package:gina_app_4/core/storage/shared_preferences/shared_preferences_manager.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/features/auth/1_controllers/patient_auth_controller.dart';
+import 'package:gina_app_4/features/auth/1_controllers/doctor_auth_controller.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:icons_plus/icons_plus.dart';
 
-class FloatingMenuWidget extends StatelessWidget {
+class FloatingDoctorMenuWidget extends StatelessWidget {
   bool?
       hasNotification; //TODO: TO CHANGE THIS, ADD LOGIC TO NOTIFICATION INDICATOR FOR AVATAR MENU BUTTON
-  FloatingMenuWidget({super.key, this.hasNotification});
+  FloatingDoctorMenuWidget({super.key, this.hasNotification});
 
   @override
   Widget build(BuildContext context) {
     final ginaTheme = Theme.of(context);
-    final floatingMenuBloc = context.read<FloatingMenuBloc>();
+    final floatingDoctorMenuBarBloc = context.read<FloatingDoctorMenuBarBloc>();
     final textStyle = ginaTheme.textTheme.titleMedium?.copyWith(
       fontSize: 15,
       fontWeight: FontWeight.w500,
     );
     return SubmenuButton(
       onOpen: () {
-        floatingMenuBloc.add(GetPatientNameEvent());
+        floatingDoctorMenuBarBloc.add(GetDoctorNameEvent());
       },
       style: const ButtonStyle(
         shape: MaterialStatePropertyAll<CircleBorder>(
@@ -53,15 +56,16 @@ class FloatingMenuWidget extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 20,
-                foregroundImage: AssetImage(Images.patientProfileIcon),
+                foregroundImage: AssetImage(Images.doctorProfileIcon1),
                 backgroundColor: GinaAppTheme.lightPrimaryColor,
               ),
               const Gap(10),
-              BlocBuilder<FloatingMenuBloc, FloatingMenuState>(
+              BlocBuilder<FloatingDoctorMenuBarBloc,
+                  FloatingDoctorMenuBarState>(
                 builder: (context, state) {
-                  if (state is GetPatientName) {
+                  if (state is GetDoctorName) {
                     return Text(
-                      state.patientName,
+                      'Dr. ${state.doctorName}',
                       style: ginaTheme.textTheme.headlineSmall?.copyWith(
                         fontSize: 15,
                       ),
@@ -69,6 +73,12 @@ class FloatingMenuWidget extends StatelessWidget {
                   }
                   return const Text('Loading...');
                 },
+              ),
+              const SizedBox(width: 8),
+              const Icon(
+                Icons.verified,
+                color: Colors.blue,
+                size: 18,
               ),
             ],
           ),
@@ -112,7 +122,7 @@ class FloatingMenuWidget extends StatelessWidget {
               Stack(
                 children: [
                   const Icon(
-                    Icons.emergency,
+                    MingCute.clipboard_fill,
                     size: 22,
                     color: GinaAppTheme.lightOnPrimaryColor,
                   ),
@@ -121,7 +131,63 @@ class FloatingMenuWidget extends StatelessWidget {
               ),
               const Gap(10),
               Text(
-                'Emergency \nAnnouncements',
+                'Patients List',
+                style: textStyle,
+              ),
+            ],
+          ),
+          onPressed: () {
+            // TODO: EMERGENCY ANNOUNCEMENTS ROUTE
+            // Navigator.pushNamed(context, '/emergencyAnnouncements');
+          },
+        ),
+        const Divider(
+          thickness: 0.2,
+          height: 3,
+        ),
+        MenuItemButton(
+          child: Row(
+            children: [
+              const Stack(
+                children: [
+                  Icon(
+                    CupertinoIcons.star_circle_fill,
+                    size: 20,
+                    color: GinaAppTheme.lightOnPrimaryColor,
+                  ),
+                ],
+              ),
+              const Gap(10),
+              Text(
+                'Forum Doctor Badge',
+                style: textStyle,
+              ),
+            ],
+          ),
+          onPressed: () {
+            // TODO: EMERGENCY ANNOUNCEMENTS ROUTE
+            // Navigator.pushNamed(context, '/emergencyAnnouncements');
+          },
+        ),
+        const Divider(
+          thickness: 0.2,
+          height: 3,
+        ),
+        MenuItemButton(
+          child: Row(
+            children: [
+              const Stack(
+                children: [
+                  Icon(
+                    MingCute.tag_2_fill,
+                    size: 22,
+                    color: GinaAppTheme.lightOnPrimaryColor,
+                  ),
+                ],
+              ),
+              const Gap(10),
+              Text(
+                'Consultation Fee',
                 style: textStyle,
               ),
             ],
@@ -177,8 +243,8 @@ class FloatingMenuWidget extends StatelessWidget {
             ],
           ),
           onPressed: () {
-            debugPrint('logout clicked floating menu bar');
-            AuthenticationController().logout().then((value) => {
+            debugPrint('logout clicked floating doctor menu bar');
+            DoctorAuthenticationController().logout().then((value) => {
                   SharedPreferencesManager().logout(),
                   Navigator.pushReplacementNamed(context, '/login'),
                 });
@@ -197,7 +263,7 @@ class FloatingMenuWidget extends StatelessWidget {
         ),
         position: badges.BadgePosition.topEnd(top: -8, end: -7),
         child: CircleAvatar(
-          foregroundImage: AssetImage(Images.patientProfileIcon),
+          foregroundImage: AssetImage(Images.doctorProfileIcon1),
           backgroundColor: GinaAppTheme.lightPrimaryColor,
         ),
       ),
