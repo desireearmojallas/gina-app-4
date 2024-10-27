@@ -151,11 +151,7 @@ class DoctorVerificationStatusScreen extends StatelessWidget {
               listener: (context, state) {
                 if (state is UploadMedicalImageSuccessState) {
                   postedConfirmationDialog(
-                          context, 'Submitted for verification')
-                      .then(
-                    (value) =>
-                        Navigator.pushReplacementNamed(context, '/login'),
-                  );
+                      context, 'Submitted for verification');
                 } else if (state is UploadMedicalImageFailureState) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(

@@ -19,7 +19,6 @@ class DoctorUploadStatusScreen extends StatelessWidget {
     final ginaTheme = Theme.of(context);
     final authBloc = context.read<AuthBloc>();
     final size = MediaQuery.of(context).size;
-    bool _hasShownProgressBar = false;
 
     return Scaffold(
       appBar: AppBar(

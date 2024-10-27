@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_account_verification/doctor_verification_status.dart';
 import 'package:lottie/lottie.dart';
 
 class DoctorDeclinedVerificationState extends StatelessWidget {
@@ -91,7 +92,15 @@ class DoctorDeclinedVerificationState extends StatelessWidget {
             ),
             const Gap(60),
             FilledButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const DoctorVerificationStatusScreen(),
+                  ),
+                );
+              },
               child: const Text('Resubmit Verification'),
             ),
           ],
