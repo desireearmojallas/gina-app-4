@@ -179,7 +179,12 @@ class AuthenticationController with ChangeNotifier {
   }
 
   //----------Patient Logout----------
-  Future<void> logout() async {}
+  Future<void> logout() async {
+    await auth.signOut();
+    currentPatient = null;
+    notifyListeners();
+    debugPrint('logout successfully');
+  }
 
   Future<bool> checkEmailVerified() async {
     User? user = auth.currentUser;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/gina_header.dart';
@@ -12,13 +13,23 @@ import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/d
 import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/patient/patient_registration.dart';
 
 class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
+  final bool isDoctor;
+  const SignupPage({
+    super.key,
+    required this.isDoctor,
+  });
 
   @override
   State<SignupPage> createState() => _SignupPageState();
 }
 
 class _SignupPageState extends State<SignupPage> {
+  @override
+  void initState() {
+    super.initState();
+    selectedIndex = widget.isDoctor ? 1 : 0;
+  }
+
   int selectedIndex = 0; // 0 for patient, 1 for doctor
   bool obscurePassword = true;
   int currentDoctorStep = 1;
@@ -110,10 +121,10 @@ class _SignupPageState extends State<SignupPage> {
                         ),
                       ),
                     ),
-                    const Align(
+                    Align(
                       alignment: Alignment.center,
                       child: Padding(
-                        padding: EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: GinaHeader(
                           size: 60,
                         ),
@@ -286,12 +297,15 @@ class _SignupPageState extends State<SignupPage> {
             height: 49,
             child: Center(
               child: isLoading
-                  // TODO: CHANGE LOADING ANIMATION
                   ? const SizedBox(
                       height: 20,
                       width: 20,
-                      child: CircularProgressIndicator(
-                        color: GinaAppTheme.lightOnTertiaryContainer,
+                      child: CustomLoadingIndicator(
+                        colors: [
+                          Colors.white,
+                          Colors.white30,
+                          Colors.white60,
+                        ],
                       ),
                     )
                   : const Text(

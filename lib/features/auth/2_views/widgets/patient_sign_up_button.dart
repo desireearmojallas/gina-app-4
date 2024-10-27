@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
 
@@ -66,8 +67,10 @@ class SignUpButton extends StatelessWidget {
                   ? const SizedBox(
                       height: 20,
                       width: 20,
-                      child: CircularProgressIndicator(
-                        color: GinaAppTheme.lightOnTertiaryContainer,
+                      child: CustomLoadingIndicator(
+                        colors: [
+                          GinaAppTheme.lightOnTertiaryContainer,
+                        ],
                       ),
                     )
                   : const Text(

@@ -30,7 +30,7 @@ class HomeScreen extends StatelessWidget {
     final homeBloc = context.read<HomeBloc>();
     return Scaffold(
       appBar: AppBar(
-        title: const GinaHeader(size: 45),
+        title: GinaHeader(size: 45),
         actions: [
           FloatingMenuWidget(
             hasNotification: true,

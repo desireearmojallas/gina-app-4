@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/validators_widget.dart';
 
 SizedBox loginFields({
@@ -27,6 +28,28 @@ SizedBox loginFields({
           onSubmit,
           obscurePassword,
           togglePasswordVisibility: togglePasswordVisibility,
+        ),
+
+        const Gap(10),
+
+// Forgot Password Text
+        Align(
+          alignment: Alignment.centerRight,
+          child: GestureDetector(
+            onTap: () {
+              // Navigate to the ForgotPasswordScreen when the Forgot Password text is clicked
+              Navigator.pushNamed(context, '/forgotPassword');
+            },
+            child: const Text(
+              'Forgot password?',
+              style: TextStyle(
+                color: Color(0xFF979797),
+                fontSize: 14,
+                fontFamily: 'SF UI Display',
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
         ),
       ],
     ),

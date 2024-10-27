@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:icons_plus/icons_plus.dart';
 
 Future<dynamic> postedConfirmationDialog(BuildContext context, String content) {
   return showDialog(
@@ -12,16 +14,45 @@ Future<dynamic> postedConfirmationDialog(BuildContext context, String content) {
       shadowColor: GinaAppTheme.appbarColorLight,
       surfaceTintColor: GinaAppTheme.appbarColorLight,
       icon: const Icon(
-        Icons.check_circle_rounded,
+        MingCute.check_circle_fill,
         color: Colors.green,
         size: 80,
       ),
-      content: Text(
-        content,
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
+      content: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              content,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
+            const Gap(16),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                    GinaAppTheme.lightTertiaryContainer,
+                  ),
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                    const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/login');
+                },
+                child: const Text("OK"),
+              ),
+            ),
+          ],
+        ),
       ),
     ),
   );
