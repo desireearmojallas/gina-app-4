@@ -74,6 +74,8 @@ flutter:
     - assets/images/patient_features/profile/
     - assets/images/patient_features/home/
     - assets/images/patient_features/forums/
+    - assets/images/doctor_features/
+    - assets/images/doctor_features/home/
 
   fonts:
     - family: SF UI Display

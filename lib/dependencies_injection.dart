@@ -9,6 +9,8 @@ import 'package:gina_app_4/features/auth/2_views/screens/forgot_password/2_views
 import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_office_address/bloc/doctor_address_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_bottom_navigation/bloc/doctor_bottom_navigation_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/1_controllers/doctor_profile_controller.dart';
+import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
+import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/1_controllers/forums_controller.dart';
@@ -153,4 +155,12 @@ Future<void> init() async {
   );
 
   sl.registerFactory(() => DoctorProfileController());
+
+  sl.registerFactory(
+    () => HomeDashboardBloc(
+      doctorHomeDashboardController: sl(),
+    ),
+  );
+
+  sl.registerFactory(() => DoctorHomeDashboardController());
 }
