@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:icons_plus/icons_plus.dart';
 
 class PendingRequestsNavigationWidget extends StatelessWidget {
   const PendingRequestsNavigationWidget({super.key});
@@ -14,10 +16,10 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Text(
-              'Pending Requests',
-              style: TextStyle(
-                fontSize: 18,
+            Text(
+              'Pending Requests'.toUpperCase(),
+              style: const TextStyle(
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -60,7 +62,7 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
         ),
         const Gap(10),
         Container(
-          height: size.height * 0.26,
+          height: size.height * 0.11,
           width: size.width / 1.05,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
@@ -69,8 +71,71 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
               GinaAppTheme.defaultBoxShadow,
             ],
           ),
-          child: const Column(
-            children: [],
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: CircleAvatar(
+                  radius: 37,
+                  backgroundImage: AssetImage(
+                    Images.patientProfileIcon,
+                  ),
+                  backgroundColor: Colors.white,
+                ),
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Desiree Armojallas',
+                    style: ginaTheme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const Gap(5),
+                  Text(
+                    'Online Consultation',
+                    style: ginaTheme.textTheme.labelMedium?.copyWith(
+                      color: GinaAppTheme.lightTertiaryContainer,
+                    ),
+                  ),
+                  const Gap(5),
+                  Text(
+                    'Tuesday, December 19\n8:00 AM - 9:00 AM',
+                    style: ginaTheme.textTheme.labelMedium?.copyWith(
+                      color: GinaAppTheme.lightOutline,
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        MingCute.close_circle_fill,
+                        color: Colors.grey[300],
+                        size: 38,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(
+                        MingCute.check_circle_fill,
+                        color: GinaAppTheme.lightTertiaryContainer,
+                        size: 38,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ],

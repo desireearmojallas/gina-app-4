@@ -14,14 +14,14 @@ class ScheduleManagementNavigationWidget extends StatelessWidget {
     final ginaTheme = Theme.of(context);
 
     return Container(
-      height: size.height * 0.20,
-      width: size.width / 2.3,
+      height: size.height * 0.18,
+      width: size.width / 2.9,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         gradient: LinearGradient(
           colors: GinaAppTheme.gradientColors,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.bottomLeft,
+          end: Alignment.topRight,
         ),
         boxShadow: [
           GinaAppTheme.defaultBoxShadow,
@@ -42,13 +42,12 @@ class ScheduleManagementNavigationWidget extends StatelessWidget {
             children: [
               Text(
                 'Schedule\nManagement',
-                style: ginaTheme.textTheme.titleMedium?.copyWith(
+                style: ginaTheme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
               const Icon(
-              
                 Bootstrap.plus_circle_fill,
                 color: Colors.white,
               ),

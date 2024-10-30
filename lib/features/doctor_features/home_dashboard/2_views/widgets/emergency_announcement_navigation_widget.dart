@@ -13,11 +13,15 @@ class EmergencyAnnouncementNavigationWidget extends StatelessWidget {
     final ginaTheme = Theme.of(context);
 
     return Container(
-      height: size.height * 0.20,
-      width: size.width / 2.3,
+      height: size.height * 0.18,
+      width: size.width / 2.9,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: GinaAppTheme.lightOnTertiary,
+        gradient: LinearGradient(
+          colors: GinaAppTheme.gradientColors,
+          begin: Alignment.bottomLeft,
+          end: Alignment.topRight,
+        ),
         boxShadow: [
           GinaAppTheme.defaultBoxShadow,
         ],
@@ -37,13 +41,14 @@ class EmergencyAnnouncementNavigationWidget extends StatelessWidget {
             children: [
               Text(
                 'Emergency\nAnnouncement',
-                style: ginaTheme.textTheme.titleMedium?.copyWith(
+                style: ginaTheme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.bold,
+                  color: Colors.white, // Adjusted color for better visibility
                 ),
               ),
               const Icon(
                 Bootstrap.arrow_right_circle_fill,
-                color: GinaAppTheme.lightTertiaryContainer,
+                color: Colors.white, // Adjusted color for better visibility
               ),
             ],
           ),

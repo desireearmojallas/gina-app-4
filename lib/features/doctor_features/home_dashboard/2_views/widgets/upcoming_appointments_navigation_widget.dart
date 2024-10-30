@@ -17,10 +17,10 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Text(
-              'Upcoming Appointments',
-              style: TextStyle(
-                fontSize: 18,
+            Text(
+              'Upcoming Appointments'.toUpperCase(),
+              style: const TextStyle(
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -61,7 +61,7 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
             ),
           ],
         ),
-        const Gap(10),
+        /*  const Gap(10),
         const Align(
           alignment: Alignment.centerLeft,
           child: Text(
@@ -72,7 +72,7 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
               color: GinaAppTheme.lightOutline,
             ),
           ),
-        ),
+        ), */
         const Gap(10),
         Container(
           height: size.height * 0.22,
