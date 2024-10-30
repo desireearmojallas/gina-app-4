@@ -18,7 +18,7 @@ class HomeDashboardCalendarWidget extends StatelessWidget {
         // navigate to doctor calendar
       },
       child: Container(
-        height: size.height * 0.26,
+        height: size.height * 0.22,
         width: size.width / 1.05,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
@@ -29,7 +29,7 @@ class HomeDashboardCalendarWidget extends StatelessWidget {
         ),
         child: Column(
           children: [
-            const Gap(25),
+            const Gap(15),
             EasyDateTimeLine(
               initialDate: DateTime.now(),
               headerProps: EasyHeaderProps(

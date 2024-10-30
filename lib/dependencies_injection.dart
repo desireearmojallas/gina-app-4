@@ -7,6 +7,9 @@ import 'package:gina_app_4/features/auth/1_controllers/patient_auth_controller.d
 import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/screens/forgot_password/2_views/bloc/forgot_password_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_office_address/bloc/doctor_address_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/bloc/doctor_appointment_request_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/screens/bloc/doctor_appointment_request_screen_loaded_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/screens/doctor_appointment_request.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_bottom_navigation/bloc/doctor_bottom_navigation_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/1_controllers/doctor_profile_controller.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
@@ -156,6 +159,7 @@ Future<void> init() async {
 
   sl.registerFactory(() => DoctorProfileController());
 
+  //! Features - Doctor Home Dashboard
   sl.registerFactory(
     () => HomeDashboardBloc(
       doctorHomeDashboardController: sl(),
@@ -163,4 +167,13 @@ Future<void> init() async {
   );
 
   sl.registerFactory(() => DoctorHomeDashboardController());
+
+  //! Features - Doctor Appointment Request
+  sl.registerFactory(
+    () => DoctorAppointmentRequestBloc(),
+  );
+
+  sl.registerFactory(
+    () => DoctorAppointmentRequestScreenLoadedBloc(),
+  );
 }

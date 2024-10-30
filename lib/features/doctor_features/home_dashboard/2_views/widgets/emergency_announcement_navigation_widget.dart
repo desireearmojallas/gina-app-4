@@ -13,7 +13,7 @@ class EmergencyAnnouncementNavigationWidget extends StatelessWidget {
     final ginaTheme = Theme.of(context);
 
     return Container(
-      height: size.height * 0.18,
+      height: size.height * 0.14,
       width: size.width / 2.9,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
@@ -32,8 +32,8 @@ class EmergencyAnnouncementNavigationWidget extends StatelessWidget {
         children: [
           Image.asset(
             Images.emergencyAnnouncementIcon,
-            width: 90,
-            height: 90,
+            width: 60,
+            height: 60,
           ),
           const Gap(20),
           Row(

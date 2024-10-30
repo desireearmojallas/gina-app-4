@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/screens/view_states/pending_request_state_screen_loaded.dart';
 
 class PendingRequestStateScreenProvider extends StatelessWidget {
   const PendingRequestStateScreenProvider({super.key});
@@ -14,8 +15,6 @@ class PendingRequestStateScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(),
-    );
+    return const PendingRequestStateScreenLoaded();
   }
 }
