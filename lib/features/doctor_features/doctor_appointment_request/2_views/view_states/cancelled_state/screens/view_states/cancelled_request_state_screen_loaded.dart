@@ -3,11 +3,11 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/screens/view_states/pending_request_details_screen_state.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/cancelled_state/screens/view_states/cancelled_request_details_screen_state.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
 
-class PendingRequestStateScreenLoaded extends StatelessWidget {
-  const PendingRequestStateScreenLoaded({super.key});
+class CancelledRequestStateScreenLoaded extends StatelessWidget {
+  const CancelledRequestStateScreenLoaded({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class PendingRequestStateScreenLoaded extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const PendingRequestDetailsScreenState(),
+            builder: (context) => const CancelledRequestDetailsScreenState(),
           ),
         );
       },
@@ -96,7 +96,7 @@ class PendingRequestStateScreenLoaded extends StatelessWidget {
                 children: [
                   AppointmentStatusContainer(
                     // todo: to change the status
-                    appointmentStatus: 0,
+                    appointmentStatus: 3,
                   ),
                 ],
               ),

@@ -4,11 +4,10 @@ import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
 import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/widgets/confirming_pending_request_modal.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
 
-class PendingRequestDetailsScreenState extends StatelessWidget {
-  const PendingRequestDetailsScreenState({super.key});
+class CancelledRequestDetailsScreenState extends StatelessWidget {
+  const CancelledRequestDetailsScreenState({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +47,7 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 20.0),
               child: Container(
-                height: size.height * 0.81,
+                height: size.height * 0.82,
                 width: size.width / 1.05,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
@@ -99,13 +98,13 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                         ),
                         //const Spacer(),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(5, 0, 20, 0),
+                          padding: const EdgeInsets.fromLTRB(5, 0, 15, 0),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               AppointmentStatusContainer(
                                 // todo: to change the status
-                                appointmentStatus: 0,
+                                appointmentStatus: 3,
                               ),
                             ],
                           ),
@@ -126,7 +125,7 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                               ),
                               const Gap(10),
                               Text(
-                                'July 25, 2000',
+                                '',
                                 style: textStyle,
                               ),
                             ],
@@ -141,7 +140,7 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                               ),
                               const Gap(10),
                               Text(
-                                'Female',
+                                '',
                                 style: textStyle,
                               ),
                             ],
@@ -163,7 +162,7 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                             ),
                             const Gap(10),
                             Text(
-                              'Looc, Lapu-Lapu City, Philippines',
+                              '',
                               style: textStyle,
                             ),
                           ],
@@ -184,7 +183,7 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                             ),
                             const Gap(10),
                             Text(
-                              '+63 123 456 7890',
+                              '',
                               style: textStyle,
                             ),
                           ],
@@ -205,7 +204,7 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                             ),
                             const Gap(10),
                             Text(
-                              'des@gina.com',
+                              '',
                               style: textStyle,
                             ),
                           ],
@@ -246,9 +245,7 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                     ),
                     const Gap(20),
                     TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/viewPatientData');
-                      },
+                      onPressed: null,
                       style: ButtonStyle(
                         shape: MaterialStateProperty.all(
                           RoundedRectangleBorder(
@@ -263,70 +260,42 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                             'View Patient Data',
                             style: TextStyle(
                               fontSize: 11,
+                              color: GinaAppTheme.lightSurfaceVariant,
                             ),
                           ),
                           Gap(10),
                           Icon(
                             Icons.arrow_forward_ios,
                             size: 14,
+                            color: GinaAppTheme.lightSurfaceVariant,
                           ),
                         ],
                       ),
                     ),
+                    const Text(
+                      'The patient has cancelled this appointment request.',
+                      style: TextStyle(
+                        color: GinaAppTheme.lightOutline,
+                        fontSize: 11,
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(15, 20, 15, 15),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SizedBox(
-                            height: size.height * 0.05,
-                            width: size.width / 2.4,
-                            child: FilledButton(
-                              onPressed: () {
-                                showConfirmingPendingRequestDialog(
-                                  context,
-                                );
-                              },
-                              style: ButtonStyle(
-                                shape: MaterialStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                backgroundColor: MaterialStateProperty.all(
-                                  GinaAppTheme.lightSurfaceVariant,
-                                ),
-                              ),
-                              child: const Text(
-                                'Decline',
-                                style: TextStyle(
-                                  color: GinaAppTheme.lightOnBackground,
-                                ),
-                              ),
+                      child: Container(
+                        height: size.height * 0.06,
+                        width: size.width / 1.15,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: GinaAppTheme.cancelledTextColor,
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Cancelled',
+                            style: ginaTheme.textTheme.labelLarge?.copyWith(
+                              color: GinaAppTheme.lightBackground,
                             ),
                           ),
-                          SizedBox(
-                            height: size.height * 0.05,
-                            width: size.width / 2.4,
-                            child: FilledButton(
-                              onPressed: () {
-                                showConfirmingPendingRequestDialog(
-                                  context,
-                                );
-                              },
-                              style: ButtonStyle(
-                                shape: MaterialStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                              ),
-                              child: const Text(
-                                'Approve',
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ],

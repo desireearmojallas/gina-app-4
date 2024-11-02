@@ -9,9 +9,15 @@ import 'package:gina_app_4/features/auth/2_views/screens/forgot_password/2_views
 import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_office_address/bloc/doctor_address_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/bloc/doctor_appointment_request_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/screens/bloc/doctor_appointment_request_screen_loaded_bloc.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/screens/doctor_appointment_request.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/approved_state/bloc/approved_request_state_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/cancelled_state/bloc/cancelled_request_state_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/declined_state/bloc/declined_request_state_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/bloc/pending_request_state_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_bottom_navigation/bloc/doctor_bottom_navigation_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/bloc/doctor_forums_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/1_controllers/doctor_profile_controller.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/bloc/doctor_profile_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
@@ -175,5 +181,36 @@ Future<void> init() async {
 
   sl.registerFactory(
     () => DoctorAppointmentRequestScreenLoadedBloc(),
+  );
+
+  sl.registerFactory(
+    () => PendingRequestStateBloc(),
+  );
+
+  sl.registerFactory(
+    () => ApprovedRequestStateBloc(),
+  );
+
+  sl.registerFactory(
+    () => DeclinedRequestStateBloc(),
+  );
+
+  sl.registerFactory(
+    () => CancelledRequestStateBloc(),
+  );
+
+  //! Features - Doctor EConsult
+  sl.registerFactory(
+    () => DoctorEconsultBloc(),
+  );
+
+  //! Features - Doctor Forums
+  sl.registerFactory(
+    () => DoctorForumsBloc(),
+  );
+
+  //! Features - Doctor Profile
+  sl.registerFactory(
+    () => DoctorProfileBloc(),
   );
 }

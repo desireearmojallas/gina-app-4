@@ -15,52 +15,7 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
 
     return Column(
       children: [
-        Row(
-          children: [
-            Text(
-              'Upcoming Appointments'.toUpperCase(),
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const Gap(10),
-            Container(
-              height: 20,
-              width: 20,
-              decoration: const BoxDecoration(
-                color: GinaAppTheme.lightTertiaryContainer,
-                shape: BoxShape.circle,
-              ),
-              child: const Center(
-                child: Text(
-                  '3',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ),
-            const Spacer(),
-            GestureDetector(
-              onTap: () {
-                // TODO: UPCOMING APPOINTMENTS ROUTE
-              },
-              child: Align(
-                alignment: Alignment.topRight,
-                child: Text(
-                  'See all',
-                  style: ginaTheme.textTheme.labelMedium?.copyWith(
-                    color: GinaAppTheme.lightTertiaryContainer,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+       
         /*  const Gap(10),
         const Align(
           alignment: Alignment.centerLeft,

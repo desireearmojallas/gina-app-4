@@ -4,11 +4,11 @@ import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
 import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/widgets/confirming_pending_request_modal.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
+import 'package:icons_plus/icons_plus.dart';
 
-class PendingRequestDetailsScreenState extends StatelessWidget {
-  const PendingRequestDetailsScreenState({super.key});
+class ApprovedRequestDetailsScreenState extends StatelessWidget {
+  const ApprovedRequestDetailsScreenState({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +39,16 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
     return Scaffold(
       appBar: GinaDoctorAppBar(
         title: 'Appointment Request',
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // TODO: CONSULTATION BUTTON
+        },
+        backgroundColor: GinaAppTheme.lightTertiaryContainer,
+        child: const Icon(
+          MingCute.message_3_fill,
+          color: GinaAppTheme.lightBackground,
+        ),
       ),
       body: Stack(
         children: [
@@ -105,7 +115,7 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                             children: [
                               AppointmentStatusContainer(
                                 // todo: to change the status
-                                appointmentStatus: 0,
+                                appointmentStatus: 1,
                               ),
                             ],
                           ),
@@ -275,58 +285,21 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                     ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(15, 20, 15, 15),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SizedBox(
-                            height: size.height * 0.05,
-                            width: size.width / 2.4,
-                            child: FilledButton(
-                              onPressed: () {
-                                showConfirmingPendingRequestDialog(
-                                  context,
-                                );
-                              },
-                              style: ButtonStyle(
-                                shape: MaterialStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                backgroundColor: MaterialStateProperty.all(
-                                  GinaAppTheme.lightSurfaceVariant,
-                                ),
-                              ),
-                              child: const Text(
-                                'Decline',
-                                style: TextStyle(
-                                  color: GinaAppTheme.lightOnBackground,
-                                ),
-                              ),
+                      child: Container(
+                        height: size.height * 0.06,
+                        width: size.width / 1.15,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: GinaAppTheme.approvedTextColor,
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Approved',
+                            style: ginaTheme.textTheme.labelLarge?.copyWith(
+                              color: GinaAppTheme.lightBackground,
                             ),
                           ),
-                          SizedBox(
-                            height: size.height * 0.05,
-                            width: size.width / 2.4,
-                            child: FilledButton(
-                              onPressed: () {
-                                showConfirmingPendingRequestDialog(
-                                  context,
-                                );
-                              },
-                              style: ButtonStyle(
-                                shape: MaterialStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                              ),
-                              child: const Text(
-                                'Approve',
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ],

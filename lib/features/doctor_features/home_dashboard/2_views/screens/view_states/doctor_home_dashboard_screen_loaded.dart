@@ -22,6 +22,8 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ginaTheme = Theme.of(context);
+
     return RefreshIndicator(
       onRefresh: () async {},
       child: ScrollbarCustom(
@@ -38,16 +40,62 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                 const Gap(20),
                 const HomeDashboardCalendarWidget(),
                 const Gap(30),
+                Row(
+                  children: [
+                    Text(
+                      'Upcoming Appointments'.toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Gap(10),
+                    Container(
+                      height: 20,
+                      width: 20,
+                      decoration: const BoxDecoration(
+                        color: GinaAppTheme.lightTertiaryContainer,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Center(
+                        child: Text(
+                          '3',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: () {
+                        // TODO: UPCOMING APPOINTMENTS ROUTE
+                      },
+                      child: Align(
+                        alignment: Alignment.topRight,
+                        child: Text(
+                          'See all',
+                          style: ginaTheme.textTheme.labelMedium?.copyWith(
+                            color: GinaAppTheme.lightTertiaryContainer,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 const UpcomingAppointmentsNavigationWidget(),
-                const Gap(50),
+                const Gap(40),
                 const PendingRequestsNavigationWidget(),
-                const Gap(50),
+                const Gap(40),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Navigation Hub'.toUpperCase(),
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gina_app_4/dependencies_injection.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/bloc/pending_request_state_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/screens/view_states/pending_request_state_screen_loaded.dart';
 
 class PendingRequestStateScreenProvider extends StatelessWidget {
@@ -6,7 +9,10 @@ class PendingRequestStateScreenProvider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const PendingRequestStateScreen();
+    return BlocProvider<PendingRequestStateBloc>(
+      create: (context) => sl<PendingRequestStateBloc>(),
+      child: const PendingRequestStateScreen(),
+    );
   }
 }
 
@@ -15,6 +21,11 @@ class PendingRequestStateScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const PendingRequestStateScreenLoaded();
+    return BlocConsumer<PendingRequestStateBloc, PendingRequestStateState>(
+      listener: (context, state) {},
+      builder: (context, state) {
+        return const PendingRequestStateScreenLoaded();
+      },
+    );
   }
 }

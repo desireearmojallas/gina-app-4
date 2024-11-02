@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
@@ -20,7 +19,7 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
             Text(
               'Pending Requests'.toUpperCase(),
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -38,7 +37,7 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
-                    fontSize: 12,
+                    fontSize: 10,
                   ),
                 ),
               ),
@@ -99,9 +98,11 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                     ),
                     const Gap(5),
                     Text(
-                      'Online Consultation',
-                      style: ginaTheme.textTheme.labelMedium?.copyWith(
+                      'Online Consultation'.toUpperCase(),
+                      style: ginaTheme.textTheme.labelSmall?.copyWith(
                         color: GinaAppTheme.lightTertiaryContainer,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     const Gap(5),

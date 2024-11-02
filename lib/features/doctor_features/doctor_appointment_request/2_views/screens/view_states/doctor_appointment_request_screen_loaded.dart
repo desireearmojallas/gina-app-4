@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/screens/bloc/doctor_appointment_request_screen_loaded_bloc.dart';
+import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
 
 class DoctorAppointmentRequestScreenLoaded extends StatelessWidget {
   const DoctorAppointmentRequestScreenLoaded({super.key});
@@ -19,7 +20,7 @@ class DoctorAppointmentRequestScreenLoaded extends StatelessWidget {
             margin: const EdgeInsets.all(10.0),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10.0),
-              color: Colors.white,
+              color: Colors.white.withOpacity(0.5),
             ),
             child: BlocBuilder<DoctorAppointmentRequestScreenLoadedBloc,
                 DoctorAppointmentRequestScreenLoadedState>(
@@ -42,8 +43,7 @@ class DoctorAppointmentRequestScreenLoaded extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                         color: Colors.white),
                     indicator: BoxDecoration(
-                      borderRadius: BorderRadius.circular(
-                          10.0), // Adjusted to better fit the active tab
+                      borderRadius: BorderRadius.circular(10.0),
                       color: state.backgroundColor,
                       boxShadow: [
                         GinaAppTheme.defaultBoxShadow,
