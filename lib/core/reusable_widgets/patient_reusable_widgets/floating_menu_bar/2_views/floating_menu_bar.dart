@@ -83,7 +83,7 @@ class FloatingMenuWidget extends StatelessWidget {
               Stack(
                 children: [
                   const Icon(
-                    MingCute.notification_fill,
+                    MingCute.notification_line,
                     size: 20,
                     color: GinaAppTheme.lightOnPrimaryColor,
                   ),
@@ -112,7 +112,7 @@ class FloatingMenuWidget extends StatelessWidget {
               Stack(
                 children: [
                   const Icon(
-                    Icons.emergency,
+                    Icons.emergency_outlined,
                     size: 22,
                     color: GinaAppTheme.lightOnPrimaryColor,
                   ),
@@ -140,7 +140,7 @@ class FloatingMenuWidget extends StatelessWidget {
             children: [
               const Gap(2),
               const Icon(
-                Bootstrap.info_circle_fill,
+                Bootstrap.info_circle,
                 size: 18,
                 color: GinaAppTheme.lightOnPrimaryColor,
               ),
@@ -165,7 +165,7 @@ class FloatingMenuWidget extends StatelessWidget {
             children: [
               const Gap(2),
               const Icon(
-                MingCute.exit_fill,
+                MingCute.exit_line,
                 size: 20,
                 color: GinaAppTheme.lightOnPrimaryColor,
               ),
@@ -178,12 +178,10 @@ class FloatingMenuWidget extends StatelessWidget {
           ),
           onPressed: () {
             debugPrint('logout clicked floating menu bar');
-            AuthenticationController().logout().then(
-                  (value) => {
-                    SharedPreferencesManager().logout,
-                    Navigator.pushReplacementNamed(context, '/login'),
-                  },
-                );
+            AuthenticationController().logout().then((value) => {
+                  SharedPreferencesManager().logout(),
+                  Navigator.pushReplacementNamed(context, '/login'),
+                });
           },
         ),
       ],

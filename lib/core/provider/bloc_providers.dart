@@ -1,9 +1,20 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/floating_doctor_menu_bar/bloc/floating_doctor_menu_bar_bloc.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/floating_menu_bar/2_views/bloc/floating_menu_bloc.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/screens/forgot_password/2_views/bloc/forgot_password_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/bloc/doctor_appointment_request_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/screens/bloc/doctor_appointment_request_screen_loaded_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/approved_state/bloc/approved_request_state_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/cancelled_state/bloc/cancelled_request_state_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/declined_state/bloc/declined_request_state_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/bloc/pending_request_state_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_bottom_navigation/bloc/doctor_bottom_navigation_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/bloc/doctor_forums_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/bloc/doctor_profile_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_bloc.dart';
@@ -58,5 +69,38 @@ List<BlocProvider> getBlocProviders() {
     BlocProvider<DoctorBottomNavigationBloc>(
       create: (context) => sl<DoctorBottomNavigationBloc>(),
     ),
+    BlocProvider<FloatingDoctorMenuBarBloc>(
+      create: (context) => sl<FloatingDoctorMenuBarBloc>(),
+    ),
+    BlocProvider<HomeDashboardBloc>(
+      create: (context) => sl<HomeDashboardBloc>(),
+    ),
+    BlocProvider<DoctorAppointmentRequestBloc>(
+      create: (context) => sl<DoctorAppointmentRequestBloc>(),
+    ),
+    BlocProvider<DoctorAppointmentRequestScreenLoadedBloc>(
+      create: (context) => sl<DoctorAppointmentRequestScreenLoadedBloc>(),
+    ),
+    BlocProvider<PendingRequestStateBloc>(
+      create: (context) => sl<PendingRequestStateBloc>(),
+    ),
+    BlocProvider<ApprovedRequestStateBloc>(
+      create: (context) => sl<ApprovedRequestStateBloc>(),
+    ),
+    BlocProvider<DeclinedRequestStateBloc>(
+      create: (context) => sl<DeclinedRequestStateBloc>(),
+    ),
+    BlocProvider<CancelledRequestStateBloc>(
+      create: (context) => sl<CancelledRequestStateBloc>(),
+    ),
+    BlocProvider<DoctorEconsultBloc>(
+      create: (context) => sl<DoctorEconsultBloc>(),
+    ),
+    BlocProvider<DoctorForumsBloc>(
+      create: (context) => sl<DoctorForumsBloc>(),
+    ),
+    BlocProvider<DoctorProfileBloc>(
+      create: (context) => sl<DoctorProfileBloc>(),
+    )
   ];
 }

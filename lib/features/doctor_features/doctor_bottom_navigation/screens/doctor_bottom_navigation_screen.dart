@@ -42,9 +42,10 @@ class DoctorBottomNavigation extends StatelessWidget {
           builder: (context, state) {
             return CrystalNavigationBar(
               currentIndex: state.currentIndex,
-              unselectedItemColor: state.currentIndex == 4
+              /* unselectedItemColor: state.currentIndex == 4
                   ? Colors.white
-                  : GinaAppTheme.lightOutline.withOpacity(0.5),
+                  : GinaAppTheme.lightOutline.withOpacity(0.5), */
+              unselectedItemColor: GinaAppTheme.lightOutline.withOpacity(0.5),
               onTap: (index) {
                 context
                     .read<DoctorBottomNavigationBloc>()
@@ -54,23 +55,33 @@ class DoctorBottomNavigation extends StatelessWidget {
               outlineBorderColor: Colors.white.withOpacity(0.1),
               items: [
                 CrystalNavigationBarItem(
-                  icon: MingCute.home_4_fill,
+                  icon: state.currentIndex == 0
+                      ? MingCute.home_4_fill
+                      : MingCute.home_4_line,
                   selectedColor: GinaAppTheme.lightTertiaryContainer,
                 ),
                 CrystalNavigationBarItem(
-                  icon: MingCute.calendar_fill,
+                  icon: state.currentIndex == 1
+                      ? MingCute.calendar_fill
+                      : MingCute.calendar_line,
                   selectedColor: GinaAppTheme.lightTertiaryContainer,
                 ),
                 CrystalNavigationBarItem(
-                  icon: MingCute.message_3_fill,
+                  icon: state.currentIndex == 2
+                      ? MingCute.message_3_fill
+                      : MingCute.message_3_line,
                   selectedColor: GinaAppTheme.lightTertiaryContainer,
                 ),
                 CrystalNavigationBarItem(
-                  icon: MingCute.comment_2_fill,
+                  icon: state.currentIndex == 3
+                      ? MingCute.comment_2_fill
+                      : MingCute.comment_2_line,
                   selectedColor: GinaAppTheme.lightTertiaryContainer,
                 ),
                 CrystalNavigationBarItem(
-                  icon: MingCute.user_3_fill,
+                  icon: state.currentIndex == 4
+                      ? MingCute.user_3_fill
+                      : MingCute.user_3_line,
                   selectedColor: GinaAppTheme.lightTertiaryContainer,
                 ),
               ],

@@ -54,23 +54,33 @@ class BottomNavigation extends StatelessWidget {
               outlineBorderColor: Colors.white.withOpacity(0.1),
               items: [
                 CrystalNavigationBarItem(
-                  icon: MingCute.home_4_fill,
+                  icon: state.currentIndex == 0
+                      ? MingCute.home_4_fill
+                      : MingCute.home_4_line,
                   selectedColor: GinaAppTheme.lightTertiaryContainer,
                 ),
                 CrystalNavigationBarItem(
-                  icon: MingCute.search_2_fill,
+                  icon: state.currentIndex == 1
+                      ? MingCute.search_2_fill
+                      : MingCute.search_2_line,
                   selectedColor: GinaAppTheme.lightTertiaryContainer,
                 ),
                 CrystalNavigationBarItem(
-                  icon: MingCute.message_3_fill,
+                  icon: state.currentIndex == 2
+                      ? MingCute.message_3_fill
+                      : MingCute.message_3_line,
                   selectedColor: GinaAppTheme.lightTertiaryContainer,
                 ),
                 CrystalNavigationBarItem(
-                  icon: MingCute.comment_2_fill,
+                  icon: state.currentIndex == 3
+                      ? MingCute.comment_2_fill
+                      : MingCute.comment_2_line,
                   selectedColor: GinaAppTheme.lightTertiaryContainer,
                 ),
                 CrystalNavigationBarItem(
-                  icon: MingCute.user_3_fill,
+                  icon: state.currentIndex == 4
+                      ? MingCute.user_3_fill
+                      : MingCute.user_3_line,
                   selectedColor: GinaAppTheme.lightTertiaryContainer,
                 ),
               ],

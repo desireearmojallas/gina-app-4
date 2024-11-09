@@ -7,6 +7,8 @@ class Images {
 
   // Background Pics
 
+  //!--- Patient Features ---!//
+
   // Doctor Office Address Screen
   static String officeAddressLogo =
       "assets/images/patient_features/doctor_office_address/location_address.png";
@@ -46,4 +48,12 @@ class Images {
   // Forums Screen
   static String forumsEmptyPlaceholder =
       "assets/images/patient_features/forums/forums_empty_placeholder.png";
+
+  //!--- Doctor Features ---!//
+
+  // Doctor Home Dashboard Screen
+  static String scheduleManagementIcon =
+      "assets/images/doctor_features/home/schedule_management.png";
+  static String emergencyAnnouncementIcon =
+      "assets/images/doctor_features/home/emergency_announcement_doctor.png";
 }

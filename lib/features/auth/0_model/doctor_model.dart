@@ -164,7 +164,7 @@ class DoctorModel extends Equatable {
       officeMapsLocationAddress: json['officeMapsLocationAddress'] ?? '',
       officeLatLngAddress: json['officeLatLngAddress'] ?? '',
       officePhoneNumber: json['officePhoneNumber'] ?? '',
-      officeLatLng: json['officeLatLng'] ?? '',
+      officeLatLng: json['officeLatLng'],
       doctorVerificationStatus: json['doctorVerificationStatus'] ?? 0,
       created: json['created'] ?? Timestamp.now(),
       updated: json['updated'] ?? Timestamp.now(),
