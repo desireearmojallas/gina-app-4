@@ -15,39 +15,38 @@ class DoctorEConsultScreenLoaded extends StatelessWidget {
       appBar: GinaDoctorAppBar(
         title: 'E-Consult',
       ),
-      body: ScrollbarCustom(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Upcoming Appointments'.toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
+      body: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Upcoming Appointments'.toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                // TODO: View all upcoming appointments and make it slidable like the patient side
-                const UpcomingAppointmentsNavigationWidget(),
-                const Gap(20),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Consultation History'.toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
+              ),
+              // TODO: View all upcoming appointments and make it slidable like the patient side
+              const UpcomingAppointmentsNavigationWidget(),
+              const Gap(20),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Consultation History'.toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                const Gap(10),
-                const ChatEConsultCardList(),
-              ],
-            ),
+              ),
+              const Gap(10),
+              const ChatEConsultCardList(),
+            ],
           ),
         ),
       ),

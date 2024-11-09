@@ -43,11 +43,11 @@ class ProfileScreenLoaded extends StatelessWidget {
                     GinaAppTheme.defaultBoxShadow,
                   ],
                 ),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 40, 20, 0),
-                      child: SingleChildScrollView(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 40, 20, 0),
                         child: Column(
                           children: [
                             // Profile Picture
@@ -311,12 +311,12 @@ class ProfileScreenLoaded extends StatelessWidget {
                           ],
                         ),
                       ),
-                    ),
-                    const Gap(10),
-                    WavesWidget(
-                      gradientColors: gradientColors,
-                    ),
-                  ],
+                      const Gap(10),
+                      WavesWidget(
+                        gradientColors: gradientColors,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

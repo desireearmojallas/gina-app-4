@@ -42,9 +42,10 @@ class DoctorBottomNavigation extends StatelessWidget {
           builder: (context, state) {
             return CrystalNavigationBar(
               currentIndex: state.currentIndex,
-              unselectedItemColor: state.currentIndex == 4
+              /* unselectedItemColor: state.currentIndex == 4
                   ? Colors.white
-                  : GinaAppTheme.lightOutline.withOpacity(0.5),
+                  : GinaAppTheme.lightOutline.withOpacity(0.5), */
+              unselectedItemColor: GinaAppTheme.lightOutline.withOpacity(0.5),
               onTap: (index) {
                 context
                     .read<DoctorBottomNavigationBloc>()
