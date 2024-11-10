@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/doctor_forums_navigation_widget.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/emergency_announcement_navigation_widget.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/greeting_widget.dart';
@@ -36,7 +37,15 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const Gap(30),
-                const GreetingWidget(),
+                BlocBuilder<HomeDashboardBloc, HomeDashboardState>(
+                  builder: (context, state) {
+                    if (state is GetDoctorNameState) {
+                      return  GreetingWidget(
+                        doctorName: state.doctorName,
+                      );
+                    } return const SizedBox();
+                  },
+                ),
                 const Gap(20),
                 const HomeDashboardCalendarWidget(),
                 const Gap(30),

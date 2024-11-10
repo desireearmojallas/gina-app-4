@@ -3,7 +3,11 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:icons_plus/icons_plus.dart';
 
-Future<dynamic> postedConfirmationDialog(BuildContext context, String content) {
+Future<dynamic> postedConfirmationDialog(
+  BuildContext context,
+  String content,
+  bool? isSignUp,
+) {
   return showDialog(
     context: context,
     builder: (context) => AlertDialog(
@@ -46,7 +50,9 @@ Future<dynamic> postedConfirmationDialog(BuildContext context, String content) {
                   ),
                 ),
                 onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/login');
+                  (isSignUp ?? false)
+                      ? Navigator.pushReplacementNamed(context, '/login')
+                      : Navigator.pop(context);
                 },
                 child: const Text("OK"),
               ),

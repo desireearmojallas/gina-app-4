@@ -4,10 +4,10 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/forums/0_models/forums_model.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/widgets/forum_header.dart';
 
-class MainDetailedPostContainer extends StatelessWidget {
+class MainDetailedDoctorPostContainer extends StatelessWidget {
   final ForumModel forumPost;
   final int doctorRatingId;
-  const MainDetailedPostContainer({
+  const MainDetailedDoctorPostContainer({
     super.key,
     required this.forumPost,
     required this.doctorRatingId,

@@ -80,7 +80,7 @@ class ForumScreen extends StatelessWidget {
                   Navigator.pushNamed(context, '/forumsReplyPost').then(
                       (value) => forumsBloc.add(ForumsFetchRequestedEvent()));
                 } else if (state is CreateReplyForumsPostSuccessState) {
-                  postedConfirmationDialog(context, 'Reply posted');
+                  postedConfirmationDialog(context, 'Reply posted', false);
                 }
               },
               builder: (context, state) {

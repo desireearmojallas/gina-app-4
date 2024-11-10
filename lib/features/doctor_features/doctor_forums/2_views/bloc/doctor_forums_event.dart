@@ -46,6 +46,8 @@ class NavigateToDoctorForumsReplyPostEvent extends DoctorForumsEvent {
 
   @override
   List<Object> get props => [docForumPost];
+
+  get forumPost => null;
 }
 
 class CreateReplyDoctorForumsPostEvent extends DoctorForumsEvent {
@@ -66,7 +68,9 @@ class CreateReplyDoctorForumsPostEvent extends DoctorForumsEvent {
 class GetRepliesDoctorForumsPostRequestedEvent extends DoctorForumsEvent {
   final ForumModel docForumPost;
 
-  const GetRepliesDoctorForumsPostRequestedEvent({required this.docForumPost});
+  const GetRepliesDoctorForumsPostRequestedEvent({
+    required this.docForumPost,
+  });
 
   @override
   List<Object> get props => [docForumPost];

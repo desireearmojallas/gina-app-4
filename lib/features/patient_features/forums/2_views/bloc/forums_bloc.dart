@@ -71,13 +71,15 @@ class ForumsBloc extends Bloc<ForumsEvent, ForumsState> {
       postId: forumPost.postId,
     );
 
+    final doctorRatingId = event.doctorRatingId;
+
     repliesPost.fold((failure) {
       emit(GetForumsPostsFailedState(message: failure.toString()));
     }, (replies) {
       emit(NavigateToForumsDetailedPostState(
         forumPost: forumPost,
         forumReplies: replies,
-        doctorRatingId: event.doctorRatingId,
+        doctorRatingId: doctorRatingId,
       ));
     });
   }

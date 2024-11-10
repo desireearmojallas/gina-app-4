@@ -4,13 +4,17 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/bloc/profile_bloc.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/widgets/waves_widget.dart';
 
 class ProfileScreenLoaded extends StatelessWidget {
   final UserModel patientData;
-  const ProfileScreenLoaded({super.key, required this.patientData});
+  const ProfileScreenLoaded({
+    super.key,
+    required this.patientData,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,32 +22,31 @@ class ProfileScreenLoaded extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
     final ginaTheme = Theme.of(context);
     final profileBloc = context.read<ProfileBloc>();
-    final List<Color> gradientColors = [
-      GinaAppTheme.lightTertiaryContainer,
-      GinaAppTheme.lightSecondary,
-      GinaAppTheme.lightPrimaryColor,
-    ];
+    const divider = Divider(
+      thickness: 0.2,
+      height: 2,
+    );
+
     return Scaffold(
       body: Stack(
         children: [
           const GradientBackground(),
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: Container(
-                height: height * 0.87,
-                width: width * 0.94,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(8),
+          SingleChildScrollView(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Container(
+                  height: height * 0.87,
+                  width: width * 0.94,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(8),
+                    ),
+                    boxShadow: [
+                      GinaAppTheme.defaultBoxShadow,
+                    ],
                   ),
-                  boxShadow: [
-                    GinaAppTheme.defaultBoxShadow,
-                  ],
-                ),
-                child: SingleChildScrollView(
                   child: Column(
                     children: [
                       Padding(
@@ -57,9 +60,7 @@ class ProfileScreenLoaded extends StatelessWidget {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 gradient: LinearGradient(
-                                  colors: [
-                                    ...gradientColors,
-                                  ],
+                                  colors: GinaAppTheme.gradientColors,
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
@@ -187,10 +188,7 @@ class ProfileScreenLoaded extends StatelessWidget {
                               ),
                             ),
                             Gap(height * 0.01),
-                            const Divider(
-                              thickness: 0.2,
-                              height: 2,
-                            ),
+                            divider,
                             Gap(height * 0.03),
                             Padding(
                               padding:
@@ -214,14 +212,9 @@ class ProfileScreenLoaded extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            Gap(height * 0.01),
-                            const Divider(
-                              thickness: 0.2,
-                              height: 2,
-                            ),
 
                             // 2 cards (view cycle history, my forum posts)
-                            Gap(height * 0.05),
+                            Gap(height * 0.03),
 
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -313,7 +306,7 @@ class ProfileScreenLoaded extends StatelessWidget {
                       ),
                       const Gap(10),
                       WavesWidget(
-                        gradientColors: gradientColors,
+                        gradientColors: GinaAppTheme.gradientColors,
                       ),
                     ],
                   ),

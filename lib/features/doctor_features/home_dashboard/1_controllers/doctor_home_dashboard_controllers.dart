@@ -6,8 +6,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
 
+
 int? pendingAppointmentsCount;
 int? confirmedAppointmentsCount;
+String? doctorName;
 
 class DoctorHomeDashboardController extends ChangeNotifier {
   final FirebaseAuth auth = FirebaseAuth.instance;

@@ -18,3 +18,12 @@ class HomeInitialSuccess extends HomeState {}
 class HomeInitialError extends HomeState {}
 
 class HomeInitialLoading extends HomeState {}
+
+class GetPatientNameState extends HomeState {
+  final String patientName;
+
+  const GetPatientNameState({required this.patientName});
+
+  @override
+  List<Object> get props => [patientName];
+}

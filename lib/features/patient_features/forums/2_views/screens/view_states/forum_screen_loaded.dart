@@ -166,7 +166,7 @@ class ForumScreenLoaded extends StatelessWidget {
                                                                         .primaryColor,
                                                                     fontWeight:
                                                                         FontWeight
-                                                                            .bold,
+                                                                            .w500,
                                                                   ),
                                                                 ),
                                                               ),

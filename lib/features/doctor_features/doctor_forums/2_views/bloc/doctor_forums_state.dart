@@ -55,10 +55,10 @@ class NavigateToDoctorForumsDetailedPostState extends DoctorForumsState {
 
 class NavigateToDoctorForumsCreatePostState extends DoctorForumsActionState {}
 
-class NavigateToDoctorForumsReplyPostState extends DoctorForumsActionState {
+class NavigateToDoctorForumsReplyPostState extends DoctorForumsState {
   final ForumModel docForumPost;
 
-  NavigateToDoctorForumsReplyPostState({required this.docForumPost});
+  const NavigateToDoctorForumsReplyPostState({required this.docForumPost});
 
   @override
   List<Object> get props => [docForumPost];

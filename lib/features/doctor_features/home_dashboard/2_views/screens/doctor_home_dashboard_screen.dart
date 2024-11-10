@@ -15,7 +15,8 @@ class DoctorHomeScreenDashboardProvider extends StatelessWidget {
     return BlocProvider(
       create: (context) {
         final homeDashboardBloc = sl<HomeDashboardBloc>();
-        homeDashboardBloc.add(HomeInitialEvent());
+        // homeDashboardBloc.add(HomeInitialEvent());
+        homeDashboardBloc.add(GetDoctorNameEvent());
         return homeDashboardBloc;
       },
       child: const DoctorHomeScreenDashboard(),

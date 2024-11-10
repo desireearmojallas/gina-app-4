@@ -1,9 +1,15 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/bloc/doctor_forums_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/screens/view_states/doctor_forums_details_post_state.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/screens/view_states/doctor_forums_screen_loaded.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/screens/view_states/doctor_reply_post_screen_state.dart';
+import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_bloc.dart';
+import 'package:gina_app_4/features/patient_features/forums/2_views/widgets/posted_confirmation_dialog.dart';
 
 class DoctorForumsScreenProvider extends StatelessWidget {
   const DoctorForumsScreenProvider({super.key});
@@ -30,44 +36,113 @@ class DoctorForumsScreen extends StatelessWidget {
     return BlocBuilder<DoctorForumsBloc, DoctorForumsState>(
       builder: (context, state) {
         return Scaffold(
-            appBar: GinaDoctorAppBar(
-              leading: state is NavigateToDoctorForumsDetailedPostState ||
-                      state is GetRepliesDoctorForumsPostSuccessState
-                  ? IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      onPressed: () {
-                        forumsBloc.add(DoctorForumsFetchRequestedEvent());
-                      },
-                    )
-                  : state is NavigateToDoctorForumsReplyPostState
-                      ? IconButton(
-                          icon: const Icon(Icons.arrow_back),
-                          onPressed: () {
-                            forumsBloc
-                                .add(NavigateToDoctorForumsDetailedPostEvent(
-                              docForumPost: state.docForumPost,
-                              doctorRatingId: state.docForumPost.doctorRatingId,
-                            ));
-                          })
-                      : null,
-              title: state is NavigateToDoctorForumsReplyPostState
-                  ? 'Reply'
-                  : 'Forums',
-            ),
-            floatingActionButton: FloatingActionButton(
+          appBar: GinaDoctorAppBar(
+            leading: state is NavigateToDoctorForumsDetailedPostState ||
+                    state is GetRepliesDoctorForumsPostSuccessState
+                ? IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () {
+                      forumsBloc.add(DoctorForumsFetchRequestedEvent());
+                    },
+                  )
+                : state is NavigateToDoctorForumsReplyPostState
+                    ? IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () {
+                          forumsBloc
+                              .add(NavigateToDoctorForumsDetailedPostEvent(
+                            docForumPost: state.docForumPost,
+                            doctorRatingId: state.docForumPost.doctorRatingId,
+                          ));
+                        })
+                    : null,
+            title: state is NavigateToDoctorForumsReplyPostState
+                ? 'Reply'
+                : 'Forums',
+          ),
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.only(bottom: 78),
+            child: FloatingActionButton(
               onPressed: () {
                 forumsBloc.add(NavigateToDoctorForumsCreatePostEvent());
               },
-              child: const Icon(Icons.add),
+              child: const Icon(
+                CupertinoIcons.add,
+              ),
             ),
-            body: BlocConsumer<DoctorForumsBloc, DoctorForumsState>(
-              listener: (context, state) {
-                // TODO: implement listener
-              },
-              builder: (context, state) {
-                return Container();
-              },
-            ));
+          ),
+          body: BlocConsumer<DoctorForumsBloc, DoctorForumsState>(
+            listenWhen: (previous, current) =>
+                current is DoctorForumsActionState,
+            buildWhen: (previous, current) =>
+                current is! DoctorForumsActionState,
+            listener: (context, state) {
+              if (state is NavigateToDoctorForumsCreatePostState) {
+                Navigator.pushNamed(context, '/doctorForumsCreatePost').then(
+                  (value) => forumsBloc.add(
+                    DoctorForumsFetchRequestedEvent(),
+                  ),
+                );
+              }
+              // else if (state is NavigateToDoctorForumsReplyPostState) {
+              //   Navigator.pushNamed(context, '/forumsReplyPost').then(
+              //     (value) => forumsBloc.add(
+              //       DoctorForumsFetchRequestedEvent(),
+              //     ),
+              //   );
+              // }
+              else if (state is CreateDoctorForumsPostSuccessState) {
+                postedConfirmationDialog(context, 'Posted', false);
+              } else if (state is CreateReplyDoctorForumsPostSuccessState) {
+                postedConfirmationDialog(context, 'Reply posted', false);
+              }
+            },
+            builder: (context, state) {
+              if (state is GetDoctorForumsPostsSuccessState) {
+                final forumPosts = state.forumsPosts;
+                final doctorRatingIds = state.doctorRatingIds;
+                return DoctorForumsScreenLoaded(
+                  docForumsPosts: forumPosts,
+                  doctorRatingIds: doctorRatingIds,
+                );
+              } else if (state is GetDoctorForumsPostsEmptyState) {
+                return const Center(
+                  child: Text('No Forum Posts'),
+                );
+              } else if (state is GetDoctorForumsPostsLoadingState) {
+                return const Center(
+                  child: CustomLoadingIndicator(),
+                );
+              } else if (state is GetDoctorForumsPostsFailedState) {
+                return Center(
+                  child: Text(state.message),
+                );
+              } else if (state is NavigateToDoctorForumsDetailedPostState) {
+                final forumPost = state.doctorForumPost;
+                final forumReplies = state.forumReplies;
+                final doctorRatingId = state.doctorRatingId;
+                return DoctorForumsDetailedPostState(
+                  forumPost: forumPost,
+                  forumReplies: forumReplies,
+                  doctorRatingId: doctorRatingId,
+                );
+              } else if (state is NavigateToDoctorForumsReplyPostState) {
+                final forumPost = state.docForumPost;
+                return DoctorReplyPostScreenState(
+                  forumPost: forumPost,
+                );
+              } else if (state is GetRepliesDoctorForumsPostSuccessState) {
+                final forumReplies = state.forumReplies;
+                return DoctorForumsDetailedPostState(
+                  forumPost: state.forumPost,
+                  forumReplies: forumReplies,
+                  doctorRatingId: state.doctorRatingId,
+                );
+              }
+              return const SizedBox();
+            },
+          ),
+        );
       },
     );
   }
