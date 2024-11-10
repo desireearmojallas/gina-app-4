@@ -151,7 +151,10 @@ class DoctorVerificationStatusScreen extends StatelessWidget {
               listener: (context, state) {
                 if (state is UploadMedicalImageSuccessState) {
                   postedConfirmationDialog(
-                      context, 'Submitted for verification');
+                    context,
+                    'Submitted for verification',
+                    true,
+                  );
                 } else if (state is UploadMedicalImageFailureState) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(

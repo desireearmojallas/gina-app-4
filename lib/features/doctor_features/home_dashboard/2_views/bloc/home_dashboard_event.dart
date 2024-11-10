@@ -8,3 +8,5 @@ sealed class HomeDashboardEvent extends Equatable {
 }
 
 class HomeInitialEvent extends HomeDashboardEvent {}
+
+class GetDoctorNameEvent extends HomeDashboardEvent {}

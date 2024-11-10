@@ -15,6 +15,7 @@ class HomeScreenProvider extends StatelessWidget {
     return BlocProvider<HomeBloc>(
       create: (context) {
         final homeBloc = sl<HomeBloc>();
+        homeBloc.add(GetPatientNameEvent());
         return homeBloc;
       },
       child: const HomeScreen(),

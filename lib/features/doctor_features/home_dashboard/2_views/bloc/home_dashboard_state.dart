@@ -26,3 +26,12 @@ class HomeDashboardInitial extends HomeDashboardState {
 }
 
 class HomeDashboardNavigateToFindDoctorActionState extends HomeDashboardState {}
+
+class GetDoctorNameState extends HomeDashboardState {
+  final String doctorName;
+
+  const GetDoctorNameState({required this.doctorName});
+
+  @override
+  List<Object> get props => [doctorName];
+}

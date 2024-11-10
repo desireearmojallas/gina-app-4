@@ -5,18 +5,17 @@ import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/bloc/doctor_forums_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/widgets/main_detailed_post_container.dart';
 import 'package:gina_app_4/features/patient_features/forums/0_models/forums_model.dart';
-import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/widgets/forum_header.dart';
-import 'package:gina_app_4/features/patient_features/forums/2_views/widgets/main_detailed_post_container.dart';
 import 'package:icons_plus/icons_plus.dart';
 
-class ForumsDetailedPostState extends StatelessWidget {
+class DoctorForumsDetailedPostState extends StatelessWidget {
   final ForumModel forumPost;
   final List<ForumModel> forumReplies;
   final int doctorRatingId;
-
-  const ForumsDetailedPostState({
+  const DoctorForumsDetailedPostState({
     super.key,
     required this.forumPost,
     required this.forumReplies,
@@ -25,7 +24,7 @@ class ForumsDetailedPostState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final forumsBloc = context.read<ForumsBloc>();
+    final forumsBloc = context.read<DoctorForumsBloc>();
     final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -34,8 +33,8 @@ class ForumsDetailedPostState extends StatelessWidget {
           const GradientBackground(),
           RefreshIndicator(
             onRefresh: () async {
-              forumsBloc.add(GetRepliesForumsPostEvent(
-                forumPost: forumPost,
+              forumsBloc.add(GetRepliesDoctorForumsPostRequestedEvent(
+                docForumPost: forumPost,
               ));
             },
             child: ScrollbarCustom(
@@ -49,7 +48,7 @@ class ForumsDetailedPostState extends StatelessWidget {
                       children: [
                         Column(
                           children: [
-                            MainDetailedPostContainer(
+                            MainDetailedDoctorPostContainer(
                               forumPost: forumPost,
                               doctorRatingId: doctorRatingId,
                             ),
@@ -70,14 +69,16 @@ class ForumsDetailedPostState extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            BlocBuilder<ForumsBloc, ForumsState>(
+                            BlocBuilder<DoctorForumsBloc, DoctorForumsState>(
                               builder: (context, state) {
-                                if (state is GetRepliesForumsPostLoadingState) {
+                                if (state
+                                    is GetRepliesDoctorForumsPostLoadingState) {
                                   return const Center(
                                     child: CustomLoadingIndicator(),
                                   );
                                 }
-                                if (state is GetForumsPostsFailedState) {
+                                if (state
+                                    is GetRepliesDoctorForumsPostFailedState) {
                                   return Center(
                                     child: Text(
                                       state.message,
@@ -167,8 +168,8 @@ class ForumsDetailedPostState extends StatelessWidget {
                   ),
                   onPressed: () {
                     forumsBloc.add(
-                      NavigateToForumsReplyPostEvent(
-                        forumPost: forumPost,
+                      NavigateToDoctorForumsReplyPostEvent(
+                        docForumPost: forumPost,
                       ),
                     );
                   },

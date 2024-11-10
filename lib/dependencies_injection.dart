@@ -15,6 +15,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/bloc/pending_request_state_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_bottom_navigation/bloc/doctor_bottom_navigation_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_forums/1_controllers/doctor_forums_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/bloc/doctor_forums_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/1_controllers/doctor_profile_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/bloc/doctor_profile_bloc.dart';
@@ -83,7 +84,9 @@ Future<void> init() async {
 
 //! Features - Home
   sl.registerFactory(
-    () => HomeBloc(),
+    () => HomeBloc(
+      profileController: sl(),
+    ),
   );
 
 //------------------------------------------------------------------------------
@@ -169,6 +172,7 @@ Future<void> init() async {
   sl.registerFactory(
     () => HomeDashboardBloc(
       doctorHomeDashboardController: sl(),
+      doctorProfileController: sl(),
     ),
   );
 
@@ -206,8 +210,12 @@ Future<void> init() async {
 
   //! Features - Doctor Forums
   sl.registerFactory(
-    () => DoctorForumsBloc(),
+    () => DoctorForumsBloc(
+      docForumsController: sl(),
+    ),
   );
+
+  sl.registerFactory(() => DoctorForumsController());
 
   //! Features - Doctor Profile
   sl.registerFactory(

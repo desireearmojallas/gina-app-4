@@ -12,39 +12,50 @@ Widget forumHeader(
     required BuildContext context}) {
   final ginaTheme = Theme.of(context);
   return forumPost.isDoctor
-      ? Row(
+      ? Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(
-              radius: 20,
-              foregroundImage: AssetImage(
-                Images.doctorProfileIcon2,
-              ),
+            DoctorRatingBadge(
+              doctorRating: doctorRatingId,
+              width: 100,
             ),
             const Gap(10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
               children: [
-                DoctorRatingBadge(
-                  doctorRating: doctorRatingId,
-                  width: 100,
-                ),
-                Text(
-                  'Dr. ${forumPost.postedBy}',
-                  style: ginaTheme.textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
+                CircleAvatar(
+                  radius: 20,
+                  foregroundImage: AssetImage(
+                    Images.doctorProfileIcon2,
                   ),
                 ),
-                const Gap(5),
-                const Icon(
-                  Icons.verified,
-                  color: Colors.blue,
-                  size: 15,
-                ),
-                Text(
-                  "Posted ${timeago.format(forumPost.postedAt.toDate(), locale: 'en')}",
-                  style: ginaTheme.textTheme.bodySmall?.copyWith(
-                    color: GinaAppTheme.lightOutline,
-                  ),
+                const Gap(10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Dr. ${forumPost.postedBy}',
+                          style: ginaTheme.textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const Gap(5),
+                        const Icon(
+                          Icons.verified,
+                          color: Colors.blue,
+                          size: 15,
+                        ),
+                      ],
+                    ),
+                    Text(
+                      "Posted ${timeago.format(forumPost.postedAt.toDate(), locale: 'en')}",
+                      style: ginaTheme.textTheme.bodySmall?.copyWith(
+                        color: GinaAppTheme.lightOutline,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -72,6 +83,7 @@ Widget forumHeader(
                   "Posted ${timeago.format(forumPost.postedAt.toDate(), locale: 'en')}",
                   style: ginaTheme.textTheme.bodySmall?.copyWith(
                     color: GinaAppTheme.lightOutline,
+                    fontSize: 10,
                   ),
                 ),
               ],
