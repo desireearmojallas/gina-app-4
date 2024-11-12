@@ -218,8 +218,7 @@ class FloatingDoctorMenuWidget extends StatelessWidget {
             ],
           ),
           onPressed: () {
-            // TODO: ABOUT US ROUTE
-            // Navigator.pushNamed(context, '/aboutUs');
+            Navigator.pushNamed(context, '/aboutUs');
           },
         ),
         const Divider(
