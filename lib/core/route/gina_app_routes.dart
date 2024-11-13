@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gina_app_4/core/reusable_widgets/about_us/about_us.dart';
+import 'package:gina_app_4/features/admin_features/admin_login/2_views/screens/admin_login_screen.dart';
+import 'package:gina_app_4/features/admin_features/admin_navigation_drawer/2_views/screens/admin_navigation_drawer_screen.dart';
 import 'package:gina_app_4/features/auth/2_views/screens/forgot_password/2_views/forgot_password_screen.dart';
 import 'package:gina_app_4/features/auth/2_views/screens/login/login_screen.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_office_address/doctor_add_office_address.dart';
@@ -25,6 +27,9 @@ Map<String, WidgetBuilder> ginaAppRoutes() {
     '/aboutUs': (context) => const AboutUsPage(),
 
     // Admin Routes
+    '/adminLogin': (context) => const AdminLoginScreenProvider(),
+    '/adminNavigationDrawer': (context) =>
+        const AdminNavigationDrawerProvider(),
 
     // Patient Routes
     '/doctorAddressMap': (context) => const DoctorAddOfficeAddressProvider(),
