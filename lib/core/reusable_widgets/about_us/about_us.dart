@@ -13,12 +13,13 @@ class AboutUsPage extends StatelessWidget {
       showAboutPage(
         context: context,
         values: {
-          'version': '1.0.0',
-          'year': DateTime.now().year.toString(),
+          'version': '2.0.0',
+          'year': '2024',
+          'author': 'Desiree Armojallas'
         },
-        applicationLegalese: 'Copyright © My Company, {{ year }}',
+        applicationLegalese: 'Copyright © {{ author }}, {{ year }}',
         applicationDescription: const Text(
-          'Displays an About dialog, which describes the application.',
+          'This is a capstone project presented at the University of San Jose-Recoletos, in compliance with the Capstone Subject, showcasing the application.',
           textAlign: TextAlign.center,
         ),
         applicationIcon: SizedBox(
@@ -32,9 +33,24 @@ class AboutUsPage extends StatelessWidget {
         ),
         children: const <Widget>[
           MarkdownPageListTile(
+            filename: 'README.md',
+            title: Text('View Readme'),
+            icon: Icon(Icons.all_inclusive),
+          ),
+          MarkdownPageListTile(
             icon: Icon(Icons.list),
             title: Text('Changelog'),
-            filename: 'assets/CHANGELOG.md', // Specify your markdown file path
+            filename: '', // Specify your markdown file path
+          ),
+          MarkdownPageListTile(
+            filename: 'CONTRIBUTING.md',
+            title: Text('Contributing'),
+            icon: Icon(Icons.share),
+          ),
+          MarkdownPageListTile(
+            filename: 'CODE_OF_CONDUCT.md',
+            title: Text('Code of conduct'),
+            icon: Icon(Icons.sentiment_satisfied),
           ),
           LicensesPageListTile(
             icon: Icon(Icons.favorite),
