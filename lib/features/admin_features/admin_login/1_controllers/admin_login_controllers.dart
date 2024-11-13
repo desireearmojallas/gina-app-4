@@ -37,10 +37,20 @@ class AdminLoginControllers with ChangeNotifier {
             await adminCollection.doc(admin.uid).get();
         if (adminSnapshot.exists &&
             (adminSnapshot.data() as Map<String, dynamic>)['isAdmin'] == true) {
-          working = true;
+          working = false;
           currentAdmin = admin;
           error = null;
           notifyListeners();
+        } else {
+          await auth.signOut();
+          currentAdmin = null;
+          working = false;
+          error = FirebaseAuthException(
+            code: 'admin-only',
+            message: 'Only admin accounts are allowed to access this page.',
+          );
+          notifyListeners();
+          throw Exception(error!.message);
         }
       }
     } on FirebaseAuthException catch (e) {
@@ -56,7 +66,7 @@ class AdminLoginControllers with ChangeNotifier {
       working = false;
       currentAdmin = null;
       error = FirebaseAuthException(
-        code: 'Invalid Credentials',
+        code: 'invalid-credentials',
         message: 'You are not authorized to access this page.',
       );
       notifyListeners();

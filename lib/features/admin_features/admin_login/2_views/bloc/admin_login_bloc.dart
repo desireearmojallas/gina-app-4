@@ -27,7 +27,7 @@ class AdminLoginBloc extends Bloc<AdminLoginEvent, AdminLoginState> {
 
       emit(AdminLoginSuccessState());
     } catch (e) {
-      emit(AdminLoginFailureState('Your account don\'t have admin access.'));
+      emit(AdminLoginFailureState('Your account doesn\'t have admin access.'));
     }
   }
 }

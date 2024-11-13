@@ -3,6 +3,7 @@ import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/floatin
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/floating_menu_bar/2_views/bloc/floating_menu_bloc.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/admin_features/admin_login/2_views/bloc/admin_login_bloc.dart';
+import 'package:gina_app_4/features/admin_features/admin_navigation_drawer/2_views/bloc/admin_navigation_drawer_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/screens/forgot_password/2_views/bloc/forgot_password_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/bloc/doctor_appointment_request_bloc.dart';
@@ -41,6 +42,10 @@ List<BlocProvider> getBlocProviders() {
     // Admin Blocs
     BlocProvider<AdminLoginBloc>(
       create: (context) => sl<AdminLoginBloc>(),
+    ),
+
+    BlocProvider(
+      create: (context) => sl<AdminNavigationDrawerBloc>(),
     ),
 
     // Patient Blocs
