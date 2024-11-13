@@ -1,10 +1,25 @@
 part of 'admin_login_bloc.dart';
 
-sealed class AdminLoginState extends Equatable {
+abstract class AdminLoginState extends Equatable {
   const AdminLoginState();
-  
+
   @override
   List<Object> get props => [];
 }
 
-final class AdminLoginInitial extends AdminLoginState {}
+abstract class AdminLoginActionState extends AdminLoginState {}
+
+class AdminLoginInitial extends AdminLoginState {}
+
+class AdminLoginLoadingState extends AdminLoginState {}
+
+class AdminLoginSuccessState extends AdminLoginActionState {}
+
+class AdminLoginFailureState extends AdminLoginActionState {
+  final String message;
+
+  AdminLoginFailureState(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
