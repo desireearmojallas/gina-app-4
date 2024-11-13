@@ -32,6 +32,9 @@ class AdminNavigationDrawer extends StatelessWidget {
             },
             child: const Text(
               'Logout',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         );
