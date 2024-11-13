@@ -2,6 +2,9 @@ import 'package:get_it/get_it.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/floating_doctor_menu_bar/bloc/floating_doctor_menu_bar_bloc.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/floating_menu_bar/2_views/bloc/floating_menu_bloc.dart';
 import 'package:gina_app_4/core/storage/shared_preferences/shared_preferences_manager.dart';
+import 'package:gina_app_4/features/admin_features/admin_login/1_controllers/admin_login_controllers.dart';
+import 'package:gina_app_4/features/admin_features/admin_login/2_views/bloc/admin_login_bloc.dart';
+import 'package:gina_app_4/features/admin_features/admin_navigation_drawer/2_views/bloc/admin_navigation_drawer_bloc.dart';
 import 'package:gina_app_4/features/auth/1_controllers/doctor_auth_controller.dart';
 import 'package:gina_app_4/features/auth/1_controllers/patient_auth_controller.dart';
 import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
@@ -67,6 +70,18 @@ Future<void> init() async {
 // -------ADMIN FEATURES-------
 
 //! Features - Admin Login
+  sl.registerFactory(
+    () => AdminLoginBloc(
+      adminLoginControllers: sl(),
+    ),
+  );
+
+  sl.registerFactory(() => AdminLoginControllers());
+
+//! Features - Admin Navigation Drawer
+  sl.registerFactory(
+    () => AdminNavigationDrawerBloc(),
+  );
 
 // -------PATIENT FEATURES-------
 

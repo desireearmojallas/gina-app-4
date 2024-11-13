@@ -46,9 +46,13 @@ class SplashScreen extends StatelessWidget {
             '/login',
           );
         } else if (state is SplashNavigateToAdminLoginState) {
-          // TODO: SPLASH NAVIGATE TO ADMIN LOGIN STATE
+          Navigator.of(context).pushReplacementNamed(
+            '/adminLogin',
+          );
         } else if (state is SplashNavigateToAdminHomeState) {
-          // TODO: SPLASH NAVIGATE TO ADMIN HOME STATE
+          Navigator.of(context).pushReplacementNamed(
+            '/adminNavigationDrawer',
+          );
         }
       },
       builder: (context, state) {

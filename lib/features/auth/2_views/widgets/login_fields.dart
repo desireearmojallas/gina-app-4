@@ -9,6 +9,7 @@ SizedBox loginFields({
   required Function()? togglePasswordVisibility,
   required BuildContext context,
   Function? onSubmit,
+  bool? isAdmin = false,
 }) {
   return SizedBox(
     width: MediaQuery.of(context).size.width / 1.45,
@@ -32,25 +33,27 @@ SizedBox loginFields({
 
         const Gap(10),
 
-// Forgot Password Text
-        Align(
-          alignment: Alignment.centerRight,
-          child: GestureDetector(
-            onTap: () {
-              // Navigate to the ForgotPasswordScreen when the Forgot Password text is clicked
-              Navigator.pushNamed(context, '/forgotPassword');
-            },
-            child: const Text(
-              'Forgot password?',
-              style: TextStyle(
-                color: Color(0xFF979797),
-                fontSize: 14,
-                fontFamily: 'SF UI Display',
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ),
+        // Forgot Password Text
+        isAdmin == false
+            ? Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: () {
+                    // Navigate to the ForgotPasswordScreen when the Forgot Password text is clicked
+                    Navigator.pushNamed(context, '/forgotPassword');
+                  },
+                  child: const Text(
+                    'Forgot password?',
+                    style: TextStyle(
+                      color: Color(0xFF979797),
+                      fontSize: 14,
+                      fontFamily: 'SF UI Display',
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              )
+            : const SizedBox.shrink(),
       ],
     ),
   );
