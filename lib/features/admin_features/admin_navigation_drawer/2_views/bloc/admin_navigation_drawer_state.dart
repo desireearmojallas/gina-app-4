@@ -1,10 +1,27 @@
 part of 'admin_navigation_drawer_bloc.dart';
 
-sealed class AdminNavigationDrawerState extends Equatable {
-  const AdminNavigationDrawerState();
-  
+abstract class AdminNavigationDrawerState extends Equatable {
+  final int currentIndex;
+  final Widget selectedScreen;
+  const AdminNavigationDrawerState({
+    required this.currentIndex,
+    required this.selectedScreen,
+  });
+
   @override
-  List<Object> get props => [];
+  List<Object> get props => [
+        currentIndex,
+      ];
 }
 
-final class AdminNavigationDrawerInitial extends AdminNavigationDrawerState {}
+final class AdminNavigationDrawerInitial extends AdminNavigationDrawerState {
+  const AdminNavigationDrawerInitial({
+    required super.currentIndex,
+    required super.selectedScreen,
+  });
+
+  @override
+  List<Object> get props => [
+        currentIndex,
+      ];
+}

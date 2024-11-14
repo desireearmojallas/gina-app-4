@@ -324,8 +324,9 @@ class GinaAppTheme {
       backgroundColor: lightSurface,
       // TODO:  CHANGED THIS
       confirmButtonStyle: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(lightPrimaryColor),
-        foregroundColor: MaterialStateProperty.all<Color>(lightOnPrimaryColor),
+        backgroundColor:
+            MaterialStateProperty.all<Color>(lightTertiaryContainer),
+        foregroundColor: MaterialStateProperty.all<Color>(appbarColorLight),
       ),
       cancelButtonStyle: ButtonStyle(
         foregroundColor: MaterialStateProperty.all<Color>(lightOnPrimaryColor),
