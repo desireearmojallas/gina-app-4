@@ -42,16 +42,16 @@ class AdminDashboardInitialState extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Column(
+              child: Column(
                 children: [
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 10.0),
                     child: PendingApprovedDeclineActionState(),
                   ),
                   TableLabelContainer(),
-                  // PendingDoctorVerificationList(),
+                  PendingDoctorVerificationList(),
                   // ApprovedDoctorVerificationList(),
-                  DeclinedDoctorVerificationList(),
+                  // DeclinedDoctorVerificationList(),
                 ],
               ),
             ),

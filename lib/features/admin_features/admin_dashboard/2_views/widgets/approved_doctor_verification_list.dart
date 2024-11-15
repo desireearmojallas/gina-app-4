@@ -4,7 +4,13 @@ import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 
 class ApprovedDoctorVerificationList extends StatelessWidget {
-  const ApprovedDoctorVerificationList({super.key});
+  double? nameWidth;
+  bool? isDashboardView;
+  ApprovedDoctorVerificationList({
+    super.key,
+    this.nameWidth = 0.17,
+    this.isDashboardView = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +24,7 @@ class ApprovedDoctorVerificationList extends StatelessWidget {
           thickness: 0.1,
           height: 11,
         ),
-        itemCount: 10,
+        itemCount: isDashboardView! ? 10 : 50,
         itemBuilder: (context, index) {
           return InkWell(
             onTap: () {},
@@ -44,11 +50,11 @@ class ApprovedDoctorVerificationList extends StatelessWidget {
                     ),
                     const Gap(15),
                     SizedBox(
-                      width: size.width * 0.17,
+                      width: size.width * nameWidth!,
                       child: Row(
                         children: [
                           Text(
-                            'Dr. Desiree Armojallas, MD FPOGS, FPSUOG',
+                            'Dr. Desiree Armojallas, MD FPOGS, FPSUOGsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss',
                             style: ginaTheme.labelMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),

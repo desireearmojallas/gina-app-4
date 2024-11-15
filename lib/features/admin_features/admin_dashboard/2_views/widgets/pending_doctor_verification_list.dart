@@ -1,10 +1,18 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 
 class PendingDoctorVerificationList extends StatelessWidget {
-  const PendingDoctorVerificationList({super.key});
+  double? nameWidth;
+  bool? isDashboardView;
+  PendingDoctorVerificationList({
+    super.key,
+    this.nameWidth = 0.175,
+    this.isDashboardView = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +26,7 @@ class PendingDoctorVerificationList extends StatelessWidget {
           thickness: 0.1,
           height: 11,
         ),
-        itemCount: 10,
+        itemCount: isDashboardView! ? 10 : 50,
         itemBuilder: (context, index) {
           return InkWell(
             onTap: () {},
@@ -44,7 +52,8 @@ class PendingDoctorVerificationList extends StatelessWidget {
                     ),
                     const Gap(15),
                     SizedBox(
-                      width: size.width * 0.175,
+                      // width: size.width * 0.175,
+                      width: size.width * nameWidth!,
                       child: Text(
                         'Dr. Desiree Armojallas, MD FPOGS, FPSUOG',
                         style: ginaTheme.labelMedium?.copyWith(
