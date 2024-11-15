@@ -470,6 +470,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.1"
+  flutter_expandable_table:
+    dependency: "direct main"
+    description:
+      name: flutter_expandable_table
+      sha256: "844548b14b8d189ee38f67e24a3d2dc9e6c2054305c035a5d94d89030b6c4d41"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   flutter_launcher_icons:
     dependency: "direct main"
     description:
@@ -526,6 +534,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.19"
+  flutter_scroll_shadow:
+    dependency: transitive
+    description:
+      name: flutter_scroll_shadow
+      sha256: c0509c642c5077654301fab1fb2260adc94c82a407c60e64162974b4366e7874
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.4"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -547,6 +563,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_web_data_table:
+    dependency: "direct main"
+    description:
+      name: flutter_web_data_table
+      sha256: a059dad7673dcec32905ec1de5e92dab7c3a4d0b6bf7ddc1ad082c679dc48498
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -888,6 +912,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
+  linked_scroll_controller:
+    dependency: transitive
+    description:
+      name: linked_scroll_controller
+      sha256: e6020062bcf4ffc907ee7fd090fa971e65d8dfaac3c62baf601a3ced0b37986a
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
   linkify:
     dependency: transitive
     description:
