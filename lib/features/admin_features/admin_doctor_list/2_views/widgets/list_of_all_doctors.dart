@@ -1,45 +1,28 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 
-class PendingDoctorVerificationList extends StatelessWidget {
-  double? nameWidth;
-  bool? isDashboardView;
-  PendingDoctorVerificationList({
-    super.key,
-    this.nameWidth = 0.16,
-    this.isDashboardView = true,
-  });
+class ListOfAllDoctors extends StatelessWidget {
+  const ListOfAllDoctors({super.key});
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final ginaTheme = Theme.of(context).textTheme;
-
     return Expanded(
       child: ListView.separated(
         separatorBuilder: (context, index) => const Divider(
           color: GinaAppTheme.lightScrim,
           thickness: 0.1,
-          height: 11,
+          height: 12,
         ),
-        itemCount: isDashboardView! ? 10 : 50,
+        itemCount: 50,
         itemBuilder: (context, index) {
           return InkWell(
             onTap: () {},
             child: Row(
               children: [
-                SizedBox(
-                  height: size.height * 0.05,
-                  child: Container(
-                    width: 5,
-                    color: GinaAppTheme.pendingTextColor,
-                  ),
-                ),
-                const Gap(10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -55,16 +38,27 @@ class PendingDoctorVerificationList extends StatelessWidget {
                     ),
                     const Gap(15),
                     SizedBox(
-                      // width: size.width * 0.175,
-                      width: size.width * nameWidth!,
-                      child: Text(
-                        'Dr. Desiree Armojallas, MD FPOGS, FPSUOG',
-                        style: ginaTheme.labelMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      width: size.width * 0.14,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Dr. Desiree Armojallas, MD FPOGS, FPSUOG',
+                              style: ginaTheme.labelMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const Gap(5),
+                          const Icon(
+                            Icons.verified,
+                            color: Colors.blue,
+                            size: 15,
+                          ),
+                        ],
                       ),
                     ),
-                    const Gap(15),
+                    const Gap(25),
                     SizedBox(
                       width: size.width * 0.112,
                       child: Text(

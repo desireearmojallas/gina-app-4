@@ -43,11 +43,14 @@ class DeclinedDoctorVerificationList extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: GinaAppTheme.declinedTextColor,
-                      foregroundImage: AssetImage(
-                        Images.doctorProfileIcon1,
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundColor: GinaAppTheme.declinedTextColor,
+                        foregroundImage: AssetImage(
+                          Images.doctorProfileIcon1,
+                        ),
                       ),
                     ),
                     const Gap(15),

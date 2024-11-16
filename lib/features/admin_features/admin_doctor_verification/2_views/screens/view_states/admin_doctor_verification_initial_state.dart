@@ -26,12 +26,12 @@ class AdminDoctorVerificationInitialState extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  Padding(
+                  const Padding(
                     padding: EdgeInsets.symmetric(vertical: 10.0),
                     child:
                         AdminVerificationPendingApprovedDeclinedActionState(),
                   ),
-                  AdminVerificationTableLabelContainer(),
+                  const AdminVerificationTableLabelContainer(),
                   // PendingDoctorVerificationList(
                   //   nameWidth: 0.145,
                   //   isDashboardView: false,
