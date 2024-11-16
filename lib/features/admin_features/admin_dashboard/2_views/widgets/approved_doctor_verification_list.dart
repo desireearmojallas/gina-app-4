@@ -53,13 +53,15 @@ class ApprovedDoctorVerificationList extends StatelessWidget {
                       width: size.width * nameWidth!,
                       child: Row(
                         children: [
-                          Text(
-                            'Dr. Desiree Armojallas, MD FPOGS, FPSUOGsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss',
-                            style: ginaTheme.labelMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
+                          Expanded(
+                            child: Text(
+                              'Dr. Desiree Armojallas, MD FPOGS, FPSUOG',
+                              style: ginaTheme.labelMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                          const Gap(10),
+                          const Gap(5),
                           const Icon(
                             Icons.verified,
                             color: Colors.blue,
@@ -68,6 +70,7 @@ class ApprovedDoctorVerificationList extends StatelessWidget {
                         ],
                       ),
                     ),
+                    const Gap(15),
                     SizedBox(
                       width: size.width * 0.112,
                       child: Text(

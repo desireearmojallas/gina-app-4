@@ -10,7 +10,7 @@ class PendingDoctorVerificationList extends StatelessWidget {
   bool? isDashboardView;
   PendingDoctorVerificationList({
     super.key,
-    this.nameWidth = 0.175,
+    this.nameWidth = 0.16,
     this.isDashboardView = true,
   });
 
@@ -61,6 +61,7 @@ class PendingDoctorVerificationList extends StatelessWidget {
                         ),
                       ),
                     ),
+                    const Gap(15),
                     SizedBox(
                       width: size.width * 0.112,
                       child: Text(
