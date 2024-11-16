@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/total_appointments_booked/total_appointments_booked_list.dart';
 
 class DashboardSummaryContainers extends StatelessWidget {
   const DashboardSummaryContainers({super.key});
@@ -195,7 +196,17 @@ class DashboardSummaryContainers extends StatelessWidget {
         ),
         const Gap(20),
         InkWell(
-          onTap: () {},
+          onTap: () {
+            // TODO:
+            //! Temporary route. Will add bloc event here to navigate to the correct page
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    const AdminDashboardTotalAppointmentsBooked(),
+              ),
+            );
+          },
           child: FittedBox(
             child: Container(
               width: size.width * 0.115,
