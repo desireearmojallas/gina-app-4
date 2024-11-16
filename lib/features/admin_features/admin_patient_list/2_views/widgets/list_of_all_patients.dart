@@ -3,8 +3,8 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 
-class ListOfAllDoctors extends StatelessWidget {
-  const ListOfAllDoctors({super.key});
+class ListOfAllPatients extends StatelessWidget {
+  const ListOfAllPatients({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -39,56 +39,44 @@ class ListOfAllDoctors extends StatelessWidget {
                     const Gap(15),
                     SizedBox(
                       width: size.width * 0.14,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'Dr. Desiree Armojallas, MD FPOGS, FPSUOG',
-                              style: ginaTheme.labelMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          const Gap(5),
-                          const Icon(
-                            Icons.verified,
-                            color: Colors.blue,
-                            size: 15,
-                          ),
-                        ],
+                      child: Text(
+                        'Desiree Armojallas',
+                        style: ginaTheme.labelMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     const Gap(25),
                     SizedBox(
-                      width: size.width * 0.112,
+                      width: size.width * 0.14,
                       child: Text(
                         'desireearmojallas@gina.com',
                         style: ginaTheme.labelMedium,
                       ),
                     ),
                     SizedBox(
-                      width: size.width * 0.12,
+                      width: size.width * 0.08,
                       child: Text(
-                        'Obstretrics & Gynecology',
+                        'Female',
                         style: ginaTheme.labelMedium,
                       ),
                     ),
                     SizedBox(
-                      width: size.width * 0.17,
+                      width: size.width * 0.2,
                       child: Text(
-                        'Dr. Desiree Armojallas Clinic, 1234 Main St., Looc, Lapu-Lapu City, Cebu, PH 6015',
+                        'Bro\'s Villa, Tiangue Rd., Looc, Lapu-Lapu City, Cebu',
                         style: ginaTheme.labelMedium,
                       ),
                     ),
                     SizedBox(
-                      width: size.width * 0.102,
+                      width: size.width * 0.08,
                       child: Text(
-                        '+63 123 456 7890',
+                        '12/18/2000',
                         style: ginaTheme.labelMedium,
                       ),
                     ),
                     SizedBox(
-                      width: size.width * 0.07,
+                      width: size.width * 0.08,
                       child: Text(
                         '11/12/2021',
                         style: ginaTheme.labelMedium,
@@ -97,7 +85,7 @@ class ListOfAllDoctors extends StatelessWidget {
                     SizedBox(
                       width: size.width * 0.06,
                       child: Align(
-                        alignment: Alignment.center,
+                        alignment: Alignment.centerLeft,
                         child: Container(
                           decoration: BoxDecoration(
                             color: GinaAppTheme.lightTertiaryContainer
@@ -105,10 +93,14 @@ class ListOfAllDoctors extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.all(5.0),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 5.0, horizontal: 10.0),
                             child: Text(
-                              '11/12/2021',
-                              style: ginaTheme.labelMedium,
+                              '10',
+                              style: ginaTheme.labelMedium?.copyWith(
+                                // color: GinaAppTheme.lightTertiaryContainer,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),
