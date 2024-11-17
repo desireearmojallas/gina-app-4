@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/screens/view_states/admin_doctor_details_pending_state.dart';
 import 'package:gina_app_4/features/splash/bloc/splash_bloc.dart';
 import 'package:gina_app_4/features/splash/screens/view_states/splash_screen_loaded.dart';
 
@@ -50,9 +51,15 @@ class SplashScreen extends StatelessWidget {
             '/adminLogin',
           );
         } else if (state is SplashNavigateToAdminHomeState) {
-          Navigator.of(context).pushReplacementNamed(
-            '/adminNavigationDrawer',
-          );
+          // Navigator.of(context).pushReplacementNamed(
+          //   '/adminNavigationDrawer',
+          // );
+          // //! will change this after designing ui
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      const AdminDoctorDetailsPendingState()));
         }
       },
       builder: (context, state) {

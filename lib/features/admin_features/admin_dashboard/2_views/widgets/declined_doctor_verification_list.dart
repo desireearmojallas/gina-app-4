@@ -96,7 +96,7 @@ class DeclinedDoctorVerificationList extends StatelessWidget {
                     SizedBox(
                       width: size.width * 0.07,
                       child: Text(
-                        '11/12/2021',
+                        'Nov 11, 2021',
                         style: ginaTheme.labelMedium,
                       ),
                     ),
@@ -113,7 +113,7 @@ class DeclinedDoctorVerificationList extends StatelessWidget {
                           child: Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: Text(
-                              '11/12/2021',
+                              'Nov 11, 2021',
                               style: ginaTheme.labelMedium,
                             ),
                           ),

@@ -82,8 +82,9 @@ class ListOfAllAppointmentsBooked extends StatelessWidget {
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          '09/10/23 @ 10:00 AM - 11:00 AM',
+                          'Sep 10, 2023\n@ 10:00 AM - 11:00 AM',
                           style: ginaTheme.labelMedium,
+                          softWrap: true,
                         ),
                       ),
                     ),

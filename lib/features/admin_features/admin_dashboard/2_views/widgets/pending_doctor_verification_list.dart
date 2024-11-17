@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/screens/view_states/admin_doctor_details_pending_state.dart';
 
 class PendingDoctorVerificationList extends StatelessWidget {
   double? nameWidth;
@@ -29,7 +30,15 @@ class PendingDoctorVerificationList extends StatelessWidget {
         itemCount: isDashboardView! ? 10 : 50,
         itemBuilder: (context, index) {
           return InkWell(
-            onTap: () {},
+            onTap: () {
+              //TODO: WILL CHANGE THIS WITH BLOC. THIS IS FOR SAMPLE ROUTING UI
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AdminDoctorDetailsPendingState(),
+                ),
+              );
+            },
             child: Row(
               children: [
                 SizedBox(
@@ -96,7 +105,7 @@ class PendingDoctorVerificationList extends StatelessWidget {
                     SizedBox(
                       width: size.width * 0.07,
                       child: Text(
-                        '11/12/2021',
+                        'Nov 11, 2021',
                         style: ginaTheme.labelMedium,
                       ),
                     ),
@@ -111,9 +120,9 @@ class PendingDoctorVerificationList extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.all(5.0),
+                            padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              '11/12/2021',
+                              'Nov 11, 2021',
                               style: ginaTheme.labelMedium,
                             ),
                           ),

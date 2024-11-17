@@ -71,14 +71,14 @@ class ListOfAllPatients extends StatelessWidget {
                     SizedBox(
                       width: size.width * 0.08,
                       child: Text(
-                        '12/18/2000',
+                        'Dec 18, 2000',
                         style: ginaTheme.labelMedium,
                       ),
                     ),
                     SizedBox(
                       width: size.width * 0.08,
                       child: Text(
-                        '11/12/2021',
+                        'Nov 11, 2021',
                         style: ginaTheme.labelMedium,
                       ),
                     ),
