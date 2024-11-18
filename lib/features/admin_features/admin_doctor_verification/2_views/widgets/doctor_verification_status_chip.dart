@@ -1,12 +1,16 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+
 import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 
 class DoctorVerificationStatusChip extends StatelessWidget {
   final int verificationStatus;
+  final double scale;
   const DoctorVerificationStatusChip({
     super.key,
     required this.verificationStatus,
+    this.scale = 1.0,
   });
 
   @override
@@ -33,11 +37,15 @@ class DoctorVerificationStatusChip extends StatelessWidget {
         break;
     }
 
+    double adjustedFontSize(double originalFontSize) {
+      return scale != 1.0 ? originalFontSize * (scale - 0.5) : originalFontSize;
+    }
+
     return Container(
-      width: size.width * 0.04,
-      height: size.height * 0.02,
+      width: size.width * 0.04 * scale,
+      height: size.height * 0.02 * scale,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10 * scale),
         color: buttonColor,
       ),
       child: Center(
@@ -46,6 +54,8 @@ class DoctorVerificationStatusChip extends StatelessWidget {
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: GinaAppTheme.appbarColorLight,
                 fontWeight: FontWeight.w500,
+                fontSize: adjustedFontSize(
+                    Theme.of(context).textTheme.labelSmall?.fontSize ?? 12.0),
               ),
         ),
       ),

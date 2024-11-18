@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/approved_doctor_verification_list.dart';
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/dashboard_summary_containers.dart';
-import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/declined_doctor_verification_list.dart';
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/pending_approved_decline_action_state.dart';
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/pending_doctor_verification_list.dart';
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/table_label_container.dart';

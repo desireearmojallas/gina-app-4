@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/square_avatar.dart';
@@ -551,7 +550,9 @@ class AdminDoctorDetailsPendingState extends StatelessWidget {
                 ),
                 const Gap(20),
                 submittedRequirementsTableLabel(size, ginaTheme),
-                const SubmissionsDataList(),
+                const SubmissionsDataList(
+                  verificationStatus: 0,
+                ),
               ],
             ),
           ),

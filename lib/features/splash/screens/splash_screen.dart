@@ -51,15 +51,15 @@ class SplashScreen extends StatelessWidget {
             '/adminLogin',
           );
         } else if (state is SplashNavigateToAdminHomeState) {
-          // Navigator.of(context).pushReplacementNamed(
-          //   '/adminNavigationDrawer',
-          // );
+          Navigator.of(context).pushReplacementNamed(
+            '/adminNavigationDrawer',
+          );
           // //! will change this after designing ui
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      const AdminDoctorDetailsPendingState()));
+          // Navigator.push(
+          //     context,
+          //     MaterialPageRoute(
+          //         builder: (context) =>
+          //             const AdminDoctorDetailsPendingState()));
         }
       },
       builder: (context, state) {

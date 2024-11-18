@@ -5,7 +5,8 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_verification_status_chip.dart';
 
 class SubmissionsDataList extends StatelessWidget {
-  const SubmissionsDataList({super.key});
+  final int verificationStatus;
+  const SubmissionsDataList({super.key, required this.verificationStatus});
 
   @override
   Widget build(BuildContext context) {
@@ -124,10 +125,10 @@ class SubmissionsDataList extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: SizedBox(
                     width: size.width * 0.09,
-                    child: const Align(
+                    child: Align(
                       alignment: Alignment.centerLeft,
                       child: DoctorVerificationStatusChip(
-                        verificationStatus: 0,
+                        verificationStatus: verificationStatus,
                       ),
                     ),
                   ),
