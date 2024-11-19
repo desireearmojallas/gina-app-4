@@ -3,10 +3,10 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/square_avatar.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_pending_details_state/approve_decline_buttons.dart';
-import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_pending_details_state/detailed_view_icon.dart';
-import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_pending_details_state/submissions_data_list.dart';
-import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_pending_details_state/submitted_requirements_table_label.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/approve_decline_buttons.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/detailed_view_icon.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/submissions_data_list.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/submitted_requirements_table_label.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class AdminDoctorDetailsPendingState extends StatelessWidget {

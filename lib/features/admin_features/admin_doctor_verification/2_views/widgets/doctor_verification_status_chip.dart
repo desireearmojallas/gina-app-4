@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/declined_verification_information_dialog.dart';
 
 class DoctorVerificationStatusChip extends StatelessWidget {
   final int verificationStatus;
@@ -41,22 +42,40 @@ class DoctorVerificationStatusChip extends StatelessWidget {
       return scale != 1.0 ? originalFontSize * (scale - 0.5) : originalFontSize;
     }
 
-    return Container(
-      width: size.width * 0.04 * scale,
-      height: size.height * 0.02 * scale,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10 * scale),
-        color: buttonColor,
-      ),
-      child: Center(
-        child: Text(
-          buttonText,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: GinaAppTheme.appbarColorLight,
-                fontWeight: FontWeight.w500,
-                fontSize: adjustedFontSize(
-                    Theme.of(context).textTheme.labelSmall?.fontSize ?? 12.0),
+    return Tooltip(
+      message: 'Click to view declined reason',
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () {
+            if (status == DoctorVerificationStatus.declined) {
+              declinedVerificationInformationDialog(
+                context,
+                'Declined Reason will show here',
+              );
+            }
+          },
+          child: Container(
+            width: size.width * 0.04 * scale,
+            height: size.height * 0.02 * scale,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10 * scale),
+              color: buttonColor,
+            ),
+            child: Center(
+              child: Text(
+                buttonText,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: GinaAppTheme.appbarColorLight,
+                      fontWeight: FontWeight.w500,
+                      fontSize: adjustedFontSize(
+                        Theme.of(context).textTheme.labelSmall?.fontSize ??
+                            12.0,
+                      ),
+                    ),
               ),
+            ),
+          ),
         ),
       ),
     );

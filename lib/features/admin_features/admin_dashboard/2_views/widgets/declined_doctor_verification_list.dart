@@ -32,7 +32,7 @@ class DeclinedDoctorVerificationList extends StatelessWidget {
           return InkWell(
             onTap: () {
               //TODO: WILL CHANGE THIS WITH BLOC. THIS IS FOR SAMPLE ROUTING UI
-              debugPrint('Declined Doctor Verification List Clicked');
+
               Navigator.push(
                 context,
                 MaterialPageRoute(

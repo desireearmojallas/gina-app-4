@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/screens/view_states/admin_doctor_details_approved_state.dart';
 
 class ApprovedDoctorVerificationList extends StatelessWidget {
   double? nameWidth;
@@ -27,7 +28,15 @@ class ApprovedDoctorVerificationList extends StatelessWidget {
         itemCount: isDashboardView! ? 10 : 50,
         itemBuilder: (context, index) {
           return InkWell(
-            onTap: () {},
+            onTap: () {
+              //TODO: WILL CHANGE THIS WITH BLOC. THIS IS FOR SAMPLE
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AdminDoctorDetailsApprovedState(),
+                ),
+              );
+            },
             child: Row(
               children: [
                 SizedBox(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/admin_features/admin_patient_list/2_views/screens/view_states/admin_patient_details_state.dart';
 
 class ListOfAllPatients extends StatelessWidget {
   const ListOfAllPatients({super.key});
@@ -20,7 +21,17 @@ class ListOfAllPatients extends StatelessWidget {
         itemCount: 50,
         itemBuilder: (context, index) {
           return InkWell(
-            onTap: () {},
+            onTap: () {
+              //TODO: WILL CHANGE THIS WHEN BLOC IS IMPLEMENTED
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return const AdminPatientDetailsState();
+                  },
+                ),
+              );
+            },
             child: Row(
               children: [
                 Row(
@@ -32,7 +43,7 @@ class ListOfAllPatients extends StatelessWidget {
                         radius: 20,
                         backgroundColor: GinaAppTheme.lightTertiaryContainer,
                         foregroundImage: AssetImage(
-                          Images.doctorProfileIcon1,
+                          Images.patientProfileIcon,
                         ),
                       ),
                     ),

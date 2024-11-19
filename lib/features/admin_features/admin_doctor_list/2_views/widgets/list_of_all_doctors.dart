@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/screens/view_states/admin_doctor_details_approved_state.dart';
 
 class ListOfAllDoctors extends StatelessWidget {
   const ListOfAllDoctors({super.key});
@@ -20,7 +21,17 @@ class ListOfAllDoctors extends StatelessWidget {
         itemCount: 50,
         itemBuilder: (context, index) {
           return InkWell(
-            onTap: () {},
+            onTap: () {
+              //TODO:  WILL CHANGE WHEN BLOC IS IMPLEMENTED
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return const AdminDoctorDetailsApprovedState();
+                  },
+                ),
+              );
+            },
             child: Row(
               children: [
                 Row(
