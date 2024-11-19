@@ -2,9 +2,13 @@ import 'package:get_it/get_it.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/floating_doctor_menu_bar/bloc/floating_doctor_menu_bar_bloc.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/floating_menu_bar/2_views/bloc/floating_menu_bloc.dart';
 import 'package:gina_app_4/core/storage/shared_preferences/shared_preferences_manager.dart';
+import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/bloc/admin_dashboard_bloc.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_list/2_views/bloc/admin_doctor_list_bloc.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/bloc/admin_doctor_verification_bloc.dart';
 import 'package:gina_app_4/features/admin_features/admin_login/1_controllers/admin_login_controllers.dart';
 import 'package:gina_app_4/features/admin_features/admin_login/2_views/bloc/admin_login_bloc.dart';
 import 'package:gina_app_4/features/admin_features/admin_navigation_drawer/2_views/bloc/admin_navigation_drawer_bloc.dart';
+import 'package:gina_app_4/features/admin_features/admin_patient_list/2_views/bloc/admin_patient_list_bloc.dart';
 import 'package:gina_app_4/features/auth/1_controllers/doctor_auth_controller.dart';
 import 'package:gina_app_4/features/auth/1_controllers/patient_auth_controller.dart';
 import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
@@ -81,6 +85,26 @@ Future<void> init() async {
 //! Features - Admin Navigation Drawer
   sl.registerFactory(
     () => AdminNavigationDrawerBloc(),
+  );
+
+//! Features - Admin Dashboard
+  sl.registerFactory(
+    () => AdminDashboardBloc(),
+  );
+
+//! Features - Admin Doctor Verification
+  sl.registerFactory(
+    () => AdminDoctorVerificationBloc(),
+  );
+
+//! Features - Admin Doctor List
+  sl.registerFactory(
+    () => AdminDoctorListBloc(),
+  );
+
+//! Features - Admin Patient List
+  sl.registerFactory(
+    () => AdminPatientListBloc(),
   );
 
 // -------PATIENT FEATURES-------

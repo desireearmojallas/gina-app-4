@@ -28,7 +28,7 @@ class AdminNavigationDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final AdminLoginControllers adminLoginControllers = AdminLoginControllers();
     final adminNavigationDrawerBloc = context.read<AdminNavigationDrawerBloc>();
-    final ginaTheme = Theme.of(context);
+    final ginaTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       body: BlocBuilder<AdminNavigationDrawerBloc, AdminNavigationDrawerState>(
@@ -72,7 +72,7 @@ class AdminNavigationDrawer extends StatelessWidget {
                             ),
                             label: Text(
                               'Dashboard',
-                              style: ginaTheme.textTheme.labelLarge?.copyWith(
+                              style: ginaTheme.labelLarge?.copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -86,7 +86,7 @@ class AdminNavigationDrawer extends StatelessWidget {
                             ),
                             label: Text(
                               'Verify',
-                              style: ginaTheme.textTheme.labelLarge?.copyWith(
+                              style: ginaTheme.labelLarge?.copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -100,7 +100,7 @@ class AdminNavigationDrawer extends StatelessWidget {
                             ),
                             label: Text(
                               'Doctors',
-                              style: ginaTheme.textTheme.labelLarge?.copyWith(
+                              style: ginaTheme.labelLarge?.copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -114,12 +114,22 @@ class AdminNavigationDrawer extends StatelessWidget {
                             ),
                             label: Text(
                               'Patients',
-                              style: ginaTheme.textTheme.labelLarge?.copyWith(
+                              style: ginaTheme.labelLarge?.copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
-                          const Gap(380),
+                          const Gap(330),
+                          Center(
+                            child: Text(
+                              'Version 2.0.0\n© 2024 Desiree Armojallas',
+                              style: ginaTheme.bodySmall?.copyWith(
+                                color: GinaAppTheme.lightOutline,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          const Gap(20),
                           InkWell(
                             onTap: () async {
                               adminLoginControllers.adminLogout();
@@ -138,8 +148,7 @@ class AdminNavigationDrawer extends StatelessWidget {
                                   const Gap(18),
                                   Text(
                                     'Logout',
-                                    style: ginaTheme.textTheme.labelLarge
-                                        ?.copyWith(
+                                    style: ginaTheme.labelLarge?.copyWith(
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
