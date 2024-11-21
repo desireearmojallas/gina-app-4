@@ -28,6 +28,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_forums/1_controllers/
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/bloc/doctor_forums_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/1_controllers/doctor_profile_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/bloc/doctor_profile_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_view_patients/2_views/bloc/doctor_view_patients_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
@@ -271,5 +272,10 @@ Future<void> init() async {
   //! Features - Doctor Consultation Fee Setup
   sl.registerFactory(
     () => DoctorConsultationFeeBloc(),
+  );
+
+  //! Features - Doctor View Patients
+  sl.registerFactory(
+    () => DoctorViewPatientsBloc(),
   );
 }
