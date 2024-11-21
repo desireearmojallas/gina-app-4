@@ -192,8 +192,7 @@ class FloatingDoctorMenuWidget extends StatelessWidget {
             ],
           ),
           onPressed: () {
-            // TODO: EMERGENCY ANNOUNCEMENTS ROUTE
-            // Navigator.pushNamed(context, '/emergencyAnnouncements');
+            Navigator.pushNamed(context, '/doctorConsultationFee');
           },
         ),
         const Divider(

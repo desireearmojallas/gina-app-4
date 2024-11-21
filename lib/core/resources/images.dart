@@ -60,10 +60,14 @@ class Images {
   // Doctor Forum Badges Screen
   static String newDoctorForumBadgeBackground =
       "assets/images/doctor_features/forum_doctor_badges/new_doctor_bg.png";
-       static String contributingDoctorForumBadgeBackground =
+  static String contributingDoctorForumBadgeBackground =
       "assets/images/doctor_features/forum_doctor_badges/contributing_doctor_bg.png";
-       static String activeDoctorForumBadgeBackground =
+  static String activeDoctorForumBadgeBackground =
       "assets/images/doctor_features/forum_doctor_badges/active_doctor_bg.png";
-       static String topDoctorForumBadgeBackground =
+  static String topDoctorForumBadgeBackground =
       "assets/images/doctor_features/forum_doctor_badges/top_doctor_bg.png";
+
+  // Doctor Consultation Fee Screen
+  static String hiddenConsultationFeeIllustration =
+      "assets/images/doctor_features/consultation_fee/hidden_pricing_illustration.png";
 }

@@ -9,7 +9,7 @@ class DoctorForumBadgeScreenProvider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
+    return BlocProvider<DoctorForumBadgeBloc>(
       create: (context) => sl<DoctorForumBadgeBloc>(),
       child: const DoctorForumBadgeScreen(),
     );
