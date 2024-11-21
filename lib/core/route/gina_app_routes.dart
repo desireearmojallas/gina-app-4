@@ -7,6 +7,7 @@ import 'package:gina_app_4/features/auth/2_views/screens/login/login_screen.dart
 import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_office_address/doctor_add_office_address.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/widgets/view_patient_data/view_patient_data.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_bottom_navigation/screens/doctor_bottom_navigation_screen.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/doctor_consultation_fee_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forum_badge/2_views/doctor_forum_badge_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/screens/doctor_forums_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/screens/view_states/doctor_create_post_screen_state.dart';
@@ -49,5 +50,7 @@ Map<String, WidgetBuilder> ginaAppRoutes() {
     '/doctorForumsCreatePost': (context) => CreateDoctorPostScreenState(),
     '/doctorForumBadge': (context) => const DoctorForumBadgeScreenProvider(),
     '/doctorForumsPost': (context) => const DoctorForumsScreenProvider(),
+    '/doctorConsultationFee': (context) =>
+        const DoctorConsultationFeeScreenProvider(),
   };
 }
