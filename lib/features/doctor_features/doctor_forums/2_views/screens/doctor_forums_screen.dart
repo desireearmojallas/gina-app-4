@@ -8,7 +8,6 @@ import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/bloc/d
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/screens/view_states/doctor_forums_details_post_state.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/screens/view_states/doctor_forums_screen_loaded.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/screens/view_states/doctor_reply_post_screen_state.dart';
-import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/widgets/posted_confirmation_dialog.dart';
 
 class DoctorForumsScreenProvider extends StatelessWidget {
