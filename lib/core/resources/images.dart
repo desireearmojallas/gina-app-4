@@ -56,4 +56,14 @@ class Images {
       "assets/images/doctor_features/home/schedule_management.png";
   static String emergencyAnnouncementIcon =
       "assets/images/doctor_features/home/emergency_announcement_doctor.png";
+
+  // Doctor Forum Badges Screen
+  static String newDoctorForumBadgeBackground =
+      "assets/images/doctor_features/forum_doctor_badges/new_doctor_bg.png";
+       static String contributingDoctorForumBadgeBackground =
+      "assets/images/doctor_features/forum_doctor_badges/contributing_doctor_bg.png";
+       static String activeDoctorForumBadgeBackground =
+      "assets/images/doctor_features/forum_doctor_badges/active_doctor_bg.png";
+       static String topDoctorForumBadgeBackground =
+      "assets/images/doctor_features/forum_doctor_badges/top_doctor_bg.png";
 }

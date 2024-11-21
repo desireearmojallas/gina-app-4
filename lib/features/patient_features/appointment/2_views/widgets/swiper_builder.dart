@@ -52,42 +52,44 @@ class SwiperBuilderWidget extends StatelessWidget {
 
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
-    return SizedBox(
-      height: height * 0.2,
-      child: Swiper(
-        physics: const BouncingScrollPhysics(),
-        itemWidth: width * 0.9,
-        itemHeight: height * 0.2,
-        curve: Curves.fastEaseInToSlowEaseOut,
-        duration: 100,
-        scrollDirection: Axis.horizontal,
-        axisDirection: AxisDirection.left,
-        itemBuilder: (context, index) {
-          final colors = gradientBGColors[index % gradientBGColors.length];
-          return Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: colors,
+    return InkWell(
+      child: SizedBox(
+        height: height * 0.2,
+        child: Swiper(
+          physics: const BouncingScrollPhysics(),
+          itemWidth: width * 0.9,
+          itemHeight: height * 0.2,
+          curve: Curves.fastEaseInToSlowEaseOut,
+          duration: 100,
+          scrollDirection: Axis.horizontal,
+          axisDirection: AxisDirection.left,
+          itemBuilder: (context, index) {
+            final colors = gradientBGColors[index % gradientBGColors.length];
+            return Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: colors,
+                ),
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  GinaAppTheme.defaultBoxShadow,
+                ],
               ),
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                GinaAppTheme.defaultBoxShadow,
-              ],
+              child: hardCodedAppointments[index],
+            );
+          },
+          itemCount: hardCodedAppointments.length,
+          layout: SwiperLayout.STACK,
+          pagination: SwiperPagination(
+            alignment: Alignment.bottomCenter,
+            builder: DotSwiperPaginationBuilder(
+              size: 8,
+              activeSize: 9,
+              color: Colors.grey[300],
+              activeColor: Colors.white,
             ),
-            child: hardCodedAppointments[index],
-          );
-        },
-        itemCount: hardCodedAppointments.length,
-        layout: SwiperLayout.STACK,
-        pagination: SwiperPagination(
-          alignment: Alignment.bottomCenter,
-          builder: DotSwiperPaginationBuilder(
-            size: 8,
-            activeSize: 9,
-            color: Colors.grey[300],
-            activeColor: Colors.white,
           ),
         ),
       ),
