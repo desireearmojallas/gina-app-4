@@ -80,6 +80,7 @@ flutter:
     - assets/images/patient_features/forums/
     - assets/images/doctor_features/
     - assets/images/doctor_features/home/
+    - assets/images/doctor_features/forum_doctor_badges/
 
   fonts:
     - family: SF UI Display
