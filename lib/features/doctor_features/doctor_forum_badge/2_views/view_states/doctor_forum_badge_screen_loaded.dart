@@ -40,7 +40,6 @@ class DoctorForumBadgeScreenLoaded extends StatelessWidget {
               'Badges'.toUpperCase(),
               style: ginaTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: GinaAppTheme.lightOutline,
               ),
             ),
           ),

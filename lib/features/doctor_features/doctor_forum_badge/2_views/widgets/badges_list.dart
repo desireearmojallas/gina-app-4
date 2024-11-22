@@ -56,9 +56,7 @@ class BadgesList extends StatelessWidget {
                   const Gap(5),
                   Text(
                     badgeDescription,
-                    style: ginaTheme.labelSmall!.copyWith(
-                      color: Colors.grey[400],
-                    ),
+                    style: ginaTheme.labelSmall,
                   ),
                 ],
               ),
