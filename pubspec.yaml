@@ -82,6 +82,7 @@ flutter:
     - assets/images/doctor_features/home/
     - assets/images/doctor_features/forum_doctor_badges/
     - assets/images/doctor_features/consultation_fee/
+    - assets/images/doctor_features/emergency_announcements/
 
   fonts:
     - family: SF UI Display
