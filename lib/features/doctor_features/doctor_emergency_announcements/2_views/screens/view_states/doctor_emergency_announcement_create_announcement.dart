@@ -16,8 +16,9 @@ class DoctorEmergencyAnnouncementCreateAnnouncementScreen
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final ginaTheme = Theme.of(context).textTheme;
-    final TextEditingController patientChosenController =
-        TextEditingController();
+    final TextEditingController patientChosenController = TextEditingController(
+        //todo: bloc event here to get the chosen patient and display
+        );
 
     //! temporary scaffold. will replace once bloc is implemented
     return Scaffold(
