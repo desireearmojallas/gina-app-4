@@ -22,7 +22,7 @@ class ViewPatientDataScreen extends StatelessWidget {
       body: ScrollbarCustom(
         child: Stack(
           children: [
-            const GradientBackground(),
+            // const GradientBackground(),
             SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Center(
@@ -36,8 +36,7 @@ class ViewPatientDataScreen extends StatelessWidget {
                         child: Text(
                           'Appointment Information'.toUpperCase(),
                           style: ginaTheme.textTheme.titleSmall?.copyWith(
-                            color: GinaAppTheme.appbarColorLight,
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -51,8 +50,7 @@ class ViewPatientDataScreen extends StatelessWidget {
                         child: Text(
                           'Menstrual Cycle Information'.toUpperCase(),
                           style: ginaTheme.textTheme.titleSmall?.copyWith(
-                            color: GinaAppTheme.appbarColorLight,
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -66,8 +64,7 @@ class ViewPatientDataScreen extends StatelessWidget {
                         child: Text(
                           'Consultation History'.toUpperCase(),
                           style: ginaTheme.textTheme.titleSmall?.copyWith(
-                            color: GinaAppTheme.appbarColorLight,
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

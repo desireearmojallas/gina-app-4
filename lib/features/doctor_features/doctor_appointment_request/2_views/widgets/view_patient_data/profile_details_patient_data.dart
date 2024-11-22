@@ -28,7 +28,7 @@ class ProfileDetailsPatientData extends StatelessWidget {
             color: GinaAppTheme.lightSurfaceVariant,
           ),
         ),
-        const Gap(25),
+        // const Gap(25),
       ],
     );
     return Padding(
@@ -44,12 +44,33 @@ class ProfileDetailsPatientData extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20.0),
-              child: CircleAvatar(
-                radius: 60,
-                backgroundImage: AssetImage(
-                  Images.patientProfileIcon,
+              child: Container(
+                width: 140,
+                height: 140,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: GinaAppTheme.gradientColors,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
-                backgroundColor: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0), // Border width
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(3.0),
+                      child: CircleAvatar(
+                        radius: 60,
+                        foregroundImage: AssetImage(Images.patientProfileIcon),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
             const Text(
@@ -108,6 +129,7 @@ class ProfileDetailsPatientData extends StatelessWidget {
               ),
             ),
             divider,
+            const Gap(15),
             Align(
               alignment: Alignment.centerLeft,
               child: Padding(
