@@ -70,4 +70,8 @@ class Images {
   // Doctor Consultation Fee Screen
   static String hiddenConsultationFeeIllustration =
       "assets/images/doctor_features/consultation_fee/hidden_pricing_illustration.png";
+
+  // Doctor Emergency Announcement Screen
+  static String emergencyAnnouncementIllustration =
+      "assets/images/doctor_features/emergency_announcements/no_emergency_announcement_illustration.png";
 }

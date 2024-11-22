@@ -19,6 +19,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2
 import 'package:gina_app_4/features/doctor_features/doctor_bottom_navigation/bloc/doctor_bottom_navigation_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/bloc/doctor_consultation_fee_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/bloc/doctor_emergency_announcements_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forum_badge/2_views/bloc/doctor_forum_badge_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/bloc/doctor_forums_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/bloc/doctor_profile_bloc.dart';
@@ -146,6 +147,9 @@ List<BlocProvider> getBlocProviders() {
     ),
     BlocProvider<DoctorViewPatientDetailsBloc>(
       create: (context) => sl<DoctorViewPatientDetailsBloc>(),
-    )
+    ),
+    BlocProvider<DoctorEmergencyAnnouncementsBloc>(
+      create: (context) => sl<DoctorEmergencyAnnouncementsBloc>(),
+    ),
   ];
 }

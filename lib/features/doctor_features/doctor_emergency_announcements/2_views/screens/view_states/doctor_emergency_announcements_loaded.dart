@@ -1,0 +1,103 @@
+import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/resources/images.dart';
+import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
+import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/view_states/doctor_emergency_announcement_initial.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/view_states/doctor_emergency_announcement_loaded_details_screen.dart';
+
+class DoctorEmergencyAnnouncementsLoaded extends StatelessWidget {
+  final sampleChecker = false;
+  const DoctorEmergencyAnnouncementsLoaded({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final ginaTheme = Theme.of(context).textTheme;
+    final size = MediaQuery.of(context).size;
+
+    return GestureDetector(
+      onTap: () {},
+      child: sampleChecker
+          ? const DoctorEmergencyAnnouncementInitialScreen()
+          : ScrollbarCustom(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: ListView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: 10,
+                  itemBuilder: (context, index) {
+                    return InkWell(
+                      onTap: () {
+                        //! temporary route, will replace once bloc is implemented
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const DoctorEmergencyAnnouncementsLoadedDetailsScreen(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 20,
+                        ),
+                        height: size.height * 0.1,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            GinaAppTheme.defaultBoxShadow,
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 30,
+                                backgroundImage: AssetImage(
+                                  Images.patientProfileIcon,
+                                ),
+                              ),
+                              const Gap(15),
+                              SizedBox(
+                                width: size.width * 0.5,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Desiree Armojallas',
+                                      style: ginaTheme.bodyMedium?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      'Good day! I will be out of town for a week.',
+                                      style: ginaTheme.bodySmall,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Gap(5),
+                              Text(
+                                '12:00 PM',
+                                style: ginaTheme.bodySmall?.copyWith(
+                                  color: GinaAppTheme.lightOutline,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+    );
+  }
+}
