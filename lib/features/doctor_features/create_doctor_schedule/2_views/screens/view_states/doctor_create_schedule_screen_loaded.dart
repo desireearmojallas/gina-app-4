@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/2_views/screens/view_states/doctor_review_schedule_screen.dart';
 
 class DoctorCreateScheduleScreenLoaded extends StatelessWidget {
   List<String> startTimes = [];
@@ -27,6 +28,7 @@ class DoctorCreateScheduleScreenLoaded extends StatelessWidget {
 
     final subheadingStyle = ginaTheme.titleSmall?.copyWith(
       fontWeight: FontWeight.w600,
+      color: GinaAppTheme.lightOutline,
     );
 
     final space = Column(
@@ -386,6 +388,14 @@ class DoctorCreateScheduleScreenLoaded extends StatelessWidget {
               ),
               onPressed: () {
                 //TODO: Will apply bloc event here. Temporary route only for edit consultation fees
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return const DoctorReviewScheduleScreen();
+                    },
+                  ),
+                );
               },
               child: Text(
                 'Save schedule',
