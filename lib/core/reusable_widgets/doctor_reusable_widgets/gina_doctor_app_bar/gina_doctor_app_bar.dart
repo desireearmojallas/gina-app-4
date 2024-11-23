@@ -17,7 +17,7 @@ class GinaDoctorAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(
         title,
         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: FontWeight.w600,
             ),
       ),

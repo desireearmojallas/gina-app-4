@@ -23,7 +23,10 @@ class ChatEConsultCardList extends StatelessWidget {
               itemCount: 5, // todo: to change
               itemBuilder: (context, index) {
                 return GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    //todo:  to change route when bloc implemented
+                    Navigator.pushNamed(context, '/doctorOnlineConsultChat');
+                  },
                   child: Padding(
                     padding: const EdgeInsets.all(4.0),
                     child: Container(
