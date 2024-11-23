@@ -4,7 +4,7 @@ import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/doctor_rating_badge/doctor_rating_badge.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 
-Widget doctorConsultationFeeNameWidget(size, ginaTheme) {
+Widget doctorNameWidget(size, ginaTheme) {
   return Padding(
     padding: const EdgeInsets.all(15.0),
     child: Container(
@@ -33,7 +33,7 @@ Widget doctorConsultationFeeNameWidget(size, ginaTheme) {
                     doctorRating: 2,
                     width: 100,
                   ),
-                  Gap(10),
+                  const Gap(10),
                   Row(
                     children: [
                       SizedBox(

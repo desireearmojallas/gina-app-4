@@ -5,6 +5,7 @@ import 'package:gina_app_4/features/admin_features/admin_navigation_drawer/2_vie
 import 'package:gina_app_4/features/auth/2_views/screens/forgot_password/2_views/forgot_password_screen.dart';
 import 'package:gina_app_4/features/auth/2_views/screens/login/login_screen.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_office_address/doctor_add_office_address.dart';
+import 'package:gina_app_4/features/doctor_features/create_doctor_schedule/2_views/screens/doctor_create_schedule_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/widgets/view_patient_data/view_patient_data.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_bottom_navigation/screens/doctor_bottom_navigation_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/doctor_consultation_fee_screen.dart';
@@ -12,6 +13,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcemen
 import 'package:gina_app_4/features/doctor_features/doctor_forum_badge/2_views/doctor_forum_badge_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/screens/doctor_forums_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/screens/view_states/doctor_create_post_screen_state.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/2_views/screens/doctor_schedule_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patient_details/2_views/screens/doctor_view_patient_details_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patients/2_views/screens/doctor_view_patients_screen.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/screens/appointment_screen.dart';
@@ -61,5 +63,9 @@ Map<String, WidgetBuilder> ginaAppRoutes() {
         const DoctorViewPatientDetailsScreenProvider(),
     '/doctorEmergencyAnnouncements': (context) =>
         const DoctorEmergencyAnnouncementScreenProvider(),
+    '/doctorScheduleManagement': (context) =>
+        const DoctorScheduleManagementScreenProvider(),
+    '/doctorCreateSchedule': (context) =>
+        const DoctorCreateScheduleScreenProvider(),
   };
 }

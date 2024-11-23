@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_consultation_fee_name_widget.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_name_widget.dart';
 
 class EditDoctorConsultationFeeScreenLoaded extends StatelessWidget {
   EditDoctorConsultationFeeScreenLoaded({super.key});
@@ -27,7 +27,7 @@ class EditDoctorConsultationFeeScreenLoaded extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            doctorConsultationFeeNameWidget(size, ginaTheme),
+            doctorNameWidget(size, ginaTheme),
             Column(
               children: [
                 Column(

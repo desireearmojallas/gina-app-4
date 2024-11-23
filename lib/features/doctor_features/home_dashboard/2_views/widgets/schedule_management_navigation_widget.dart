@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
@@ -13,47 +12,55 @@ class ScheduleManagementNavigationWidget extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     final ginaTheme = Theme.of(context);
 
-    return Container(
-      height: size.height * 0.14,
-      width: size.width / 2.9,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        gradient: LinearGradient(
-          colors: GinaAppTheme.gradientColors,
-          begin: Alignment.bottomLeft,
-          end: Alignment.topRight,
-        ),
-        boxShadow: [
-          GinaAppTheme.defaultBoxShadow,
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Image.asset(
-            Images.scheduleManagementIcon,
-            width: 60,
-            height: 60,
+    return InkWell(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          '/doctorScheduleManagement',
+        );
+      },
+      child: Container(
+        height: size.height * 0.14,
+        width: size.width / 2.9,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          gradient: LinearGradient(
+            colors: GinaAppTheme.gradientColors,
+            begin: Alignment.bottomLeft,
+            end: Alignment.topRight,
           ),
-          const Gap(20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(
-                'Schedule\nManagement',
-                style: ginaTheme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
+          boxShadow: [
+            GinaAppTheme.defaultBoxShadow,
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image.asset(
+              Images.scheduleManagementIcon,
+              width: 60,
+              height: 60,
+            ),
+            const Gap(20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(
+                  'Schedule\nManagement',
+                  style: ginaTheme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const Icon(
+                  Bootstrap.plus_circle_fill,
                   color: Colors.white,
                 ),
-              ),
-              const Icon(
-                Bootstrap.plus_circle_fill,
-                color: Colors.white,
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
