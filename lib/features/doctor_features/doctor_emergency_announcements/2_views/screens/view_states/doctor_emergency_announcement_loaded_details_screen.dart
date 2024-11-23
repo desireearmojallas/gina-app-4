@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
+import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/view_states/doctor_emergency_announcement_create_announcement.dart';
 
@@ -14,8 +15,8 @@ class DoctorEmergencyAnnouncementsLoadedDetailsScreen extends StatelessWidget {
 
     //! todo: temporary scaffold will replace once bloc is implemented
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Emergency Announcement'),
+      appBar: GinaDoctorAppBar(
+        title: 'Emergency Announcement',
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 30.0),

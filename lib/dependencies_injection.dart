@@ -14,6 +14,7 @@ import 'package:gina_app_4/features/auth/1_controllers/patient_auth_controller.d
 import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/screens/forgot_password/2_views/bloc/forgot_password_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_office_address/bloc/doctor_address_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/create_doctor_schedule/2_views/bloc/create_doctor_schedule_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/bloc/doctor_appointment_request_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/screens/bloc/doctor_appointment_request_screen_loaded_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/approved_state/bloc/approved_request_state_bloc.dart';
@@ -295,5 +296,10 @@ Future<void> init() async {
   //! Features - Doctor Schedule Management
   sl.registerFactory(
     () => DoctorScheduleManagementBloc(),
+  );
+
+  //! Features - Doctor Create Schedule
+  sl.registerFactory(
+    () => CreateDoctorScheduleBloc(),
   );
 }

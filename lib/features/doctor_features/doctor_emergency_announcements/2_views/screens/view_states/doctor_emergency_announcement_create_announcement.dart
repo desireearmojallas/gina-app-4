@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/view_states/doctor_emergency_announcement_patient_list.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -22,8 +23,8 @@ class DoctorEmergencyAnnouncementCreateAnnouncementScreen
 
     //! temporary scaffold. will replace once bloc is implemented
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create Announcement'),
+      appBar: GinaDoctorAppBar(
+        title: 'Create Announcement',
       ),
       body: SingleChildScrollView(
         child: Center(

@@ -3,7 +3,7 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/view_states/edit_doctor_consultation_fee_screen_loaded.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_consultation_fee_name_widget.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_name_widget.dart';
 
 class ToggleValue extends ValueNotifier<bool> {
   ToggleValue(super.value);
@@ -27,7 +27,7 @@ class DoctorConsultationFeeScreenLoaded extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          doctorConsultationFeeNameWidget(size, ginaTheme),
+          doctorNameWidget(size, ginaTheme),
           const Gap(5),
           Container(
             decoration: const BoxDecoration(
