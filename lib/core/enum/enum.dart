@@ -19,5 +19,7 @@ enum AppointmentStatus {
   declined, // 4
 }
 
-
-// TODO:  add other ENUM
+enum ModeOfAppointmentId {
+  onlineConsultation,
+  faceToFaceConsultation,
+}
