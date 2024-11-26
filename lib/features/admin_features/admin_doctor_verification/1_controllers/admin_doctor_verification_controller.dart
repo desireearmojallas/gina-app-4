@@ -5,6 +5,7 @@ import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
+import 'package:gina_app_4/features/auth/0_model/doctor_verification_model.dart';
 
 class AdminDoctorVerificationController {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -42,5 +43,24 @@ class AdminDoctorVerificationController {
       error = FirebaseAuthException(message: e.toString(), code: 'error');
       return Left(Exception(e.toString()));
     }
+  }
+
+  //---------- GET DOCTOR SUBMITTED MEDICAL LICENSE ---------------
+
+  Future<Either<Exception, List<DoctorVerificationModel>>>
+      getDoctorSubmittedMedicalLicense() {
+    return Future.value(const Right([]));
+  }
+
+  //---------- APPROVE DOCTOR VERIFICATION ---------------
+
+  Future<Either<Exception, bool>> approveDoctorVerification() {
+    return Future.value(const Right(true));
+  }
+
+  //---------- DECLINE DOCTOR VERIFICATION ---------------
+
+  Future<Either<Exception, bool>> declineDoctorVerification() {
+    return Future.value(const Right(true));
   }
 }

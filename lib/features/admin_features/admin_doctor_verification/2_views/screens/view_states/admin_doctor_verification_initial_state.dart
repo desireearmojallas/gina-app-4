@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/approved_doctor_verification_list.dart';
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/declined_doctor_verification_list.dart';
+import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/pending_doctor_verification_list.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/admin_verificatin_pending_approved_declined_action_state.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/admin_verification_table_label_container.dart';
 
@@ -31,10 +31,10 @@ class AdminDoctorVerificationInitialState extends StatelessWidget {
                         AdminVerificationPendingApprovedDeclinedActionState(),
                   ),
                   const AdminVerificationTableLabelContainer(),
-                  // PendingDoctorVerificationList(
-                  //   nameWidth: 0.145,
-                  //   isDashboardView: false,
-                  // ),
+                  PendingDoctorVerificationList(
+                    nameWidth: 0.145,
+                    isDashboardView: false,
+                  ),
 
                   // ApprovedDoctorVerificationList(
                   //   nameWidth: 0.135,
@@ -46,10 +46,10 @@ class AdminDoctorVerificationInitialState extends StatelessWidget {
                   //   nameWidth: 0.14,
                   // ),
 
-                  DeclinedDoctorVerificationList(
-                    nameWidth: 0.14,
-                    isDashboardView: false,
-                  ),
+                  // DeclinedDoctorVerificationList(
+                  //   nameWidth: 0.14,
+                  //   isDashboardView: false,
+                  // ),
                 ],
               ),
             ),
