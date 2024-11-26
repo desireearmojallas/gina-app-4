@@ -62,19 +62,21 @@ class AdminDoctorVerificationBloc
       AdminVerificationApprovedDoctorVerificationListEvent event,
       Emitter<AdminDoctorVerificationState> emit) {
     emit(AdminVerificationApprovedDoctorVerificationListState());
-      }
+  }
 
   FutureOr<void> declinedDoctorVerificationListEvent(
       AdminVerificationDeclinedDoctorVerificationListEvent event,
       Emitter<AdminDoctorVerificationState> emit) {
     emit(AdminVerificationDeclinedDoctorVerificationListState());
-      }
+  }
 
+//! continue here
   FutureOr<void> navigateToAdminDoctorDetailsPendingEvent(
       NavigateToAdminDoctorDetailsPendingEvent event,
-      Emitter<AdminDoctorVerificationState> emit) {
-        final doctorSubmittedDocuments = await adminDoctorVerificationController.getDoctorSubmittedMedicalLicense()
-;      }
+      Emitter<AdminDoctorVerificationState> emit) async {
+    final doctorSubmittedDocuments = await adminDoctorVerificationController
+        .getDoctorSubmittedMedicalLicense();
+  }
 
   FutureOr<void> navigateToAdminDoctorDetailsApprovedEvent(
       NavigateToAdminDoctorDetailsApprovedEvent event,
