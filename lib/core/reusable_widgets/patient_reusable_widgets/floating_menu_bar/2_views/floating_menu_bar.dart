@@ -35,11 +35,15 @@ class FloatingMenuWidget extends StatelessWidget {
           ),
         ),
       ),
-      menuStyle: const MenuStyle(
-        backgroundColor: MaterialStatePropertyAll<Color>(
+      menuStyle: MenuStyle(
+        backgroundColor: const MaterialStatePropertyAll<Color>(
           GinaAppTheme.appbarColorLight,
         ),
-        shape: MaterialStatePropertyAll<RoundedRectangleBorder>(
+        elevation: const MaterialStatePropertyAll<double>(0.5),
+        shadowColor: MaterialStatePropertyAll<Color>(
+          Colors.black.withOpacity(0.2),
+        ),
+        shape: const MaterialStatePropertyAll<RoundedRectangleBorder>(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(30),

@@ -1,0 +1,96 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:equatable/equatable.dart';
+
+class AppointmentModel extends Equatable {
+  final String? appointmentUid;
+  final String? patientName;
+  final String? patientUid;
+  final String? doctorName;
+  final String? doctorUid;
+  final String? doctorClinicAddress;
+  String? appointmentDate;
+  final String? appointmentTime;
+  final int? modeOfAppointment;
+  final int appointmentStatus;
+  final List<String>? prescriptionImages;
+
+  AppointmentModel({
+    this.appointmentUid,
+    this.patientName,
+    this.patientUid,
+    this.doctorName,
+    this.doctorUid,
+    this.doctorClinicAddress,
+    this.appointmentDate,
+    this.appointmentTime,
+    this.modeOfAppointment,
+    this.appointmentStatus = 0,
+    this.prescriptionImages,
+  });
+
+  static AppointmentModel fromDocumentSnap(DocumentSnapshot snap) {
+    Map<String, dynamic> json = snap.data() as Map<String, dynamic>;
+    return AppointmentModel(
+      appointmentUid: snap.id,
+      patientName: json['patientName'] ?? '',
+      patientUid: json['patientUid'] ?? '',
+      doctorName: json['doctorName'] ?? '',
+      doctorUid: json['doctorUid'] ?? '',
+      doctorClinicAddress: json['doctorClinicAddress'] ?? '',
+      appointmentTime: json['appointTime'] ?? '',
+      modeOfAppointment: json['modeOfAppointment'] ?? 0,
+      appointmentStatus: json['appointmentStatus'] ?? 0,
+      prescriptionImages: List<String>.from(
+        json['prescriptionImages'] ?? [],
+      ),
+    );
+  }
+
+  factory AppointmentModel.fromJson(Map<String, dynamic> json) {
+    return AppointmentModel(
+      appointmentUid: json['appointmentUid'],
+      patientName: json['patientName'] ?? '',
+      patientUid: json['patientUid'] ?? '',
+      doctorName: json['doctorName'] ?? '',
+      doctorUid: json['doctorUid'] ?? '',
+      doctorClinicAddress: json['doctorClinicAddress'] ?? '',
+      appointmentTime: json['appointTime'] ?? '',
+      modeOfAppointment: json['modeOfAppointment'] ?? 0,
+      appointmentStatus: json['appointmentStatus'] ?? 0,
+      prescriptionImages: List<String>.from(
+        json['prescriptionImages'] ?? [],
+      ),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'appointmentUid': appointmentUid,
+      'patientName': patientName,
+      'patientUid': patientUid,
+      'doctorName': doctorName,
+      'doctorUid': doctorUid,
+      'doctorClinicAddress': doctorClinicAddress,
+      'appointmentDate': appointmentDate,
+      'appointTime': appointmentTime,
+      'modeOfAppointment': modeOfAppointment,
+      'appointmentStatus': appointmentStatus,
+      'prescriptionImages': prescriptionImages,
+    };
+  }
+
+  @override
+  List<Object?> get props => [
+        appointmentUid,
+        patientName,
+        patientUid,
+        doctorName,
+        doctorUid,
+        doctorClinicAddress,
+        appointmentDate,
+        appointmentTime,
+        modeOfAppointment,
+        appointmentStatus,
+        prescriptionImages,
+      ];
+}

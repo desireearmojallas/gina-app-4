@@ -34,7 +34,7 @@ class GinaPatientAppBar extends StatelessWidget implements PreferredSizeWidget {
         title: Text(
           title,
           style: ginaTheme.textTheme.headlineMedium?.copyWith(
-            fontSize: 18,
+            fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
         ),
