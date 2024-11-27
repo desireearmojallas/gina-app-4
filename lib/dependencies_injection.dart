@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/floating_doctor_menu_bar/bloc/floating_doctor_menu_bar_bloc.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/floating_menu_bar/2_views/bloc/floating_menu_bloc.dart';
 import 'package:gina_app_4/core/storage/shared_preferences/shared_preferences_manager.dart';
+import 'package:gina_app_4/features/admin_features/admin_dashboard/1_controllers/admin_dashboard_controller.dart';
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/bloc/admin_dashboard_bloc.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_list/2_views/bloc/admin_doctor_list_bloc.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/1_controllers/admin_doctor_verification_controller.dart';
@@ -104,8 +105,14 @@ Future<void> init() async {
 
 //! Features - Admin Dashboard
   sl.registerFactory(
-    () => AdminDashboardBloc(),
+    () => AdminDashboardBloc(
+      adminDashboardController: sl(),
+      adminDoctorVerificationController: sl(),
+    ),
   );
+
+  sl.registerFactory(() => AdminDashboardController());
+  sl.registerFactory(() => AdminDoctorVerificationController());
 
 // ----------------------------------------------------------------------------------
 
@@ -115,8 +122,6 @@ Future<void> init() async {
       adminDoctorVerificationController: sl(),
     ),
   );
-
-  sl.registerFactory(() => AdminDoctorVerificationController());
 
 // ----------------------------------------------------------------------------------
 
