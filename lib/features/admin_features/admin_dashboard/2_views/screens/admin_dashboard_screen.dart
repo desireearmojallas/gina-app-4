@@ -10,7 +10,13 @@ class AdminDashboardScreenProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<AdminDashboardBloc>(
-      create: (context) => sl<AdminDashboardBloc>(),
+      create: (context) {
+        final adminDashboardBloc = sl<AdminDashboardBloc>();
+        isFromAdminDashboard = true;
+        adminDashboardBloc.add(AdminDashboardGetRequestedEvent());
+
+        return adminDashboardBloc;
+      },
       child: const AdminDashboardScreen(),
     );
   }
@@ -21,13 +27,21 @@ class AdminDashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      // appBar: AppBar(
-      //   notificationPredicate: (notification) => false,
-      //   automaticallyImplyLeading: false,
-      //   title: const Text(''),
-      // ),
-      body: AdminDashboardInitialState(),
+    final adminDashboardBloc = context.read<AdminDashboardBloc>();
+    return Scaffold(
+      appBar: AppBar(
+        notificationPredicate: (notification) => false,
+        automaticallyImplyLeading: false,
+        title: const Text(''),
+      ),
+      body: BlocConsumer<AdminDashboardBloc, AdminDashboardState>(
+        listenWhen: (previous, current) => current is AdminDashboardActionState,
+        buildWhen: (previous, current) => current is! AdminDashboardActionState,
+        listener: (context, state) {},
+        builder: (context, state) {
+          return const AdminDashboardInitialState();
+        },
+      ),
     );
   }
 }
