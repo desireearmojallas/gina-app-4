@@ -13,6 +13,10 @@ part 'admin_doctor_verification_state.dart';
 class AdminDoctorVerificationBloc
     extends Bloc<AdminDoctorVerificationEvent, AdminDoctorVerificationState> {
   final AdminDoctorVerificationController adminDoctorVerificationController;
+
+//! not sure if this doctorlist is correct
+  List<DoctorModel> doctorList = [];
+
   AdminDoctorVerificationBloc({
     required this.adminDoctorVerificationController,
   }) : super(AdminDoctorVerificationInitial()) {
@@ -46,7 +50,7 @@ class AdminDoctorVerificationBloc
     doctors.fold((failure) {
       emit(AdminDoctorVerificationError(errorMessage: failure.toString()));
     }, (doctors) {
-      // doctorList = doctors;
+      doctorList = doctors;
       emit(AdminDoctorVerificationLoaded(doctors: doctors));
       emit(AdminVerificationPendingDoctorVerificationListState());
     });
@@ -70,27 +74,116 @@ class AdminDoctorVerificationBloc
     emit(AdminVerificationDeclinedDoctorVerificationListState());
   }
 
-//! continue here
   FutureOr<void> navigateToAdminDoctorDetailsPendingEvent(
       NavigateToAdminDoctorDetailsPendingEvent event,
       Emitter<AdminDoctorVerificationState> emit) async {
     final doctorSubmittedDocuments = await adminDoctorVerificationController
-        .getDoctorSubmittedMedicalLicense();
+        .getDoctorSubmittedMedicalLicense(
+            doctorId: event.pendingDoctorDetails.uid);
+
+    doctorSubmittedDocuments.fold(
+      (failure) {
+        emit(AdminDoctorVerificationError(errorMessage: failure.toString()));
+      },
+      (doctorSubmittedDocuments) {
+        emit(NavigateToAdminDoctorDetailsPendingState(
+          pendingDoctorDetails: event.pendingDoctorDetails,
+          doctorVerification: doctorSubmittedDocuments,
+        ));
+      },
+    );
   }
 
   FutureOr<void> navigateToAdminDoctorDetailsApprovedEvent(
       NavigateToAdminDoctorDetailsApprovedEvent event,
-      Emitter<AdminDoctorVerificationState> emit) {}
+      Emitter<AdminDoctorVerificationState> emit) async {
+    final doctorSubmittedDocuments = await adminDoctorVerificationController
+        .getDoctorSubmittedMedicalLicense(
+            doctorId: event.approvedDoctorDetails.uid);
+
+    doctorSubmittedDocuments.fold(
+      (failure) {
+        emit(AdminDoctorVerificationError(
+          errorMessage: failure.toString(),
+        ));
+      },
+      (doctorSubmittedDocuments) {
+        emit(NavigateToAdminDoctorDetailsApprovedState(
+          approvedDoctorDetails: event.approvedDoctorDetails,
+          doctorVerification: doctorSubmittedDocuments,
+        ));
+      },
+    );
+  }
 
   FutureOr<void> navigateToAdminDoctorDetailsDeclinedEvent(
       NavigateToAdminDoctorDetailsDeclinedEvent event,
-      Emitter<AdminDoctorVerificationState> emit) {}
+      Emitter<AdminDoctorVerificationState> emit) async {
+    final doctorSubmittedDocuments = await adminDoctorVerificationController
+        .getDoctorSubmittedMedicalLicense(
+            doctorId: event.declinedDoctorDetails.uid);
+
+    doctorSubmittedDocuments.fold(
+      (failure) {
+        emit(AdminDoctorVerificationError(errorMessage: failure.toString()));
+      },
+      (doctorSubmittedDocuments) {
+        emit(NavigateToAdminDoctorDetailsDeclinedState(
+          declinedDoctorDetails: event.declinedDoctorDetails,
+          doctorVerification: doctorSubmittedDocuments,
+        ));
+      },
+    );
+  }
 
   FutureOr<void> adminDoctorVerificationApproveEvent(
       AdminDoctorVerificationApproveEvent event,
-      Emitter<AdminDoctorVerificationState> emit) {}
+      Emitter<AdminDoctorVerificationState> emit) async {
+    final result =
+        await adminDoctorVerificationController.approveDoctorVerification(
+            doctorId: event.doctorId,
+            doctorVerificationId: event.doctorVerificationId);
+
+    result.fold((failure) {
+      emit(AdminDoctorVerificationApproveError(
+          errorMessage: failure.toString()));
+    }, (result) {
+      emit(AdminDoctorVerificationApproveState());
+      emit(AdminDoctorVerificationLoaded(
+        doctors: doctorList,
+      ));
+    });
+  }
 
   FutureOr<void> adminDoctorVerificationDeclineEvent(
       AdminDoctorVerificationDeclineEvent event,
-      Emitter<AdminDoctorVerificationState> emit) {}
+      Emitter<AdminDoctorVerificationState> emit) async {
+    final result =
+        await adminDoctorVerificationController.declineDoctorVerification(
+            doctorId: event.doctorId,
+            doctorVerificationId: event.doctorVerificationId,
+            declineReason: event.declinedReason);
+
+    result.fold((failure) {
+      emit(AdminDoctorVerificationDeclineError(
+          errorMessage: failure.toString()));
+    }, (result) async {
+      final updatedDoctors =
+          await adminDoctorVerificationController.getAllDoctors();
+
+      updatedDoctors.fold(
+        (failure) {
+          AdminDoctorVerificationDeclineError(errorMessage: failure.toString());
+        },
+        (doctors) {
+          doctorList = doctors;
+          emit(AdminDoctorVerificationDeclineSuccess());
+          emit(AdminDoctorVerificationLoaded(doctors: doctorList));
+          emit(AdminVerificationPendingDoctorVerificationListState());
+          // emit(AdminVerificationDeclinedDoctorVerificationListState());
+          debugPrint('AdminDoctorVerificationBloc: $doctorList');
+        },
+      );
+    });
+  }
 }
