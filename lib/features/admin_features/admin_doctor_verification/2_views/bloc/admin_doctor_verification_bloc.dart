@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/bloc/admin_dashboard_bloc.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/1_controllers/admin_doctor_verification_controller.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_verification_model.dart';
@@ -13,9 +14,6 @@ part 'admin_doctor_verification_state.dart';
 class AdminDoctorVerificationBloc
     extends Bloc<AdminDoctorVerificationEvent, AdminDoctorVerificationState> {
   final AdminDoctorVerificationController adminDoctorVerificationController;
-
-//! not sure if this doctorlist is correct
-  List<DoctorModel> doctorList = [];
 
   AdminDoctorVerificationBloc({
     required this.adminDoctorVerificationController,
@@ -164,26 +162,18 @@ class AdminDoctorVerificationBloc
             doctorVerificationId: event.doctorVerificationId,
             declineReason: event.declinedReason);
 
-    result.fold((failure) {
-      emit(AdminDoctorVerificationDeclineError(
-          errorMessage: failure.toString()));
-    }, (result) async {
-      final updatedDoctors =
-          await adminDoctorVerificationController.getAllDoctors();
-
-      updatedDoctors.fold(
-        (failure) {
-          AdminDoctorVerificationDeclineError(errorMessage: failure.toString());
-        },
-        (doctors) {
-          doctorList = doctors;
-          emit(AdminDoctorVerificationDeclineSuccess());
-          emit(AdminDoctorVerificationLoaded(doctors: doctorList));
-          emit(AdminVerificationPendingDoctorVerificationListState());
-          // emit(AdminVerificationDeclinedDoctorVerificationListState());
-          debugPrint('AdminDoctorVerificationBloc: $doctorList');
-        },
-      );
-    });
+    result.fold(
+      (failure) {
+        emit(AdminDoctorVerificationDeclineError(
+            errorMessage: failure.toString()));
+      },
+      (result) {
+        emit(AdminDoctorVerificationDeclineSuccess());
+        emit(AdminDoctorVerificationLoaded(
+          doctors: doctorList,
+        ));
+        emit(AdminVerificationPendingDoctorVerificationListState());
+      },
+    );
   }
 }
