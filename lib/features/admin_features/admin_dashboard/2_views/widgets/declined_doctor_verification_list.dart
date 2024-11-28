@@ -7,12 +7,14 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/screens/view_states/admin_doctor_details_declined_state.dart';
 
 class DeclinedDoctorVerificationList extends StatelessWidget {
+  final BuildContext context;
   double? nameWidth;
   bool? isDashboardView;
   DeclinedDoctorVerificationList({
     super.key,
     this.nameWidth = 0.16,
     this.isDashboardView = true,
+    required this.context,
   });
 
   @override

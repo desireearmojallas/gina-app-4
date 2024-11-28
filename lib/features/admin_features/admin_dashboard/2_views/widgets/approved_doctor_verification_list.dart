@@ -5,10 +5,12 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/screens/view_states/admin_doctor_details_approved_state.dart';
 
 class ApprovedDoctorVerificationList extends StatelessWidget {
+  final BuildContext context;
   double? nameWidth;
   bool? isDashboardView;
   ApprovedDoctorVerificationList({
     super.key,
+    required this.context,
     this.nameWidth = 0.17,
     this.isDashboardView = true,
   });

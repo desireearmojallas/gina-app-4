@@ -68,7 +68,10 @@ class AdminDashboardScreen extends StatelessWidget {
         },
         builder: (context, state) {
           if (state is AdminDashboardLoaded) {
-            return const AdminDashboardInitialState();
+            return AdminDashboardInitialState(
+              doctors: state.doctors,
+              patients: state.patients,
+            );
           } else if (state is NavigateToDoctorDetailsPendingState) {
             return const AdminDoctorDetailsPendingState();
           } else if (state is NavigateToDoctorDetailsApprovedState) {
@@ -78,9 +81,14 @@ class AdminDashboardScreen extends StatelessWidget {
           } else if (state is NavigateToAppointmentsBookedList) {
             return const AdminDashboardTotalAppointmentsBooked();
           } else if (state is NavigateToPatientsList) {
-            return const AdminPatientListLoaded();
+            return AdminPatientListLoaded(
+              patientList: state.patients,
+            );
           }
-          return const AdminDashboardInitialState();
+          return AdminDashboardInitialState(
+            doctors: doctorList,
+            patients: patientList,
+          );
         },
       ),
     );

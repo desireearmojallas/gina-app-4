@@ -112,7 +112,6 @@ Future<void> init() async {
   );
 
   sl.registerFactory(() => AdminDashboardController());
-  sl.registerFactory(() => AdminDoctorVerificationController());
 
 // ----------------------------------------------------------------------------------
 
@@ -122,6 +121,8 @@ Future<void> init() async {
       adminDoctorVerificationController: sl(),
     ),
   );
+
+  sl.registerFactory(() => AdminDoctorVerificationController());
 
 // ----------------------------------------------------------------------------------
 

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:gina_app_4/features/admin_features/admin_patient_list/2_views/widgets/list_of_all_patients.dart';
 import 'package:gina_app_4/features/admin_features/admin_patient_list/2_views/widgets/patient_list_label.dart';
+import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 
 class AdminPatientListLoaded extends StatelessWidget {
-  const AdminPatientListLoaded({super.key});
+  final List<UserModel> patientList;
+  const AdminPatientListLoaded({super.key, required this.patientList});
 
   @override
   Widget build(BuildContext context) {

@@ -21,8 +21,11 @@ class AdminPatientListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: AdminPatientListLoaded(),
+    return Scaffold(
+      body: Container(),
+      // body: AdminPatientListLoaded(
+      //   patientList: state.patients,
+      // ),
     );
   }
 }
