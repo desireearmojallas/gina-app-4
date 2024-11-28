@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/bloc/admin_doctor_verification_bloc.dart';
 
 class AdminVerificationTableLabelContainer extends StatelessWidget {
   const AdminVerificationTableLabelContainer({super.key});
@@ -89,17 +91,52 @@ class AdminVerificationTableLabelContainer extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(
-            width: size.width * 0.06,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'DATE SUBMITTED',
-                style: ginaTheme.labelMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+          BlocBuilder<AdminDoctorVerificationBloc,
+              AdminDoctorVerificationState>(
+            builder: (context, state) {
+              return SizedBox(
+                  width: size.width * 0.06,
+                  child: state
+                          is AdminVerificationPendingDoctorVerificationListState
+                      ? Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            'DATE SUBMITTED',
+                            style: ginaTheme.labelMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        )
+                      : state is AdminVerificationApprovedDoctorVerificationListState
+                          ? Align(
+                              alignment: Alignment.center,
+                              child: Text(
+                                'DATE VERIFIED',
+                                style: ginaTheme.labelMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            )
+                          : state is AdminVerificationDeclinedDoctorVerificationListState
+                              ? Align(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'DATE DECLINED',
+                                    style: ginaTheme.labelMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                )
+                              : Align(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'DATE SUBMITTED',
+                                    style: ginaTheme.labelMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ));
+            },
           ),
         ],
       ),

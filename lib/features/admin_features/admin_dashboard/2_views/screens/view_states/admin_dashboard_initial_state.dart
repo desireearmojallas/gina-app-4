@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/bloc/admin_dashboard_bloc.dart';
+import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/approved_doctor_verification_list.dart';
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/dashboard_summary_containers.dart';
+import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/declined_doctor_verification_list.dart';
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/pending_approved_decline_action_state.dart';
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/pending_doctor_verification_list.dart';
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/table_label_container.dart';
@@ -15,14 +17,18 @@ class AdminDashboardInitialState extends StatelessWidget {
   final List<DoctorModel> doctors;
   final List<UserModel> patients;
 
-  const AdminDashboardInitialState(
-      {super.key, required this.doctors, required this.patients});
+  const AdminDashboardInitialState({
+    super.key,
+    required this.doctors,
+    required this.patients,
+  });
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
     final adminDashboardBloc = context.read<AdminDashboardBloc>();
+
     final pendingDoctorList = doctors
         .where((element) =>
             element.doctorVerificationStatus ==
@@ -69,14 +75,38 @@ class AdminDashboardInitialState extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10.0),
-                    child: PendingApprovedDeclineActionState(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: PendingApprovedDeclineActionState(
+                      adminDashboardBloc: adminDashboardBloc,
+                    ),
                   ),
                   const TableLabelContainer(),
-                  PendingDoctorVerificationList(),
-                  // ApprovedDoctorVerificationList(),
-                  // DeclinedDoctorVerificationList(),
+                  BlocConsumer<AdminDashboardBloc, AdminDashboardState>(
+                    listener: (context, state) {},
+                    builder: (context, state) {
+                      if (state is PendingDoctorVerificationListState) {
+                        return PendingDoctorVerificationList(
+                          nameWidth: 0.145,
+                          isDashboardView: true,
+                        );
+                      } else if (state is ApprovedDoctorVerificationListState) {
+                        return ApprovedDoctorVerificationList(
+                          nameWidth: 0.155,
+                          isDashboardView: true,
+                        );
+                      } else if (state is DeclinedDoctorVerificationListState) {
+                        return DeclinedDoctorVerificationList(
+                          nameWidth: 0.145,
+                          isDashboardView: true,
+                        );
+                      }
+                      return PendingDoctorVerificationList(
+                        nameWidth: 0.145,
+                        isDashboardView: true,
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
