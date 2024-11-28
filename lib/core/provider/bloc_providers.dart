@@ -56,23 +56,23 @@ List<BlocProvider> getBlocProviders() {
       create: (context) => sl<AdminLoginBloc>(),
     ),
 
-    BlocProvider(
+    BlocProvider<AdminNavigationDrawerBloc>(
       create: (context) => sl<AdminNavigationDrawerBloc>(),
     ),
 
-    BlocProvider(
+    BlocProvider<AdminDashboardBloc>(
       create: (context) => sl<AdminDashboardBloc>(),
     ),
 
-    BlocProvider(
+    BlocProvider<AdminDoctorVerificationBloc>(
       create: (context) => sl<AdminDoctorVerificationBloc>(),
     ),
 
-    BlocProvider(
+    BlocProvider<AdminDoctorListBloc>(
       create: (context) => sl<AdminDoctorListBloc>(),
     ),
 
-    BlocProvider(
+    BlocProvider<AdminPatientListBloc>(
       create: (context) => sl<AdminPatientListBloc>(),
     ),
 

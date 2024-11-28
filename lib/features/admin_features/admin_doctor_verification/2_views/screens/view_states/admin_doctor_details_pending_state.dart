@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/square_avatar.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/bloc/admin_dashboard_bloc.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/bloc/admin_doctor_verification_bloc.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/approve_decline_buttons.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/detailed_view_icon.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/submissions_data_list.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/submitted_requirements_table_label.dart';
+import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
+import 'package:gina_app_4/features/auth/0_model/doctor_verification_model.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class AdminDoctorDetailsPendingState extends StatelessWidget {
-  const AdminDoctorDetailsPendingState({super.key});
+  final DoctorModel pendingDoctorDetails;
+  final List<DoctorVerificationModel> doctorVerification;
+  const AdminDoctorDetailsPendingState(
+      {super.key,
+      required this.pendingDoctorDetails,
+      required this.doctorVerification});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +40,12 @@ class AdminDoctorDetailsPendingState extends StatelessWidget {
       fontWeight: FontWeight.bold,
     );
 
-    //TODO: Delete Scaffold after implementing bloc
+    final adminDoctorVerificationBloc =
+        context.read<AdminDoctorVerificationBloc>();
+    final TextEditingController declineReasonController =
+        TextEditingController();
+    final adminDashboardBloc = context.read<AdminDashboardBloc>();
+
     return Scaffold(
       body: FittedBox(
         child: Padding(
@@ -51,8 +66,13 @@ class AdminDoctorDetailsPendingState extends StatelessWidget {
                   padding: const EdgeInsets.all(20.0),
                   child: IconButton(
                     onPressed: () {
-                      // TODO: Temporary back button route. to implement bloc
-                      Navigator.pop(context);
+                      if (isFromAdminDashboard) {
+                        adminDashboardBloc
+                            .add(AdminDashboardGetRequestedEvent());
+                      } else {
+                        adminDoctorVerificationBloc
+                            .add(AdminDoctorVerificationGetRequestedEvent());
+                      }
                     },
                     icon: const Icon(
                       Icons.arrow_back,

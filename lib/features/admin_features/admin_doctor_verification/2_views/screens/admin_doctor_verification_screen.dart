@@ -76,9 +76,9 @@ class AdminDoctorVerifyScreen extends StatelessWidget {
                 doctorList: state.doctors);
           } else if (state is NavigateToAdminDoctorDetailsPendingState) {
             return AdminDoctorDetailsPendingState(
-                // pendingDoctorDetails: state.pendingDoctorDetails,
-                // doctorVerification: state.doctorVerification,
-                );
+              pendingDoctorDetails: state.pendingDoctorDetails,
+              doctorVerification: state.doctorVerification,
+            );
           } else if (state is NavigateToAdminDoctorDetailsApprovedState) {
             return AdminDoctorDetailsApprovedState(
                 // approvedDoctorDetails: state.approvedDoctorDetails,

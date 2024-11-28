@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/admin_features/admin_login/1_controllers/admin_login_controllers.dart';
 import 'package:gina_app_4/features/admin_features/admin_login/2_views/widgets/admin_container_text_widget.dart';
 import 'package:gina_app_4/features/admin_features/admin_navigation_drawer/2_views/bloc/admin_navigation_drawer_bloc.dart';
@@ -15,7 +16,7 @@ class AdminNavigationDrawerProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<AdminNavigationDrawerBloc>(
-      create: (context) => AdminNavigationDrawerBloc(),
+      create: (context) => sl<AdminNavigationDrawerBloc>(),
       child: const AdminNavigationDrawer(),
     );
   }

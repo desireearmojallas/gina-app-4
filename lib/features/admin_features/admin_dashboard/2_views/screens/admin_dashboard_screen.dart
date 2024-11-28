@@ -73,7 +73,10 @@ class AdminDashboardScreen extends StatelessWidget {
               patients: state.patients,
             );
           } else if (state is NavigateToDoctorDetailsPendingState) {
-            return const AdminDoctorDetailsPendingState();
+            return AdminDoctorDetailsPendingState(
+              pendingDoctorDetails: state.pendingDoctorDetails,
+              doctorVerification: state.doctorVerification,
+            );
           } else if (state is NavigateToDoctorDetailsApprovedState) {
             return const AdminDoctorDetailsApprovedState();
           } else if (state is NavigateToDoctorDetailsDeclinedState) {

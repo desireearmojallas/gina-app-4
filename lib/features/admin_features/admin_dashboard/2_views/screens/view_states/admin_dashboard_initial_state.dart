@@ -12,7 +12,6 @@ import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widge
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 
-//! TO BE CONTINUED...
 class AdminDashboardInitialState extends StatelessWidget {
   final List<DoctorModel> doctors;
   final List<UserModel> patients;
@@ -73,6 +72,8 @@ class AdminDashboardInitialState extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
               ),
+
+              //! TO BE CONTINUEDDDD.......
               child: Column(
                 children: [
                   Padding(
@@ -87,7 +88,9 @@ class AdminDashboardInitialState extends StatelessWidget {
                     builder: (context, state) {
                       if (state is PendingDoctorVerificationListState) {
                         return PendingDoctorVerificationList(
-                          nameWidth: 0.145,
+                          context: context,
+                          pendingDoctorList: pendingDoctorList,
+                          nameWidth: 0.155,
                           isDashboardView: true,
                         );
                       } else if (state is ApprovedDoctorVerificationListState) {
@@ -102,6 +105,8 @@ class AdminDashboardInitialState extends StatelessWidget {
                         );
                       }
                       return PendingDoctorVerificationList(
+                        pendingDoctorList: pendingDoctorList,
+                        context: context,
                         nameWidth: 0.145,
                         isDashboardView: true,
                       );

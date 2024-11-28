@@ -65,6 +65,8 @@ class AdminDoctorVerificationInitialState extends StatelessWidget {
                       if (state
                           is AdminVerificationPendingDoctorVerificationListState) {
                         return PendingDoctorVerificationList(
+                          pendingDoctorList: pendingDoctorList,
+                          context: context,
                           nameWidth: 0.145,
                           isDashboardView: false,
                         );
@@ -82,6 +84,8 @@ class AdminDoctorVerificationInitialState extends StatelessWidget {
                         );
                       }
                       return PendingDoctorVerificationList(
+                        pendingDoctorList: pendingDoctorList,
+                        context: context,
                         nameWidth: 0.145,
                         isDashboardView: false,
                       );
