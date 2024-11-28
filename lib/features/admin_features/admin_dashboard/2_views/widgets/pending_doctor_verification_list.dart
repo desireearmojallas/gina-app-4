@@ -7,13 +7,12 @@ import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/bloc/admin_dashboard_bloc.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/bloc/admin_doctor_verification_bloc.dart';
-import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/screens/view_states/admin_doctor_details_pending_state.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:intl/intl.dart';
 
 class PendingDoctorVerificationList extends StatelessWidget {
   final List<DoctorModel> pendingDoctorList;
-  final BuildContext context;
+
   double? nameWidth;
   bool? isDashboardView;
   PendingDoctorVerificationList({
@@ -21,7 +20,6 @@ class PendingDoctorVerificationList extends StatelessWidget {
     this.nameWidth = 0.16,
     this.isDashboardView = true,
     required this.pendingDoctorList,
-    required this.context,
   });
 
   @override

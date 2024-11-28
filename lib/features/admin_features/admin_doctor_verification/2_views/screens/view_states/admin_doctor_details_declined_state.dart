@@ -542,9 +542,9 @@ class AdminDoctorDetailsDeclinedState extends StatelessWidget {
                 ),
                 const Gap(20),
                 submittedRequirementsTableLabel(size, ginaTheme),
-                const SubmissionsDataList(
-                  verificationStatus: 2,
-                ),
+                // const SubmissionsDataList(
+                //   verificationStatus: 2,
+                // ),
               ],
             ),
           ),

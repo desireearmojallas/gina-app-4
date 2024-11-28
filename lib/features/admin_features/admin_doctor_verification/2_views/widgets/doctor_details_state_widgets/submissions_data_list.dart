@@ -3,10 +3,17 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_verification_status_chip.dart';
+import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
+import 'package:gina_app_4/features/auth/0_model/doctor_verification_model.dart';
+import 'package:intl/intl.dart';
 
 class SubmissionsDataList extends StatelessWidget {
-  final int verificationStatus;
-  const SubmissionsDataList({super.key, required this.verificationStatus});
+  final List<DoctorVerificationModel> doctorVerification;
+  final DoctorModel pendingDoctorDetails;
+  const SubmissionsDataList(
+      {super.key,
+      required this.doctorVerification,
+      required this.pendingDoctorDetails});
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +30,10 @@ class SubmissionsDataList extends StatelessWidget {
           thickness: 0.2,
           height: 5,
         ),
-        itemCount: 10,
+        itemCount: doctorVerification.length,
         itemBuilder: (context, index) {
+          final verification = doctorVerification[index];
+
           return Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -37,7 +46,7 @@ class SubmissionsDataList extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Dr. Desiree Armojallas, MD FPOGS, FSOUG',
+                      'Dr. ${pendingDoctorDetails.name}',
                       style: textStyle.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -48,10 +57,10 @@ class SubmissionsDataList extends StatelessWidget {
                 const Gap(10),
                 SizedBox(
                   width: size.width * 0.12,
-                  child: const Align(
+                  child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'desireearmojallas@gina.com',
+                      pendingDoctorDetails.email,
                       style: textStyle,
                       softWrap: true,
                     ),
@@ -60,10 +69,10 @@ class SubmissionsDataList extends StatelessWidget {
                 const Gap(10),
                 SizedBox(
                   width: size.width * 0.12,
-                  child: const Align(
+                  child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'MD-1234567890',
+                      pendingDoctorDetails.medicalLicenseNumber,
                       style: textStyle,
                       softWrap: true,
                     ),
@@ -82,11 +91,12 @@ class SubmissionsDataList extends StatelessWidget {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
                                 color: Colors.white,
+                                // TODO: FIX THIS NETWORK IMAGE ERROR IN SUBMISSIONS DATA LIST
                                 image: DecorationImage(
-                                  image: AssetImage(
-                                    Images.doctorProfileIcon1,
+                                  image: NetworkImage(
+                                    verification.medicalLicenseImage,
                                   ),
-                                  fit: BoxFit.cover,
+                                  fit: BoxFit.contain,
                                 ),
                               ),
                             ),
@@ -98,7 +108,7 @@ class SubmissionsDataList extends StatelessWidget {
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'medical_license.png',
+                        verification.medicalLicenseImageTitle,
                         style: textStyle.copyWith(
                           decoration: TextDecoration.underline,
                           decorationColor: GinaAppTheme.lightTertiaryContainer,
@@ -112,10 +122,11 @@ class SubmissionsDataList extends StatelessWidget {
                 const Gap(10),
                 SizedBox(
                   width: size.width * 0.1,
-                  child: const Align(
+                  child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Dec 14, 2023',
+                      DateFormat('MMM d, yyyy')
+                          .format(verification.dateSubmitted.toDate()),
                       style: textStyle,
                     ),
                   ),
@@ -128,7 +139,7 @@ class SubmissionsDataList extends StatelessWidget {
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: DoctorVerificationStatusChip(
-                        verificationStatus: verificationStatus,
+                        verificationStatus: verification.verificationStatus,
                       ),
                     ),
                   ),

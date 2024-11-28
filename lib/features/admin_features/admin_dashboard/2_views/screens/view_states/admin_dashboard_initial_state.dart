@@ -40,7 +40,7 @@ class AdminDashboardInitialState extends StatelessWidget {
             DoctorVerificationStatus.approved.index)
         .toList();
 
-    final declineDoctorList = doctors
+    final declinedDoctorList = doctors
         .where((element) =>
             element.doctorVerificationStatus ==
             DoctorVerificationStatus.declined.index)
@@ -88,25 +88,27 @@ class AdminDashboardInitialState extends StatelessWidget {
                     builder: (context, state) {
                       if (state is PendingDoctorVerificationListState) {
                         return PendingDoctorVerificationList(
-                          context: context,
+                          // context: context,
                           pendingDoctorList: pendingDoctorList,
                           nameWidth: 0.155,
                           isDashboardView: true,
                         );
                       } else if (state is ApprovedDoctorVerificationListState) {
                         return ApprovedDoctorVerificationList(
+                          approvedDoctorList: approvedDoctorList,
                           nameWidth: 0.155,
                           isDashboardView: true,
                         );
                       } else if (state is DeclinedDoctorVerificationListState) {
                         return DeclinedDoctorVerificationList(
+                          declinedDoctorList: declinedDoctorList,
                           nameWidth: 0.145,
                           isDashboardView: true,
                         );
                       }
                       return PendingDoctorVerificationList(
                         pendingDoctorList: pendingDoctorList,
-                        context: context,
+                        // context: context,
                         nameWidth: 0.145,
                         isDashboardView: true,
                       );

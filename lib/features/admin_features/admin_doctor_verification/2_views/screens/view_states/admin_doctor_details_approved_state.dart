@@ -29,7 +29,6 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
       fontWeight: FontWeight.bold,
     );
 
-    //TODO: Delete Scaffold after implementing bloc
     return Scaffold(
       body: FittedBox(
         child: Padding(
@@ -547,9 +546,9 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
                 ),
                 const Gap(20),
                 submittedRequirementsTableLabel(size, ginaTheme),
-                const SubmissionsDataList(
-                  verificationStatus: 1,
-                ),
+                // const SubmissionsDataList(
+                //   verificationStatus: 1,
+                // ),
               ],
             ),
           ),

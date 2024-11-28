@@ -30,7 +30,7 @@ class AdminDoctorVerificationInitialState extends StatelessWidget {
             DoctorVerificationStatus.approved.index)
         .toList();
 
-    final declineDoctorList = doctorList
+    final declinedDoctorList = doctorList
         .where((element) =>
             element.doctorVerificationStatus ==
             DoctorVerificationStatus.declined.index)
@@ -43,8 +43,8 @@ class AdminDoctorVerificationInitialState extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              height: size.height * 0.96,
-              width: size.width / 1.2,
+              height: size.height * 1.02,
+              width: size.width / 1.15,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10.0),
@@ -66,46 +66,33 @@ class AdminDoctorVerificationInitialState extends StatelessWidget {
                           is AdminVerificationPendingDoctorVerificationListState) {
                         return PendingDoctorVerificationList(
                           pendingDoctorList: pendingDoctorList,
-                          context: context,
+                          // context: context,
                           nameWidth: 0.145,
                           isDashboardView: false,
                         );
                       } else if (state
                           is AdminVerificationApprovedDoctorVerificationListState) {
                         return ApprovedDoctorVerificationList(
+                          approvedDoctorList: approvedDoctorList,
                           nameWidth: 0.135,
                           isDashboardView: false,
                         );
                       } else if (state
                           is AdminVerificationDeclinedDoctorVerificationListState) {
                         return DeclinedDoctorVerificationList(
+                          declinedDoctorList: declinedDoctorList,
                           nameWidth: 0.14,
                           isDashboardView: false,
                         );
                       }
                       return PendingDoctorVerificationList(
                         pendingDoctorList: pendingDoctorList,
-                        context: context,
+                        // context: context,
                         nameWidth: 0.145,
                         isDashboardView: false,
                       );
                     },
                   )
-
-                  // ApprovedDoctorVerificationList(
-                  //   nameWidth: 0.135,
-                  //   isDashboardView: false,
-                  // ),
-
-                  // PendingDoctorVerificationList(
-                  //   isDashboardView: false,
-                  //   nameWidth: 0.14,
-                  // ),
-
-                  // DeclinedDoctorVerificationList(
-                  //   nameWidth: 0.14,
-                  //   isDashboardView: false,
-                  // ),
                 ],
               ),
             ),

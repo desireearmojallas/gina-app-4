@@ -52,12 +52,14 @@ class ListOfAllDoctors extends StatelessWidget {
                       width: size.width * 0.14,
                       child: Row(
                         children: [
-                          Expanded(
+                          Flexible(
                             child: Text(
                               'Dr. Desiree Armojallas, MD FPOGS, FPSUOG',
                               style: ginaTheme.labelMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
+                              softWrap: true,
+                              overflow: TextOverflow.visible,
                             ),
                           ),
                           const Gap(5),

@@ -38,10 +38,10 @@ class PendingApprovedDeclineActionState extends StatelessWidget {
                   'Pending',
                   style: state is PendingDoctorVerificationListState
                       ? ginaTheme.labelMedium?.copyWith(
-                          color: GinaAppTheme.lightTertiaryContainer,
+                          color: GinaAppTheme.pendingTextColor,
                           decoration: TextDecoration.underline,
                           decorationStyle: TextDecorationStyle.solid,
-                          decorationColor: GinaAppTheme.lightTertiaryContainer,
+                          decorationColor: GinaAppTheme.pendingTextColor,
                           fontWeight: FontWeight.bold,
                         )
                       : ginaTheme.labelMedium?.copyWith(
@@ -60,10 +60,10 @@ class PendingApprovedDeclineActionState extends StatelessWidget {
                   'Approved',
                   style: state is ApprovedDoctorVerificationListState
                       ? ginaTheme.labelMedium?.copyWith(
-                          color: GinaAppTheme.lightTertiaryContainer,
+                          color: GinaAppTheme.approvedTextColor,
                           decoration: TextDecoration.underline,
                           decorationStyle: TextDecorationStyle.solid,
-                          decorationColor: GinaAppTheme.lightTertiaryContainer,
+                          decorationColor: GinaAppTheme.approvedTextColor,
                           fontWeight: FontWeight.bold,
                         )
                       : ginaTheme.labelMedium?.copyWith(
@@ -82,10 +82,10 @@ class PendingApprovedDeclineActionState extends StatelessWidget {
                   'Declined',
                   style: state is DeclinedDoctorVerificationListState
                       ? ginaTheme.labelMedium?.copyWith(
-                          color: GinaAppTheme.lightTertiaryContainer,
+                          color: GinaAppTheme.declinedTextColor,
                           decoration: TextDecoration.underline,
                           decorationStyle: TextDecorationStyle.solid,
-                          decorationColor: GinaAppTheme.lightTertiaryContainer,
+                          decorationColor: GinaAppTheme.declinedTextColor,
                           fontWeight: FontWeight.bold,
                         )
                       : ginaTheme.labelMedium?.copyWith(
