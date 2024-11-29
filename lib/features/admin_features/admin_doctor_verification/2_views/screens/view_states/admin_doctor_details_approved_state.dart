@@ -42,15 +42,6 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
         context.read<AdminDoctorVerificationBloc>();
     final adminDashboardBloc = context.read<AdminDashboardBloc>();
 
-    String extractCountry(String address) {
-      final countryRegex = RegExp(r'\b[A-Za-z\s]+$');
-      final match = countryRegex.firstMatch(address);
-      return match?.group(0) ?? address;
-    }
-
-    final countryOrAddress =
-        extractCountry(approvedDoctorDetails.officeMapsLocationAddress);
-
     return FittedBox(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 22.0),
@@ -133,7 +124,7 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
                                       SizedBox(
                                         width: size.width * 0.1,
                                         child: Text(
-                                          countryOrAddress,
+                                          approvedDoctorDetails.officeAddress,
                                           style: const TextStyle(
                                             color: GinaAppTheme
                                                 .lightTertiaryContainer,

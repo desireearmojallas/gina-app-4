@@ -47,15 +47,6 @@ class AdminDoctorDetailsPendingState extends StatelessWidget {
         TextEditingController();
     final adminDashboardBloc = context.read<AdminDashboardBloc>();
 
-    String extractCountry(String address) {
-      final countryRegex = RegExp(r'\b[A-Za-z\s]+$');
-      final match = countryRegex.firstMatch(address);
-      return match?.group(0) ?? address;
-    }
-
-    final countryOrAddress =
-        extractCountry(pendingDoctorDetails.officeMapsLocationAddress);
-
     return FittedBox(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 22.0),
@@ -127,7 +118,7 @@ class AdminDoctorDetailsPendingState extends StatelessWidget {
                                 SizedBox(
                                   width: size.width * 0.1,
                                   child: Text(
-                                    countryOrAddress,
+                                    pendingDoctorDetails.officeAddress,
                                     style: const TextStyle(
                                       color:
                                           GinaAppTheme.lightTertiaryContainer,

@@ -60,6 +60,7 @@ class AdminDashboardBloc
         emit(AdminDashboardError(errorMessage: failure.toString()));
       },
       (doctors) {
+        doctors.sort((a, b) => b.created!.compareTo(a.created!));
         doctorList = doctors;
         patients.fold(
           (failure) {
