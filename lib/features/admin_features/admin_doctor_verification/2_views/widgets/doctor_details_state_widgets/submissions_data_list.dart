@@ -92,6 +92,7 @@ class SubmissionsDataList extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(20),
                                 color: Colors.white,
                                 // TODO: FIX THIS NETWORK IMAGE ERROR IN SUBMISSIONS DATA LIST
+                                //! Needed to be fixed
                                 image: DecorationImage(
                                   image: NetworkImage(
                                     verification.medicalLicenseImage,
