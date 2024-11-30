@@ -138,8 +138,13 @@ class AdminDoctorDetailsDeclinedState extends StatelessWidget {
                               ),
                             ),
                             const Gap(230),
-                            const DoctorVerificationStatusChip(
-                              verificationStatus: 2,
+                            //! will change this is causing errors, for declined doctor verification status chip
+                            DoctorVerificationStatusChip(
+                              verificationStatus: declinedDoctorVerification
+                                  .last.verificationStatus,
+                              declinedReason: declinedDoctorVerification
+                                  .last.declineReason
+                                  .toString(),
                               scale: 2.0,
                             ),
                           ],
@@ -591,10 +596,19 @@ class AdminDoctorDetailsDeclinedState extends StatelessWidget {
               ),
               const Gap(20),
               submittedRequirementsTableLabel(size, ginaTheme),
-              SubmissionsDataList(
-                doctorVerification: declinedDoctorVerification,
-                doctorDetails: declinedDoctorDetails,
-              ),
+              declinedDoctorVerification.isEmpty
+                  ? Center(
+                      child: Text(
+                        'No verification submitted yet',
+                        style: ginaTheme.bodySmall?.copyWith(
+                          color: GinaAppTheme.lightOutline,
+                        ),
+                      ),
+                    )
+                  : SubmissionsDataList(
+                      doctorVerification: declinedDoctorVerification,
+                      doctorDetails: declinedDoctorDetails,
+                    ),
             ],
           ),
         ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_verification_status_chip.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
@@ -141,6 +140,7 @@ class SubmissionsDataList extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       child: DoctorVerificationStatusChip(
                         verificationStatus: verification.verificationStatus,
+                        declinedReason: verification.declineReason.toString(),
                       ),
                     ),
                   ),

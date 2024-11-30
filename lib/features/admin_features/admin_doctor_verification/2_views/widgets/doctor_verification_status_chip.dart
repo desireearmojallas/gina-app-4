@@ -8,10 +8,12 @@ import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_v
 class DoctorVerificationStatusChip extends StatelessWidget {
   final int verificationStatus;
   final double scale;
+  final String declinedReason;
   const DoctorVerificationStatusChip({
     super.key,
     required this.verificationStatus,
     this.scale = 1.0,
+    required this.declinedReason,
   });
 
   @override
@@ -48,7 +50,7 @@ class DoctorVerificationStatusChip extends StatelessWidget {
           if (status == DoctorVerificationStatus.declined) {
             declinedVerificationInformationDialog(
               context,
-              'Declined Reason will show here',
+              declinedReason,
             );
           }
         },

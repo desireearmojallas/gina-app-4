@@ -5,7 +5,7 @@ import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widge
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/declined_doctor_verification_list.dart';
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/pending_doctor_verification_list.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/bloc/admin_doctor_verification_bloc.dart';
-import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/admin_verificatin_pending_approved_declined_action_state.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/admin_verification_pending_approved_declined_action_state.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/admin_verification_table_label_container.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 
@@ -66,7 +66,6 @@ class AdminDoctorVerificationInitialState extends StatelessWidget {
                           is AdminVerificationPendingDoctorVerificationListState) {
                         return PendingDoctorVerificationList(
                           pendingDoctorList: pendingDoctorList,
-                          // context: context,
                           nameWidth: 0.145,
                           isDashboardView: false,
                         );
@@ -87,7 +86,6 @@ class AdminDoctorVerificationInitialState extends StatelessWidget {
                       }
                       return PendingDoctorVerificationList(
                         pendingDoctorList: pendingDoctorList,
-                        // context: context,
                         nameWidth: 0.145,
                         isDashboardView: false,
                       );

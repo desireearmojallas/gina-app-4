@@ -130,22 +130,32 @@ class AdminDoctorDetailsPendingState extends StatelessWidget {
                               ],
                             ),
                             const Gap(300),
-                            const Row(
+                            Row(
                               children: [
                                 ApproveDeclineButtons(
                                   buttonColor: GinaAppTheme.approvedTextColor,
-                                  buttonIcon: Icon(
+                                  buttonIcon: const Icon(
                                     Icons.check_rounded,
                                   ),
                                   buttonLabel: 'Approve',
+                                  doctorId: pendingDoctorDetails.uid,
+                                  doctorVerificationId:
+                                      doctorVerification.last.uid,
+                                  isApprove: true,
                                 ),
-                                Gap(30),
+                                const Gap(30),
                                 ApproveDeclineButtons(
                                   buttonColor: GinaAppTheme.declinedTextColor,
-                                  buttonIcon: Icon(
+                                  buttonIcon: const Icon(
                                     Icons.close_rounded,
                                   ),
                                   buttonLabel: 'Decline',
+                                  doctorId: pendingDoctorDetails.uid,
+                                  doctorVerificationId:
+                                      doctorVerification.last.uid,
+                                  isApprove: false,
+                                  declineReasonController:
+                                      declineReasonController,
                                 ),
                               ],
                             ),
