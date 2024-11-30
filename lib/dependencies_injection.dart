@@ -10,6 +10,7 @@ import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_v
 import 'package:gina_app_4/features/admin_features/admin_login/1_controllers/admin_login_controllers.dart';
 import 'package:gina_app_4/features/admin_features/admin_login/2_views/bloc/admin_login_bloc.dart';
 import 'package:gina_app_4/features/admin_features/admin_navigation_drawer/2_views/bloc/admin_navigation_drawer_bloc.dart';
+import 'package:gina_app_4/features/admin_features/admin_patient_list/1_controllers/admin_patient_list_controller.dart';
 import 'package:gina_app_4/features/admin_features/admin_patient_list/2_views/bloc/admin_patient_list_bloc.dart';
 import 'package:gina_app_4/features/auth/1_controllers/doctor_auth_controller.dart';
 import 'package:gina_app_4/features/auth/1_controllers/patient_auth_controller.dart';
@@ -138,8 +139,12 @@ Future<void> init() async {
 
 //! Features - Admin Patient List
   sl.registerFactory(
-    () => AdminPatientListBloc(),
+    () => AdminPatientListBloc(
+      adminPatientListController: sl(),
+    ),
   );
+
+  sl.registerFactory(() => AdminPatientListController());
 
 // ----------------------------------------------------------------------------------
 
