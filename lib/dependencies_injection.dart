@@ -128,7 +128,10 @@ Future<void> init() async {
 
 //! Features - Admin Doctor List
   sl.registerFactory(
-    () => AdminDoctorListBloc(),
+    () => AdminDoctorListBloc(
+      adminDoctorVerificationController: sl(),
+      adminDashboardController: sl(),
+    ),
   );
 
 // ----------------------------------------------------------------------------------

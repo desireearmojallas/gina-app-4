@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_verification_status_chip.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
@@ -125,8 +126,16 @@ class SubmissionsDataList extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      DateFormat('MMM d, yyyy')
-                          .format(verification.dateSubmitted.toDate()),
+                      (verification.verificationStatus ==
+                              DoctorVerificationStatus.approved.index)
+                          ? DateFormat('MMM d, yyyy')
+                              .format(verification.dateSubmitted.toDate())
+                          : (verification.verificationStatus ==
+                                  DoctorVerificationStatus.declined.index)
+                              ? DateFormat('MMM d, yyyy')
+                                  .format(doctorDetails.verifiedDate!.toDate())
+                              : DateFormat('MMM d, yyyy')
+                                  .format(doctorDetails.verifiedDate!.toDate()),
                       style: textStyle,
                     ),
                   ),

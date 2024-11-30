@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_list/2_views/widgets/doctor_list_label.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_list/2_views/widgets/list_of_all_doctors.dart';
+import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 
 class AdminDoctorListLoaded extends StatelessWidget {
-  const AdminDoctorListLoaded({super.key});
+  final List<DoctorModel> approvedDoctorList;
+  const AdminDoctorListLoaded({super.key, required this.approvedDoctorList});
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +23,10 @@ class AdminDoctorListLoaded extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10.0),
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
+                  const Padding(
                     padding: EdgeInsets.all(25.0),
                     child: Text(
                       'List of all Doctors',
@@ -35,8 +37,10 @@ class AdminDoctorListLoaded extends StatelessWidget {
                     ),
                   ),
                   // Gap(10),
-                  DoctorListLabel(),
-                  ListOfAllDoctors(),
+                  const DoctorListLabel(),
+                  ListOfAllDoctors(
+                    approvedDoctorList: approvedDoctorList,
+                  ),
                 ],
               ),
             ),

@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_list/2_views/bloc/admin_doctor_list_bloc.dart';
+import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
+import 'package:intl/intl.dart';
 
 class ListOfAllDoctors extends StatelessWidget {
-  const ListOfAllDoctors({super.key});
+  final List<DoctorModel> approvedDoctorList;
+  const ListOfAllDoctors({super.key, required this.approvedDoctorList});
 
   @override
   Widget build(BuildContext context) {
+    final adminDoctorListBloc = context.read<AdminDoctorListBloc>();
     final size = MediaQuery.of(context).size;
     final ginaTheme = Theme.of(context).textTheme;
+
     return Expanded(
       child: ListView.separated(
         separatorBuilder: (context, index) => const Divider(
@@ -17,22 +24,15 @@ class ListOfAllDoctors extends StatelessWidget {
           thickness: 0.1,
           height: 12,
         ),
-        itemCount: 50,
+        itemCount: approvedDoctorList.length,
         itemBuilder: (context, index) {
+          final doctor = approvedDoctorList[index];
+
           return InkWell(
             onTap: () {
-              //TODO:  WILL CHANGE WHEN BLOC IS IMPLEMENTED
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) {
-              //       return  AdminDoctorDetailsApprovedState(
-              //         doctorVerification: doctorVerification,
-              //         approvedDoctorDetails: approvedDoctorDetails,
-              //       );
-              //     },
-              //   ),
-              // );
+              adminDoctorListBloc.add(AdminDoctorDetailsEvent(
+                doctorApproved: doctor,
+              ));
             },
             child: Row(
               children: [
@@ -56,7 +56,7 @@ class ListOfAllDoctors extends StatelessWidget {
                         children: [
                           Flexible(
                             child: Text(
-                              'Dr. Desiree Armojallas, MD FPOGS, FPSUOG',
+                              'Dr. ${doctor.name}',
                               style: ginaTheme.labelMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -77,35 +77,37 @@ class ListOfAllDoctors extends StatelessWidget {
                     SizedBox(
                       width: size.width * 0.112,
                       child: Text(
-                        'desireearmojallas@gina.com',
+                        doctor.email,
                         style: ginaTheme.labelMedium,
                       ),
                     ),
                     SizedBox(
                       width: size.width * 0.12,
                       child: Text(
-                        'Obstretrics & Gynecology',
+                        doctor.medicalSpecialty,
                         style: ginaTheme.labelMedium,
                       ),
                     ),
                     SizedBox(
                       width: size.width * 0.17,
                       child: Text(
-                        'Dr. Desiree Armojallas Clinic, 1234 Main St., Looc, Lapu-Lapu City, Cebu, PH 6015',
+                        doctor.officeAddress,
                         style: ginaTheme.labelMedium,
                       ),
                     ),
                     SizedBox(
                       width: size.width * 0.102,
                       child: Text(
-                        '+63 123 456 7890',
+                        doctor.officePhoneNumber,
                         style: ginaTheme.labelMedium,
                       ),
                     ),
                     SizedBox(
                       width: size.width * 0.07,
                       child: Text(
-                        'Nov 11, 2021',
+                        DateFormat('MMM d, yyyy').format(
+                          doctor.created!.toDate().toLocal(),
+                        ),
                         style: ginaTheme.labelMedium,
                       ),
                     ),
@@ -122,7 +124,9 @@ class ListOfAllDoctors extends StatelessWidget {
                           child: Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: Text(
-                              'Nov 11, 2021',
+                              DateFormat('MMM d, yyyy').format(
+                                doctor.verifiedDate!.toDate().toLocal(),
+                              ),
                               style: ginaTheme.labelMedium,
                             ),
                           ),

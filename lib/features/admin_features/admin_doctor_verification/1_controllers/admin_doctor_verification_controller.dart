@@ -108,7 +108,7 @@ class AdminDoctorVerificationController {
       await firestore.collection('doctors').doc(doctorId).update({
         'doctorVerificationStatus': DoctorVerificationStatus.approved.index,
         'isVerified': true,
-        'verifiedData': Timestamp.now(),
+        'verifiedDate': Timestamp.now(),
       });
 
       return const Right(true);
