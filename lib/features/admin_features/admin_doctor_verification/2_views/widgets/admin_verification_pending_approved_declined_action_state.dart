@@ -2,18 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/bloc/admin_dashboard_bloc.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/bloc/admin_doctor_verification_bloc.dart';
 
-class PendingApprovedDeclineActionState extends StatelessWidget {
-  final AdminDashboardBloc adminDashboardBloc;
-  const PendingApprovedDeclineActionState(
-      {super.key, required this.adminDashboardBloc});
+class AdminVerificationPendingApprovedDeclinedActionState
+    extends StatelessWidget {
+  final AdminDoctorVerificationBloc adminDoctorVerificationBloc;
+  const AdminVerificationPendingApprovedDeclinedActionState({
+    super.key,
+    required this.adminDoctorVerificationBloc,
+  });
 
   @override
   Widget build(BuildContext context) {
     final ginaTheme = Theme.of(context).textTheme;
 
-    return BlocBuilder<AdminDashboardBloc, AdminDashboardState>(
+    return BlocBuilder<AdminDoctorVerificationBloc,
+        AdminDoctorVerificationState>(
       builder: (context, state) {
         return Padding(
           padding: const EdgeInsets.all(15.0),
@@ -24,19 +28,19 @@ class PendingApprovedDeclineActionState extends StatelessWidget {
                 'Doctor Verification',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 18,
+                  fontSize: 20,
                 ),
               ),
               const Spacer(),
               TextButton(
                 onPressed: () {
-                  adminDashboardBloc.add(
-                    PendingDoctorVerificationListEvent(),
-                  );
+                  adminDoctorVerificationBloc.add(
+                      AdminVerificationPendingDoctorVerificationListEvent());
                 },
                 child: Text(
                   'Pending',
-                  style: state is PendingDoctorVerificationListState
+                  style: state
+                          is AdminVerificationPendingDoctorVerificationListState
                       ? ginaTheme.labelMedium?.copyWith(
                           color: GinaAppTheme.pendingTextColor,
                           decoration: TextDecoration.underline,
@@ -52,13 +56,13 @@ class PendingApprovedDeclineActionState extends StatelessWidget {
               const Gap(10),
               TextButton(
                 onPressed: () {
-                  adminDashboardBloc.add(
-                    ApprovedDoctorVerificationListEvent(),
-                  );
+                  adminDoctorVerificationBloc.add(
+                      AdminVerificationApprovedDoctorVerificationListEvent());
                 },
                 child: Text(
                   'Approved',
-                  style: state is ApprovedDoctorVerificationListState
+                  style: state
+                          is AdminVerificationApprovedDoctorVerificationListState
                       ? ginaTheme.labelMedium?.copyWith(
                           color: GinaAppTheme.approvedTextColor,
                           decoration: TextDecoration.underline,
@@ -74,13 +78,13 @@ class PendingApprovedDeclineActionState extends StatelessWidget {
               const Gap(10),
               TextButton(
                 onPressed: () {
-                  adminDashboardBloc.add(
-                    DeclinedDoctorVerificationListEvent(),
-                  );
+                  adminDoctorVerificationBloc.add(
+                      AdminVerificationDeclinedDoctorVerificationListEvent());
                 },
                 child: Text(
                   'Declined',
-                  style: state is DeclinedDoctorVerificationListState
+                  style: state
+                          is AdminVerificationDeclinedDoctorVerificationListState
                       ? ginaTheme.labelMedium?.copyWith(
                           color: GinaAppTheme.declinedTextColor,
                           decoration: TextDecoration.underline,

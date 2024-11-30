@@ -126,7 +126,7 @@ class DoctorAddOfficeAddressScreen extends StatelessWidget {
                               placeholder: 'Search Location',
                               apiKey: 'AIzaSyBg5KxB2Rdw7UV86btx0YJFmGkfF3CXUbc',
                               language: 'en',
-                              radius: 500000,
+                              radius: 50000,
                               location: currentLocationLatLng != null
                                   ? LatLng(
                                       currentLocationLatLng.latitude,

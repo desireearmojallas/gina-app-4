@@ -96,7 +96,7 @@ class AdminPatientDetailsState extends StatelessWidget {
                                         ],
                                       ),
                                     ),
-                                    const Gap(20),
+                                    const Gap(200),
                                     Row(
                                       children: [
                                         const Icon(

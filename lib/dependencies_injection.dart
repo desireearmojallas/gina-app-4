@@ -2,8 +2,10 @@ import 'package:get_it/get_it.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/floating_doctor_menu_bar/bloc/floating_doctor_menu_bar_bloc.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/floating_menu_bar/2_views/bloc/floating_menu_bloc.dart';
 import 'package:gina_app_4/core/storage/shared_preferences/shared_preferences_manager.dart';
+import 'package:gina_app_4/features/admin_features/admin_dashboard/1_controllers/admin_dashboard_controller.dart';
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/bloc/admin_dashboard_bloc.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_list/2_views/bloc/admin_doctor_list_bloc.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_verification/1_controllers/admin_doctor_verification_controller.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/bloc/admin_doctor_verification_bloc.dart';
 import 'package:gina_app_4/features/admin_features/admin_login/1_controllers/admin_login_controllers.dart';
 import 'package:gina_app_4/features/admin_features/admin_login/2_views/bloc/admin_login_bloc.dart';
@@ -79,6 +81,8 @@ Future<void> init() async {
     () => ForgotPasswordBloc(),
   );
 
+// ----------------------------------------------------------------------------------
+
 // -------ADMIN FEATURES-------
 
 //! Features - Admin Login
@@ -90,30 +94,51 @@ Future<void> init() async {
 
   sl.registerFactory(() => AdminLoginControllers());
 
+// ----------------------------------------------------------------------------------
+
 //! Features - Admin Navigation Drawer
   sl.registerFactory(
     () => AdminNavigationDrawerBloc(),
   );
 
+// ----------------------------------------------------------------------------------
+
 //! Features - Admin Dashboard
   sl.registerFactory(
-    () => AdminDashboardBloc(),
+    () => AdminDashboardBloc(
+      adminDashboardController: sl(),
+      adminDoctorVerificationController: sl(),
+    ),
   );
+
+  sl.registerFactory(() => AdminDashboardController());
+
+// ----------------------------------------------------------------------------------
 
 //! Features - Admin Doctor Verification
   sl.registerFactory(
-    () => AdminDoctorVerificationBloc(),
+    () => AdminDoctorVerificationBloc(
+      adminDoctorVerificationController: sl(),
+    ),
   );
+
+  sl.registerFactory(() => AdminDoctorVerificationController());
+
+// ----------------------------------------------------------------------------------
 
 //! Features - Admin Doctor List
   sl.registerFactory(
     () => AdminDoctorListBloc(),
   );
 
+// ----------------------------------------------------------------------------------
+
 //! Features - Admin Patient List
   sl.registerFactory(
     () => AdminPatientListBloc(),
   );
+
+// ----------------------------------------------------------------------------------
 
 // -------PATIENT FEATURES-------
 
@@ -206,6 +231,8 @@ Future<void> init() async {
     () => DoctorBottomNavigationBloc(),
   );
 
+// ----------------------------------------------------------------------------------
+
   //! Features - Floating Doctor Menu Bar
   sl.registerFactory(
     () => FloatingDoctorMenuBarBloc(
@@ -214,6 +241,8 @@ Future<void> init() async {
   );
 
   sl.registerFactory(() => DoctorProfileController());
+
+// ----------------------------------------------------------------------------------
 
   //! Features - Doctor Home Dashboard
   sl.registerFactory(
@@ -224,6 +253,8 @@ Future<void> init() async {
   );
 
   sl.registerFactory(() => DoctorHomeDashboardController());
+
+// ----------------------------------------------------------------------------------
 
   //! Features - Doctor Appointment Request
   sl.registerFactory(
@@ -250,10 +281,14 @@ Future<void> init() async {
     () => CancelledRequestStateBloc(),
   );
 
+// ----------------------------------------------------------------------------------
+
   //! Features - Doctor EConsult
   sl.registerFactory(
     () => DoctorEconsultBloc(),
   );
+
+// ----------------------------------------------------------------------------------
 
   //! Features - Doctor Forums
   sl.registerFactory(
@@ -264,48 +299,68 @@ Future<void> init() async {
 
   sl.registerFactory(() => DoctorForumsController());
 
+// ----------------------------------------------------------------------------------
+
   //! Features - Doctor Profile
   sl.registerFactory(
     () => DoctorProfileBloc(),
   );
+
+// ----------------------------------------------------------------------------------
 
   //! Features - Doctor Forum Badges
   sl.registerFactory(
     () => DoctorForumBadgeBloc(),
   );
 
+// ----------------------------------------------------------------------------------
+
   //! Features - Doctor Consultation Fee Setup
   sl.registerFactory(
     () => DoctorConsultationFeeBloc(),
   );
+
+// ----------------------------------------------------------------------------------
 
   //! Features - Doctor View Patients
   sl.registerFactory(
     () => DoctorViewPatientsBloc(),
   );
 
+// ----------------------------------------------------------------------------------
+
   //! Features - Doctor View Patient Details
   sl.registerFactory(
     () => DoctorViewPatientDetailsBloc(),
   );
+
+// ----------------------------------------------------------------------------------
 
   //! Features - Doctor Emergency Announcements
   sl.registerFactory(
     () => DoctorEmergencyAnnouncementsBloc(),
   );
 
+// ----------------------------------------------------------------------------------
+
   //! Features - Doctor Schedule Management
   sl.registerFactory(
     () => DoctorScheduleManagementBloc(),
   );
+
+// ----------------------------------------------------------------------------------
 
   //! Features - Doctor Create Schedule
   sl.registerFactory(
     () => CreateDoctorScheduleBloc(),
   );
 
+// ----------------------------------------------------------------------------------
+
   //! Features - Doctor Consultation Screen
   sl.registerFactory(
     () => DoctorConsultationBloc(),
   );
+
+// ----------------------------------------------------------------------------------
 }

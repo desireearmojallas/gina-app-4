@@ -8,10 +8,12 @@ import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_v
 class DoctorVerificationStatusChip extends StatelessWidget {
   final int verificationStatus;
   final double scale;
+  final String declinedReason;
   const DoctorVerificationStatusChip({
     super.key,
     required this.verificationStatus,
     this.scale = 1.0,
+    required this.declinedReason,
   });
 
   @override
@@ -26,7 +28,6 @@ class DoctorVerificationStatusChip extends StatelessWidget {
       case DoctorVerificationStatus.pending:
         buttonText = 'Pending';
         buttonColor = GinaAppTheme.pendingTextColor;
-
         break;
       case DoctorVerificationStatus.approved:
         buttonText = 'Approved';
@@ -42,42 +43,45 @@ class DoctorVerificationStatusChip extends StatelessWidget {
       return scale != 1.0 ? originalFontSize * (scale - 0.5) : originalFontSize;
     }
 
-    return Tooltip(
-      message: 'Click to view declined reason',
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: () {
-            if (status == DoctorVerificationStatus.declined) {
-              declinedVerificationInformationDialog(
-                context,
-                'Declined Reason will show here',
-              );
-            }
-          },
-          child: Container(
-            width: size.width * 0.04 * scale,
-            height: size.height * 0.02 * scale,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10 * scale),
-              color: buttonColor,
-            ),
-            child: Center(
-              child: Text(
-                buttonText,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: GinaAppTheme.appbarColorLight,
-                      fontWeight: FontWeight.w500,
-                      fontSize: adjustedFontSize(
-                        Theme.of(context).textTheme.labelSmall?.fontSize ??
-                            12.0,
-                      ),
+    Widget chip = MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () {
+          if (status == DoctorVerificationStatus.declined) {
+            declinedVerificationInformationDialog(
+              context,
+              declinedReason,
+            );
+          }
+        },
+        child: Container(
+          width: size.width * 0.04 * scale,
+          height: size.height * 0.02 * scale,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10 * scale),
+            color: buttonColor,
+          ),
+          child: Center(
+            child: Text(
+              buttonText,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: GinaAppTheme.appbarColorLight,
+                    fontWeight: FontWeight.w500,
+                    fontSize: adjustedFontSize(
+                      Theme.of(context).textTheme.labelSmall?.fontSize ?? 12.0,
                     ),
-              ),
+                  ),
             ),
           ),
         ),
       ),
     );
+
+    return status == DoctorVerificationStatus.declined
+        ? Tooltip(
+            message: 'Click to view declined reason',
+            child: chip,
+          )
+        : chip;
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/bloc/admin_dashboard_bloc.dart';
 
 class TableLabelContainer extends StatelessWidget {
   const TableLabelContainer({super.key});
@@ -89,17 +91,50 @@ class TableLabelContainer extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(
-            width: size.width * 0.06,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'DATE SUBMITTED',
-                style: ginaTheme.labelMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+          BlocBuilder<AdminDashboardBloc, AdminDashboardState>(
+            builder: (context, state) {
+              return SizedBox(
+                width: size.width * 0.06,
+                child: state is PendingDoctorVerificationListState
+                    ? Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          'DATE SUBMITTED',
+                          style: ginaTheme.labelMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      )
+                    : state is ApprovedDoctorVerificationListState
+                        ? Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              'DATE VERIFIED',
+                              style: ginaTheme.labelMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          )
+                        : state is DeclinedDoctorVerificationListState
+                            ? Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  'DATE DECLINED',
+                                  style: ginaTheme.labelMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ))
+                            : Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  'DATE SUBMITTED',
+                                  style: ginaTheme.labelMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+              );
+            },
           ),
         ],
       ),
