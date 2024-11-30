@@ -55,13 +55,6 @@ class DeclinedDoctorVerificationList extends StatelessWidget {
                   declinedDoctorDetails: declinedDoctor,
                 ));
               }
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AdminDoctorDetailsDeclinedState(),
-                ),
-              );
             },
             child: Row(
               children: [

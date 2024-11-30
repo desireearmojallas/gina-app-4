@@ -86,9 +86,9 @@ class AdminDoctorVerifyScreen extends StatelessWidget {
             );
           } else if (state is NavigateToAdminDoctorDetailsDeclinedState) {
             return AdminDoctorDetailsDeclinedState(
-                // declinedDoctorDetails: state.declinedDoctorDetails,
-                // doctorVerification: state.doctorVerification,
-                );
+              declinedDoctorDetails: state.declinedDoctorDetails,
+              declinedDoctorVerification: state.doctorVerification,
+            );
           }
           return AdminDoctorVerificationInitialState(doctorList: doctorList);
         },

@@ -7,10 +7,12 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/bloc/admin_dashboard_bloc.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/bloc/admin_doctor_verification_bloc.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/detailed_view_icon.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/submissions_data_list.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/submitted_requirements_table_label.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_verification_model.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:intl/intl.dart';
 
 class AdminDoctorDetailsApprovedState extends StatelessWidget {
   final DoctorModel approvedDoctorDetails;
@@ -174,11 +176,11 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
                               children: [
                                 Row(
                                   children: [
-                                    Text(
+                                    const Text(
                                       'License number:',
                                       style: labelText,
                                     ),
-                                    Gap(20),
+                                    const Gap(20),
                                     Text(
                                       approvedDoctorDetails
                                           .medicalLicenseNumber,
@@ -226,13 +228,14 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
                                 const Gap(12),
                                 Row(
                                   children: [
-                                    Text(
+                                    const Text(
                                       'Office address:',
                                       style: labelText,
                                     ),
-                                    Gap(20),
+                                    const Gap(20),
                                     Text(
-                                      approvedDoctorDetails.officeLatLngAddress,
+                                      approvedDoctorDetails
+                                          .officeMapsLocationAddress,
                                       style: valueText,
                                       textAlign: TextAlign.left,
                                     ),
@@ -262,8 +265,11 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
                                       ),
                                     ),
                                     const Gap(33),
-                                    const Text(
-                                      'December 12, 2021',
+                                    Text(
+                                      DateFormat('MMMM d, yyyy').format(
+                                          approvedDoctorDetails.created!
+                                              .toDate()
+                                              .toLocal()),
                                       style: valueText,
                                     ),
                                   ],
@@ -289,8 +295,11 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
                                       ),
                                     ),
                                     const Gap(33),
-                                    const Text(
-                                      'December 12, 2021',
+                                    Text(
+                                      DateFormat('MMMM d, yyyy').format(
+                                          doctorVerification.last.dateSubmitted
+                                              .toDate()
+                                              .toLocal()),
                                       style: valueText,
                                     ),
                                   ],
@@ -338,8 +347,9 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
                             const Gap(49),
                             SizedBox(
                               width: size.width * 0.2,
-                              child: const Text(
-                                'Philippine Board of Obstetric and Gynecology',
+                              child: Text(
+                                approvedDoctorDetails
+                                    .boardCertificationOrganization,
                                 style: valueText,
                               ),
                             ),
@@ -356,8 +366,8 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
                               ),
                             ),
                             const Gap(49),
-                            const Text(
-                              'December 5, 2010',
+                            Text(
+                              approvedDoctorDetails.boardCertificationDate,
                               style: valueText,
                             ),
                           ],
@@ -389,8 +399,8 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
                             const Gap(49),
                             SizedBox(
                               width: size.width * 0.2,
-                              child: const Text(
-                                'Manila Central University College of Medicine',
+                              child: Text(
+                                approvedDoctorDetails.medicalSchool,
                                 style: valueText,
                               ),
                             ),
@@ -407,8 +417,8 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
                               ),
                             ),
                             const Gap(49),
-                            const Text(
-                              'December 15, 2005',
+                            Text(
+                              approvedDoctorDetails.medicalSchoolStartDate,
                               style: valueText,
                             ),
                           ],
@@ -424,8 +434,8 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
                               ),
                             ),
                             const Gap(49),
-                            const Text(
-                              'March 15, 2010',
+                            Text(
+                              approvedDoctorDetails.medicalSchoolEndDate,
                               style: valueText,
                             ),
                           ],
@@ -461,8 +471,8 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
                             const Gap(49),
                             SizedBox(
                               width: size.width * 0.2,
-                              child: const Text(
-                                'Philippine General Hospital - Obstetrics and Gynecology Residency Program',
+                              child: Text(
+                                approvedDoctorDetails.residencyProgram,
                                 style: valueText,
                                 softWrap: true,
                               ),
@@ -480,8 +490,8 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
                               ),
                             ),
                             const Gap(49),
-                            const Text(
-                              'December 15, 2005',
+                            Text(
+                              approvedDoctorDetails.residencyProgramStartDate,
                               style: valueText,
                             ),
                           ],
@@ -497,8 +507,9 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
                               ),
                             ),
                             const Gap(49),
-                            const Text(
-                              'March 15, 2010',
+                            Text(
+                              approvedDoctorDetails
+                                  .residencyProgramGraduationYear,
                               style: valueText,
                             ),
                           ],
@@ -523,11 +534,28 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
                             const Gap(49),
                             SizedBox(
                               width: size.width * 0.2,
-                              child: const Text(
-                                'Reproductive Endocrinology and Infertility Fellowship',
+                              child: Text(
+                                approvedDoctorDetails.fellowShipProgram,
                                 style: valueText,
                                 softWrap: true,
                               ),
+                            ),
+                          ],
+                        ),
+                        const Gap(12),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: size.width * 0.105,
+                              child: const Text(
+                                'Start date:',
+                                style: labelText,
+                              ),
+                            ),
+                            const Gap(49),
+                            Text(
+                              approvedDoctorDetails.fellowShipProgramStartDate,
+                              style: valueText,
                             ),
                           ],
                         ),
@@ -556,18 +584,28 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
 
               divider(size.width * 1),
               const Gap(20),
-              const Padding(
-                padding: EdgeInsets.only(left: 60.0, right: 40.0),
+              Padding(
+                padding: const EdgeInsets.only(left: 60.0, right: 40.0),
                 child: Text(
-                  'Submitted Requirements (10)',
+                  'Submitted Requirements (${doctorVerification.length})',
                   style: headingText,
                 ),
               ),
               const Gap(20),
               submittedRequirementsTableLabel(size, ginaTheme),
-              // const SubmissionsDataList(
-              //   verificationStatus: 1,
-              // ),
+              doctorVerification.isEmpty
+                  ? Center(
+                      child: Text(
+                        'No submissions yet',
+                        style: ginaTheme.bodySmall?.copyWith(
+                          color: GinaAppTheme.lightOutline,
+                        ),
+                      ),
+                    )
+                  : SubmissionsDataList(
+                      doctorVerification: doctorVerification,
+                      doctorDetails: approvedDoctorDetails,
+                    ),
             ],
           ),
         ),

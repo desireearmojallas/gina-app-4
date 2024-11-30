@@ -18,7 +18,7 @@ import 'package:intl/intl.dart';
 class AdminDoctorDetailsPendingState extends StatelessWidget {
   final DoctorModel pendingDoctorDetails;
   final List<DoctorVerificationModel> doctorVerification;
-  AdminDoctorDetailsPendingState(
+  const AdminDoctorDetailsPendingState(
       {super.key,
       required this.pendingDoctorDetails,
       required this.doctorVerification});
@@ -605,7 +605,7 @@ class AdminDoctorDetailsPendingState extends StatelessWidget {
                     )
                   : SubmissionsDataList(
                       doctorVerification: doctorVerification,
-                      pendingDoctorDetails: pendingDoctorDetails,
+                      doctorDetails: pendingDoctorDetails,
                     ),
             ],
           ),

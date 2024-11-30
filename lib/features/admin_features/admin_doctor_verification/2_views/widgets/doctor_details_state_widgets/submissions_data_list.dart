@@ -9,11 +9,11 @@ import 'package:intl/intl.dart';
 
 class SubmissionsDataList extends StatelessWidget {
   final List<DoctorVerificationModel> doctorVerification;
-  final DoctorModel pendingDoctorDetails;
+  final DoctorModel doctorDetails;
   const SubmissionsDataList(
       {super.key,
       required this.doctorVerification,
-      required this.pendingDoctorDetails});
+      required this.doctorDetails});
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class SubmissionsDataList extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Dr. ${pendingDoctorDetails.name}',
+                      'Dr. ${doctorDetails.name}',
                       style: textStyle.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -60,7 +60,7 @@ class SubmissionsDataList extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      pendingDoctorDetails.email,
+                      doctorDetails.email,
                       style: textStyle,
                       softWrap: true,
                     ),
@@ -72,7 +72,7 @@ class SubmissionsDataList extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      pendingDoctorDetails.medicalLicenseNumber,
+                      doctorDetails.medicalLicenseNumber,
                       style: textStyle,
                       softWrap: true,
                     ),
