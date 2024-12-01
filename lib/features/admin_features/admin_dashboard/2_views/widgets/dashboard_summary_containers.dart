@@ -14,7 +14,9 @@ class DashboardSummaryContainers extends StatelessWidget {
     return Row(
       children: [
         InkWell(
-          onTap: () {},
+          onTap: () {
+            //Testing
+          },
           child: FittedBox(
             child: Container(
               width: size.width * 0.115,
@@ -56,7 +58,7 @@ class DashboardSummaryContainers extends StatelessWidget {
                         ),
                         Gap(5),
                         Text(
-                          '1000',
+                          '100',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
