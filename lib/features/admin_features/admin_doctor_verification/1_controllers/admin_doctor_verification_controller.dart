@@ -1,12 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:geodesy/geodesy.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_verification_model.dart';
@@ -108,7 +105,7 @@ class AdminDoctorVerificationController {
       await firestore.collection('doctors').doc(doctorId).update({
         'doctorVerificationStatus': DoctorVerificationStatus.approved.index,
         'isVerified': true,
-        'verifiedData': Timestamp.now(),
+        'verifiedDate': Timestamp.now(),
       });
 
       return const Right(true);

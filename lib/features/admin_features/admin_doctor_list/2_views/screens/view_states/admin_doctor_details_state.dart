@@ -4,8 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/square_avatar.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/bloc/admin_dashboard_bloc.dart';
-import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/bloc/admin_doctor_verification_bloc.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_list/2_views/bloc/admin_doctor_list_bloc.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/detailed_view_icon.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/submissions_data_list.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/submitted_requirements_table_label.dart';
@@ -14,10 +13,10 @@ import 'package:gina_app_4/features/auth/0_model/doctor_verification_model.dart'
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 
-class AdminDoctorDetailsApprovedState extends StatelessWidget {
+class AdminDoctorDetailsState extends StatelessWidget {
   final DoctorModel approvedDoctorDetails;
   final List<DoctorVerificationModel> doctorVerification;
-  const AdminDoctorDetailsApprovedState(
+  const AdminDoctorDetailsState(
       {super.key,
       required this.approvedDoctorDetails,
       required this.doctorVerification});
@@ -40,9 +39,7 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
       fontWeight: FontWeight.bold,
     );
 
-    final adminDoctorVerificationBloc =
-        context.read<AdminDoctorVerificationBloc>();
-    final adminDashboardBloc = context.read<AdminDashboardBloc>();
+    final adminDoctorListBloc = context.read<AdminDoctorListBloc>();
 
     return FittedBox(
       child: Padding(
@@ -63,12 +60,7 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
                 padding: const EdgeInsets.all(20.0),
                 child: IconButton(
                   onPressed: () {
-                    if (isFromAdminDashboard) {
-                      adminDashboardBloc.add(AdminDashboardGetRequestedEvent());
-                    } else {
-                      adminDoctorVerificationBloc
-                          .add(AdminDoctorVerificationGetRequestedEvent());
-                    }
+                    adminDoctorListBloc.add(AdminDoctorListGetRequestEvent());
                   },
                   icon: const Icon(
                     Icons.arrow_back,
@@ -289,7 +281,7 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
                                     ),
                                     const Gap(18),
                                     Text(
-                                      'DATE VERIFIED',
+                                      'DATE SUBMITTED',
                                       style: labelText.copyWith(
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -297,7 +289,7 @@ class AdminDoctorDetailsApprovedState extends StatelessWidget {
                                     const Gap(33),
                                     Text(
                                       DateFormat('MMMM d, yyyy').format(
-                                          approvedDoctorDetails.verifiedDate!
+                                          doctorVerification.last.dateSubmitted
                                               .toDate()
                                               .toLocal()),
                                       style: valueText,

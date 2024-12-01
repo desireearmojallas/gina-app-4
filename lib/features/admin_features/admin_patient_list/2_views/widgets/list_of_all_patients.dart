@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/features/admin_features/admin_patient_list/2_views/screens/view_states/admin_patient_details_state.dart';
+import 'package:gina_app_4/features/admin_features/admin_patient_list/2_views/bloc/admin_patient_list_bloc.dart';
+import 'package:gina_app_4/features/auth/0_model/user_model.dart';
+import 'package:intl/intl.dart';
 
 class ListOfAllPatients extends StatelessWidget {
-  const ListOfAllPatients({super.key});
+  final List<UserModel> patientList;
+  const ListOfAllPatients({super.key, required this.patientList});
 
   @override
   Widget build(BuildContext context) {
+    final adminPatientListBloc = context.read<AdminPatientListBloc>();
     final size = MediaQuery.of(context).size;
     final ginaTheme = Theme.of(context).textTheme;
     return Expanded(
@@ -18,19 +23,14 @@ class ListOfAllPatients extends StatelessWidget {
           thickness: 0.1,
           height: 12,
         ),
-        itemCount: 50,
+        itemCount: patientList.length,
         itemBuilder: (context, index) {
+          final patient = patientList[index];
           return InkWell(
             onTap: () {
-              //TODO: WILL CHANGE THIS WHEN BLOC IS IMPLEMENTED
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return const AdminPatientDetailsState();
-                  },
-                ),
-              );
+              adminPatientListBloc.add(AdminPatientDetailsEvent(
+                patientDetails: patient,
+              ));
             },
             child: Row(
               children: [
@@ -51,7 +51,7 @@ class ListOfAllPatients extends StatelessWidget {
                     SizedBox(
                       width: size.width * 0.14,
                       child: Text(
-                        'Desiree Armojallas',
+                        patient.name,
                         style: ginaTheme.labelMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -61,35 +61,37 @@ class ListOfAllPatients extends StatelessWidget {
                     SizedBox(
                       width: size.width * 0.14,
                       child: Text(
-                        'desireearmojallas@gina.com',
+                        patient.email,
                         style: ginaTheme.labelMedium,
                       ),
                     ),
                     SizedBox(
                       width: size.width * 0.08,
                       child: Text(
-                        'Female',
+                        patient.gender,
                         style: ginaTheme.labelMedium,
                       ),
                     ),
                     SizedBox(
                       width: size.width * 0.2,
                       child: Text(
-                        'Bro\'s Villa, Tiangue Rd., Looc, Lapu-Lapu City, Cebu',
+                        patient.address,
                         style: ginaTheme.labelMedium,
                       ),
                     ),
                     SizedBox(
                       width: size.width * 0.08,
                       child: Text(
-                        'Dec 18, 2000',
+                        patient.dateOfBirth,
                         style: ginaTheme.labelMedium,
                       ),
                     ),
                     SizedBox(
                       width: size.width * 0.08,
                       child: Text(
-                        'Nov 11, 2021',
+                        DateFormat('MMMM d, yyyy').format(
+                          patient.created!.toDate().toLocal(),
+                        ),
                         style: ginaTheme.labelMedium,
                       ),
                     ),
@@ -107,7 +109,7 @@ class ListOfAllPatients extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(
                                 vertical: 5.0, horizontal: 10.0),
                             child: Text(
-                              '10',
+                              patient.appointmentsBooked.length.toString(),
                               style: ginaTheme.labelMedium?.copyWith(
                                 // color: GinaAppTheme.lightTertiaryContainer,
                                 fontWeight: FontWeight.w600,
