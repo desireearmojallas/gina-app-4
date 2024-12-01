@@ -35,6 +35,7 @@ class DoctorProfileController with ChangeNotifier {
     }
   }
 
+  //! TO IMPLEMENT THESE FEATURES
   // TODO: FUTURE GET DOCTOR PROFILE
   // TODO: FUTURE VOID EDIT DOCTOR DATA
 }
