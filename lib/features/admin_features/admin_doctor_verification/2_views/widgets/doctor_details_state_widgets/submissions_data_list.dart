@@ -79,9 +79,11 @@ class SubmissionsDataList extends StatelessWidget {
                   ),
                 ),
                 const Gap(10),
-                InkWell(
-                  onTap: () {
-                    showDialog(
+                Tooltip(
+                  message: 'View Medical License Image',
+                  child: InkWell(
+                    onTap: () {
+                      showDialog(
                         context: context,
                         builder: (context) {
                           return Dialog(
@@ -91,8 +93,6 @@ class SubmissionsDataList extends StatelessWidget {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
                                 color: Colors.white,
-                                // TODO: FIX THIS NETWORK IMAGE ERROR IN SUBMISSIONS DATA LIST
-                                //! Needed to be fixed
                                 image: DecorationImage(
                                   image: NetworkImage(
                                     verification.medicalLicenseImage,
@@ -102,20 +102,23 @@ class SubmissionsDataList extends StatelessWidget {
                               ),
                             ),
                           );
-                        });
-                  },
-                  child: SizedBox(
-                    width: size.width * 0.12,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        verification.medicalLicenseImageTitle,
-                        style: textStyle.copyWith(
-                          decoration: TextDecoration.underline,
-                          decorationColor: GinaAppTheme.lightTertiaryContainer,
-                          color: GinaAppTheme.lightTertiaryContainer,
+                        },
+                      );
+                    },
+                    child: SizedBox(
+                      width: size.width * 0.12,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          verification.medicalLicenseImageTitle,
+                          style: textStyle.copyWith(
+                            decoration: TextDecoration.underline,
+                            decorationColor:
+                                GinaAppTheme.lightTertiaryContainer,
+                            color: GinaAppTheme.lightTertiaryContainer,
+                          ),
+                          softWrap: true,
                         ),
-                        softWrap: true,
                       ),
                     ),
                   ),
