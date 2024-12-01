@@ -61,7 +61,10 @@ class AdminDashboardInitialState extends StatelessWidget {
             ),
 
             const Gap(15),
-            const DashboardSummaryContainers(),
+            DashboardSummaryContainers(
+              doctors: doctorList,
+              patients: patientList,
+            ),
             const Gap(30),
 
             // Table
@@ -72,8 +75,6 @@ class AdminDashboardInitialState extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
               ),
-
-              //! TO BE CONTINUEDDDD.......
               child: Column(
                 children: [
                   Padding(
