@@ -5,7 +5,6 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/bloc/admin_dashboard_bloc.dart';
-import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/total_appointments_booked/total_appointments_booked_list.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 
@@ -40,7 +39,7 @@ class DashboardSummaryContainers extends StatelessWidget {
       children: [
         InkWell(
           onTap: () {
-            //Testing
+            adminDashboardBloc.add(PendingDoctorVerificationListEvent());
           },
           child: FittedBox(
             child: Container(
@@ -108,7 +107,9 @@ class DashboardSummaryContainers extends StatelessWidget {
         ),
         const Gap(15),
         InkWell(
-          onTap: () {},
+          onTap: () {
+            adminDashboardBloc.add(ApprovedDoctorVerificationListEvent());
+          },
           child: FittedBox(
             child: Container(
               width: size.width * 0.115,
@@ -167,7 +168,10 @@ class DashboardSummaryContainers extends StatelessWidget {
         ),
         const Gap(20),
         InkWell(
-          onTap: () {},
+          onTap: () {
+            adminDashboardBloc
+                .add(AdminDashboardNavigateToListOfAllPatientsEvent());
+          },
           child: FittedBox(
             child: Container(
               width: size.width * 0.115,
@@ -227,15 +231,8 @@ class DashboardSummaryContainers extends StatelessWidget {
         const Gap(20),
         InkWell(
           onTap: () {
-            // TODO:
-            //! Temporary route. Will add bloc event here to navigate to the correct page
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    const AdminDashboardTotalAppointmentsBooked(),
-              ),
-            );
+            adminDashboardBloc
+                .add(AdminDashboardNavigateToListOfAllAppointmentsEvent());
           },
           child: FittedBox(
             child: Container(

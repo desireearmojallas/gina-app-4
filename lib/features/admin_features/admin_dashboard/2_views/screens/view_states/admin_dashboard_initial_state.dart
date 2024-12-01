@@ -62,8 +62,8 @@ class AdminDashboardInitialState extends StatelessWidget {
 
             const Gap(15),
             DashboardSummaryContainers(
-              doctors: doctors,
-              patients: patients,
+              doctors: doctorList,
+              patients: patientList,
             ),
             const Gap(30),
 
