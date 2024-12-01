@@ -23,10 +23,10 @@ class AdminPatientListLoaded extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10.0),
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
+                  const Padding(
                     padding: EdgeInsets.all(25.0),
                     child: Text(
                       'List of all Patients',
@@ -37,8 +37,10 @@ class AdminPatientListLoaded extends StatelessWidget {
                     ),
                   ),
                   // Gap(10),
-                  PatientListLabel(),
-                  ListOfAllPatients(),
+                  const PatientListLabel(),
+                  ListOfAllPatients(
+                    patientList: patientList,
+                  ),
                 ],
               ),
             ),

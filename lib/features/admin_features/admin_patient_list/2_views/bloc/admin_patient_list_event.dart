@@ -19,5 +19,3 @@ class AdminPatientDetailsEvent extends AdminPatientListEvent {
   @override
   List<Object> get props => [patientDetails];
 }
-
-//! continue with patient list.

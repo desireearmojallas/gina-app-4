@@ -25,8 +25,32 @@ class AdminPatientListBloc
     emit(AdminPatientListLoadingState());
 
     final patients = await adminPatientListController.getAllPatients();
+
+    patients.fold(
+      (failure) {
+        emit(AdminPatientListErrorState(message: failure.toString()));
+      },
+      (patients) {
+        emit(AdminPatientListLoadedState(patients: patients));
+      },
+    );
   }
 
-  FutureOr<void> onAdminPatientDetailsEvent(
-      AdminPatientDetailsEvent event, Emitter<AdminPatientListState> emit) {}
+  FutureOr<void> onAdminPatientDetailsEvent(AdminPatientDetailsEvent event,
+      Emitter<AdminPatientListState> emit) async {
+    final patientUid = event.patientDetails.uid;
+    final appointments =
+        await adminPatientListController.getCurrentPatientAppointment(
+      patientUid: patientUid,
+    );
+
+    appointments.fold((failure) {
+      emit(AdminPatientListErrorState(message: failure.toString()));
+    }, (appointments) {
+      emit(AdminPatientListPatientDetailsState(
+        patientDetails: event.patientDetails,
+        appointmentDetails: appointments,
+      ));
+    });
+  }
 }

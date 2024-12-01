@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/admin_features/admin_patient_list/2_views/widgets/admin_patient_appointment_status.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 
 class PatientConsultationHistoryList extends StatelessWidget {
   final int appointmentStatus;
+  final List<AppointmentModel> appointmentDetails;
 
   const PatientConsultationHistoryList({
     super.key,
     required this.appointmentStatus,
+    required this.appointmentDetails,
   });
 
   @override
@@ -26,8 +29,10 @@ class PatientConsultationHistoryList extends StatelessWidget {
                 thickness: 0.2,
                 height: 5,
               ),
-          itemCount: 10,
+          itemCount: appointmentDetails.length,
           itemBuilder: (context, index) {
+            final appointment = appointmentDetails[index];
+
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Row(
@@ -37,10 +42,10 @@ class PatientConsultationHistoryList extends StatelessWidget {
                   const Gap(65),
                   SizedBox(
                     width: size.width * 0.09,
-                    child: const Align(
+                    child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        '20230910221545C',
+                        appointment.appointmentUid!,
                         style: textStyle,
                         softWrap: true,
                       ),
@@ -53,13 +58,14 @@ class PatientConsultationHistoryList extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       child: Row(
                         children: [
-                          Expanded(
+                          Flexible(
                             child: Text(
-                              'Dr. Desiree Armojallas, MD FPOGS, FSOUG',
+                              'Dr. ${appointment.doctorName}',
                               style: textStyle.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
                               softWrap: true,
+                              overflow: TextOverflow.visible,
                             ),
                           ),
                           const Gap(5),
@@ -75,10 +81,10 @@ class PatientConsultationHistoryList extends StatelessWidget {
                   const Gap(35),
                   SizedBox(
                     width: size.width * 0.09,
-                    child: const Align(
+                    child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'December 18, 2024',
+                        appointment.appointmentDate!,
                         style: textStyle,
                         softWrap: true,
                       ),
@@ -87,10 +93,10 @@ class PatientConsultationHistoryList extends StatelessWidget {
                   const Gap(10),
                   SizedBox(
                     width: size.width * 0.1,
-                    child: const Align(
+                    child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        '10:00 AM - 11:00 AM',
+                        appointment.appointmentTime!,
                         style: textStyle,
                         softWrap: true,
                       ),
@@ -99,10 +105,10 @@ class PatientConsultationHistoryList extends StatelessWidget {
                   const Gap(10),
                   SizedBox(
                     width: size.width * 0.15,
-                    child: const Align(
+                    child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Dr. Desiree Armojallas Clinic, Tiangue Rd., Looc, Lapu-Lapu City',
+                        appointment.doctorClinicAddress!,
                         style: textStyle,
                       ),
                     ),
@@ -110,15 +116,19 @@ class PatientConsultationHistoryList extends StatelessWidget {
                   const Gap(10),
                   SizedBox(
                     width: size.width * 0.095,
-                    child: const Align(
+                    child: Align(
                       alignment: Alignment.center,
                       child: Text(
-                        'Face-to-face',
+                        appointment.modeOfAppointment == 0
+                            ? 'Online'
+                            : 'Face-to-Face',
                         style: textStyle,
                       ),
                     ),
                   ),
                   const Gap(10),
+
+                  //TODO: TO FIX THIS APPOINTMENT STATUS WHEN AN APPOINTMENT HAS BEEN MADE
                   SizedBox(
                     width: size.width * 0.06,
                     child: Align(
