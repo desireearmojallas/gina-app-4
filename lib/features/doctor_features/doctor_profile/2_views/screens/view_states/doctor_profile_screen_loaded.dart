@@ -210,6 +210,9 @@ class DoctorProfileScreenLoaded extends StatelessWidget {
                         GestureDetector(
                           onTap: () {
                             // TODO: My Forum Posts feature
+                            debugPrint('My Forum Posts feature clicked');
+                            profileBloc.add(
+                                DoctorProfileNavigateToMyForumsPostEvent());
                           },
                           child: Container(
                             height: size.height * 0.09,

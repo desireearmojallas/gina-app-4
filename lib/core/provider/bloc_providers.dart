@@ -24,6 +24,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/bloc/doctor_emergency_announcements_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forum_badge/2_views/bloc/doctor_forum_badge_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/bloc/doctor_forums_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_my_forums/bloc/doctor_my_forums_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/bloc/doctor_profile_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/widgets/doctor_profile_update_dialog/bloc/doctor_profile_update_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/2_views/bloc/doctor_schedule_management_bloc.dart';
@@ -34,6 +35,7 @@ import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bott
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_bloc.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/bloc/home_bloc.dart';
+import 'package:gina_app_4/features/patient_features/my_forums/2_views/bloc/my_forums_bloc.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/bloc/period_tracker_bloc.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/bloc/profile_bloc.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/widgets/profile_update_dialog/bloc/profile_update_bloc.dart';
@@ -99,6 +101,9 @@ List<BlocProvider> getBlocProviders() {
     BlocProvider<ForumsBloc>(
       create: (context) => sl<ForumsBloc>(),
     ),
+    BlocProvider<MyForumsBloc>(
+      create: (context) => sl<MyForumsBloc>(),
+    ),
     BlocProvider<FindBloc>(
       create: (context) => sl<FindBloc>(),
     ),
@@ -136,6 +141,9 @@ List<BlocProvider> getBlocProviders() {
     ),
     BlocProvider<DoctorForumsBloc>(
       create: (context) => sl<DoctorForumsBloc>(),
+    ),
+    BlocProvider<DoctorMyForumsBloc>(
+      create: (context) => sl<DoctorMyForumsBloc>(),
     ),
     BlocProvider<DoctorProfileBloc>(
       create: (context) => sl<DoctorProfileBloc>(),

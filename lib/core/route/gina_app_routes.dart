@@ -17,6 +17,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcemen
 import 'package:gina_app_4/features/doctor_features/doctor_forum_badge/2_views/doctor_forum_badge_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/screens/doctor_forums_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/screens/view_states/doctor_create_post_screen_state.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_my_forums/screens/doctor_my_forums_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/2_views/screens/doctor_schedule_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patient_details/2_views/screens/doctor_view_patient_details_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patients/2_views/screens/doctor_view_patients_screen.dart';
@@ -62,6 +63,7 @@ Map<String, WidgetBuilder> ginaAppRoutes() {
     '/doctorForumsCreatePost': (context) => CreateDoctorPostScreenState(),
     '/doctorForumBadge': (context) => const DoctorForumBadgeScreenProvider(),
     '/doctorForumsPost': (context) => const DoctorForumsScreenProvider(),
+    '/dotorMyForumPosts': (context) => const DoctorMyForumsScreenProvider(),
     '/doctorConsultationFee': (context) =>
         const DoctorConsultationFeeScreenProvider(),
     '/doctorPatientsList': (context) =>
