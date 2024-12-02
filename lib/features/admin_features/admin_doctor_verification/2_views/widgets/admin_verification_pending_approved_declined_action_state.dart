@@ -24,9 +24,13 @@ class AdminVerificationPendingApprovedDeclinedActionState
           child: Row(
             children: [
               const Gap(15),
-              const Text(
-                'Doctor Verification',
-                style: TextStyle(
+              Text(
+                state is AdminVerificationPendingDoctorVerificationListState
+                    ? 'Pending Doctor Verification'
+                    : state is AdminVerificationApprovedDoctorVerificationListState
+                        ? 'Approved Doctor Verification'
+                        : 'Declined Doctor Verification',
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
                 ),

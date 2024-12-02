@@ -20,11 +20,15 @@ class PendingApprovedDeclineActionState extends StatelessWidget {
           child: Row(
             children: [
               const Gap(15),
-              const Text(
-                'Doctor Verification',
-                style: TextStyle(
+              Text(
+                state is PendingDoctorVerificationListState
+                    ? 'Pending Doctor Verification'
+                    : state is ApprovedDoctorVerificationListState
+                        ? 'Approved Doctor Verification'
+                        : 'Declined Doctor Verification',
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 18,
+                  fontSize: 20,
                 ),
               ),
               const Spacer(),
