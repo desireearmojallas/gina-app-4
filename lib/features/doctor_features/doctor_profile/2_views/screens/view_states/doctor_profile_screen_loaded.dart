@@ -208,7 +208,9 @@ class DoctorProfileScreenLoaded extends StatelessWidget {
                         Gap(size.height * 0.02),
 
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            // TODO: My Forum Posts feature
+                          },
                           child: Container(
                             height: size.height * 0.09,
                             decoration: BoxDecoration(
