@@ -34,6 +34,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_forums/1_controllers/
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/bloc/doctor_forums_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/1_controllers/doctor_profile_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/bloc/doctor_profile_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/widgets/doctor_profile_update_dialog/bloc/doctor_profile_update_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/2_views/bloc/doctor_schedule_management_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patient_details/2_views/bloc/doctor_view_patient_details_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patients/2_views/bloc/doctor_view_patients_bloc.dart';
@@ -311,7 +312,16 @@ Future<void> init() async {
 
   //! Features - Doctor Profile
   sl.registerFactory(
-    () => DoctorProfileBloc(),
+    () => DoctorProfileBloc(
+      doctorProfileController: sl(),
+    ),
+  );
+
+  //! Features - Doctor Edit Profile
+  sl.registerFactory(
+    () => DoctorProfileUpdateBloc(
+      doctorProfileController: sl(),
+    ),
   );
 
 // ----------------------------------------------------------------------------------

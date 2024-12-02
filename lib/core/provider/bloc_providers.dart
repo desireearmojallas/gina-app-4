@@ -25,6 +25,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcemen
 import 'package:gina_app_4/features/doctor_features/doctor_forum_badge/2_views/bloc/doctor_forum_badge_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/bloc/doctor_forums_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/bloc/doctor_profile_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/widgets/doctor_profile_update_dialog/bloc/doctor_profile_update_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/2_views/bloc/doctor_schedule_management_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patient_details/2_views/bloc/doctor_view_patient_details_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patients/2_views/bloc/doctor_view_patients_bloc.dart';
@@ -138,6 +139,9 @@ List<BlocProvider> getBlocProviders() {
     ),
     BlocProvider<DoctorProfileBloc>(
       create: (context) => sl<DoctorProfileBloc>(),
+    ),
+    BlocProvider<DoctorProfileUpdateBloc>(
+      create: (context) => sl<DoctorProfileUpdateBloc>(),
     ),
     BlocProvider<DoctorForumBadgeBloc>(
       create: (context) => sl<DoctorForumBadgeBloc>(),
