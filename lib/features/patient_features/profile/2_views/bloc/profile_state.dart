@@ -39,3 +39,11 @@ class NavigateToEditProfileState extends ProfileState {
   @override
   List<Object> get props => [patientData];
 }
+
+class ProfileUpdated extends ProfileState {}
+
+class OpenMenuBarState extends ProfileState {}
+
+class ProfileNavigateToCycleHistoryState extends ProfileActionState {}
+
+class ProfileNavigateToMyForumsPostState extends ProfileActionState {}

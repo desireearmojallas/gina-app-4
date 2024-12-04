@@ -1,8 +1,12 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
+import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
 import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
+import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/gina_patient_app_bar/gina_patient_app_bar.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/forums/0_models/forums_model.dart';
@@ -15,12 +19,18 @@ class ForumsDetailedPostState extends StatelessWidget {
   final ForumModel forumPost;
   final List<ForumModel> forumReplies;
   final int doctorRatingId;
+  bool? useCustomAppBar;
+  bool? isDoctor;
+  bool? isFromMyForums;
 
-  const ForumsDetailedPostState({
+  ForumsDetailedPostState({
     super.key,
     required this.forumPost,
     required this.forumReplies,
     required this.doctorRatingId,
+    this.useCustomAppBar = false,
+    this.isDoctor,
+    this.isFromMyForums = false,
   });
 
   @override
@@ -29,6 +39,12 @@ class ForumsDetailedPostState extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
+      appBar: useCustomAppBar == true
+          ? (isDoctor == true
+              ? GinaDoctorAppBar(title: forumPost.title) as PreferredSizeWidget
+              : GinaPatientAppBar(title: forumPost.title)
+                  as PreferredSizeWidget)
+          : null,
       body: Stack(
         children: [
           const GradientBackground(),
@@ -74,7 +90,9 @@ class ForumsDetailedPostState extends StatelessWidget {
                               builder: (context, state) {
                                 if (state is GetRepliesForumsPostLoadingState) {
                                   return const Center(
-                                    child: CustomLoadingIndicator(),
+                                    child: CustomLoadingIndicator(
+                                      colors: [GinaAppTheme.appbarColorLight],
+                                    ),
                                   );
                                 }
                                 if (state is GetForumsPostsFailedState) {
@@ -148,50 +166,52 @@ class ForumsDetailedPostState extends StatelessWidget {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 100.0),
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: SizedBox(
-                width: width / 2.5,
-                child: FilledButton(
-                  style: ButtonStyle(
-                    splashFactory:
-                        InkSparkle.constantTurbulenceSeedSplashFactory,
-                    // backgroundColor: MaterialStateProperty.all(Colors.white),
-                    shape: MaterialStateProperty.all(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+          isFromMyForums == true
+              ? const SizedBox.shrink()
+              : Padding(
+                  padding: const EdgeInsets.only(bottom: 100.0),
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: SizedBox(
+                      width: width / 2.5,
+                      child: FilledButton(
+                        style: ButtonStyle(
+                          splashFactory:
+                              InkSparkle.constantTurbulenceSeedSplashFactory,
+                          // backgroundColor: MaterialStateProperty.all(Colors.white),
+                          shape: MaterialStateProperty.all(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                        onPressed: () {
+                          forumsBloc.add(
+                            NavigateToForumsReplyPostEvent(
+                              forumPost: forumPost,
+                            ),
+                          );
+                        },
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Add Reply',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Gap(10),
+                            Icon(
+                              MingCute.message_3_fill,
+                              size: 18,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  onPressed: () {
-                    forumsBloc.add(
-                      NavigateToForumsReplyPostEvent(
-                        forumPost: forumPost,
-                      ),
-                    );
-                  },
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Add Reply',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Gap(10),
-                      Icon(
-                        MingCute.message_3_fill,
-                        size: 18,
-                      ),
-                    ],
-                  ),
                 ),
-              ),
-            ),
-          ),
         ],
       ),
     );

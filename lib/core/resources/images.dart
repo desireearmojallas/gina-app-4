@@ -46,8 +46,10 @@ class Images {
       "assets/images/patient_features/profile/forum_post.png";
 
   // Forums Screen
+  // static String forumsEmptyPlaceholder =
+  //     "assets/images/patient_features/forums/forums_empty_placeholder.png";
   static String forumsEmptyPlaceholder =
-      "assets/images/patient_features/forums/forums_empty_placeholder.png";
+      "assets/images/patient_features/forums/my_forum_posts_empty.png";
 
   //!--- Doctor Features ---!//
 

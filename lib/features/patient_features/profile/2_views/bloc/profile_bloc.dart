@@ -13,6 +13,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ProfileBloc({required this.profileController}) : super(ProfileInitial()) {
     on<GetProfileEvent>(getProfileEvent);
     on<NavigateToEditProfileEvent>(navigateToEditProfileEvent);
+    on<ProfileNavigateToCycleHistoryEvent>(profileNavigateToCycleHistoryEvent);
+    on<ProfileNavigateToMyForumsPostEvent>(profileNavigateToMyForumsPostEvent);
   }
 
   FutureOr<void> getProfileEvent(
@@ -20,14 +22,13 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     emit(ProfileLoading());
 
     final getProfileData = await profileController.getPatientProfile();
-    //TODO: TO DELETE AWAIT FUTURE DELAYED : ONLY TO CHECK IS PROFILE LOADING IS WORKING
-    await Future.delayed(const Duration(milliseconds: 1000));
 
     getProfileData
         .fold((failure) => emit(ProfileError(message: failure.toString())),
             (patientData) {
       // currentActivePatient = patientData;
       // TODO: IMPLEMENT ABOVE CURRENT ACTIVE PATIENT CONNECTED TO BOOK APPOINTMENT
+      //! Implement when BOOK APPOINTMENT feature is implemented
 
       emit(ProfileLoaded(patientData: patientData));
     });
@@ -44,5 +45,15 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       (patientData) =>
           emit(NavigateToEditProfileState(patientData: patientData)),
     );
+  }
+
+  FutureOr<void> profileNavigateToCycleHistoryEvent(
+      ProfileNavigateToCycleHistoryEvent event, Emitter<ProfileState> emit) {
+    emit(ProfileNavigateToCycleHistoryState());
+  }
+
+  FutureOr<void> profileNavigateToMyForumsPostEvent(
+      ProfileNavigateToMyForumsPostEvent event, Emitter<ProfileState> emit) {
+    emit(ProfileNavigateToMyForumsPostState());
   }
 }

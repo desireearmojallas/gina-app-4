@@ -57,7 +57,9 @@ class DoctorForumsScreen extends StatelessWidget {
                     : null,
             title: state is NavigateToDoctorForumsReplyPostState
                 ? 'Reply'
-                : 'Forums',
+                : state is NavigateToDoctorForumsDetailedPostState
+                    ? state.doctorForumPost.title
+                    : 'Forums',
           ),
           floatingActionButton: Padding(
             padding: const EdgeInsets.only(bottom: 78),

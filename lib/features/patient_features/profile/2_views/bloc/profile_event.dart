@@ -12,3 +12,7 @@ class ProfileInitialEvent extends ProfileEvent {}
 class GetProfileEvent extends ProfileEvent {}
 
 class NavigateToEditProfileEvent extends ProfileEvent {}
+
+class ProfileNavigateToCycleHistoryEvent extends ProfileEvent {}
+
+class ProfileNavigateToMyForumsPostEvent extends ProfileEvent {}
