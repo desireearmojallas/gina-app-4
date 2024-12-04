@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
+import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/gina_patient_app_bar/gina_patient_app_bar.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/patient_features/my_forums/2_views/bloc/my_forums_bloc.dart';
@@ -42,28 +43,33 @@ class MyForumsScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: BlocConsumer<MyForumsBloc, MyForumsState>(
-        listenWhen: (previous, current) => current is MyForumsActionState,
-        buildWhen: (previous, current) => current is! MyForumsActionState,
-        listener: (context, state) {},
-        builder: (context, state) {
-          if (state is MyForumsLoadedState) {
-            return MyForumsPostScreenState(
-              myForumsPost: state.myForumsPosts,
-            );
-          } else if (state is MyForumsEmptyState) {
-            return const MyForumsEmptyScreenState();
-          } else if (state is MyForumsErrorState) {
-            return Center(
-              child: Text(state.message),
-            );
-          } else if (state is MyForumsLoadingState) {
-            return const Center(
-              child: CustomLoadingIndicator(),
-            );
-          }
-          return Container();
-        },
+      body: Stack(
+        children: [
+          const GradientBackground(),
+          BlocConsumer<MyForumsBloc, MyForumsState>(
+            listenWhen: (previous, current) => current is MyForumsActionState,
+            buildWhen: (previous, current) => current is! MyForumsActionState,
+            listener: (context, state) {},
+            builder: (context, state) {
+              if (state is MyForumsLoadedState) {
+                return MyForumsPostScreenState(
+                  myForumsPost: state.myForumsPosts,
+                );
+              } else if (state is MyForumsEmptyState) {
+                return const MyForumsEmptyScreenState();
+              } else if (state is MyForumsErrorState) {
+                return Center(
+                  child: Text(state.message),
+                );
+              } else if (state is MyForumsLoadingState) {
+                return const Center(
+                  child: CustomLoadingIndicator(),
+                );
+              }
+              return Container();
+            },
+          ),
+        ],
       ),
     );
   }

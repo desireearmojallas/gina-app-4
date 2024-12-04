@@ -14,10 +14,8 @@ class DoctorMyForumsScreenProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<DoctorMyForumsBloc>(
-      create: (context) {
-        final doctorMyForumsBloc = sl<DoctorMyForumsBloc>();
-        return doctorMyForumsBloc;
-      },
+      create: (context) =>
+          sl<DoctorMyForumsBloc>()..add(GetMyDoctorForumsPostEvent()),
       child: const DoctorMyForumsScreen(),
     );
   }

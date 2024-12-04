@@ -55,8 +55,11 @@ class ForumScreen extends StatelessWidget {
                           icon: const Icon(Icons.arrow_back),
                         )
                       : null,
-              title:
-                  state is NavigateToForumsReplyPostState ? 'Reply' : 'Forums',
+              title: state is NavigateToForumsReplyPostState
+                  ? 'Reply'
+                  : state is NavigateToForumsDetailedPostState
+                      ? state.forumPost.title
+                      : 'Forums',
             ),
             floatingActionButton: Padding(
               padding: const EdgeInsets.only(bottom: 78),

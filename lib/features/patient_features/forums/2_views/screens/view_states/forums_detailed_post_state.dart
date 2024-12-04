@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
@@ -19,6 +21,7 @@ class ForumsDetailedPostState extends StatelessWidget {
   final int doctorRatingId;
   bool? useCustomAppBar;
   bool? isDoctor;
+  bool? isFromMyForums;
 
   ForumsDetailedPostState({
     super.key,
@@ -27,6 +30,7 @@ class ForumsDetailedPostState extends StatelessWidget {
     required this.doctorRatingId,
     this.useCustomAppBar = false,
     this.isDoctor,
+    this.isFromMyForums = false,
   });
 
   @override
@@ -86,7 +90,9 @@ class ForumsDetailedPostState extends StatelessWidget {
                               builder: (context, state) {
                                 if (state is GetRepliesForumsPostLoadingState) {
                                   return const Center(
-                                    child: CustomLoadingIndicator(),
+                                    child: CustomLoadingIndicator(
+                                      colors: [GinaAppTheme.appbarColorLight],
+                                    ),
                                   );
                                 }
                                 if (state is GetForumsPostsFailedState) {
@@ -160,50 +166,52 @@ class ForumsDetailedPostState extends StatelessWidget {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 100.0),
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: SizedBox(
-                width: width / 2.5,
-                child: FilledButton(
-                  style: ButtonStyle(
-                    splashFactory:
-                        InkSparkle.constantTurbulenceSeedSplashFactory,
-                    // backgroundColor: MaterialStateProperty.all(Colors.white),
-                    shape: MaterialStateProperty.all(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+          isFromMyForums == true
+              ? const SizedBox.shrink()
+              : Padding(
+                  padding: const EdgeInsets.only(bottom: 100.0),
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: SizedBox(
+                      width: width / 2.5,
+                      child: FilledButton(
+                        style: ButtonStyle(
+                          splashFactory:
+                              InkSparkle.constantTurbulenceSeedSplashFactory,
+                          // backgroundColor: MaterialStateProperty.all(Colors.white),
+                          shape: MaterialStateProperty.all(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                        onPressed: () {
+                          forumsBloc.add(
+                            NavigateToForumsReplyPostEvent(
+                              forumPost: forumPost,
+                            ),
+                          );
+                        },
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Add Reply',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Gap(10),
+                            Icon(
+                              MingCute.message_3_fill,
+                              size: 18,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  onPressed: () {
-                    forumsBloc.add(
-                      NavigateToForumsReplyPostEvent(
-                        forumPost: forumPost,
-                      ),
-                    );
-                  },
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Add Reply',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Gap(10),
-                      Icon(
-                        MingCute.message_3_fill,
-                        size: 18,
-                      ),
-                    ],
-                  ),
                 ),
-              ),
-            ),
-          ),
         ],
       ),
     );

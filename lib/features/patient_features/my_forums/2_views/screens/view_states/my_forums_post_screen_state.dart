@@ -56,6 +56,7 @@ class MyForumsPostScreenState extends StatelessWidget {
                             doctorRatingId: forumPost.doctorRatingId,
                             useCustomAppBar: true,
                             isDoctor: false,
+                            isFromMyForums: true,
                           ),
                         ),
                       );
