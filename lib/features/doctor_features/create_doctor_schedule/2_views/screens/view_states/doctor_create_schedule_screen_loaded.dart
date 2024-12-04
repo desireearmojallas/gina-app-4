@@ -24,11 +24,12 @@ class DoctorCreateScheduleScreenLoaded extends StatelessWidget {
 
     final headingStyle = ginaTheme.titleMedium?.copyWith(
       fontWeight: FontWeight.bold,
+      color: GinaAppTheme.lightTertiaryContainer,
     );
 
     final subheadingStyle = ginaTheme.titleSmall?.copyWith(
       fontWeight: FontWeight.w600,
-      color: GinaAppTheme.lightOutline,
+      color: GinaAppTheme.lightSecondary,
     );
 
     final space = Column(

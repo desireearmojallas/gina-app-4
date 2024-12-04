@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/detailed_view_icon.dart';
@@ -16,11 +17,13 @@ class DoctorReviewScheduleScreen extends StatelessWidget {
 
     const valueStyle = TextStyle(
       fontSize: 12.0,
+      fontWeight: FontWeight.bold,
     );
 
     const labelStyle = TextStyle(
       fontSize: 12.0,
       fontWeight: FontWeight.bold,
+      color: GinaAppTheme.lightOutline,
     );
     //! temporary scaffold
     return Scaffold(
@@ -30,15 +33,15 @@ class DoctorReviewScheduleScreen extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
+            doctorNameWidget(size, ginaTheme),
+            const Gap(10),
             Padding(
-              padding: const EdgeInsets.only(top: 20.0),
+              padding: const EdgeInsets.only(top: 10.0, bottom: 10),
               child: Text(
                 'Please review your schedule.',
                 style: ginaTheme.bodyLarge,
               ),
             ),
-            doctorNameWidget(size, ginaTheme),
-            const Gap(10),
             IntrinsicHeight(
               child: Container(
                 width: size.width * 0.93,
