@@ -34,6 +34,8 @@ class MyForumsController with ChangeNotifier {
         forumsPosts.add(ForumModel.fromJson(element.data()));
       }
 
+      forumsPosts.sort((a, b) => b.postedAt.compareTo(a.postedAt));
+
       return Right(forumsPosts);
     } on FirebaseAuthException catch (e) {
       debugPrint('FirebaseAuthException: ${e.message}');

@@ -4,11 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/gina_patient_app_bar/gina_patient_app_bar.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
-import 'package:gina_app_4/features/patient_features/forums/2_views/screens/view_states/forums_detailed_post_state.dart';
 import 'package:gina_app_4/features/patient_features/my_forums/2_views/bloc/my_forums_bloc.dart';
 import 'package:gina_app_4/features/patient_features/my_forums/2_views/screens/view_states/my_forums_post_empty_screen_state.dart';
 import 'package:gina_app_4/features/patient_features/my_forums/2_views/screens/view_states/my_forums_post_screen_state.dart';
-import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_bloc.dart';
 
 class MyForumsScreenProvider extends StatelessWidget {
   const MyForumsScreenProvider({super.key});
