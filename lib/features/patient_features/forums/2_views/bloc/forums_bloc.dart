@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/0_models/forums_model.dart';
 import 'package:gina_app_4/features/patient_features/forums/1_controllers/forums_controller.dart';
@@ -65,6 +66,7 @@ class ForumsBloc extends Bloc<ForumsEvent, ForumsState> {
   FutureOr<void> navigateToForumsDetailedPostEvent(
       NavigateToForumsDetailedPostEvent event,
       Emitter<ForumsState> emit) async {
+    debugPrint('NavigateToForumsDetailedPostEvent received');
     final forumPost = event.forumPost;
 
     final repliesPost = await forumsController.getRepliesPost(

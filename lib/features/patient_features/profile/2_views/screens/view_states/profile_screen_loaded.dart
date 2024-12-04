@@ -260,7 +260,10 @@ class ProfileScreenLoaded extends StatelessWidget {
                                   ),
                                 ),
                                 GestureDetector(
-                                  onTap: () {},
+                                  onTap: () {
+                                    profileBloc.add(
+                                        ProfileNavigateToMyForumsPostEvent());
+                                  },
                                   child: Container(
                                     width: width * 0.41,
                                     height: height * 0.12,

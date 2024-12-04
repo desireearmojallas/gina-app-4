@@ -42,7 +42,9 @@ class ForumScreenLoaded extends StatelessWidget {
                       itemCount: forumsPosts.length,
                       itemBuilder: (context, index) {
                         final forumPost = forumsPosts[index];
-                        final doctorRatingId = doctorRatingIds[index];
+                        final doctorRatingId = index < doctorRatingIds.length
+                            ? doctorRatingIds[index]
+                            : -1;
                         return BlocBuilder<ForumsBloc, ForumsState>(
                           builder: (context, state) {
                             return InkWell(
