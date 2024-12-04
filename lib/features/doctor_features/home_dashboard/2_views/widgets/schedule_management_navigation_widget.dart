@@ -20,15 +20,16 @@ class ScheduleManagementNavigationWidget extends StatelessWidget {
         );
       },
       child: Container(
-        height: size.height * 0.14,
+        height: size.height * 0.16,
         width: size.width / 2.9,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          gradient: LinearGradient(
-            colors: GinaAppTheme.gradientColors,
-            begin: Alignment.bottomLeft,
-            end: Alignment.topRight,
-          ),
+          // gradient: LinearGradient(
+          //   colors: GinaAppTheme.gradientColors,
+          //   begin: Alignment.bottomLeft,
+          //   end: Alignment.topRight,
+          // ),
+          color: Colors.white,
           boxShadow: [
             GinaAppTheme.defaultBoxShadow,
           ],
@@ -37,25 +38,34 @@ class ScheduleManagementNavigationWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image.asset(
-              Images.scheduleManagementIcon,
-              width: 60,
-              height: 60,
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                // CircleAvatar(
+                //   backgroundColor: GinaAppTheme.lightSecondary.withOpacity(1),
+                //   radius: 40,
+                // ),
+                Image.asset(
+                  Images.scheduleManagementIcon,
+                  width: 80,
+                  height: 80,
+                ),
+              ],
             ),
-            const Gap(20),
+            const Gap(10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text(
-                  'Schedule\nManagement',
+                  'Manage\nSchedule',
                   style: ginaTheme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    color: GinaAppTheme.lightOnPrimaryColor,
                   ),
                 ),
                 const Icon(
                   Bootstrap.plus_circle_fill,
-                  color: Colors.white,
+                  color: GinaAppTheme.lightSecondary,
                 ),
               ],
             ),
