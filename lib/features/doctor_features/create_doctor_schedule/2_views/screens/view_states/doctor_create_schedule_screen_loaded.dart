@@ -1,8 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first, must_be_immutable
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/2_views/screens/view_states/doctor_review_schedule_screen.dart';
+import 'package:gina_app_4/features/doctor_features/create_doctor_schedule/2_views/bloc/create_doctor_schedule_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/create_doctor_schedule/2_views/screens/widgets/generate_timeslots_widget.dart';
 
 class DoctorCreateScheduleScreenLoaded extends StatelessWidget {
   List<String> startTimes = [];
@@ -19,17 +21,18 @@ class DoctorCreateScheduleScreenLoaded extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheduleBloc = context.read<CreateDoctorScheduleBloc>();
     final ginaTheme = Theme.of(context).textTheme;
     final size = MediaQuery.of(context).size;
 
     final headingStyle = ginaTheme.titleMedium?.copyWith(
       fontWeight: FontWeight.bold,
-      color: GinaAppTheme.lightTertiaryContainer,
+      color: GinaAppTheme.lightSecondary,
     );
 
     final subheadingStyle = ginaTheme.titleSmall?.copyWith(
       fontWeight: FontWeight.w600,
-      color: GinaAppTheme.lightSecondary,
+      color: GinaAppTheme.lightOutline,
     );
 
     final space = Column(
@@ -43,21 +46,8 @@ class DoctorCreateScheduleScreenLoaded extends StatelessWidget {
       ],
     );
 
-    List<String> generateTimeSlots(int startHour, int endHour) {
-      final List<String> timeSlots = [];
-      for (int hour = startHour; hour < endHour; hour++) {
-        final startTime = TimeOfDay(hour: hour, minute: 0);
-        final endTime = TimeOfDay(hour: hour + 1, minute: 0);
-
-        final formattedSlot =
-            '${startTime.format(context)} - ${endTime.format(context)}';
-        timeSlots.add(formattedSlot);
-      }
-      return timeSlots;
-    }
-
-    final morningTimeSlots = generateTimeSlots(7, 12);
-    final afternoonTimeSlots = generateTimeSlots(1, 9);
+    final morningTimeSlots = generateTimeSlots(context, 6, 12, false);
+    final afternoonTimeSlots = generateTimeSlots(context, 1, 10, true);
 
     return Padding(
       padding: const EdgeInsets.all(20.0),
@@ -88,6 +78,10 @@ class DoctorCreateScheduleScreenLoaded extends StatelessWidget {
                 child: ValueListenableBuilder<bool>(
                   valueListenable: isSelected,
                   builder: (_, selected, __) {
+                    if (selectedDays.contains(index)) {
+                      selected = true;
+                    }
+                    debugPrint('$selectedDays');
                     return GestureDetector(
                       onTap: () {
                         isSelected.value = !isSelected.value;
@@ -175,6 +169,30 @@ class DoctorCreateScheduleScreenLoaded extends StatelessWidget {
                               child: GestureDetector(
                                 onTap: () {
                                   isSelected.value = !isSelected.value;
+
+                                  String timeSlot = morningTimeSlots[index];
+
+                                  List<String> times = timeSlot.split(' - ');
+
+                                  String startTime = times[0];
+                                  String endTime = times[1];
+
+                                  if (startTimes.isEmpty) {
+                                    startTimes = <String>[];
+                                  }
+                                  if (endTimes.isEmpty) {
+                                    endTimes = <String>[];
+                                  }
+
+                                  if (isSelected.value == true) {
+                                    debugPrint(
+                                        'Start time: $startTime\nEnd time: $endTime');
+                                    startTimes.add(startTime);
+                                    endTimes.add(endTime);
+                                  } else {
+                                    startTimes.remove(startTime);
+                                    endTimes.remove(endTime);
+                                  }
                                 },
                                 child: Container(
                                   margin: const EdgeInsets.symmetric(
@@ -388,15 +406,38 @@ class DoctorCreateScheduleScreenLoaded extends StatelessWidget {
                 ),
               ),
               onPressed: () {
-                //TODO: Will apply bloc event here. Temporary route only for edit consultation fees
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return const DoctorReviewScheduleScreen();
-                    },
-                  ),
-                );
+                if (selectedDays.isNotEmpty &&
+                    startTimes.isNotEmpty &&
+                    endTimes.isNotEmpty) {
+                  scheduleBloc.add(
+                    SaveScheduleEvent(
+                      selectedDays: selectedDays,
+                      endTimes: endTimes,
+                      startTimes: startTimes,
+                      appointmentMode: selectedMode,
+                    ),
+                  );
+
+                  debugPrint(
+                    'Selected days: $selectedDays\nStart times:$startTimes\nEnd times: $endTimes\nAppointment mode: $selectedMode',
+                  );
+
+                  debugPrint('Start Times: $startTimes');
+                  debugPrint('End Times: $endTimes');
+
+                  // Navigator.pushReplacementNamed(context, '/doctorSchedule');
+                  isFromCreateDoctorSchedule = true;
+
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('Schedule created successfully.'),
+                  ));
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content:
+                        Text('Select the Mode, Days, and Time to proceed.'),
+                    backgroundColor: Colors.red,
+                  ));
+                }
               },
               child: Text(
                 'Save schedule',

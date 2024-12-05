@@ -1,10 +1,33 @@
 part of 'doctor_schedule_management_bloc.dart';
 
-sealed class DoctorScheduleManagementState extends Equatable {
+abstract class DoctorScheduleManagementState extends Equatable {
   const DoctorScheduleManagementState();
-  
+
   @override
   List<Object> get props => [];
 }
 
-final class DoctorScheduleManagementInitial extends DoctorScheduleManagementState {}
+abstract class DoctorScheduleManagementActionState
+    extends DoctorScheduleManagementState {}
+
+class DoctorScheduleManagementInitial extends DoctorScheduleManagementState {}
+
+class GetScheduleLoadingState extends DoctorScheduleManagementState {}
+
+class GetScheduleSuccessState extends DoctorScheduleManagementState {
+  final ScheduleModel schedule;
+
+  const GetScheduleSuccessState({required this.schedule});
+
+  @override
+  List<Object> get props => [schedule];
+}
+
+class GetScheduledFailedState extends DoctorScheduleManagementState {
+  final String message;
+
+  const GetScheduledFailedState({required this.message});
+
+  @override
+  List<Object> get props => [message];
+}

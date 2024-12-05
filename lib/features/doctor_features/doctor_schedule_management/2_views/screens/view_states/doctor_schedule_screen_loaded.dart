@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/detailed_view_icon.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_name_widget.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/0_models/doctor_schedule_management.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/2_views/bloc/doctor_schedule_management_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class DoctorScheduleScreenLoaded extends StatelessWidget {
-  const DoctorScheduleScreenLoaded({super.key});
-
-  final sampleChecker = false;
+  final ScheduleModel schedule;
+  const DoctorScheduleScreenLoaded({super.key, required this.schedule});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +30,7 @@ class DoctorScheduleScreenLoaded extends StatelessWidget {
       children: [
         doctorNameWidget(size, ginaTheme),
         const Gap(10),
-        sampleChecker
+        schedule.days.isEmpty
             ? Center(
                 child: Text(
                   'No schedule yet',
@@ -68,10 +71,73 @@ class DoctorScheduleScreenLoaded extends StatelessWidget {
                                 ),
                               ),
                               const Gap(35),
-                              const Text(
-                                'Monday - Friday',
-                                style: valueStyle,
-                              ),
+                              // const Text(
+                              //   'Monday - Friday',
+                              //   style: valueStyle,
+                              // ),
+                              BlocBuilder<DoctorScheduleManagementBloc,
+                                  DoctorScheduleManagementState>(
+                                builder: (context, state) {
+                                  if (state is GetScheduleSuccessState) {
+                                    List<String> dayStrings = [];
+                                    String firstDayString = '';
+                                    String lastDayString = '';
+
+                                    Map<int, String> dayNames = {
+                                      0: 'Sunday',
+                                      1: 'Monday',
+                                      2: 'Tuesday',
+                                      3: 'Wednesday',
+                                      4: 'Thursday',
+                                      5: 'Friday',
+                                      6: 'Saturday',
+                                    };
+
+                                    dayStrings = state.schedule.days
+                                        .map((day) => dayNames[day]!)
+                                        .toList();
+
+                                    List<int> sortedDays =
+                                        List.from(state.schedule.days)..sort();
+                                    bool isContinuous = true;
+
+                                    for (int i = 0;
+                                        i < sortedDays.length - 1;
+                                        i++) {
+                                      if (sortedDays[i] + 1 !=
+                                          sortedDays[i + 1]) {
+                                        isContinuous = false;
+                                        break;
+                                      }
+                                    }
+
+                                    if (isContinuous) {
+                                      firstDayString =
+                                          dayNames[sortedDays.first]!;
+                                      lastDayString =
+                                          dayNames[sortedDays.last]!;
+                                      return Text(
+                                        '$firstDayString - $lastDayString',
+                                        style: valueStyle,
+                                      );
+                                    } else {
+                                      return Text(
+                                        dayStrings.join(', '),
+                                        style: valueStyle,
+                                      );
+                                    }
+                                  }
+                                  if (state is GetScheduledFailedState) {
+                                    return Text(
+                                      'Schedule fetch failed: ${state.message}',
+                                      style: valueStyle.copyWith(
+                                        color: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                  return const CustomLoadingIndicator();
+                                },
+                              )
                             ],
                           ),
                         ),
