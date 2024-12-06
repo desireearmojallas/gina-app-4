@@ -3,6 +3,7 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/doctor_rating_badge/doctor_rating_badge.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/2_views/bloc/doctor_schedule_management_bloc.dart';
 
 Widget doctorNameWidget(size, ginaTheme) {
   return Padding(
@@ -38,12 +39,12 @@ Widget doctorNameWidget(size, ginaTheme) {
                     children: [
                       SizedBox(
                         width: size.width * 0.53,
-                        child: const Row(
+                        child: Row(
                           children: [
                             Flexible(
                               child: Text(
-                                'Dr. Desiree Armojallas, MD FPOGS, FSOUG',
-                                style: TextStyle(
+                                'Dr. ${currentActiveDoctor!.name}',
+                                style: const TextStyle(
                                   fontSize: 16.0,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -51,10 +52,11 @@ Widget doctorNameWidget(size, ginaTheme) {
                                 overflow: TextOverflow.visible,
                               ),
                             ),
-                            Gap(5),
-                            Icon(
+                            const Gap(5),
+                            const Icon(
                               Icons.verified,
                               color: Colors.blue,
+                              size: 18,
                             ),
                           ],
                         ),
@@ -66,7 +68,8 @@ Widget doctorNameWidget(size, ginaTheme) {
                     width: size.width * 0.53,
                     child: Flexible(
                       child: Text(
-                        'Obstretrics and Gynecology'.toUpperCase(),
+                        '${currentActiveDoctor?.medicalSpecialty}'
+                            .toUpperCase(),
                         style: ginaTheme.bodySmall?.copyWith(
                           color: GinaAppTheme.lightTertiaryContainer,
                           fontWeight: FontWeight.bold,
@@ -82,7 +85,7 @@ Widget doctorNameWidget(size, ginaTheme) {
                     width: size.width * 0.53,
                     child: Flexible(
                       child: Text(
-                        'Dr. Desiree Armojallas Clinic, Looc, Lapu-Lapu City, Cebu, PH 6015',
+                        currentActiveDoctor!.officeAddress,
                         style: ginaTheme.bodySmall?.copyWith(
                           color: Colors.grey,
                           fontSize: 10.0,

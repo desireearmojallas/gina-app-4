@@ -438,9 +438,57 @@ class DoctorCreateScheduleScreenLoaded extends StatelessWidget {
                 ),
               ),
               onPressed: () {
-                if (selectedDays.isNotEmpty &&
-                    startTimes.isNotEmpty &&
-                    endTimes.isNotEmpty) {
+                if (selectedDays.isEmpty &&
+                    startTimes.isEmpty &&
+                    endTimes.isEmpty &&
+                    selectedMode.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                          'Choose office days, office hours, and mode of appointment.'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                } else if (selectedDays.isEmpty &&
+                    (startTimes.isNotEmpty || endTimes.isNotEmpty) &&
+                    (selectedMode.isEmpty)) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content:
+                        Text('Choose office days, and mode of appointment.'),
+                    backgroundColor: Colors.red,
+                  ));
+                } else if (selectedDays.isNotEmpty &&
+                    (startTimes.isEmpty || endTimes.isEmpty) &&
+                    (selectedMode.isEmpty)) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content:
+                        Text('Choose office hours, and mode of appointment.'),
+                    backgroundColor: Colors.red,
+                  ));
+                } else if (selectedDays.isEmpty &&
+                    (startTimes.isEmpty || endTimes.isEmpty) &&
+                    (selectedMode.isNotEmpty)) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('Choose office days, and office hours.'),
+                    backgroundColor: Colors.red,
+                  ));
+                } else if (selectedMode.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('Choose mode of appointment.'),
+                    backgroundColor: Colors.red,
+                  ));
+                } else if (selectedDays.isEmpty && selectedMode.isNotEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('Choose office days.'),
+                    backgroundColor: Colors.red,
+                  ));
+                } else if ((startTimes.isEmpty || endTimes.isEmpty) &&
+                    selectedMode.isNotEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('Choose office hours.'),
+                    backgroundColor: Colors.red,
+                  ));
+                } else {
                   scheduleBloc.add(
                     SaveScheduleEvent(
                       selectedDays: selectedDays,
@@ -462,12 +510,6 @@ class DoctorCreateScheduleScreenLoaded extends StatelessWidget {
 
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                     content: Text('Schedule created successfully.'),
-                  ));
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content:
-                        Text('Select the Mode, Days, and Time to proceed.'),
-                    backgroundColor: Colors.red,
                   ));
                 }
               },
