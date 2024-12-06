@@ -170,9 +170,11 @@ class DoctorCreateScheduleScreenLoaded extends StatelessWidget {
                                 onTap: () {
                                   isSelected.value = !isSelected.value;
 
-                                  String timeSlot = morningTimeSlots[index];
+                                  String morningTimeSlot =
+                                      morningTimeSlots[index];
 
-                                  List<String> times = timeSlot.split(' - ');
+                                  List<String> times =
+                                      morningTimeSlot.split(' - ');
 
                                   String startTime = times[0];
                                   String endTime = times[1];
@@ -185,10 +187,12 @@ class DoctorCreateScheduleScreenLoaded extends StatelessWidget {
                                   }
 
                                   if (isSelected.value == true) {
-                                    debugPrint(
-                                        'Start time: $startTime\nEnd time: $endTime');
-                                    startTimes.add(startTime);
-                                    endTimes.add(endTime);
+                                    if (startTime.contains('AM')) {
+                                      debugPrint(
+                                          'Start time: $startTime\nEnd time: $endTime');
+                                      startTimes.add(startTime);
+                                      endTimes.add(endTime);
+                                    }
                                   } else {
                                     startTimes.remove(startTime);
                                     endTimes.remove(endTime);
@@ -268,6 +272,34 @@ class DoctorCreateScheduleScreenLoaded extends StatelessWidget {
                               child: GestureDetector(
                                 onTap: () {
                                   isSelected.value = !isSelected.value;
+
+                                  String afternoonTimeSlot =
+                                      afternoonTimeSlots[index];
+
+                                  List<String> times =
+                                      afternoonTimeSlot.split(' - ');
+
+                                  String startTime = times[0];
+                                  String endTime = times[1];
+
+                                  if (startTimes.isEmpty) {
+                                    startTimes = <String>[];
+                                  }
+                                  if (endTimes.isEmpty) {
+                                    endTimes = <String>[];
+                                  }
+
+                                  if (isSelected.value == true) {
+                                    if (startTime.contains('PM')) {
+                                      debugPrint(
+                                          'Start time: $startTime\nEnd time: $endTime');
+                                      startTimes.add(startTime);
+                                      endTimes.add(endTime);
+                                    }
+                                  } else {
+                                    startTimes.remove(startTime);
+                                    endTimes.remove(endTime);
+                                  }
                                 },
                                 child: Container(
                                   margin: const EdgeInsets.symmetric(

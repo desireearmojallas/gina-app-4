@@ -71,18 +71,10 @@ class DoctorScheduleScreenLoaded extends StatelessWidget {
                                 ),
                               ),
                               const Gap(35),
-                              // const Text(
-                              //   'Monday - Friday',
-                              //   style: valueStyle,
-                              // ),
                               BlocBuilder<DoctorScheduleManagementBloc,
                                   DoctorScheduleManagementState>(
                                 builder: (context, state) {
                                   if (state is GetScheduleSuccessState) {
-                                    List<String> dayStrings = [];
-                                    String firstDayString = '';
-                                    String lastDayString = '';
-
                                     Map<int, String> dayNames = {
                                       0: 'Sunday',
                                       1: 'Monday',
@@ -93,51 +85,62 @@ class DoctorScheduleScreenLoaded extends StatelessWidget {
                                       6: 'Saturday',
                                     };
 
-                                    dayStrings = state.schedule.days
-                                        .map((day) => dayNames[day]!)
-                                        .toList();
-
                                     List<int> sortedDays =
                                         List.from(state.schedule.days)..sort();
-                                    bool isContinuous = true;
 
-                                    for (int i = 0;
-                                        i < sortedDays.length - 1;
+                                    List<List<int>> groupedDays = [];
+                                    List<int> currentRange = [sortedDays.first];
+
+                                    for (int i = 1;
+                                        i < sortedDays.length;
                                         i++) {
-                                      if (sortedDays[i] + 1 !=
-                                          sortedDays[i + 1]) {
-                                        isContinuous = false;
-                                        break;
+                                      if (sortedDays[i] ==
+                                          sortedDays[i - 1] + 1) {
+                                        currentRange.add(sortedDays[i]);
+                                      } else {
+                                        groupedDays.add(currentRange);
+                                        currentRange = [sortedDays[i]];
                                       }
                                     }
 
-                                    if (isContinuous) {
-                                      firstDayString =
-                                          dayNames[sortedDays.first]!;
-                                      lastDayString =
-                                          dayNames[sortedDays.last]!;
-                                      return Text(
-                                        '$firstDayString - $lastDayString',
-                                        style: valueStyle,
-                                      );
-                                    } else {
-                                      return Text(
-                                        dayStrings.join(', '),
-                                        style: valueStyle,
-                                      );
-                                    }
+                                    groupedDays.add(currentRange);
+
+                                    List<String> formattedRanges =
+                                        groupedDays.map((range) {
+                                      if (range.length > 1) {
+                                        return '${dayNames[range.first]}-${dayNames[range.last]}';
+                                      } else {
+                                        return dayNames[range.first]!;
+                                      }
+                                    }).toList();
+
+                                    String scheduleText =
+                                        formattedRanges.join(', ');
+
+                                    return SizedBox(
+                                      width: size.width * 0.3,
+                                      child: Flexible(
+                                        child: Text(
+                                          scheduleText,
+                                          style: valueStyle,
+                                          overflow: TextOverflow.visible,
+                                        ),
+                                      ),
+                                    );
                                   }
+
                                   if (state is GetScheduledFailedState) {
                                     return Text(
-                                      'Schedule fetch failed: ${state.message}',
+                                      'Schedule fetch faileddd: ${state.message}',
                                       style: valueStyle.copyWith(
                                         color: Colors.red,
                                       ),
                                     );
                                   }
+
                                   return const CustomLoadingIndicator();
                                 },
-                              )
+                              ),
                             ],
                           ),
                         ),
@@ -171,9 +174,47 @@ class DoctorScheduleScreenLoaded extends StatelessWidget {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  const Text(
-                                    '8:00 AM - 12:00 PM',
-                                    style: valueStyle,
+                                  // const Text(
+                                  //   '8:00 AM - 12:00 PM',
+                                  //   style: valueStyle,
+                                  // ),
+                                  BlocBuilder<DoctorScheduleManagementBloc,
+                                      DoctorScheduleManagementState>(
+                                    builder: (context, state) {
+                                      if (state is GetScheduleSuccessState) {
+                                        List<Widget> timeSlots = [];
+                                        for (var i = 0;
+                                            i <
+                                                state
+                                                    .schedule.startTimes.length;
+                                            i++) {
+                                          String timeStart =
+                                              state.schedule.startTimes[i];
+                                          String timeEnd =
+                                              state.schedule.endTimes[i];
+                                          if (timeStart.contains('AM')) {
+                                            timeSlots.add(Text(
+                                              '$timeStart - $timeEnd',
+                                              style: valueStyle,
+                                            ));
+                                          }
+                                        }
+                                        return Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: timeSlots,
+                                        );
+                                      }
+                                      if (state is GetScheduledFailedState) {
+                                        return Text(
+                                          'Schedule fetch failed: ${state.message}',
+                                          style: valueStyle.copyWith(
+                                            color: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                      return const CustomLoadingIndicator();
+                                    },
                                   ),
                                   const Gap(15),
                                   Text(
@@ -182,14 +223,45 @@ class DoctorScheduleScreenLoaded extends StatelessWidget {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  const Text(
-                                    '3:00 PM - 5:00 PM',
-                                    style: valueStyle,
-                                  ),
-                                  const Text(
-                                    '6:00 PM - 7:00 PM',
-                                    style: valueStyle,
-                                  ),
+
+                                  BlocBuilder<DoctorScheduleManagementBloc,
+                                      DoctorScheduleManagementState>(
+                                    builder: (context, state) {
+                                      if (state is GetScheduleSuccessState) {
+                                        List<Widget> timeSlots = [];
+                                        for (var i = 0;
+                                            i <
+                                                state
+                                                    .schedule.startTimes.length;
+                                            i++) {
+                                          String timeStart =
+                                              state.schedule.startTimes[i];
+                                          String timeEnd =
+                                              state.schedule.endTimes[i];
+                                          if (timeStart.contains('PM')) {
+                                            timeSlots.add(Text(
+                                              '$timeStart - $timeEnd',
+                                              style: valueStyle,
+                                            ));
+                                          }
+                                        }
+                                        return Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: timeSlots,
+                                        );
+                                      }
+                                      if (state is GetScheduledFailedState) {
+                                        return Text(
+                                          'Schedule fetch failed: ${state.message}',
+                                          style: valueStyle.copyWith(
+                                            color: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                      return const CustomLoadingIndicator();
+                                    },
+                                  )
                                 ],
                               ),
                             ],
@@ -216,19 +288,48 @@ class DoctorScheduleScreenLoaded extends StatelessWidget {
                                 ),
                               ),
                               const Gap(35),
-                              const Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Online Consultation',
-                                    style: valueStyle,
-                                  ),
-                                  Text(
-                                    'Face-to-face Consultation',
-                                    style: valueStyle,
-                                  ),
-                                ],
-                              ),
+                              BlocBuilder<DoctorScheduleManagementBloc,
+                                  DoctorScheduleManagementState>(
+                                builder: (context, state) {
+                                  if (state is GetScheduleSuccessState) {
+                                    final modes =
+                                        state.schedule.modeOfAppointment;
+                                    if (modes.contains(0) &&
+                                        modes.contains(1)) {
+                                      return const Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Online Consultation',
+                                              style: valueStyle),
+                                          Text('Face-to-face Consultation',
+                                              style: valueStyle),
+                                        ],
+                                      );
+                                    } else if (modes.contains(0)) {
+                                      return const Text('Online Consultation',
+                                          style: valueStyle);
+                                    } else if (modes.contains(1)) {
+                                      return const Text(
+                                          'Face-to-face Consultation',
+                                          style: valueStyle);
+                                    } else {
+                                      return const Text(
+                                          'No Consultation Mode Defined',
+                                          style: valueStyle);
+                                    }
+                                  }
+                                  if (state is GetScheduledFailedState) {
+                                    return Text(
+                                      'Schedule fetch failed: ${state.message}',
+                                      style: valueStyle.copyWith(
+                                        color: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                  return const CustomLoadingIndicator();
+                                },
+                              )
                             ],
                           ),
                         ),
@@ -251,7 +352,6 @@ class DoctorScheduleScreenLoaded extends StatelessWidget {
               ),
             ),
             onPressed: () {
-              //TODO: Will apply bloc event here. Temporary route only for edit consultation fees
               Navigator.pushNamed(context, '/doctorCreateSchedule');
             },
             child: Text(
