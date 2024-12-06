@@ -37,8 +37,7 @@ class ForumScreenLoaded extends StatelessWidget {
                   },
                   child: ScrollbarCustom(
                     child: Padding(
-                      padding: const EdgeInsets.only(
-                          bottom: 20.0), // Add padding at the bottom
+                      padding: const EdgeInsets.only(bottom: 20.0),
                       child: ListView.builder(
                         shrinkWrap: true,
                         physics: const BouncingScrollPhysics(),

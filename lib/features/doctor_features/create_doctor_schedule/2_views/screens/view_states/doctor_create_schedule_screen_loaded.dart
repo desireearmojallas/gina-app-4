@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/doctor_features/create_doctor_schedule/2_views/bloc/create_doctor_schedule_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/create_doctor_schedule/2_views/screens/widgets/generate_timeslots_widget.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/2_views/bloc/doctor_schedule_management_bloc.dart';
 
 class DoctorCreateScheduleScreenLoaded extends StatelessWidget {
   List<String> startTimes = [];
@@ -22,6 +23,7 @@ class DoctorCreateScheduleScreenLoaded extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheduleBloc = context.read<CreateDoctorScheduleBloc>();
+    final savedScheduleBloc = context.read<DoctorScheduleManagementBloc>();
     final ginaTheme = Theme.of(context).textTheme;
     final size = MediaQuery.of(context).size;
 
@@ -506,6 +508,8 @@ class DoctorCreateScheduleScreenLoaded extends StatelessWidget {
                   debugPrint('End Times: $endTimes');
 
                   // Navigator.pushReplacementNamed(context, '/doctorSchedule');
+                  savedScheduleBloc.add(DoctorScheduleManagementInitialEvent());
+                  Navigator.pushNamed(context, '/reviewCreatedSchedule');
                   isFromCreateDoctorSchedule = true;
 
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(

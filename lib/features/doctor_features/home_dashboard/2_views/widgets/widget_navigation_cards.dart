@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 
-class CreateEmergencyAnnouncementWidgetNavigation extends StatelessWidget {
+class WidgetNavigationCards extends StatelessWidget {
   final String widgetText;
   final IconData icon;
   final VoidCallback onPressed;
-  const CreateEmergencyAnnouncementWidgetNavigation({
+  const WidgetNavigationCards({
     super.key,
     required this.widgetText,
     required this.icon,

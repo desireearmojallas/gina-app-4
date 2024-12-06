@@ -3,10 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/bloc/doctor_consultation_fee_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/view_states/edit_doctor_consultation_fee_screen_loaded.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/view_states/doctor_emergency_announcement_create_announcement.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
-import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/create_emergency_announcement_widget_navigation.dart';
+import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/widget_navigation_cards.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/doctor_forums_navigation_widget.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/emergency_announcement_navigation_widget.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/greeting_widget.dart';
@@ -57,20 +58,37 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    CreateEmergencyAnnouncementWidgetNavigation(
-                      widgetText: 'Edit Consultation\nFees',
-                      icon: Icons.paid,
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                EditDoctorConsultationFeeScreenLoaded(),
-                          ),
+                    BlocBuilder<DoctorConsultationFeeBloc,
+                        DoctorConsultationFeeState>(
+                      builder: (context, state) {
+                        if (state is NavigateToEditDoctorConsultationFeeState) {
+                          Future.microtask(() {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    EditDoctorConsultationFeeScreenLoaded(
+                                  doctorData: state.doctorData,
+                                ),
+                              ),
+                            );
+                          });
+                        }
+
+                        return WidgetNavigationCards(
+                          widgetText: 'Edit Consultation\nFees',
+                          icon: Icons.paid,
+                          onPressed: () {
+                            context.read<DoctorConsultationFeeBloc>().add(
+                                NavigateToEditDoctorConsultationFeeEvent());
+                          },
                         );
                       },
                     ),
-                    CreateEmergencyAnnouncementWidgetNavigation(
+
+                    // TODO: implement bloc in create emergency announcement
+                    //! todo: implement bloc in create emergency announcement
+                    WidgetNavigationCards(
                       widgetText: 'Create Emergency\nAnnouncement',
                       icon: MingCute.report_fill,
                       onPressed: () {

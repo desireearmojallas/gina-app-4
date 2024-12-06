@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/view_states/edit_doctor_consultation_fee_screen_loaded.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_name_widget.dart';
 
@@ -14,7 +15,11 @@ class ToggleValue extends ValueNotifier<bool> {
 }
 
 class DoctorConsultationFeeScreenLoaded extends StatelessWidget {
-  const DoctorConsultationFeeScreenLoaded({super.key});
+  final DoctorModel doctorData;
+  const DoctorConsultationFeeScreenLoaded({
+    super.key,
+    required this.doctorData,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +32,7 @@ class DoctorConsultationFeeScreenLoaded extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          doctorNameWidget(size, ginaTheme),
+          doctorNameWidget(size, ginaTheme, doctorData!),
           const Gap(5),
           Container(
             decoration: const BoxDecoration(
@@ -292,7 +297,9 @@ class DoctorConsultationFeeScreenLoaded extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) {
-                      return EditDoctorConsultationFeeScreenLoaded();
+                      return EditDoctorConsultationFeeScreenLoaded(
+                        doctorData: doctorData,
+                      );
                     },
                   ),
                 );

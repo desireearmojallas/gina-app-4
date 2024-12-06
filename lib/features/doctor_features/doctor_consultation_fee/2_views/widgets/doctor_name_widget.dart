@@ -3,9 +3,9 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/doctor_rating_badge/doctor_rating_badge.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/2_views/bloc/doctor_schedule_management_bloc.dart';
+import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 
-Widget doctorNameWidget(size, ginaTheme) {
+Widget doctorNameWidget(size, ginaTheme, DoctorModel doctorDetails) {
   return Padding(
     padding: const EdgeInsets.all(15.0),
     child: Container(
@@ -43,7 +43,7 @@ Widget doctorNameWidget(size, ginaTheme) {
                           children: [
                             Flexible(
                               child: Text(
-                                'Dr. ${currentActiveDoctor!.name}',
+                                'Dr. ${doctorDetails.name}',
                                 style: const TextStyle(
                                   fontSize: 16.0,
                                   fontWeight: FontWeight.bold,
@@ -68,8 +68,7 @@ Widget doctorNameWidget(size, ginaTheme) {
                     width: size.width * 0.53,
                     child: Flexible(
                       child: Text(
-                        '${currentActiveDoctor?.medicalSpecialty}'
-                            .toUpperCase(),
+                        doctorDetails.medicalSpecialty.toUpperCase(),
                         style: ginaTheme.bodySmall?.copyWith(
                           color: GinaAppTheme.lightTertiaryContainer,
                           fontWeight: FontWeight.bold,
@@ -85,7 +84,7 @@ Widget doctorNameWidget(size, ginaTheme) {
                     width: size.width * 0.53,
                     child: Flexible(
                       child: Text(
-                        currentActiveDoctor!.officeAddress,
+                        doctorDetails.officeAddress,
                         style: ginaTheme.bodySmall?.copyWith(
                           color: Colors.grey,
                           fontSize: 10.0,

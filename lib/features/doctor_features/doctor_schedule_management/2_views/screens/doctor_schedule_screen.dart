@@ -18,6 +18,8 @@ class DoctorScheduleManagementScreenProvider extends StatelessWidget {
         scheduleBloc.add(DoctorScheduleManagementInitialEvent());
         return scheduleBloc;
       },
+      // create: (context) => sl<DoctorScheduleManagementBloc>()
+      //   ..add(DoctorScheduleManagementInitialEvent()),
       child: const DoctorScheduleManagementScreen(),
     );
   }
@@ -32,7 +34,11 @@ class DoctorScheduleManagementScreen extends StatelessWidget {
       appBar: GinaDoctorAppBar(
         leading: isFromCreateDoctorSchedule
             ? IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushReplacementNamed(
+                      context, '/doctorBottomNavigation');
+                  isFromCreateDoctorSchedule = false;
+                },
                 icon: const Icon(Icons.arrow_back),
               )
             : null,

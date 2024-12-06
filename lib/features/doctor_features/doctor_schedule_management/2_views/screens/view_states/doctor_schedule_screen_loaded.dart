@@ -28,7 +28,7 @@ class DoctorScheduleScreenLoaded extends StatelessWidget {
     );
     return Column(
       children: [
-        doctorNameWidget(size, ginaTheme),
+        doctorNameWidget(size, ginaTheme, currentActiveDoctor!),
         const Gap(10),
         schedule.days.isEmpty
             ? Center(
@@ -174,10 +174,6 @@ class DoctorScheduleScreenLoaded extends StatelessWidget {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  // const Text(
-                                  //   '8:00 AM - 12:00 PM',
-                                  //   style: valueStyle,
-                                  // ),
                                   BlocBuilder<DoctorScheduleManagementBloc,
                                       DoctorScheduleManagementState>(
                                     builder: (context, state) {
@@ -223,7 +219,6 @@ class DoctorScheduleScreenLoaded extends StatelessWidget {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-
                                   BlocBuilder<DoctorScheduleManagementBloc,
                                       DoctorScheduleManagementState>(
                                     builder: (context, state) {
