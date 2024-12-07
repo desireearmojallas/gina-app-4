@@ -6,6 +6,7 @@ import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/bloc/doctor_consultation_fee_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/view_states/edit_doctor_consultation_fee_screen_loaded.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/bloc/doctor_emergency_announcements_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/view_states/doctor_emergency_announcement_create_announcement.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/widget_navigation_cards.dart';
@@ -93,18 +94,37 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                     ),
 
                     //Create Emergency Announcement
-                    // TODO: implement bloc in create emergency announcement
-                    //! todo: implement bloc in create emergency announcement
-                    WidgetNavigationCards(
-                      widgetText: 'Create Emergency\nAnnouncement',
-                      icon: MingCute.report_fill,
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                DoctorEmergencyAnnouncementCreateAnnouncementScreen(),
-                          ),
+                    BlocBuilder<DoctorEmergencyAnnouncementsBloc,
+                        DoctorEmergencyAnnouncementsState>(
+                      builder: (context, state) {
+                        if (state is CreateAnnouncementState) {
+                          debugPrint('Create Announcement State');
+                          // WidgetsBinding.instance.addPostFrameCallback((_) {
+                          //   Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //       builder: (context) => Scaffold(
+                          //         appBar: GinaDoctorAppBar(
+                          //           title: 'Create Announcement',
+                          //         ),
+                          //         body:
+                          //             DoctorEmergencyAnnouncementCreateAnnouncementScreen(),
+                          //       ),
+                          //     ),
+                          //   );
+                          //   debugPrint(
+                          //       'Successfully navigated to Create Emergency Announcement');
+                          // });
+                        }
+                        return WidgetNavigationCards(
+                          widgetText: 'Create Emergency\nAnnouncement',
+                          icon: MingCute.report_fill,
+                          onPressed: () {
+                            debugPrint('Create emergency announcement clicked');
+                            context.read<DoctorEmergencyAnnouncementsBloc>().add(
+                                NavigateToDoctorEmergencyCreateAnnouncementEvent());
+                            debugPrint('Successfully added to the bloc');
+                          },
                         );
                       },
                     ),
