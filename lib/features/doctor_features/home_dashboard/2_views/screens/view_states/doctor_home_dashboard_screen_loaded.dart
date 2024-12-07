@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/bloc/doctor_consultation_fee_bloc.dart';
@@ -66,9 +67,14 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    EditDoctorConsultationFeeScreenLoaded(
-                                  doctorData: state.doctorData,
+                                builder: (context) => Scaffold(
+                                  appBar: GinaDoctorAppBar(
+                                    title: 'Edit Consultation Fees',
+                                  ),
+                                  body: EditDoctorConsultationFeeScreenLoaded(
+                                    doctorData: state.doctorData,
+                                    isFromDashboard: true,
+                                  ),
                                 ),
                               ),
                             );
@@ -86,6 +92,7 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                       },
                     ),
 
+                    //Create Emergency Announcement
                     // TODO: implement bloc in create emergency announcement
                     //! todo: implement bloc in create emergency announcement
                     WidgetNavigationCards(

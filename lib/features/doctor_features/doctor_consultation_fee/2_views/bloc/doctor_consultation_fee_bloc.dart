@@ -73,10 +73,10 @@ class DoctorConsultationFeeBloc
       Emitter<DoctorConsultationFeeState> emit) async {
     try {
       await doctorConsultationFeeController.updateDoctorConsultationFee(
-        f2fInitialConsultationFee: event.f2fInitialConsultationFee,
-        f2fFollowUpConsultationFee: event.f2fFollowUpConsultationFee,
-        olInitialConsultationFee: event.olInitialConsultationFee,
-        olFollowUpConsultationFee: event.olFollowUpConsultationFee,
+        f2fInitialConsultationPrice: event.f2fInitialConsultationPrice,
+        f2fFollowUpConsultationPrice: event.f2fFollowUpConsultationPrice,
+        olInitialConsultationPrice: event.olInitialConsultationPrice,
+        olFollowUpConsultationPrice: event.olFollowUpConsultationPrice,
       );
     } catch (e) {
       emit(DoctorConsultationFeeErrorState(errorMessage: e.toString()));
