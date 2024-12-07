@@ -30,6 +30,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/1_controllers/doctor_consultation_fee_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/bloc/doctor_consultation_fee_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/1_controller/doctor_emergency_announcements_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/bloc/doctor_emergency_announcements_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forum_badge/2_views/bloc/doctor_forum_badge_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/1_controllers/doctor_forums_controller.dart';
@@ -379,8 +380,12 @@ Future<void> init() async {
 
   //! Features - Doctor Emergency Announcements
   sl.registerFactory(
-    () => DoctorEmergencyAnnouncementsBloc(),
+    () => DoctorEmergencyAnnouncementsBloc(
+      doctorEmergencyAnnouncementsController: sl(),
+    ),
   );
+
+  sl.registerFactory(() => DoctorEmergencyAnnouncementsController());
 
 // ----------------------------------------------------------------------------------
 
