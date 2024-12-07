@@ -47,7 +47,7 @@ class DoctorEmergencyAnnouncementScreen extends StatelessWidget {
           child: const Icon(Icons.add),
         ),
       ),
-      body: const DoctorEmergencyAnnouncementsLoaded(),
+      // body: const DoctorEmergencyAnnouncementsLoaded(),
     );
   }
 }
