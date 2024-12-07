@@ -12,7 +12,11 @@ class DoctorEmergencyAnnouncementScreenProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<DoctorEmergencyAnnouncementsBloc>(
-      create: (context) => sl<DoctorEmergencyAnnouncementsBloc>(),
+      create: (context) {
+        final emergencyAnnouncementBloc =
+            sl<DoctorEmergencyAnnouncementsBloc>();
+        return emergencyAnnouncementBloc;
+      },
       child: const DoctorEmergencyAnnouncementScreen(),
     );
   }
