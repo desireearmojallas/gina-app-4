@@ -7,5 +7,14 @@ abstract class FindEvent extends Equatable {
   List<Object> get props => [];
 }
 
+class FindInitialEvent extends FindEvent {}
+
+class GetDoctorsNearMeEvent extends FindEvent {}
+
+class FindNavigateToDoctorDetailsEvent extends FindEvent {}
+
+class GetDoctorsInTheNearestCityEvent extends FindEvent {}
+
+class GetAllDoctorsEvent extends FindEvent {}
 
 class ToggleOtherCitiesVisibilityEvent extends FindEvent {}

@@ -46,6 +46,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_view_patients/2_views
 import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
+import 'package:gina_app_4/features/patient_features/find/1_controllers/find_controllers.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/1_controllers/forums_controller.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_bloc.dart';
@@ -236,8 +237,12 @@ Future<void> init() async {
 
   //! Features - Find Doctors Bloc (Patient)
   sl.registerFactory(
-    () => FindBloc(),
+    () => FindBloc(
+      findController: sl(),
+    ),
   );
+
+  sl.registerFactory(() => FindController());
 
   //------------------------------------------------------------------------------
 

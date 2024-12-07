@@ -72,6 +72,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+    - assets/cities_data/
     - assets/images/
     - assets/images/lotties/
     - assets/images/patient_features/

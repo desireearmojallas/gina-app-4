@@ -126,9 +126,9 @@ class DoctorsNearMe extends StatelessWidget {
                       Row(
                         children: [
                           Icon(
-                            MingCute.check_2_fill,
-                            size: 20,
-                            color: Colors.green,
+                            MingCute.round_fill,
+                            size: 10,
+                            color: GinaAppTheme.lightTertiaryContainer,
                           ),
                           Gap(5),
                           Text(
@@ -140,9 +140,9 @@ class DoctorsNearMe extends StatelessWidget {
                       Row(
                         children: [
                           Icon(
-                            MingCute.check_2_fill,
-                            size: 20,
-                            color: Colors.green,
+                            MingCute.round_fill,
+                            size: 10,
+                            color: GinaAppTheme.lightTertiaryContainer,
                           ),
                           Gap(5),
                           Text(
