@@ -11,7 +11,11 @@ class DoctorCreateScheduleScreenProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<CreateDoctorScheduleBloc>(
-      create: (context) => sl<CreateDoctorScheduleBloc>(),
+      create: (context) {
+        final scheduleBloc = sl<CreateDoctorScheduleBloc>();
+        scheduleBloc.add(CreateDoctorScheduleInitialEvent());
+        return scheduleBloc;
+      },
       child: const DoctorCreateScheduleScreen(),
     );
   }
@@ -23,15 +27,32 @@ class DoctorCreateScheduleScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: GinaDoctorAppBar(
-        title: 'Manage Schedule',
-      ),
-      body: DoctorCreateScheduleScreenLoaded(
-        selectedDays: const [],
-        startTimes: const [],
-        endTimes: const [],
-        selectedMode: const [],
-      ),
-    );
+        appBar: GinaDoctorAppBar(
+          title: 'Manage Schedule',
+        ),
+        backgroundColor: Colors.white,
+        body: BlocConsumer<CreateDoctorScheduleBloc, CreateDoctorScheduleState>(
+          listenWhen: (previous, current) =>
+              current is CreateDoctorScheduleActionEvent,
+          buildWhen: (previous, current) =>
+              current is! CreateDoctorScheduleActionEvent,
+          listener: (context, state) {},
+          builder: (context, state) {
+            if (state is CreateDoctorScheduleInitial) {
+              return DoctorCreateScheduleScreenLoaded(
+                startTimes: const [],
+                endTimes: const [],
+                selectedDays: const [],
+                selectedMode: const [],
+              );
+            }
+            return DoctorCreateScheduleScreenLoaded(
+              startTimes: const [],
+              endTimes: const [],
+              selectedDays: const [],
+              selectedMode: const [],
+            );
+          },
+        ));
   }
 }

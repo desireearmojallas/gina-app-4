@@ -17,6 +17,7 @@ import 'package:gina_app_4/features/auth/1_controllers/patient_auth_controller.d
 import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/screens/forgot_password/2_views/bloc/forgot_password_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_office_address/bloc/doctor_address_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/create_doctor_schedule/1_controllers/create_doctor_schedule_controller.dart';
 import 'package:gina_app_4/features/doctor_features/create_doctor_schedule/2_views/bloc/create_doctor_schedule_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/bloc/doctor_appointment_request_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/screens/bloc/doctor_appointment_request_screen_loaded_bloc.dart';
@@ -26,6 +27,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/bloc/pending_request_state_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_bottom_navigation/bloc/doctor_bottom_navigation_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/1_controllers/doctor_consultation_fee_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/bloc/doctor_consultation_fee_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/bloc/doctor_emergency_announcements_bloc.dart';
@@ -36,6 +38,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_my_forums/bloc/doctor
 import 'package:gina_app_4/features/doctor_features/doctor_profile/1_controllers/doctor_profile_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/bloc/doctor_profile_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/widgets/doctor_profile_update_dialog/bloc/doctor_profile_update_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/1_controllers/doctor_schedule_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/2_views/bloc/doctor_schedule_management_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patient_details/2_views/bloc/doctor_view_patient_details_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patients/2_views/bloc/doctor_view_patients_bloc.dart';
@@ -351,8 +354,12 @@ Future<void> init() async {
 
   //! Features - Doctor Consultation Fee Setup
   sl.registerFactory(
-    () => DoctorConsultationFeeBloc(),
+    () => DoctorConsultationFeeBloc(
+      doctorConsultationFeeController: sl(),
+    ),
   );
+
+  sl.registerFactory(() => DoctorConsultationFeeController());
 
 // ----------------------------------------------------------------------------------
 
@@ -379,15 +386,24 @@ Future<void> init() async {
 
   //! Features - Doctor Schedule Management
   sl.registerFactory(
-    () => DoctorScheduleManagementBloc(),
+    () => DoctorScheduleManagementBloc(
+      doctorProfileController: sl(),
+      doctorScheduleController: sl(),
+    ),
   );
+
+  sl.registerFactory(() => DoctorScheduleController());
 
 // ----------------------------------------------------------------------------------
 
   //! Features - Doctor Create Schedule
   sl.registerFactory(
-    () => CreateDoctorScheduleBloc(),
+    () => CreateDoctorScheduleBloc(
+      scheduleController: sl(),
+    ),
   );
+
+  sl.registerFactory(() => CreateDoctorScheduleController());
 
 // ----------------------------------------------------------------------------------
 

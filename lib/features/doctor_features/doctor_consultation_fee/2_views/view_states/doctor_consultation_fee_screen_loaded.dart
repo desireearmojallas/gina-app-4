@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/view_states/edit_doctor_consultation_fee_screen_loaded.dart';
+import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/bloc/doctor_consultation_fee_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_name_widget.dart';
 
 class ToggleValue extends ValueNotifier<bool> {
@@ -14,20 +16,25 @@ class ToggleValue extends ValueNotifier<bool> {
 }
 
 class DoctorConsultationFeeScreenLoaded extends StatelessWidget {
-  const DoctorConsultationFeeScreenLoaded({super.key});
+  final DoctorModel doctorData;
+  const DoctorConsultationFeeScreenLoaded({
+    super.key,
+    required this.doctorData,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // ToggleValue toggleValue = ToggleValue(doctorData.showConsultationPrice!);
-    //! temporary value
-    ToggleValue toggleValue = ToggleValue(true);
+    ToggleValue toggleValue = ToggleValue(doctorData.showConsultationPrice!);
 
     final ginaTheme = Theme.of(context).textTheme;
     final size = MediaQuery.of(context).size;
+
+    final doctorConsultationBloc = context.read<DoctorConsultationFeeBloc>();
+
     return SingleChildScrollView(
       child: Column(
         children: [
-          doctorNameWidget(size, ginaTheme),
+          doctorNameWidget(size, ginaTheme, doctorData),
           const Gap(5),
           Container(
             decoration: const BoxDecoration(
@@ -56,7 +63,7 @@ class DoctorConsultationFeeScreenLoaded extends StatelessWidget {
                           );
                   },
                 ),
-                ValueListenableBuilder(
+                ValueListenableBuilder<bool>(
                   valueListenable: toggleValue,
                   builder: (context, value, child) {
                     return Switch(
@@ -65,7 +72,8 @@ class DoctorConsultationFeeScreenLoaded extends StatelessWidget {
                       ),
                       value: value,
                       onChanged: (newValue) {
-                        //doctorconsultationbloc
+                        doctorConsultationBloc
+                            .add(ToggleDoctorConsultationFeeEvent());
                         toggleValue.toggle();
                       },
                     );
@@ -75,7 +83,7 @@ class DoctorConsultationFeeScreenLoaded extends StatelessWidget {
             ),
           ),
           const Gap(10),
-          ValueListenableBuilder(
+          ValueListenableBuilder<bool>(
             valueListenable: toggleValue,
             builder: ((context, value, child) {
               return value
@@ -119,7 +127,10 @@ class DoctorConsultationFeeScreenLoaded extends StatelessWidget {
                                         ),
                                       ),
                                       Text(
-                                        '₱5,000.00',
+                                        doctorData.f2fInitialConsultationPrice !=
+                                                null
+                                            ? '₱${doctorData.f2fInitialConsultationPrice?.toStringAsFixed(2)}'
+                                            : '₱0.00',
                                         style: ginaTheme.bodyMedium?.copyWith(
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -144,7 +155,10 @@ class DoctorConsultationFeeScreenLoaded extends StatelessWidget {
                                         ),
                                       ),
                                       Text(
-                                        '₱2,500.00',
+                                        doctorData.f2fFollowUpConsultationPrice !=
+                                                null
+                                            ? '₱${doctorData.f2fFollowUpConsultationPrice?.toStringAsFixed(2)}'
+                                            : '₱0.00',
                                         style: ginaTheme.bodyMedium?.copyWith(
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -195,7 +209,10 @@ class DoctorConsultationFeeScreenLoaded extends StatelessWidget {
                                         ),
                                       ),
                                       Text(
-                                        '₱2,500.00',
+                                        doctorData.olInitialConsultationPrice !=
+                                                null
+                                            ? '₱${doctorData.olInitialConsultationPrice?.toStringAsFixed(2)}'
+                                            : '₱0.00',
                                         style: ginaTheme.bodyMedium?.copyWith(
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -220,7 +237,10 @@ class DoctorConsultationFeeScreenLoaded extends StatelessWidget {
                                         ),
                                       ),
                                       Text(
-                                        '₱250.00',
+                                        doctorData.olFollowUpConsultationPrice !=
+                                                null
+                                            ? '₱${doctorData.olFollowUpConsultationPrice?.toStringAsFixed(2)}'
+                                            : '₱0.00',
                                         style: ginaTheme.bodyMedium?.copyWith(
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -286,16 +306,8 @@ class DoctorConsultationFeeScreenLoaded extends StatelessWidget {
                 ),
               ),
               onPressed: () {
-                //TODO: Will apply bloc event here. Temporary route only for edit consultation fees
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return EditDoctorConsultationFeeScreenLoaded();
-                    },
-                  ),
-                );
+                doctorConsultationBloc
+                    .add(NavigateToEditDoctorConsultationFeeEvent());
               },
               child: Text(
                 'Edit consultation fees',
