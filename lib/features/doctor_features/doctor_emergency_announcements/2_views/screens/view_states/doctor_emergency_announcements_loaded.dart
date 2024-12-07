@@ -3,12 +3,15 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/0_model/emergency_announcements_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/view_states/doctor_emergency_announcement_initial.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/view_states/doctor_emergency_announcement_loaded_details_screen.dart';
 
-class DoctorEmergencyAnnouncementsLoaded extends StatelessWidget {
+class DoctorEmergencyAnnouncementsLoadedScreen extends StatelessWidget {
   final sampleChecker = false;
-  const DoctorEmergencyAnnouncementsLoaded({super.key});
+  final List<EmergencyAnnouncementModel> emergencyAnnouncements;
+  const DoctorEmergencyAnnouncementsLoadedScreen(
+      {super.key, required this.emergencyAnnouncements});
 
   @override
   Widget build(BuildContext context) {
@@ -29,13 +32,13 @@ class DoctorEmergencyAnnouncementsLoaded extends StatelessWidget {
                     return InkWell(
                       onTap: () {
                         //! temporary route, will replace once bloc is implemented
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const DoctorEmergencyAnnouncementsLoadedDetailsScreen(),
-                          ),
-                        );
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) =>
+                        //         const DoctorEmergencyAnnouncementsLoadedDetailsScreen(),
+                        //   ),
+                        // );
                       },
                       child: Container(
                         margin: const EdgeInsets.symmetric(

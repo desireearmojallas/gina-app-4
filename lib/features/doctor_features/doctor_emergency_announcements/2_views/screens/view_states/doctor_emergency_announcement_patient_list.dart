@@ -4,9 +4,14 @@ import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 
 class DoctorEmergencyAnnouncementPatientList extends StatelessWidget {
-  const DoctorEmergencyAnnouncementPatientList({super.key});
+  final Map<DateTime, List<AppointmentModel>> approvedPatients;
+  const DoctorEmergencyAnnouncementPatientList({
+    super.key,
+    required this.approvedPatients,
+  });
 
   @override
   Widget build(BuildContext context) {

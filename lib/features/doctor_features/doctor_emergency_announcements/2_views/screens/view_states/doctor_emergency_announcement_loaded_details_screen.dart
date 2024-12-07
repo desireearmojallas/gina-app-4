@@ -3,10 +3,13 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/0_model/emergency_announcements_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/view_states/doctor_emergency_announcement_create_announcement.dart';
 
 class DoctorEmergencyAnnouncementsLoadedDetailsScreen extends StatelessWidget {
-  const DoctorEmergencyAnnouncementsLoadedDetailsScreen({super.key});
+  final EmergencyAnnouncementModel emergencyAnnouncement;
+  const DoctorEmergencyAnnouncementsLoadedDetailsScreen(
+      {super.key, required this.emergencyAnnouncement});
 
   @override
   Widget build(BuildContext context) {
