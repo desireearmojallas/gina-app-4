@@ -11,7 +11,14 @@ class FindInitialEvent extends FindEvent {}
 
 class GetDoctorsNearMeEvent extends FindEvent {}
 
-class FindNavigateToDoctorDetailsEvent extends FindEvent {}
+class FindNavigateToDoctorDetailsEvent extends FindEvent {
+  final DoctorModel doctor;
+
+  const FindNavigateToDoctorDetailsEvent({required this.doctor});
+
+  @override
+  List<Object> get props => [doctor];
+}
 
 class GetDoctorsInTheNearestCityEvent extends FindEvent {}
 

@@ -72,7 +72,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
-    - assets/cities_data/
     - assets/images/
     - assets/images/lotties/
     - assets/images/patient_features/
@@ -86,6 +85,7 @@ flutter:
     - assets/images/doctor_features/consultation_fee/
     - assets/images/doctor_features/emergency_announcements/
     - assets/images/doctor_features/schedule_management/
+    - assets/cities_data/
 
   fonts:
     - family: SF UI Display

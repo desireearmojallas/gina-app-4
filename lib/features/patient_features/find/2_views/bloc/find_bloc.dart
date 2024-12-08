@@ -20,9 +20,83 @@ class FindBloc extends Bloc<FindEvent, FindState> {
   FindBloc({
     required this.findController,
   }) : super(FindInitial()) {
-    on<FindEvent>((event, emit) {});
+    on<FindInitialEvent>(findInitialEvent);
+    on<GetDoctorsNearMeEvent>(getDoctorsNearMe);
+    on<FindNavigateToDoctorDetailsEvent>(navigateToDoctorDetails);
+    on<GetDoctorsInTheNearestCityEvent>(getDoctorsInTheNearestCity);
+    on<GetAllDoctorsEvent>(getAllDoctorsEvent);
     on<ToggleOtherCitiesVisibilityEvent>(toggleOtherCitiesVisibilityEvent);
-    //! to be continued... add more events in the bloc
+  }
+
+  FutureOr<void> findInitialEvent(
+      FindInitialEvent event, Emitter<FindState> emit) {
+    emit(FindLoaded());
+  }
+
+  FutureOr<void> getDoctorsNearMe(
+      GetDoctorsNearMeEvent event, Emitter<FindState> emit) async {
+    emit(GetDoctorNearMeLoadingState());
+
+    final doctorLists = await findController.getDoctorsNearMe();
+
+    doctorLists.fold(
+      (failure) {
+        emit(GetDoctorNearMeFailedState(errorMessage: failure.toString()));
+      },
+      (doctorLists) {
+        doctorNearMeLists = doctorLists;
+        emit(GetDoctorNearMeSuccessState(
+          doctorLists: doctorLists,
+        ));
+        emit(GetDoctorsInTheNearestCitySuccessState(
+            citiesWithDoctors: storedCitiesWithDoctors ?? {}));
+      },
+    );
+  }
+
+  FutureOr<void> navigateToDoctorDetails(
+      FindNavigateToDoctorDetailsEvent event, Emitter<FindState> emit) {
+    doctorDetails = event.doctor;
+    emit(FindNavigateToDoctorDetailsState(
+      doctor: event.doctor,
+    ));
+  }
+
+  FutureOr<void> getDoctorsInTheNearestCity(
+      GetDoctorsInTheNearestCityEvent event, Emitter<FindState> emit) async {
+    emit(GetDoctorsInTheNearestCityLoadingState());
+
+    final citiesWithDoctors = await findController.getDoctorInCities();
+
+    citiesWithDoctors.fold(
+      (failure) {
+        GetDoctorsInTheNearestCityFailedState(
+          errorMessage: failure.toString(),
+        );
+      },
+      (citiesWithDoctors) {
+        storedCitiesWithDoctors = citiesWithDoctors;
+        emit(GetDoctorsInTheNearestCitySuccessState(
+          citiesWithDoctors: citiesWithDoctors,
+        ));
+      },
+    );
+  }
+
+  FutureOr<void> getAllDoctorsEvent(
+      GetAllDoctorsEvent event, Emitter<FindState> emit) async {
+    emit(GetAllDoctorsLoadingState());
+
+    final allDoctors = await findController.getDoctors();
+
+    allDoctors.fold(
+      (failure) {
+        emit(GetAllDoctorsFailedState(errorMessage: failure.toString()));
+      },
+      (doctorLists) {
+        getAllDoctors = doctorLists;
+      },
+    );
   }
 
   FutureOr<void> toggleOtherCitiesVisibilityEvent(

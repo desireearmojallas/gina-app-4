@@ -15,19 +15,64 @@ class FindLoading extends FindState {}
 
 class FindLoaded extends FindState {}
 
-class FindNavigateToDoctorDetailsState extends FindActionState {}
+class FindNavigateToDoctorDetailsState extends FindActionState {
+  final DoctorModel doctor;
 
-class GetDoctorNearMeSuccessState extends FindState {}
+  FindNavigateToDoctorDetailsState({required this.doctor});
 
-class GetDoctorNearMeFailedState extends FindState {}
+  @override
+  List<Object> get props => [doctor];
+}
+
+class GetDoctorNearMeSuccessState extends FindState {
+  final List<DoctorModel> doctorLists;
+
+  const GetDoctorNearMeSuccessState({required this.doctorLists});
+
+  @override
+  List<Object> get props => [doctorLists];
+}
+
+class GetDoctorNearMeFailedState extends FindState {
+  final String errorMessage;
+
+  const GetDoctorNearMeFailedState({required this.errorMessage});
+
+  @override
+  List<Object> get props => [errorMessage];
+}
+
+class GetDoctorNearMeLoadingState extends FindState {}
 
 class GetDoctorsInTheNearestCityLoadingState extends FindState {}
 
-class GetDoctorsInTheNearestCitySuccessState extends FindState {}
+class GetDoctorsInTheNearestCitySuccessState extends FindState {
+  final Map<String, List<DoctorModel>> citiesWithDoctors;
 
-class GetDoctorsInTheNearestCityFailedState extends FindState {}
+  const GetDoctorsInTheNearestCitySuccessState(
+      {required this.citiesWithDoctors});
 
-class GetAllDoctorsFailedState extends FindState {}
+  @override
+  List<Object> get props => [citiesWithDoctors];
+}
+
+class GetDoctorsInTheNearestCityFailedState extends FindState {
+  final String errorMessage;
+
+  const GetDoctorsInTheNearestCityFailedState({required this.errorMessage});
+
+  @override
+  List<Object> get props => [errorMessage];
+}
+
+class GetAllDoctorsFailedState extends FindState {
+  final String errorMessage;
+
+  const GetAllDoctorsFailedState({required this.errorMessage});
+
+  @override
+  List<Object> get props => [errorMessage];
+}
 
 class GetAllDoctorsLoadingState extends FindState {}
 
