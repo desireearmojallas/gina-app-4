@@ -252,11 +252,11 @@ class FindScreenLoaded extends StatelessWidget {
                         color: Colors.white,
                         size: 18,
                       ),
-                      const SizedBox(width: 8),
+                      const Gap(8),
                       Text(
                         state is OtherCitiesVisibleState
                             ? 'Hide doctors from other cities'
-                            : 'View all doctors from other cities',
+                            : 'View doctors from other cities',
                         style: const TextStyle(
                           color: Colors.white,
                         ),

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
+import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class DoctorsNearMe extends StatelessWidget {
@@ -11,6 +13,7 @@ class DoctorsNearMe extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final findBloc = context.read<FindBloc>();
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     final ginaTheme = Theme.of(context);
@@ -30,7 +33,7 @@ class DoctorsNearMe extends StatelessWidget {
               physics: const BouncingScrollPhysics(),
               itemCount: doctorLists.length,
               itemBuilder: (context, index) {
-                final doctorList = doctorLists[index];
+                final doctor = doctorLists[index];
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 20.0),
                   child: Container(
@@ -67,7 +70,7 @@ class DoctorsNearMe extends StatelessWidget {
                                   Row(
                                     children: [
                                       Text(
-                                        'Dr. ${doctorList.name}',
+                                        'Dr. ${doctor.name}',
                                         style: ginaTheme.textTheme.titleMedium
                                             ?.copyWith(
                                           fontWeight: FontWeight.w700,
@@ -94,8 +97,7 @@ class DoctorsNearMe extends StatelessWidget {
                                           horizontal: 16.0),
                                       child: Center(
                                         child: Text(
-                                          doctorList.medicalSpecialty
-                                              .toUpperCase(),
+                                          doctor.medicalSpecialty.toUpperCase(),
                                           style: const TextStyle(
                                             color: GinaAppTheme
                                                 .lightInverseSurface,
@@ -116,7 +118,7 @@ class DoctorsNearMe extends StatelessWidget {
                                       ),
                                       const Gap(5),
                                       Text(
-                                        doctorList.officeAddress,
+                                        doctor.officeAddress,
                                         style: const TextStyle(
                                           color:
                                               GinaAppTheme.lightInverseSurface,
@@ -235,7 +237,11 @@ class DoctorsNearMe extends StatelessWidget {
                               ),
                             ),
                             GestureDetector(
-                              onTap: () {},
+                              onTap: () {
+                                findBloc.add(FindNavigateToDoctorDetailsEvent(
+                                  doctor: doctor,
+                                ));
+                              },
                               child: Container(
                                 width: width / 2.21,
                                 decoration: const BoxDecoration(

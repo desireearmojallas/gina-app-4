@@ -7,4 +7,13 @@ abstract class DoctorDetailsState extends Equatable {
   List<Object> get props => [];
 }
 
-final class DoctorDetailsInitial extends DoctorDetailsState {}
+abstract class DoctorDetailsActionState extends DoctorDetailsState {}
+
+class DoctorDetailsInitial extends DoctorDetailsState {}
+
+class DoctorDetailsLoading extends DoctorDetailsState {}
+
+class DoctorDetailsLoaded extends DoctorDetailsState {}
+
+class DoctorDetailsNavigateToConsultationState
+    extends DoctorDetailsActionState {}

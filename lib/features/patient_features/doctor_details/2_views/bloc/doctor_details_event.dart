@@ -6,3 +6,7 @@ abstract class DoctorDetailsEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+class DoctorDetailsFetchRequestedEvent extends DoctorDetailsEvent {}
+
+class DoctorDetailsNavigateToConsultationEvent extends DoctorDetailsEvent {}

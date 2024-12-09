@@ -41,7 +41,12 @@ class FindScreen extends StatelessWidget {
         body: BlocConsumer<FindBloc, FindState>(
           listenWhen: (previous, current) => current is FindActionState,
           buildWhen: (previous, current) => current is! FindActionState,
-          listener: (context, state) {},
+          listener: (context, state) {
+            if (state is FindNavigateToDoctorDetailsState) {
+              Navigator.pushNamed(context, '/doctorDetails').then(
+                  (value) => findBloc.add(GetDoctorsInTheNearestCityEvent()));
+            }
+          },
           builder: (context, state) {
             //! testing to apply all loading states
             if (state is FindLoading || state is GetAllDoctorsLoadingState) {
