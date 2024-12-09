@@ -50,7 +50,9 @@ class DoctorDetailsScreen extends StatelessWidget {
                   child: CustomLoadingIndicator(),
                 );
               } else if (state is DoctorDetailsLoaded) {
-                return DoctorDetailsScreenLoaded(doctor: doctorDetails!);
+                return DoctorDetailsScreenLoaded(
+                  doctor: doctorDetails!,
+                );
               }
               return Container();
             },

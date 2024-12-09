@@ -32,6 +32,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_view_patient_details/
 import 'package:gina_app_4/features/doctor_features/doctor_view_patients/2_views/bloc/doctor_view_patients_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
+import 'package:gina_app_4/features/patient_features/doctor_availability/2_views/bloc/doctor_availability_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_details/2_views/bloc/doctor_details_bloc.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_bloc.dart';
@@ -110,6 +111,9 @@ List<BlocProvider> getBlocProviders() {
     ),
     BlocProvider<FindBloc>(
       create: (context) => sl<FindBloc>(),
+    ),
+    BlocProvider<DoctorAvailabilityBloc>(
+      create: (context) => sl<DoctorAvailabilityBloc>(),
     ),
 
     // Doctor Blocs

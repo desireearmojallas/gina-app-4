@@ -46,6 +46,8 @@ import 'package:gina_app_4/features/doctor_features/doctor_view_patients/2_views
 import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
+import 'package:gina_app_4/features/patient_features/doctor_availability/1_controller/doctor_availability_controller.dart';
+import 'package:gina_app_4/features/patient_features/doctor_availability/2_views/bloc/doctor_availability_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_details/2_views/bloc/doctor_details_bloc.dart';
 import 'package:gina_app_4/features/patient_features/find/1_controllers/find_controllers.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
@@ -251,6 +253,17 @@ Future<void> init() async {
   sl.registerFactory(
     () => DoctorDetailsBloc(),
   );
+
+  //------------------------------------------------------------------------------
+
+  //! Features - Find / Doctor Availability
+  sl.registerFactory(
+    () => DoctorAvailabilityBloc(
+      doctorAvailabilityController: sl(),
+    ),
+  );
+
+  sl.registerFactory(() => DoctorAvailabilityController());
 
   //------------------------------------------------------------------------------
 

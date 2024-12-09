@@ -22,27 +22,24 @@ class DetailsContainerNavigation extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: size.height * 0.11,
+        height: size.height * 0.06,
         width: size.width * 0.44,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Column(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(
-              // Icons.monetization_on,
               icon,
               size: 30,
               color: GinaAppTheme.lightSecondary,
             ),
             const Gap(10),
             Text(
-              // 'Consultation Fee\nDetails',
               containerLabel,
-              textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
