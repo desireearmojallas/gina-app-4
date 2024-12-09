@@ -10,8 +10,8 @@ import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_v
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_name_widget.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/2_views/bloc/doctor_availability_bloc.dart';
-import 'package:gina_app_4/features/patient_features/doctor_details/2_views/screens/widgets/details_container_navigation.dart';
-import 'package:gina_app_4/features/patient_features/doctor_details/2_views/screens/widgets/office_address_container.dart';
+import 'package:gina_app_4/features/patient_features/doctor_details/2_views/widgets/details_container_navigation.dart';
+import 'package:gina_app_4/features/patient_features/doctor_details/2_views/widgets/office_address_container.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class DoctorDetailsScreenLoaded extends StatelessWidget {
@@ -70,7 +70,10 @@ class DoctorDetailsScreenLoaded extends StatelessWidget {
                             DetailsContainerNavigation(
                               icon: Icons.monetization_on,
                               containerLabel: 'Consultation Fee\nDetails',
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.pushNamed(
+                                    context, '/consultationFeeDetails');
+                              },
                             ),
                             DetailsContainerNavigation(
                               icon: Icons.date_range,
