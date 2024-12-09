@@ -10,3 +10,5 @@ abstract class HomeEvent extends Equatable {
 class HomeInitialEvent extends HomeEvent {}
 
 class GetPatientNameEvent extends HomeEvent {}
+
+class GetPatientCurrentLocationEvent extends HomeEvent {}

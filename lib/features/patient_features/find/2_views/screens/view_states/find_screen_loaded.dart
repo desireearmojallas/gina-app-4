@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
@@ -25,7 +26,11 @@ class FindScreenLoaded extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 70.0),
             child: RefreshIndicator(
-              onRefresh: () async {},
+              onRefresh: () async {
+                findBloc.add(GetDoctorsNearMeEvent());
+                findBloc.add(GetDoctorsInTheNearestCityEvent());
+                findBloc.add(GetAllDoctorsEvent());
+              },
               child: ScrollbarCustom(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
@@ -50,35 +55,63 @@ class FindScreenLoaded extends StatelessWidget {
                       ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(10, 20, 0, 20),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text.rich(
-                            TextSpan(
-                              children: [
-                                const TextSpan(text: 'We found '),
-                                TextSpan(
-                                  text: '10',
-                                  style:
-                                      ginaTheme.textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
+                        child: BlocBuilder<FindBloc, FindState>(
+                            builder: (context, state) {
+                          debugPrint('Current state: $state');
+
+                          return Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(text: 'We found '),
+                                  TextSpan(
+                                    text: doctorNearMeLists?.length.toString(),
+                                    style: ginaTheme.textTheme.titleLarge
+                                        ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
                                   ),
-                                ),
-                                const TextSpan(text: ' doctor(s) near you!'),
-                              ],
+                                  const TextSpan(text: ' doctor(s) near you!'),
+                                ],
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
-                      Column(
-                        children: List.generate(10, (index) {
-                          return const Column(
-                            children: [
-                              DoctorsNearMe(),
-                              Gap(20),
-                            ],
                           );
                         }),
+                      ),
+                      BlocConsumer<FindBloc, FindState>(
+                        listenWhen: (previous, current) =>
+                            current is FindActionState,
+                        buildWhen: (previous, current) =>
+                            current is! FindActionState,
+                        listener: (context, state) {},
+                        builder: (context, state) {
+                          if (state is GetDoctorNearMeSuccessState) {
+                            debugPrint('Current state doc display: $state');
+                            return DoctorsNearMe(
+                              doctorLists: state.doctorLists,
+                            );
+                          } else if (state is GetDoctorNearMeFailedState) {
+                            return const SizedBox(
+                              height: 180,
+                              child: Center(
+                                child: Text(
+                                  'No doctors found near your area',
+                                ),
+                              ),
+                            );
+                          } else if (state is GetDoctorNearMeLoadingState) {
+                            return const Center(
+                                child: Padding(
+                              padding: EdgeInsets.all(15.0),
+                              child: CustomLoadingIndicator(),
+                            ));
+                          }
+                          return DoctorsNearMe(
+                            doctorLists: doctorNearMeLists ?? [],
+                          );
+                        },
                       ),
                       const Gap(20),
                       BlocBuilder<FindBloc, FindState>(
@@ -86,7 +119,7 @@ class FindScreenLoaded extends StatelessWidget {
                           if (state is OtherCitiesVisibleState) {
                             return Column(
                               children: [
-                                const Gap(20),
+                                // const Gap(20),
 
                                 //--- Cebu City ---
                                 const Gap(10),
@@ -179,9 +212,9 @@ class FindScreenLoaded extends StatelessWidget {
                           return const SizedBox.shrink();
                         },
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: bottomPadding),
-                      ),
+                      // Padding(
+                      //   padding: EdgeInsets.only(bottom: bottomPadding),
+                      // ),
                     ],
                   ),
                 ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gap/gap.dart';
-import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/floating_menu_bar/2_views/floating_menu_bar.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
+import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/gina_patient_app_bar/gina_patient_app_bar.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/screens/view_states/find_screen_loaded.dart';
@@ -11,12 +11,13 @@ class FindScreenProvider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
+    return BlocProvider<FindBloc>(
       create: (context) {
         final findBloc = sl<FindBloc>();
-        // add get doctors near me event
-        // add get doctors in the nearest city event
-        // add get all doctor event
+
+        findBloc.add(GetDoctorsNearMeEvent());
+        findBloc.add(GetDoctorsInTheNearestCityEvent());
+        findBloc.add(GetAllDoctorsEvent());
 
         return findBloc;
       },
@@ -34,30 +35,22 @@ class FindScreen extends StatelessWidget {
     final findBloc = context.read<FindBloc>();
     return Scaffold(
         resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          notificationPredicate: (notification) => false,
-          title: Text(
-            'Find Doctors',
-            style: ginaTheme.textTheme.headlineMedium?.copyWith(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          actions: [
-            FloatingMenuWidget(),
-            const Gap(10),
-          ],
-          surfaceTintColor: Colors.white,
-          elevation: 4,
-          shadowColor: Colors.grey.withOpacity(0.1),
+        appBar: GinaPatientAppBar(
+          title: 'Find Doctors',
         ),
         body: BlocConsumer<FindBloc, FindState>(
           listenWhen: (previous, current) => current is FindActionState,
           buildWhen: (previous, current) => current is! FindActionState,
-          listener: (context, state) {
-            // TODO: implement listener
-          },
+          listener: (context, state) {},
           builder: (context, state) {
+            //! testing to apply all loading states
+            if (state is FindLoading || state is GetAllDoctorsLoadingState) {
+              return const Center(
+                child: CustomLoadingIndicator(),
+              );
+            } else if (state is FindLoaded) {
+              return const FindScreenLoaded();
+            }
             return const FindScreenLoaded();
           },
         ));

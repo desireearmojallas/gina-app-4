@@ -52,6 +52,7 @@ Map<String, WidgetBuilder> ginaAppRoutes() {
     // Patient Routes
     '/doctorAddressMap': (context) => const DoctorAddOfficeAddressProvider(),
     '/bottomNavigation': (context) => const BottomNavigationProvider(),
+
     '/forums': (context) => const ForumScreenProvider(),
     '/forumsCreatePost': (context) => CreatePostScreenState(),
     '/myForumsPost': (context) => const MyForumsScreenProvider(),
