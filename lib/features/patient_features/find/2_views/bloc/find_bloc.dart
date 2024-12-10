@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/patient_features/find/1_controllers/find_controllers.dart';
@@ -100,10 +101,18 @@ class FindBloc extends Bloc<FindEvent, FindState> {
   }
 
   FutureOr<void> toggleOtherCitiesVisibilityEvent(
-      ToggleOtherCitiesVisibilityEvent event, Emitter<FindState> emit) {
+      ToggleOtherCitiesVisibilityEvent event, Emitter<FindState> emit) async {
     showDoctorsFromOtherCities = !showDoctorsFromOtherCities;
     if (showDoctorsFromOtherCities) {
-      emit(OtherCitiesVisibleState());
+      // emit(OtherCitiesVisibleState());
+      try {
+        await getDoctorsInTheNearestCity(
+            GetDoctorsInTheNearestCityEvent(), emit);
+      } catch (e) {
+        showDoctorsFromOtherCities = false; // Revert toggle
+        emit(
+            ToggleOtherCitiesVisibilityFailedState(errorMessage: e.toString()));
+      }
     } else {
       emit(OtherCitiesHiddenState());
     }

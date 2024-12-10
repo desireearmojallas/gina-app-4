@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
+import 'package:gina_app_4/features/patient_features/doctor_availability/2_views/bloc/doctor_availability_bloc.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 
@@ -14,9 +16,10 @@ class DoctorsNearMe extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final findBloc = context.read<FindBloc>();
+    final doctorAvailabilityBloc = context.read<DoctorAvailabilityBloc>();
     final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
     final ginaTheme = Theme.of(context);
+
     return GestureDetector(
       onTap: () {},
       child: doctorLists.isEmpty
@@ -29,173 +32,340 @@ class DoctorsNearMe extends StatelessWidget {
               ),
             )
           : ListView.builder(
+              padding: EdgeInsets.zero,
               shrinkWrap: true,
               physics: const BouncingScrollPhysics(),
               itemCount: doctorLists.length,
               itemBuilder: (context, index) {
                 final doctor = doctorLists[index];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 20.0),
-                  child: Container(
-                    width: width / 1.05,
-                    // height: height * 0.1,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: Colors.white,
-                      boxShadow: [
-                        GinaAppTheme.defaultBoxShadow,
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(20.0),
-                              child: CircleAvatar(
-                                radius: 40,
-                                backgroundImage: AssetImage(
-                                  Images.doctorProfileIcon2,
-                                ),
-                                backgroundColor: Colors.white,
-                              ),
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'Dr. ${doctor.name}',
-                                        style: ginaTheme.textTheme.titleMedium
-                                            ?.copyWith(
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const Gap(8),
-                                      const Icon(
-                                        Bootstrap.patch_check_fill,
-                                        color: Colors.blue,
-                                        size: 12,
-                                      ),
-                                    ],
-                                  ),
-                                  const Gap(5),
-                                  Container(
-                                    height: 19,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: const Color(0xffF2F2F2),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16.0),
-                                      child: Center(
-                                        child: Text(
-                                          doctor.medicalSpecialty.toUpperCase(),
-                                          style: const TextStyle(
-                                            color: GinaAppTheme
-                                                .lightInverseSurface,
-                                            fontSize: 8,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const Gap(8),
-                                  Row(
-                                    children: [
-                                      Image.asset(
-                                        Images.officeAddressLogo,
-                                        width: 10,
-                                      ),
-                                      const Gap(5),
-                                      Text(
-                                        doctor.officeAddress,
-                                        style: const TextStyle(
-                                          color:
-                                              GinaAppTheme.lightInverseSurface,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                return BlocProvider(
+                  create: (context) => sl<DoctorAvailabilityBloc>()
+                    ..add(GetDoctorAvailabilityEvent(doctorId: doctor.uid)),
+                  child: BlocBuilder<DoctorAvailabilityBloc,
+                      DoctorAvailabilityState>(
+                    builder: (context, state) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0),
+                        child: Container(
+                          width: width / 1.05,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.white,
+                            boxShadow: [
+                              GinaAppTheme.defaultBoxShadow,
+                            ],
+                          ),
                           child: Column(
                             children: [
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  'Consultation Availability',
-                                  style:
-                                      ginaTheme.textTheme.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                              const Gap(10),
-                              const Row(
+                              Row(
                                 children: [
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        MingCute.round_fill,
-                                        size: 10,
-                                        color:
-                                            GinaAppTheme.lightTertiaryContainer,
+                                  Padding(
+                                    padding: const EdgeInsets.all(20.0),
+                                    child: CircleAvatar(
+                                      radius: 40,
+                                      backgroundImage: AssetImage(
+                                        Images.doctorProfileIcon2,
                                       ),
-                                      Gap(5),
-                                      Text(
-                                        'Online',
-                                      ),
-                                    ],
+                                      backgroundColor: Colors.white,
+                                    ),
                                   ),
-                                  Gap(20),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        MingCute.round_fill,
-                                        size: 10,
-                                        color:
-                                            GinaAppTheme.lightTertiaryContainer,
-                                      ),
-                                      Gap(5),
-                                      Text(
-                                        'In-Person',
-                                      ),
-                                    ],
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 8.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              'Dr. ${doctor.name}',
+                                              style: ginaTheme
+                                                  .textTheme.titleMedium
+                                                  ?.copyWith(
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            const Gap(8),
+                                            const Icon(
+                                              Bootstrap.patch_check_fill,
+                                              color: Colors.blue,
+                                              size: 12,
+                                            ),
+                                          ],
+                                        ),
+                                        const Gap(5),
+                                        Container(
+                                          height: 19,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            color: const Color(0xffF2F2F2),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 16.0),
+                                            child: Center(
+                                              child: Text(
+                                                doctor.medicalSpecialty
+                                                    .toUpperCase(),
+                                                style: const TextStyle(
+                                                  color: GinaAppTheme
+                                                      .lightInverseSurface,
+                                                  fontSize: 8,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const Gap(8),
+                                        Row(
+                                          children: [
+                                            Image.asset(
+                                              Images.officeAddressLogo,
+                                              width: 10,
+                                            ),
+                                            const Gap(5),
+                                            Text(
+                                              doctor.officeAddress,
+                                              style: const TextStyle(
+                                                color: GinaAppTheme
+                                                    .lightInverseSurface,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
-                              const Gap(25),
+                              BlocBuilder<DoctorAvailabilityBloc,
+                                  DoctorAvailabilityState>(
+                                builder: (context, state) {
+                                  if (state is DoctorAvailabilityLoaded) {
+                                    Map<int, String> dayNames = {
+                                      0: 'Sunday',
+                                      1: 'Monday',
+                                      2: 'Tuesday',
+                                      3: 'Wednesday',
+                                      4: 'Thursday',
+                                      5: 'Friday',
+                                      6: 'Saturday',
+                                    };
+                                    final doctorAvailability =
+                                        state.doctorAvailabilityModel;
+                                    final List<int> sortedDays =
+                                        List.from(doctorAvailability.days)
+                                          ..sort();
+
+                                    if (sortedDays.isEmpty) {
+                                      return const Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(20, 10, 20, 0),
+                                        child: Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            'No schedule available',
+                                            style: TextStyle(
+                                              color: GinaAppTheme.lightOutline,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
+
+                                    List<List<int>> groupedDays = [];
+                                    List<int> currentRange = [sortedDays.first];
+
+                                    for (int i = 1;
+                                        i < sortedDays.length;
+                                        i++) {
+                                      if (sortedDays[i] ==
+                                          sortedDays[i - 1] + 1) {
+                                        currentRange.add(sortedDays[i]);
+                                      } else {
+                                        groupedDays.add(currentRange);
+                                        currentRange = [sortedDays[i]];
+                                      }
+                                    }
+
+                                    groupedDays.add(currentRange);
+
+                                    List<String> formattedRanges =
+                                        groupedDays.map((range) {
+                                      if (range.length > 1) {
+                                        return '${dayNames[range.first]}-${dayNames[range.last]}';
+                                      } else {
+                                        return dayNames[range.first]!;
+                                      }
+                                    }).toList();
+
+                                    String scheduleText =
+                                        formattedRanges.join(', ');
+
+                                    return Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          20, 10, 20, 0),
+                                      child: Column(
+                                        children: [
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              'Consultation Availability',
+                                              style: ginaTheme
+                                                  .textTheme.titleSmall
+                                                  ?.copyWith(
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ),
+                                          const Gap(10),
+                                          if (doctorAvailabilityBloc
+                                              .getModeOfAppointment(
+                                                  state.doctorAvailabilityModel)
+                                              .isEmpty)
+                                            const Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                'No schedule available',
+                                                style: TextStyle(
+                                                  color:
+                                                      GinaAppTheme.lightOutline,
+                                                ),
+                                              ),
+                                            ),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: doctorAvailabilityBloc
+                                                .getModeOfAppointment(state
+                                                    .doctorAvailabilityModel)
+                                                .map((mode) => Row(
+                                                      children: [
+                                                        const Icon(
+                                                          MingCute.round_fill,
+                                                          size: 8,
+                                                          color: GinaAppTheme
+                                                              .lightTertiaryContainer,
+                                                        ),
+                                                        const Gap(5),
+                                                        Text(
+                                                          mode,
+                                                        ),
+                                                        const Gap(10),
+                                                      ],
+                                                    ))
+                                                .toList(),
+                                          ),
+                                          const Gap(25),
+                                          Row(
+                                            children: [
+                                              const Icon(
+                                                Bootstrap.calendar_fill,
+                                                size: 15,
+                                                color: GinaAppTheme
+                                                    .lightTertiaryContainer,
+                                              ),
+                                              const Gap(10),
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    scheduleText,
+                                                    style: ginaTheme
+                                                        .textTheme.titleSmall
+                                                        ?.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }
+                                  return Container();
+                                },
+                              ),
+                              const Gap(20),
                               Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Icon(
-                                    Bootstrap.calendar_fill,
-                                    size: 15,
-                                    color: GinaAppTheme.lightTertiaryContainer,
+                                  GestureDetector(
+                                    onTap: () {},
+                                    child: Container(
+                                      width: width / 2.21,
+                                      decoration: BoxDecoration(
+                                        color: GinaAppTheme.lightPrimaryColor
+                                            .withOpacity(0),
+                                        borderRadius: const BorderRadius.only(
+                                          topRight: Radius.circular(8),
+                                          bottomLeft: Radius.circular(8),
+                                        ),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(15.0),
+                                        child: Center(
+                                          child: Text(
+                                            'Book Doctor',
+                                            style: ginaTheme
+                                                .textTheme.bodyMedium
+                                                ?.copyWith(
+                                              color: GinaAppTheme
+                                                  .lightOnPrimaryColor,
+                                              fontWeight: FontWeight.w700,
+                                              decoration:
+                                                  TextDecoration.underline,
+                                              decorationThickness: 0.5,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                  const Gap(10),
-                                  Text(
-                                    'Monday - Friday',
-                                    style: ginaTheme.textTheme.titleSmall
-                                        ?.copyWith(
-                                      fontWeight: FontWeight.w700,
+                                  GestureDetector(
+                                    onTap: () {
+                                      findBloc
+                                          .add(FindNavigateToDoctorDetailsEvent(
+                                        doctor: doctor,
+                                      ));
+                                    },
+                                    child: Container(
+                                      width: width / 2.21,
+                                      decoration: const BoxDecoration(
+                                        color:
+                                            GinaAppTheme.lightTertiaryContainer,
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(8),
+                                          bottomRight: Radius.circular(8),
+                                        ),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(15.0),
+                                        child: Center(
+                                          child: Text(
+                                            'View Profile',
+                                            style: ginaTheme
+                                                .textTheme.bodyMedium
+                                                ?.copyWith(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -203,73 +373,8 @@ class DoctorsNearMe extends StatelessWidget {
                             ],
                           ),
                         ),
-                        const Gap(20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            GestureDetector(
-                              onTap: () {},
-                              child: Container(
-                                width: width / 2.21,
-                                decoration: BoxDecoration(
-                                  color: GinaAppTheme.lightPrimaryColor
-                                      .withOpacity(0),
-                                  borderRadius: const BorderRadius.only(
-                                    topRight: Radius.circular(8),
-                                    bottomLeft: Radius.circular(8),
-                                  ),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(15.0),
-                                  child: Center(
-                                    child: Text(
-                                      'Book Doctor',
-                                      style: ginaTheme.textTheme.bodyMedium
-                                          ?.copyWith(
-                                        color: GinaAppTheme.lightOnPrimaryColor,
-                                        fontWeight: FontWeight.w700,
-                                        decoration: TextDecoration.underline,
-                                        decorationThickness: 0.5,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                findBloc.add(FindNavigateToDoctorDetailsEvent(
-                                  doctor: doctor,
-                                ));
-                              },
-                              child: Container(
-                                width: width / 2.21,
-                                decoration: const BoxDecoration(
-                                  color: GinaAppTheme.lightTertiaryContainer,
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(8),
-                                    bottomRight: Radius.circular(8),
-                                  ),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(15.0),
-                                  child: Center(
-                                    child: Text(
-                                      'View Profile',
-                                      style: ginaTheme.textTheme.bodyMedium
-                                          ?.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                 );
               },

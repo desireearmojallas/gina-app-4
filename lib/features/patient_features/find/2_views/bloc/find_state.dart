@@ -79,3 +79,12 @@ class GetAllDoctorsLoadingState extends FindState {}
 class OtherCitiesHiddenState extends FindState {}
 
 class OtherCitiesVisibleState extends FindState {}
+
+class ToggleOtherCitiesVisibilityFailedState extends FindState {
+  final String errorMessage;
+
+  const ToggleOtherCitiesVisibilityFailedState({required this.errorMessage});
+
+  @override
+  List<Object> get props => [errorMessage];
+}

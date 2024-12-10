@@ -16,7 +16,7 @@ class FindScreenProvider extends StatelessWidget {
         final findBloc = sl<FindBloc>();
 
         findBloc.add(GetDoctorsNearMeEvent());
-        findBloc.add(GetDoctorsInTheNearestCityEvent());
+        // findBloc.add(GetDoctorsInTheNearestCityEvent());
         findBloc.add(GetAllDoctorsEvent());
 
         return findBloc;

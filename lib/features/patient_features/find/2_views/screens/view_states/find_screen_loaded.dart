@@ -28,7 +28,7 @@ class FindScreenLoaded extends StatelessWidget {
             child: RefreshIndicator(
               onRefresh: () async {
                 findBloc.add(GetDoctorsNearMeEvent());
-                findBloc.add(GetDoctorsInTheNearestCityEvent());
+                // findBloc.add(GetDoctorsInTheNearestCityEvent());
                 findBloc.add(GetAllDoctorsEvent());
               },
               child: ScrollbarCustom(
@@ -113,47 +113,30 @@ class FindScreenLoaded extends StatelessWidget {
                           );
                         },
                       ),
-                      const Gap(20),
-                      BlocBuilder<FindBloc, FindState>(
+                      BlocConsumer<FindBloc, FindState>(
+                        listenWhen: (previous, current) =>
+                            current is FindActionState,
+                        buildWhen: (previous, current) =>
+                            current is! FindActionState,
+                        listener: (context, state) {},
                         builder: (context, state) {
-                          if (state is OtherCitiesVisibleState) {
-                            return Column(
-                              children: [
-                                // const Gap(20),
+                          if (state is GetDoctorsInTheNearestCitySuccessState) {
+                            final citiesWithDoctors = state.citiesWithDoctors;
 
-                                //--- Cebu City ---
-                                const Gap(10),
-                                const Divider(
-                                  color: GinaAppTheme.lightSurfaceVariant,
-                                ),
-                                const Gap(10),
-                                Row(
-                                  children: [
-                                    const Gap(10),
-                                    Image.asset(
-                                      Images.officeAddressLogo,
-                                      width: 20,
-                                    ),
-                                    const Gap(10),
-                                    Text(
+                            if (citiesWithDoctors.entries.isEmpty) {
+                              return const Text(
+                                  'No doctors found in other cities.');
+                            } else {
+                              debugPrint(
+                                  'Cities with doctors: $citiesWithDoctors'); //!working
+
+                              return Column(
+                                children: [
+                                  const Gap(40),
+                                  Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
                                       'Other Cities',
-                                      style: ginaTheme.textTheme.bodyLarge
-                                          ?.copyWith(
-                                        color: GinaAppTheme.lightOnPrimaryColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                const Gap(20),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 15.0),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      'Cebu City',
                                       style: ginaTheme.textTheme.titleLarge
                                           ?.copyWith(
                                         color: GinaAppTheme.lightOnPrimaryColor,
@@ -161,60 +144,117 @@ class FindScreenLoaded extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                ),
-                                const Gap(20),
-                                Column(
-                                  children: List.generate(3, (index) {
-                                    return const Column(
-                                      children: [
-                                        DoctorsInTheNearestCity(),
-                                        Gap(20),
-                                      ],
-                                    );
-                                  }),
-                                ),
+                                  const Gap(10),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: citiesWithDoctors.entries
+                                        .map<Widget>((entry) {
+                                      final city = entry.key;
+                                      final doctors = entry.value;
 
-                                //--- Lapu-Lapu City ---
-                                const Gap(10),
-                                const Divider(
-                                  color: GinaAppTheme.lightSurfaceVariant,
-                                ),
-                                const Gap(20),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 15.0),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      'Lapu-Lapu City',
-                                      style: ginaTheme.textTheme.titleLarge
-                                          ?.copyWith(
-                                        color: GinaAppTheme.lightOnPrimaryColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                      debugPrint(
+                                          'Number of cities: ${citiesWithDoctors.length}');
+                                      debugPrint(
+                                          'Number of doctors in Lapu-Lapu City: ${doctors.length}');
+
+                                      return SingleChildScrollView(
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        child: Column(
+                                          children: [
+                                            const Gap(10),
+                                            const Divider(
+                                              color: GinaAppTheme
+                                                  .lightSurfaceVariant,
+                                            ),
+                                            const Gap(20),
+                                            Row(
+                                              children: [
+                                                const Gap(10),
+                                                Image.asset(
+                                                  Images.officeAddressLogo,
+                                                  width: 20,
+                                                ),
+                                                const Gap(10),
+                                                Text(
+                                                  city,
+                                                  style: ginaTheme
+                                                      .textTheme.bodyLarge
+                                                      ?.copyWith(
+                                                    color: GinaAppTheme
+                                                        .lightOnPrimaryColor,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const Gap(20),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      10, 0, 0, 5),
+                                              child: Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text.rich(
+                                                  TextSpan(
+                                                    children: [
+                                                      const TextSpan(
+                                                          text: 'We found '),
+                                                      TextSpan(
+                                                        text: doctors.length
+                                                            .toString(),
+                                                        style: ginaTheme
+                                                            .textTheme
+                                                            .titleLarge
+                                                            ?.copyWith(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 18,
+                                                        ),
+                                                      ),
+                                                      TextSpan(
+                                                          text:
+                                                              ' doctor(s) in $city!'),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            const Gap(10),
+                                            Column(
+                                              children:
+                                                  doctors.map<Widget>((doctor) {
+                                                return Column(
+                                                  children: [
+                                                    DoctorsInTheNearestCity(
+                                                        doctorLists: [doctor]),
+                                                  ],
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
                                   ),
-                                ),
-                                const Gap(20),
-                                Column(
-                                  children: List.generate(5, (index) {
-                                    return const Column(
-                                      children: [
-                                        DoctorsInTheNearestCity(),
-                                        Gap(20),
-                                      ],
-                                    );
-                                  }),
-                                ),
-                              ],
+                                ],
+                              );
+                            }
+                          } else if (state
+                              is ToggleOtherCitiesVisibilityFailedState) {
+                            return Center(
+                              child: Text(state.errorMessage),
                             );
                           }
+
                           return const SizedBox.shrink();
                         },
                       ),
-                      // Padding(
-                      //   padding: EdgeInsets.only(bottom: bottomPadding),
-                      // ),
+                      Padding(
+                        padding: EdgeInsets.only(bottom: bottomPadding),
+                      ),
                     ],
                   ),
                 ),
@@ -231,7 +271,7 @@ class FindScreenLoaded extends StatelessWidget {
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                       (Set<MaterialState> states) {
-                        if (state is OtherCitiesVisibleState) {
+                        if (state is GetDoctorsInTheNearestCitySuccessState) {
                           return Colors.grey.shade400.withOpacity(0.95);
                         }
                         return GinaAppTheme.lightTertiaryContainer
@@ -246,7 +286,7 @@ class FindScreenLoaded extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        state is OtherCitiesVisibleState
+                        state is GetDoctorsInTheNearestCitySuccessState
                             ? Icons.visibility_off
                             : Icons.visibility,
                         color: Colors.white,
@@ -254,7 +294,7 @@ class FindScreenLoaded extends StatelessWidget {
                       ),
                       const Gap(8),
                       Text(
-                        state is OtherCitiesVisibleState
+                        state is GetDoctorsInTheNearestCitySuccessState
                             ? 'Hide doctors from other cities'
                             : 'View doctors from other cities',
                         style: const TextStyle(

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/0_model/doctor_availability_model.dart';
@@ -37,6 +38,8 @@ class DoctorAvailabilityBloc
   FutureOr<void> getDoctorAvailabilityEvent(GetDoctorAvailabilityEvent event,
       Emitter<DoctorAvailabilityState> emit) async {
     emit(DoctorAvailabilityLoading());
+
+    debugPrint('Get doctor availability event is triggered');
 
     final result = await doctorAvailabilityController.getDoctorAvailability(
         doctorId: event.doctorId);

@@ -47,6 +47,65 @@ class DoctorDetailsScreenLoaded extends StatelessWidget {
             fontWeight: FontWeight.bold,
           );
 
+          List<String> formattedRanges = [];
+          String scheduleText = '';
+
+          if (state is DoctorAvailabilityLoaded) {
+            final doctorAvailability = state.doctorAvailabilityModel;
+            final List<int> sortedDays = List.from(doctorAvailability.days)
+              ..sort();
+            final Map<int, String> dayNames = {
+              0: 'Sunday',
+              1: 'Monday',
+              2: 'Tuesday',
+              3: 'Wednesday',
+              4: 'Thursday',
+              5: 'Friday',
+              6: 'Saturday',
+            };
+
+            if (sortedDays.isNotEmpty) {
+              List<List<int>> groupedDays = [];
+              List<int> currentRange = [sortedDays.first];
+
+              for (int i = 1; i < sortedDays.length; i++) {
+                if (sortedDays[i] == sortedDays[i - 1] + 1) {
+                  currentRange.add(sortedDays[i]);
+                } else {
+                  groupedDays.add(currentRange);
+                  currentRange = [sortedDays[i]];
+                }
+              }
+
+              groupedDays.add(currentRange);
+
+              formattedRanges = groupedDays.map((range) {
+                if (range.length > 1) {
+                  return '${dayNames[range.first]}-${dayNames[range.last]}';
+                } else {
+                  return dayNames[range.first]!;
+                }
+              }).toList();
+
+              scheduleText = formattedRanges.join(', ');
+
+              if (sortedDays.isEmpty) {
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(20, 10, 20, 0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'No schedule available',
+                      style: TextStyle(
+                        color: GinaAppTheme.lightOutline,
+                      ),
+                    ),
+                  ),
+                );
+              }
+            }
+          }
+
           return ScrollbarCustom(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
@@ -129,13 +188,12 @@ class DoctorDetailsScreenLoaded extends StatelessWidget {
                                             ),
                                           ),
                                           const Gap(35),
-                                          Text(
-                                            storeDoctorAvailabilityModel != null
-                                                ? doctorAvailabilityBloc
-                                                    .getDoctorAvailability(state
-                                                        .doctorAvailabilityModel)
-                                                : '',
-                                            style: valueStyle,
+                                          SizedBox(
+                                            width: size.width * 0.3,
+                                            child: Text(
+                                              scheduleText,
+                                              style: valueStyle,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -167,7 +225,6 @@ class DoctorDetailsScreenLoaded extends StatelessWidget {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               // Morning Section
-
                                               Text(
                                                 'MORNING',
                                                 style: valueStyle.copyWith(
@@ -178,37 +235,37 @@ class DoctorDetailsScreenLoaded extends StatelessWidget {
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: List.generate(
-                                                    state
+                                                  state.doctorAvailabilityModel
+                                                      .startTimes.length,
+                                                  (index) {
+                                                    String timeStart = state
                                                         .doctorAvailabilityModel
-                                                        .startTimes
-                                                        .length, (index) {
-                                                  String timeStart = state
-                                                      .doctorAvailabilityModel
-                                                      .startTimes[index];
-                                                  String timeEnd = state
-                                                      .doctorAvailabilityModel
-                                                      .endTimes[index];
+                                                        .startTimes[index];
+                                                    String timeEnd = state
+                                                        .doctorAvailabilityModel
+                                                        .endTimes[index];
 
-                                                  // Check if the time is in the morning (AM)
-                                                  if (timeStart
-                                                      .contains('AM')) {
-                                                    return Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        const Gap(2),
-                                                        Text(
-                                                          '$timeStart - $timeEnd',
-                                                          style: valueStyle,
-                                                        ),
-                                                      ],
-                                                    );
-                                                  }
+                                                    // Check if the time is in the morning (AM)
+                                                    if (timeStart
+                                                        .contains('AM')) {
+                                                      return Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          const Gap(2),
+                                                          Text(
+                                                            '$timeStart - $timeEnd',
+                                                            style: valueStyle,
+                                                          ),
+                                                        ],
+                                                      );
+                                                    }
 
-                                                  return const SizedBox
-                                                      .shrink();
-                                                }),
+                                                    return const SizedBox
+                                                        .shrink();
+                                                  },
+                                                ),
                                               ),
                                               const Gap(15),
 
@@ -223,37 +280,37 @@ class DoctorDetailsScreenLoaded extends StatelessWidget {
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: List.generate(
-                                                    state
+                                                  state.doctorAvailabilityModel
+                                                      .startTimes.length,
+                                                  (index) {
+                                                    String timeStart = state
                                                         .doctorAvailabilityModel
-                                                        .startTimes
-                                                        .length, (index) {
-                                                  String timeStart = state
-                                                      .doctorAvailabilityModel
-                                                      .startTimes[index];
-                                                  String timeEnd = state
-                                                      .doctorAvailabilityModel
-                                                      .endTimes[index];
+                                                        .startTimes[index];
+                                                    String timeEnd = state
+                                                        .doctorAvailabilityModel
+                                                        .endTimes[index];
 
-                                                  // Check if the time is in the afternoon (PM)
-                                                  if (timeStart
-                                                      .contains('PM')) {
-                                                    return Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        const Gap(2),
-                                                        Text(
-                                                          '$timeStart - $timeEnd',
-                                                          style: valueStyle,
-                                                        ),
-                                                      ],
-                                                    );
-                                                  }
+                                                    // Check if the time is in the afternoon (PM)
+                                                    if (timeStart
+                                                        .contains('PM')) {
+                                                      return Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          const Gap(2),
+                                                          Text(
+                                                            '$timeStart - $timeEnd',
+                                                            style: valueStyle,
+                                                          ),
+                                                        ],
+                                                      );
+                                                    }
 
-                                                  return const SizedBox
-                                                      .shrink(); // Return an empty widget if it's not in the afternoon
-                                                }),
+                                                    return const SizedBox
+                                                        .shrink();
+                                                  },
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -277,7 +334,7 @@ class DoctorDetailsScreenLoaded extends StatelessWidget {
                                           SizedBox(
                                             width: size.width * 0.21,
                                             child: const Text(
-                                              'MODE OF\nAPPOINTMENT',
+                                              'MODE OF APPOINTMENT',
                                               style: labelStyle,
                                             ),
                                           ),
@@ -285,8 +342,7 @@ class DoctorDetailsScreenLoaded extends StatelessWidget {
                                           Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
-                                            children: context
-                                                .read<DoctorAvailabilityBloc>()
+                                            children: doctorAvailabilityBloc
                                                 .getModeOfAppointment(state
                                                     .doctorAvailabilityModel)
                                                 .map((mode) => Text(
