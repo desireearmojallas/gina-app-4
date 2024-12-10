@@ -49,7 +49,7 @@ class FindScreen extends StatelessWidget {
           },
           builder: (context, state) {
             //! testing to apply all loading states
-            if (state is FindLoading || state is GetAllDoctorsLoadingState) {
+            if (state is FindLoading) {
               return const Center(
                 child: CustomLoadingIndicator(),
               );

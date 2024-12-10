@@ -267,11 +267,13 @@ class FindScreenLoaded extends StatelessWidget {
               },
             ),
           ),
-          const Positioned(
+          Positioned(
             top: 0,
             left: 0,
             right: 0,
-            child: FindDoctorsSearchBar(),
+            child: FindDoctorsSearchBar(
+              findBloc: findBloc,
+            ),
           ),
         ],
       ),
