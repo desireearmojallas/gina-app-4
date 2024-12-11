@@ -82,47 +82,64 @@ class BookAppointmentBloc
       Emitter<BookAppointmentState> emit) async {
     emit(BookAppointmentRequestLoading());
 
+    debugPrint('BookForAnAppointmentEvent triggered');
+
     String dateString = dateController.text;
-    DateTime parsedDate = DateFormat('EEEE d of MMMM yyyy').parse(dateString);
+    DateTime parsedDate = DateFormat('EEEE, d of MMMM y').parse(dateString);
     String reformattedDate = DateFormat('MMMM d, yyyy').format(parsedDate);
 
-    final result = await appointmentController.requestAnAppointment(
-      doctorId: event.doctorId,
-      doctorName: event.doctorName,
-      doctorClinicAddress: event.doctorClinicAddress,
-      appointmentDate: reformattedDate,
-      appointmentTime: event.appointmentTime,
-      modeOfAppointment: selectedModeofAppointmentIndex,
-    );
+    debugPrint('datestring: $dateString');
+    debugPrint('parsedDate: $parsedDate');
+    debugPrint('reformattedDate: $reformattedDate');
 
-    result.fold(
-      (failure) => emit(BookAppointmentError(errorMessage: failure.toString())),
-      (snapId) {
-        currentAppointmentModel = AppointmentModel(
-          appointmentUid: snapId,
-          doctorUid: event.doctorId,
-          doctorName: event.doctorName,
-          doctorClinicAddress: event.doctorClinicAddress,
-          appointmentDate: dateString,
-          appointmentTime: event.appointmentTime,
-          modeOfAppointment: selectedModeofAppointmentIndex,
-        );
+    try {
+      final result = await appointmentController.requestAnAppointment(
+        doctorId: event.doctorId,
+        doctorName: event.doctorName,
+        doctorClinicAddress: event.doctorClinicAddress,
+        appointmentDate: reformattedDate,
+        appointmentTime: event.appointmentTime,
+        modeOfAppointment: selectedModeofAppointmentIndex,
+      );
 
-        emit(
-          ReviewAppointmentState(
-            appointmentModel: AppointmentModel(
-              appointmentUid: snapId,
-              doctorUid: event.doctorId,
-              doctorName: event.doctorName,
-              doctorClinicAddress: event.doctorClinicAddress,
-              appointmentDate: dateString,
-              appointmentTime: event.appointmentTime,
-              modeOfAppointment: selectedModeofAppointmentIndex,
+      debugPrint('result: $result');
+
+      result.fold(
+        (failure) {
+          debugPrint('Booking failed: $failure');
+          emit(BookAppointmentError(errorMessage: failure.toString()));
+        },
+        (snapId) {
+          currentAppointmentModel = AppointmentModel(
+            appointmentUid: snapId,
+            doctorUid: event.doctorId,
+            doctorName: event.doctorName,
+            doctorClinicAddress: event.doctorClinicAddress,
+            appointmentDate: dateString,
+            appointmentTime: event.appointmentTime,
+            modeOfAppointment: selectedModeofAppointmentIndex,
+          );
+          debugPrint('Booking successful: $snapId');
+
+          emit(
+            ReviewAppointmentState(
+              appointmentModel: AppointmentModel(
+                appointmentUid: snapId,
+                doctorUid: event.doctorId,
+                doctorName: event.doctorName,
+                doctorClinicAddress: event.doctorClinicAddress,
+                appointmentDate: dateString,
+                appointmentTime: event.appointmentTime,
+                modeOfAppointment: selectedModeofAppointmentIndex,
+              ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    } catch (e) {
+      debugPrint('Exception occurred: $e');
+      emit(BookAppointmentError(errorMessage: e.toString()));
+    }
   }
 
   FutureOr<void> selectTimeEvent(

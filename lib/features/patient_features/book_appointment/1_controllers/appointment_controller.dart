@@ -37,15 +37,18 @@ class AppointmentController with ChangeNotifier {
     required int modeOfAppointment,
   }) async {
     try {
+      debugPrint('Fetching current user model');
       final currentUserModel = await firestore
           .collection('patients')
           .doc(currentPatient!.uid)
           .get()
           .then((value) => UserModel.fromJson(value.data()!));
 
+      debugPrint('Creating appointment document');
       DocumentReference<Map<String, dynamic>> snap =
           firestore.collection('appointments').doc();
 
+      debugPrint('Setting appointment data');
       await snap.set({
         'appointmentUid': snap.id,
         'patientUid': currentPatient!.uid,
@@ -59,6 +62,7 @@ class AppointmentController with ChangeNotifier {
         'appointmentStatus': 0,
       });
 
+      debugPrint('Updating patient document');
       final docRef = firestore.collection('patients').doc(currentPatient!.uid);
 
       final docSnapshot = await docRef.get();
@@ -82,6 +86,7 @@ class AppointmentController with ChangeNotifier {
         }
       }
 
+      debugPrint('Appointment successfully created with ID: ${snap.id}');
       return Right(snap.id);
     } on FirebaseAuthException catch (e) {
       debugPrint('FirebaseAuthException: ${e.message}');
@@ -89,6 +94,9 @@ class AppointmentController with ChangeNotifier {
       error = e;
       notifyListeners();
       return Left(Exception(e.message));
+    } catch (e) {
+      debugPrint('Exception: ${e.toString()}');
+      return Left(Exception(e.toString()));
     }
   }
 

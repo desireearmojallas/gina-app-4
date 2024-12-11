@@ -9,7 +9,6 @@ import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/screens/view_states/book_appointment_initial_screen.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/screens/view_states/review_appointment_initial_screen.dart';
-import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 
 class BookAppointmentScreenProvider extends StatelessWidget {
   const BookAppointmentScreenProvider({super.key});
@@ -111,7 +110,7 @@ class BookAppointmentScreen extends StatelessWidget {
           } else if (state is ReviewAppointmentState) {
             final appointmentModel = state.appointmentModel;
             return ReviewAppointmentInitialScreen(
-              doctorDetails: doctorDetails!,
+              doctorDetails: doctor,
               currentPatient: currentActivePatient!,
               appointmentModel: appointmentModel,
             );
