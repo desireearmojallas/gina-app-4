@@ -6,7 +6,6 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_name_widget.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
-import 'package:gina_app_4/features/patient_features/book_appointment/2_views/screens/view_states/review_appointment_initial_screen.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/0_model/doctor_availability_model.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
