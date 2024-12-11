@@ -82,9 +82,15 @@ class BookAppointmentBloc
       Emitter<BookAppointmentState> emit) async {
     emit(BookAppointmentRequestLoading());
 
+    debugPrint('success book for an appointment event triggered');
+
     String dateString = dateController.text;
     DateTime parsedDate = DateFormat('EEEE d of MMMM yyyy').parse(dateString);
     String reformattedDate = DateFormat('MMMM d, yyyy').format(parsedDate);
+
+    debugPrint('datestring: $dateString');
+    debugPrint(parsedDate as String?);
+    debugPrint(reformattedDate);
 
     final result = await appointmentController.requestAnAppointment(
       doctorId: event.doctorId,
@@ -94,6 +100,8 @@ class BookAppointmentBloc
       appointmentTime: event.appointmentTime,
       modeOfAppointment: selectedModeofAppointmentIndex,
     );
+
+    debugPrint(result as String?);
 
     result.fold(
       (failure) => emit(BookAppointmentError(errorMessage: failure.toString())),
@@ -107,6 +115,7 @@ class BookAppointmentBloc
           appointmentTime: event.appointmentTime,
           modeOfAppointment: selectedModeofAppointmentIndex,
         );
+        debugPrint('success');
 
         emit(
           ReviewAppointmentState(
