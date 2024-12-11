@@ -551,11 +551,13 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                             final selectedTime =
                                 '${startTimes[selectedIndex]} - ${endTimes[selectedIndex]}';
 
-                            debugPrint(doctor.uid);
-                            debugPrint(doctor.name);
-                            debugPrint(doctor.officeAddress);
-                            debugPrint(bookAppointmentBloc.dateController.text);
-                            debugPrint(selectedTime);
+                            debugPrint('Doctor ID: ${doctor.uid}');
+                            debugPrint('Doctor Name: ${doctor.name}');
+                            debugPrint(
+                                'Doctor Address: ${doctor.officeAddress}');
+                            debugPrint(
+                                'Selected Date: ${bookAppointmentBloc.dateController.text}');
+                            debugPrint('Selected Time: $selectedTime');
 
                             // if (isRescheduleMode) {
                             //   appointmentDetailsBloc.add(
@@ -594,8 +596,7 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                               ),
                             );
 
-                            debugPrint(
-                                'Testing book appointment button: working!');
+                            debugPrint('BookForAnAppointmentEvent dispatched');
                           }
                         }
                       },

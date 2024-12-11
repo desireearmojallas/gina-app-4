@@ -25,7 +25,11 @@ class GetDoctorAvailabilityLoaded extends BookAppointmentState {
   });
 
   @override
-  List<Object> get props => [doctorAvailabilityModel];
+  List<Object> get props => [
+        doctorAvailabilityModel,
+        selectedTimeIndex ?? -1,
+        selectedModeofAppointmentIndex ?? -1
+      ];
 }
 
 class GetDoctorAvailabilityError extends BookAppointmentState {
