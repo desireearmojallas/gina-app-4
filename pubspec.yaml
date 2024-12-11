@@ -85,6 +85,7 @@ flutter:
     - assets/images/doctor_features/consultation_fee/
     - assets/images/doctor_features/emergency_announcements/
     - assets/images/doctor_features/schedule_management/
+    - assets/cities_data/
 
   fonts:
     - family: SF UI Display
