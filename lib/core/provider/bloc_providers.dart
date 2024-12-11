@@ -31,6 +31,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/2
 import 'package:gina_app_4/features/doctor_features/doctor_view_patient_details/2_views/bloc/doctor_view_patient_details_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patients/2_views/bloc/doctor_view_patients_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/consultation_fee_details/2_views/bloc/consultation_fee_details_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/2_views/bloc/doctor_availability_bloc.dart';
@@ -118,6 +119,9 @@ List<BlocProvider> getBlocProviders() {
     ),
     BlocProvider<ConsultationFeeDetailsBloc>(
       create: (context) => sl<ConsultationFeeDetailsBloc>(),
+    ),
+    BlocProvider<BookAppointmentBloc>(
+      create: (context) => sl<BookAppointmentBloc>(),
     ),
 
     // Doctor Blocs

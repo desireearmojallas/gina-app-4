@@ -304,7 +304,14 @@ class DoctorsNearMe extends StatelessWidget {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   GestureDetector(
-                                    onTap: () {},
+                                    onTap: () {
+                                      //isRescheduleMode = false;
+                                      Navigator.pushNamed(
+                                        context,
+                                        '/bookAppointment',
+                                        arguments: doctor,
+                                      );
+                                    },
                                     child: Container(
                                       width: width / 2.21,
                                       decoration: BoxDecoration(

@@ -124,8 +124,9 @@ class FindScreenLoaded extends StatelessWidget {
                             final citiesWithDoctors = state.citiesWithDoctors;
 
                             if (citiesWithDoctors.entries.isEmpty) {
-                              return const Text(
-                                  'No doctors found in other cities.');
+                              // return const Text(
+                              //     'No doctors found in other cities.');
+                              return Container();
                             } else {
                               debugPrint(
                                   'Cities with doctors: $citiesWithDoctors'); //!working

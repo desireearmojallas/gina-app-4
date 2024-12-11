@@ -383,7 +383,14 @@ class DoctorDetailsScreenLoaded extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              //isRescheduleMode = false;
+                              Navigator.pushNamed(
+                                context,
+                                '/bookAppointment',
+                                arguments: doctor,
+                              );
+                            },
                             child: Text(
                               'Book Appointment',
                               style: Theme.of(context)
@@ -396,6 +403,7 @@ class DoctorDetailsScreenLoaded extends StatelessWidget {
                             ),
                           ),
                         ),
+                        const Gap(20),
                       ],
                     ),
                   ),
