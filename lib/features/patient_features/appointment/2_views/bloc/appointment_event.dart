@@ -1,6 +1,6 @@
 part of 'appointment_bloc.dart';
 
-sealed class AppointmentEvent extends Equatable {
+abstract class AppointmentEvent extends Equatable {
   const AppointmentEvent();
 
   @override
@@ -8,4 +8,3 @@ sealed class AppointmentEvent extends Equatable {
 }
 
 class LoadAppointments extends AppointmentEvent {}
-
