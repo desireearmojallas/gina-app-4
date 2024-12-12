@@ -33,7 +33,7 @@ class GetPendingRequestFailedState extends PendingRequestStateState {
   List<Object> get props => [errorMessage];
 }
 
-class NavigateToApprovedRequestDetailedState extends PendingRequestStateState {
+class NavigateToApprovedRequestDetailedState extends PendingRequestActionState {
   final AppointmentModel appointment;
   final UserModel patientData;
 
@@ -46,7 +46,7 @@ class NavigateToApprovedRequestDetailedState extends PendingRequestStateState {
   List<Object> get props => [appointment, patientData];
 }
 
-class NavigateToPendingRequestDetailedState extends PendingRequestStateState {
+class NavigateToPendingRequestDetailedState extends PendingRequestActionState {
   final AppointmentModel appointment;
   final UserModel patientData;
 
@@ -59,7 +59,7 @@ class NavigateToPendingRequestDetailedState extends PendingRequestStateState {
   List<Object> get props => [appointment, patientData];
 }
 
-class NavigateToDeclinedRequestDetailedState extends PendingRequestStateState {
+class NavigateToDeclinedRequestDetailedState extends PendingRequestActionState {
   final AppointmentModel appointment;
 
   const NavigateToDeclinedRequestDetailedState({required this.appointment});

@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -48,14 +47,20 @@ class PendingRequestStateBloc
   FutureOr<void> navigateToPendingRequestDetail(
       NavigateToPendingRequestDetailEvent event,
       Emitter<PendingRequestStateState> emit) async {
+    // Debugging: Print when the event is handled
+    debugPrint(
+        'NavigateToPendingRequestDetailEvent handled for appointment: ${event.appointment.appointmentUid}');
+
     final patientData = await doctorAppointmentRequestController.getPatientData(
         patientUid: event.appointment.patientUid!);
 
     patientData.fold(
       (failure) {
+        debugPrint('Failed to fetch patient data: $failure');
         emit(GetPendingRequestFailedState(errorMessage: failure.toString()));
       },
       (patientData) {
+        debugPrint('Fetched patient data: $patientData');
         storedAppointment = event.appointment;
         storedPatientData = patientData;
         emit(

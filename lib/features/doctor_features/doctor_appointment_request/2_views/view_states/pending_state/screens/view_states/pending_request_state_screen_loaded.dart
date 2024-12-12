@@ -63,6 +63,9 @@ class PendingRequestStateScreenLoaded extends StatelessWidget {
                     debugPrint('Appointment Time: ${request.appointmentTime}');
                     return GestureDetector(
                       onTap: () {
+                        // Debugging: Print when the GestureDetector is tapped
+                        debugPrint(
+                            'GestureDetector tapped for appointment: ${request.appointmentUid}');
                         pendingRequestStateBloc.add(
                           NavigateToPendingRequestDetailEvent(
                             appointment: request,

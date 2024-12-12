@@ -33,19 +33,25 @@ class PendingRequestStateScreen extends StatelessWidget {
         listenWhen: (previous, current) => current is PendingRequestActionState,
         buildWhen: (previous, current) => current is! PendingRequestActionState,
         listener: (context, state) {
+          // Debugging: Print when the listener is triggered
+          debugPrint('Listener triggered with state: $state');
           if (state is NavigateToPendingRequestDetailedState) {
             Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => PendingRequestDetailsScreenState(
-                          appointment: state.appointment,
-                          patientData: state.patientData,
-                        ))).then((value) => context
+              context,
+              MaterialPageRoute(
+                builder: (context) => PendingRequestDetailsScreenState(
+                  appointment: state.appointment,
+                  patientData: state.patientData,
+                ),
+              ),
+            ).then((value) => context
                 .read<PendingRequestStateBloc>()
                 .add(PendingRequestStateInitialEvent()));
           }
         },
         builder: (context, state) {
+          // Debugging: Print when the builder is triggered
+          debugPrint('Builder triggered with state: $state');
           if (state is GetPendingRequestSuccessState) {
             return PendingRequestStateScreenLoaded(
               pendingRequests: state.pendingRequests,
