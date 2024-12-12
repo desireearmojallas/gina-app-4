@@ -20,6 +20,6 @@ enum AppointmentStatus {
 }
 
 enum ModeOfAppointmentId {
-  onlineConsultation,
-  faceToFaceConsultation,
+  onlineConsultation, // 0
+  faceToFaceConsultation, // 1
 }
