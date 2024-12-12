@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 
 class ProfileDetailsPatientData extends StatelessWidget {
-  const ProfileDetailsPatientData({super.key});
+  final UserModel patientData;
+  const ProfileDetailsPatientData({super.key, required this.patientData});
 
   @override
   Widget build(BuildContext context) {
@@ -73,18 +75,18 @@ class ProfileDetailsPatientData extends StatelessWidget {
                 ),
               ),
             ),
-            const Text(
-              'Desiree Armojallas',
-              style: TextStyle(
+            Text(
+              patientData.name,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),
-            const Text(
-              'des@gina.com',
-              style: TextStyle(
+            Text(
+              patientData.email,
+              style: const TextStyle(
                 fontSize: 12,
                 color: Colors.grey,
               ),
@@ -105,7 +107,7 @@ class ProfileDetailsPatientData extends StatelessWidget {
                       ),
                       const Gap(10),
                       Text(
-                        'December 18, 2000',
+                        patientData.dateOfBirth,
                         style: textStyle,
                       ),
                     ],
@@ -120,7 +122,7 @@ class ProfileDetailsPatientData extends StatelessWidget {
                       ),
                       const Gap(10),
                       Text(
-                        'Female',
+                        patientData.gender,
                         style: textStyle,
                       ),
                     ],
@@ -143,7 +145,7 @@ class ProfileDetailsPatientData extends StatelessWidget {
                     ),
                     const Gap(10),
                     Text(
-                      'Looc, Lapu-Lapu City, Philippines',
+                      patientData.address,
                       style: textStyle,
                     ),
                   ],

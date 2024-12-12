@@ -20,7 +20,8 @@ class DoctorViewPatientDetailsScreenLoaded extends StatelessWidget {
             child: Center(
               child: Column(
                 children: [
-                  const ProfileDetailsPatientData(),
+                  //TODO: Add the patient's profile details here
+                  // const ProfileDetailsPatientData(),
 
                   Align(
                     alignment: Alignment.centerLeft,

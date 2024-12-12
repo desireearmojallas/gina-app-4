@@ -5,6 +5,7 @@ import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/widgets/confirming_pending_request_modal.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/widgets/view_patient_data/view_patient_data.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 
@@ -234,7 +235,22 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                     const Gap(50),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, '/viewPatientData');
+                        // Navigator.pushNamed(context, '/viewPatientData');
+                        //! for testing only
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ViewPatientDataScreen(
+                                      patient: patientData,
+                                      patientAppointment: appointment,
+                                      patientAppointments: patientData
+                                          .appointmentsBooked
+                                          .map((appointmentId) =>
+                                              AppointmentModel(
+                                                  appointmentUid:
+                                                      appointmentId))
+                                          .toList(),
+                                    )));
                       },
                       style: ButtonStyle(
                         shape: MaterialStateProperty.all(
