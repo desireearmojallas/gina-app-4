@@ -11,6 +11,7 @@ import 'package:gina_app_4/features/patient_features/appointment/2_views/screens
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/screens/view_states/appointment_details_status_screen.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/cancel_appointment_widgets/cancellation_success_modal.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
+import 'package:icons_plus/icons_plus.dart';
 
 class AppointmentScreenProvider extends StatelessWidget {
   const AppointmentScreenProvider({super.key});
@@ -73,38 +74,41 @@ class AppointmentScreen extends StatelessWidget {
                       )
                     : null,
           ),
-          floatingActionButton: state is ConsultationHistoryState &&
-                  state.appointment.appointmentStatus ==
-                      AppointmentStatus.completed.index
-              ? Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    FloatingActionButton(
-                      onPressed: () {
-                        isFromConsultationHistory = true;
-                        Navigator.pushNamed(context, '/consultation');
-                      },
-                      child: const Icon(Icons.message),
-                    ),
-                    const Gap(10),
-                    FloatingActionButton(
-                      heroTag: 'uploadPrescription',
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/uploadPrescription');
-                      },
-                      child: const Icon(Icons.upload_file),
-                    ),
-                  ],
-                )
-              : state is AppointmentDetailsState
-                  ? FloatingActionButton(
-                      onPressed: () {
-                        isFromConsultationHistory = false;
-                        Navigator.pushNamed(context, '/consultation');
-                      },
-                      child: const Icon(Icons.message),
-                    )
-                  : const SizedBox(),
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.only(bottom: 80.0),
+            child: state is ConsultationHistoryState &&
+                    state.appointment.appointmentStatus ==
+                        AppointmentStatus.completed.index
+                ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FloatingActionButton(
+                        onPressed: () {
+                          isFromConsultationHistory = true;
+                          Navigator.pushNamed(context, '/consultation');
+                        },
+                        child: const Icon(Icons.message),
+                      ),
+                      const Gap(10),
+                      FloatingActionButton(
+                        heroTag: 'uploadPrescription',
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/uploadPrescription');
+                        },
+                        child: const Icon(Icons.upload_file),
+                      ),
+                    ],
+                  )
+                : state is AppointmentDetailsState
+                    ? FloatingActionButton(
+                        onPressed: () {
+                          isFromConsultationHistory = false;
+                          Navigator.pushNamed(context, '/consultation');
+                        },
+                        child: const Icon(MingCute.message_3_fill),
+                      )
+                    : const SizedBox(),
+          ),
           body: BlocConsumer<AppointmentBloc, AppointmentState>(
             listenWhen: (previous, current) => state is AppointmentActionState,
             buildWhen: (previous, current) => state is! AppointmentActionState,

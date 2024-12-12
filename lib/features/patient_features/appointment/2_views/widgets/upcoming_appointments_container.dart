@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class UpcomingAppointmentsContainer extends StatelessWidget {
@@ -12,6 +15,7 @@ class UpcomingAppointmentsContainer extends StatelessWidget {
   final String time;
   final String appointmentType;
   final int appointmentStatus;
+  final AppointmentModel appointment;
   const UpcomingAppointmentsContainer({
     super.key,
     required this.doctorName,
@@ -20,16 +24,22 @@ class UpcomingAppointmentsContainer extends StatelessWidget {
     required this.time,
     required this.appointmentType,
     required this.appointmentStatus,
+    required this.appointment,
   });
 
   @override
   Widget build(BuildContext context) {
+    final appointmentsBloc = context.read<AppointmentBloc>();
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     final ginaTheme = Theme.of(context);
     return GestureDetector(
       onTap: () {
-        debugPrint('test');
+        isFromAppointmentTabs = true;
+        appointmentsBloc.add(NavigateToAppointmentDetailsEvent(
+          doctorUid: appointment.doctorUid!,
+          appointmentUid: appointment.appointmentUid!,
+        ));
       },
       child: Container(
         decoration: BoxDecoration(

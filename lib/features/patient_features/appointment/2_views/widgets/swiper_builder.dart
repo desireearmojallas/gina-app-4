@@ -52,6 +52,7 @@ class SwiperBuilderWidget extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 axisDirection: AxisDirection.left,
                 itemBuilder: (context, index) {
+                  final appointment = upcomingAppointments[index];
                   final colors =
                       gradientBGColors[index % gradientBGColors.length];
                   return Container(
@@ -67,17 +68,16 @@ class SwiperBuilderWidget extends StatelessWidget {
                       ],
                     ),
                     child: UpcomingAppointmentsContainer(
-                      doctorName: upcomingAppointments[index].doctorName!,
-                      // specialty: upcomingAppointments[index].specialty,
+                      appointment: appointment,
+                      doctorName: appointment.doctorName!,
+                      // specialty: appointment.specialty,
                       specialty: 'Dummy data',
-                      date: upcomingAppointments[index].appointmentDate!,
-                      time: upcomingAppointments[index].appointmentTime!,
-                      appointmentType:
-                          upcomingAppointments[index].modeOfAppointment == 0
-                              ? 'Online'
-                              : 'Face-to-Face',
-                      appointmentStatus:
-                          upcomingAppointments[index].appointmentStatus,
+                      date: appointment.appointmentDate!,
+                      time: appointment.appointmentTime!,
+                      appointmentType: appointment.modeOfAppointment == 0
+                          ? 'Online'
+                          : 'Face-to-Face',
+                      appointmentStatus: appointment.appointmentStatus,
                     ),
                   );
                 },
