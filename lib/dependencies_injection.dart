@@ -19,6 +19,7 @@ import 'package:gina_app_4/features/auth/2_views/screens/forgot_password/2_views
 import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_office_address/bloc/doctor_address_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/create_doctor_schedule/1_controllers/create_doctor_schedule_controller.dart';
 import 'package:gina_app_4/features/doctor_features/create_doctor_schedule/2_views/bloc/create_doctor_schedule_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/1_controllers/doctor_appointment_request_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/bloc/doctor_appointment_request_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/screens/bloc/doctor_appointment_request_screen_loaded_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/approved_state/bloc/approved_request_state_bloc.dart';
@@ -41,6 +42,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/bloc/
 import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/widgets/doctor_profile_update_dialog/bloc/doctor_profile_update_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/1_controllers/doctor_schedule_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/2_views/bloc/doctor_schedule_management_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_upcoming_appointments/2_views/bloc/doctor_upcoming_appointments_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patient_details/2_views/bloc/doctor_view_patient_details_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patients/2_views/bloc/doctor_view_patients_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
@@ -347,20 +349,28 @@ Future<void> init() async {
   );
 
   sl.registerFactory(
-    () => PendingRequestStateBloc(),
+    () => PendingRequestStateBloc(
+      doctorAppointmentRequestController: sl(),
+    ),
   );
 
   sl.registerFactory(
-    () => ApprovedRequestStateBloc(),
+    () => ApprovedRequestStateBloc(
+      doctorAppointmentRequestController: sl(),
+    ),
   );
 
   sl.registerFactory(
-    () => DeclinedRequestStateBloc(),
+    () => DeclinedRequestStateBloc(
+      doctorAppointmentRequestController: sl(),
+    ),
   );
 
   sl.registerFactory(
     () => CancelledRequestStateBloc(),
   );
+
+  sl.registerFactory(() => DoctorAppointmentRequestController());
 
 // ----------------------------------------------------------------------------------
 
@@ -475,6 +485,13 @@ Future<void> init() async {
   //! Features - Doctor Consultation Screen
   sl.registerFactory(
     () => DoctorConsultationBloc(),
+  );
+
+// ----------------------------------------------------------------------------------
+
+  //! Features - Doctor Upcoming Appointments
+  sl.registerFactory(
+    () => DoctorUpcomingAppointmentsBloc(),
   );
 
 // ----------------------------------------------------------------------------------

@@ -2,12 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/auth/0_model/user_model.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/approved_state/screens/view_states/approved_request_details_screen_state.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/declined_state/screens/view_states/declined_request_details_screen_state.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/bloc/pending_request_state_bloc.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:icons_plus/icons_plus.dart';
 
-// TODO: required String appointmentId
-Future<dynamic> showConfirmingPendingRequestDialog(BuildContext context) {
-  // final pendingRequestStateBloc = context.read<PendingRequestStateBloc>();
+Future<dynamic> showConfirmingPendingRequestDialog(
+  BuildContext context, {
+  required String appointmentId,
+  required AppointmentModel appointment,
+  required UserModel patientData,
+}) {
+  final pendingRequestStateBloc = context.read<PendingRequestStateBloc>();
 
   return showDialog(
     context: context,
@@ -69,7 +77,20 @@ Future<dynamic> showConfirmingPendingRequestDialog(BuildContext context) {
                     ),
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  pendingRequestStateBloc.add(
+                      ApproveAppointmentEvent(appointmentId: appointmentId));
+                  Navigator.pop(context);
+                  Navigator.pushReplacement(context, MaterialPageRoute(
+                    builder: (context) {
+                      return ApprovedRequestDetailsScreenState(
+                        appointment: appointment,
+                        patientData: patientData,
+                        appointmentStatus: 1,
+                      );
+                    },
+                  ));
+                },
                 child: Text(
                   'Approve',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -90,7 +111,22 @@ Future<dynamic> showConfirmingPendingRequestDialog(BuildContext context) {
                     ),
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  pendingRequestStateBloc.add(
+                      DeclineAppointmentEvent(appointmentId: appointmentId));
+                  Navigator.pop(context);
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              DeclinedRequestDetailsScreenState(
+                                appointment: appointment,
+                                patient: patientData,
+                                // appointmentStatus:
+                                //     appointment.appointmentStatus,
+                                appointmentStatus: 4,
+                              )));
+                },
                 child: Text(
                   'Decline',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(

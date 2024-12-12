@@ -169,6 +169,12 @@ class BookAppointmentBloc
 
     selectedModeofAppointmentIndex = event.index;
 
+    // Debugging: Print the selected mode of appointment
+    debugPrint(
+        'Selected Mode of Appointment Index: $selectedModeofAppointmentIndex');
+    debugPrint(
+        'Selected Mode of Appointment: ${modeOfAppointment[event.index]}');
+
     emit(GetDoctorAvailabilityLoaded(
       doctorAvailabilityModel: bookDoctorAvailabilityModel!,
       selectedTimeIndex: selectedTimeIndex,
@@ -206,6 +212,16 @@ class BookAppointmentBloc
           modeOfAppointmentList.add('Unknown');
       }
     }
+
+    // Ensure the list is ordered correctly
+    modeOfAppointmentList.sort((a, b) {
+      if (a == 'Online Consultation') return -1;
+      if (b == 'Online Consultation') return 1;
+      return 0;
+    });
+
+    // Debugging: Print the mode of appointment list
+    debugPrint('Mode of Appointment List: $modeOfAppointmentList');
 
     return modeOfAppointmentList;
   }

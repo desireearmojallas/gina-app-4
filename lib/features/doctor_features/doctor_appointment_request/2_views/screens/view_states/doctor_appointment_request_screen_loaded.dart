@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/screens/bloc/doctor_appointment_request_screen_loaded_bloc.dart';
-import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
 
 class DoctorAppointmentRequestScreenLoaded extends StatelessWidget {
   const DoctorAppointmentRequestScreenLoaded({super.key});
@@ -66,6 +65,7 @@ class DoctorAppointmentRequestScreenLoaded extends StatelessWidget {
                 DoctorAppointmentRequestScreenLoadedState>(
               builder: (context, state) {
                 return TabBarView(
+                  // physics: const NeverScrollableScrollPhysics(),
                   children: [
                     Center(child: state.selectedScreen),
                     Center(child: state.selectedScreen),

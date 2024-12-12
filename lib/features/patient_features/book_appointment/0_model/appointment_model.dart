@@ -39,7 +39,8 @@ class AppointmentModel extends Equatable {
       doctorName: json['doctorName'] ?? '',
       doctorUid: json['doctorUid'] ?? '',
       doctorClinicAddress: json['doctorClinicAddress'] ?? '',
-      appointmentTime: json['appointTime'] ?? '',
+      appointmentDate: json['appointmentDate'] ?? '',
+      appointmentTime: json['appointmentTime'] ?? '',
       modeOfAppointment: json['modeOfAppointment'] ?? 0,
       appointmentStatus: json['appointmentStatus'] ?? 0,
       prescriptionImages: List<String>.from(
@@ -56,7 +57,8 @@ class AppointmentModel extends Equatable {
       doctorName: json['doctorName'] ?? '',
       doctorUid: json['doctorUid'] ?? '',
       doctorClinicAddress: json['doctorClinicAddress'] ?? '',
-      appointmentTime: json['appointTime'] ?? '',
+      appointmentDate: json['appointmentDate'] ?? '',
+      appointmentTime: json['appointmentTime'] ?? '',
       modeOfAppointment: json['modeOfAppointment'] ?? 0,
       appointmentStatus: json['appointmentStatus'] ?? 0,
       prescriptionImages: List<String>.from(
@@ -74,7 +76,7 @@ class AppointmentModel extends Equatable {
       'doctorUid': doctorUid,
       'doctorClinicAddress': doctorClinicAddress,
       'appointmentDate': appointmentDate,
-      'appointTime': appointmentTime,
+      'appointmentTime': appointmentTime,
       'modeOfAppointment': modeOfAppointment,
       'appointmentStatus': appointmentStatus,
       'prescriptionImages': prescriptionImages,

@@ -54,16 +54,20 @@ class DoctorAppointmentRequestController with ChangeNotifier {
   Future<Either<Exception, Map<DateTime, List<AppointmentModel>>>>
       getPendingDoctorAppointmentRequest() async {
     try {
+      debugPrint('Fetching pending doctor appointment requests');
       QuerySnapshot<Map<String, dynamic>> appointmentSnapshot = await firestore
           .collection('appointments')
           .where('doctorUid', isEqualTo: currentUser!.uid)
-          .where('appointmentStauts',
+          .where('appointmentStatus',
               isEqualTo: AppointmentStatus.pending.index)
           .get();
 
-      var patientAppointment = appointmentSnapshot.docs
-          .map((doc) => AppointmentModel.fromJson(doc.data()))
-          .toList()
+      debugPrint('Fetched ${appointmentSnapshot.docs.length} pending requests');
+
+      var patientAppointment = appointmentSnapshot.docs.map((doc) {
+        debugPrint('Appointment data: ${doc.data()}');
+        return AppointmentModel.fromJson(doc.data());
+      }).toList()
         ..sort((a, b) {
           final aDate = DateFormat('MMMM d, yyyy').parse(a.appointmentDate!);
           final bDate = DateFormat('MMMM d, yyyy').parse(b.appointmentDate!);
@@ -73,11 +77,27 @@ class DoctorAppointmentRequestController with ChangeNotifier {
               .compareTo(bDate.difference(DateTime.now()).abs());
         });
 
+      // Add null checks and error handling for date parsing
       var groupedAppointments = groupBy<AppointmentModel, DateTime>(
         patientAppointment,
-        (appointment) =>
-            DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!),
+        (appointment) {
+          if (appointment.appointmentDate == null) {
+            debugPrint(
+                'Null appointment date for appointment: ${appointment.appointmentUid}');
+            throw Exception('Null appointment date');
+          }
+          try {
+            return DateFormat('MMMM d, yyyy')
+                .parse(appointment.appointmentDate!);
+          } catch (e) {
+            debugPrint('Error parsing date: ${appointment.appointmentDate}');
+            throw Exception(
+                'Error parsing date: ${appointment.appointmentDate}');
+          }
+        },
       );
+
+      debugPrint('Grouped appointments: $groupedAppointments');
 
       return Right(groupedAppointments);
     } on FirebaseAuthException catch (e) {
@@ -86,6 +106,9 @@ class DoctorAppointmentRequestController with ChangeNotifier {
       error = e;
       notifyListeners();
       return Left(Exception(e.message));
+    } catch (e) {
+      debugPrint('Exception: ${e.toString()}');
+      return Left(Exception(e.toString()));
     }
   }
 

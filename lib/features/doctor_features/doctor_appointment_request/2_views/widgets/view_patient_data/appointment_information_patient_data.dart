@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 
 class AppointmentInformationPatientData extends StatelessWidget {
-  const AppointmentInformationPatientData({super.key});
+  final AppointmentModel appointment;
+  const AppointmentInformationPatientData(
+      {super.key, required this.appointment});
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +37,7 @@ class AppointmentInformationPatientData extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
       child: Container(
-        height: size.height * 0.21,
+        height: size.height * 0.23,
         width: size.width / 1.05,
         decoration: BoxDecoration(
           color: Colors.white,
@@ -53,8 +56,9 @@ class AppointmentInformationPatientData extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(20, 15, 0, 15),
                         child: appointmentInformationWidget(
+                          context: context,
                           label: 'Appointment ID',
-                          value: '1234567890',
+                          value: appointment.appointmentUid!,
                           labelStyle: labelStyle,
                           textStyle: textStyle,
                         ),
@@ -63,8 +67,12 @@ class AppointmentInformationPatientData extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             vertical: 15.0, horizontal: 45.0),
                         child: appointmentInformationWidget(
+                          context: context,
+                          isModeOfAppointment: true,
                           label: 'Mode of Appointment',
-                          value: 'Online Consultation',
+                          value: appointment.modeOfAppointment == 0
+                              ? 'Online Consultation'
+                              : 'Face-to-Face Consultation',
                           labelStyle: labelStyle,
                           textStyle: textStyle,
                         ),
@@ -78,8 +86,11 @@ class AppointmentInformationPatientData extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(left: 20.0),
                         child: appointmentInformationWidget(
+                          context: context,
                           label: 'Date',
-                          value: 'December 19, 2024 Tuesday',
+                          // value: 'December 19, 2024 Tuesday',
+                          value: appointment.appointmentDate!,
+
                           labelStyle: labelStyle,
                           textStyle: textStyle,
                         ),
@@ -87,8 +98,9 @@ class AppointmentInformationPatientData extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 45.0),
                         child: appointmentInformationWidget(
+                          context: context,
                           label: 'Time',
-                          value: '8:00 AM - 9:00 AM',
+                          value: appointment.appointmentTime!,
                           labelStyle: labelStyle,
                           textStyle: textStyle,
                         ),
@@ -109,6 +121,8 @@ class AppointmentInformationPatientData extends StatelessWidget {
     required String value,
     required labelStyle,
     required textStyle,
+    context,
+    isModeOfAppointment = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,10 +132,22 @@ class AppointmentInformationPatientData extends StatelessWidget {
           style: labelStyle,
         ),
         const Gap(5),
-        Text(
-          value,
-          style: textStyle,
-        ),
+        isModeOfAppointment == true
+            ? SizedBox(
+                width: MediaQuery.of(context).size.width * 0.2,
+                child: Flexible(
+                  child: Text(
+                    value,
+                    style: textStyle,
+                    overflow: TextOverflow.visible,
+                    softWrap: true,
+                  ),
+                ),
+              )
+            : Text(
+                value,
+                style: textStyle,
+              ),
       ],
     );
   }
