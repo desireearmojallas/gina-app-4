@@ -288,6 +288,7 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                               onPressed: () {
                                 showConfirmingPendingRequestDialog(
                                   context,
+                                  appointmentId: appointment.appointmentUid!,
                                 );
                               },
                               style: ButtonStyle(
@@ -315,6 +316,7 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                               onPressed: () {
                                 showConfirmingPendingRequestDialog(
                                   context,
+                                  appointmentId: appointment.appointmentUid!,
                                 );
                               },
                               style: ButtonStyle(

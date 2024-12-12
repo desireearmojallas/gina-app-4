@@ -358,7 +358,9 @@ Future<void> init() async {
   );
 
   sl.registerFactory(
-    () => DeclinedRequestStateBloc(),
+    () => DeclinedRequestStateBloc(
+      doctorAppointmentRequestController: sl(),
+    ),
   );
 
   sl.registerFactory(

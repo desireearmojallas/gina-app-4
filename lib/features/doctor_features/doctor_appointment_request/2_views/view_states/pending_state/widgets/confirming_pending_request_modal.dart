@@ -5,9 +5,11 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/bloc/pending_request_state_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 
-// TODO: required String appointmentId
-Future<dynamic> showConfirmingPendingRequestDialog(BuildContext context) {
-  // final pendingRequestStateBloc = context.read<PendingRequestStateBloc>();
+Future<dynamic> showConfirmingPendingRequestDialog(
+  BuildContext context, {
+  required String appointmentId,
+}) {
+  final pendingRequestStateBloc = context.read<PendingRequestStateBloc>();
 
   return showDialog(
     context: context,
@@ -69,7 +71,11 @@ Future<dynamic> showConfirmingPendingRequestDialog(BuildContext context) {
                     ),
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  pendingRequestStateBloc.add(
+                      ApproveAppointmentEvent(appointmentId: appointmentId));
+                  Navigator.pop(context);
+                },
                 child: Text(
                   'Approve',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -90,7 +96,11 @@ Future<dynamic> showConfirmingPendingRequestDialog(BuildContext context) {
                     ),
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  pendingRequestStateBloc.add(
+                      DeclineAppointmentEvent(appointmentId: appointmentId));
+                  Navigator.pop(context);
+                },
                 child: Text(
                   'Decline',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
