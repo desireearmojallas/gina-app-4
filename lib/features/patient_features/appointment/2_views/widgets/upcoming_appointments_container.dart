@@ -58,38 +58,42 @@ class UpcomingAppointmentsContainer extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: width * 0.35,
-                              child: Text(
-                                'Dr. $doctorName',
-                                style: ginaTheme.textTheme.bodyLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            const Gap(8),
-                            const Icon(
-                              Bootstrap.patch_check_fill,
-                              color: Colors.white,
-                              size: 15,
-                            ),
-                          ],
-                        ),
                         SizedBox(
-                          width: width * 0.35,
-                          child: Text(
-                            specialty,
-                            style: ginaTheme.textTheme.bodyMedium?.copyWith(
-                              color: Colors.white.withOpacity(0.7),
-                              fontSize: 11,
-                            ),
-                            overflow: TextOverflow.ellipsis,
+                          width: width * 0.4,
+                          child: Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  'Dr. $doctorName',
+                                  style:
+                                      ginaTheme.textTheme.bodyLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                  overflow: TextOverflow.visible,
+                                  softWrap: true,
+                                ),
+                              ),
+                              const Gap(8),
+                              const Icon(
+                                Bootstrap.patch_check_fill,
+                                color: Colors.white,
+                                size: 15,
+                              ),
+                            ],
                           ),
                         ),
+                        // SizedBox(
+                        //   width: width * 0.35,
+                        //   child: Text(
+                        //     specialty,
+                        //     style: ginaTheme.textTheme.bodyMedium?.copyWith(
+                        //       color: Colors.white.withOpacity(0.7),
+                        //       fontSize: 11,
+                        //     ),
+                        //     overflow: TextOverflow.ellipsis,
+                        //   ),
+                        // ),
                       ],
                     ),
                     const Gap(35),
@@ -124,7 +128,8 @@ class UpcomingAppointmentsContainer extends StatelessWidget {
                               date,
                               style: ginaTheme.textTheme.bodySmall?.copyWith(
                                 color: Colors.white,
-                                fontSize: 12,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
@@ -141,7 +146,8 @@ class UpcomingAppointmentsContainer extends StatelessWidget {
                               time,
                               style: ginaTheme.textTheme.bodySmall?.copyWith(
                                 color: Colors.white,
-                                fontSize: 12,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
@@ -158,7 +164,8 @@ class UpcomingAppointmentsContainer extends StatelessWidget {
                               appointmentType,
                               style: ginaTheme.textTheme.bodySmall?.copyWith(
                                 color: Colors.white,
-                                fontSize: 12,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],

@@ -47,6 +47,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_view_patient_details/
 import 'package:gina_app_4/features/doctor_features/doctor_view_patients/2_views/bloc/doctor_view_patients_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
+import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/bloc/appointment_details_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/1_controllers/appointment_controller.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
@@ -295,6 +296,17 @@ Future<void> init() async {
   );
 
   sl.registerFactory(() => AppointmentController());
+
+  //------------------------------------------------------------------------------
+
+  //! Features - Appointment
+  sl.registerFactory(
+    () => AppointmentBloc(
+      appointmentController: sl(),
+      profileController: sl(),
+      findController: sl(),
+    ),
+  );
 
   //------------------------------------------------------------------------------
 
