@@ -28,6 +28,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_my_forums/bloc/doctor
 import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/bloc/doctor_profile_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/widgets/doctor_profile_update_dialog/bloc/doctor_profile_update_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/2_views/bloc/doctor_schedule_management_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_upcoming_appointments/2_views/bloc/doctor_upcoming_appointments_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patient_details/2_views/bloc/doctor_view_patient_details_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patients/2_views/bloc/doctor_view_patients_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
@@ -194,6 +195,9 @@ List<BlocProvider> getBlocProviders() {
     ),
     BlocProvider<DoctorConsultationBloc>(
       create: (context) => sl<DoctorConsultationBloc>(),
-    )
+    ),
+    BlocProvider<DoctorUpcomingAppointmentsBloc>(
+      create: (context) => sl<DoctorUpcomingAppointmentsBloc>(),
+    ),
   ];
 }

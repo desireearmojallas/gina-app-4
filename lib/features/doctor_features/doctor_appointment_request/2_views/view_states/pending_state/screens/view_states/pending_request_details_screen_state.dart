@@ -289,6 +289,8 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                                 showConfirmingPendingRequestDialog(
                                   context,
                                   appointmentId: appointment.appointmentUid!,
+                                  patientData: patientData,
+                                  appointment: appointment,
                                 );
                               },
                               style: ButtonStyle(
@@ -317,6 +319,8 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                                 showConfirmingPendingRequestDialog(
                                   context,
                                   appointmentId: appointment.appointmentUid!,
+                                  patientData: patientData,
+                                  appointment: appointment,
                                 );
                               },
                               style: ButtonStyle(

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/approved_state/bloc/approved_request_state_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/approved_state/screens/view_states/approved_request_details_screen_state.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/approved_state/screens/view_states/approved_request_state_screen_loaded.dart';
 
 class ApprovedRequestStateScreenProvider extends StatelessWidget {
@@ -10,7 +12,11 @@ class ApprovedRequestStateScreenProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ApprovedRequestStateBloc>(
-      create: (context) => sl<ApprovedRequestStateBloc>(),
+      create: (context) {
+        final approvedRequestBloc = sl<ApprovedRequestStateBloc>();
+        approvedRequestBloc.add(ApprovedRequestStateInitialEvent());
+        return approvedRequestBloc;
+      },
       child: const ApprovedRequestStateScreen(),
     );
   }
@@ -21,11 +27,42 @@ class ApprovedRequestStateScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<ApprovedRequestStateBloc, ApprovedRequestStateState>(
-      listener: (context, state) {},
-      builder: (context, state) {
-        return const ApprovedRequestStateScreenLoaded();
-      },
+    return Scaffold(
+      body: BlocConsumer<ApprovedRequestStateBloc, ApprovedRequestStateState>(
+        listenWhen: (previous, current) =>
+            current is ApprovedRequestActionState,
+        buildWhen: (previous, current) =>
+            current is! ApprovedRequestActionState,
+        listener: (context, state) {
+          if (state is NavigateToApprovedRequestDetailState) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ApprovedRequestDetailsScreenState(
+                  appointment: state.appointment,
+                  patientData: state.patientData,
+                ),
+              ),
+            ).then((value) => context
+                .read<ApprovedRequestStateBloc>()
+                .add(ApprovedRequestStateInitialEvent()));
+          }
+        },
+        builder: (context, state) {
+          if (state is GetApprovedRequestSuccessState) {
+            return ApprovedRequestStateScreenLoaded(
+              approvedRequests: state.approvedRequests,
+            );
+          } else if (state is GetApprovedRequestFailedState) {
+            return Center(
+              child: Text(state.errorMessage),
+            );
+          } else if (state is ApprovedRequestLoadingState) {
+            return const Center(child: CustomLoadingIndicator());
+          }
+          return Container();
+        },
+      ),
     );
   }
 }

@@ -11,8 +11,12 @@ import 'package:gina_app_4/features/patient_features/book_appointment/0_model/ap
 class DeclinedRequestDetailsScreenState extends StatelessWidget {
   final AppointmentModel appointment;
   final UserModel patient;
-  const DeclinedRequestDetailsScreenState(
-      {super.key, required this.appointment, required this.patient});
+  int? appointmentStatus;
+  DeclinedRequestDetailsScreenState(
+      {super.key,
+      required this.appointment,
+      required this.patient,
+      this.appointmentStatus = 4});
 
   @override
   Widget build(BuildContext context) {
@@ -108,8 +112,7 @@ class DeclinedRequestDetailsScreenState extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               AppointmentStatusContainer(
-                                appointmentStatus:
-                                    appointment.appointmentStatus,
+                                appointmentStatus: appointmentStatus!,
                               ),
                             ],
                           ),

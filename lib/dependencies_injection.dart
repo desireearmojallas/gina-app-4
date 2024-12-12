@@ -42,6 +42,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/bloc/
 import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/widgets/doctor_profile_update_dialog/bloc/doctor_profile_update_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/1_controllers/doctor_schedule_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/2_views/bloc/doctor_schedule_management_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_upcoming_appointments/2_views/bloc/doctor_upcoming_appointments_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patient_details/2_views/bloc/doctor_view_patient_details_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patients/2_views/bloc/doctor_view_patients_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
@@ -354,7 +355,9 @@ Future<void> init() async {
   );
 
   sl.registerFactory(
-    () => ApprovedRequestStateBloc(),
+    () => ApprovedRequestStateBloc(
+      doctorAppointmentRequestController: sl(),
+    ),
   );
 
   sl.registerFactory(
@@ -482,6 +485,13 @@ Future<void> init() async {
   //! Features - Doctor Consultation Screen
   sl.registerFactory(
     () => DoctorConsultationBloc(),
+  );
+
+// ----------------------------------------------------------------------------------
+
+  //! Features - Doctor Upcoming Appointments
+  sl.registerFactory(
+    () => DoctorUpcomingAppointmentsBloc(),
   );
 
 // ----------------------------------------------------------------------------------
