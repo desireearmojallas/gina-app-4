@@ -51,19 +51,19 @@ Future<dynamic> showCancelModalDialog(
                     ),
                   ),
                   onPressed: () {
-                    // if (isFromAppointmentTabs) {
-                    //   isFromAppointmentTabs = false;
-                    //   appointmentBloc.add(
-                    //     CancelAppointmentInAppointmentTabsEvent(
-                    //         appointmentUid: appointmentId),
-                    //   );
-                    //   Navigator.of(context).pop();
-                    // } else {
-                    //   appointmentDetailBloc.add(
-                    //     CancelAppointmentEvent(appointmentUid: appointmentId),
-                    //   );
-                    //   Navigator.of(context).pop();
-                    // }
+                    if (isFromAppointmentTabs) {
+                      isFromAppointmentTabs = false;
+                      appointmentBloc.add(
+                        CancelAppointmentInAppointmentTabsEvent(
+                            appointmentUid: appointmentId),
+                      );
+                      Navigator.of(context).pop();
+                    } else {
+                      appointmentDetailBloc.add(
+                        CancelAppointmentEvent(appointmentUid: appointmentId),
+                      );
+                      Navigator.of(context).pop();
+                    }
                   },
                   child: Text(
                     'Yes',

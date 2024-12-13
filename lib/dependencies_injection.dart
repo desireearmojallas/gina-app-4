@@ -311,7 +311,12 @@ Future<void> init() async {
   //------------------------------------------------------------------------------
 
   //! Features - Appointment Details
-  sl.registerFactory(() => AppointmentDetailsBloc());
+  sl.registerFactory(
+    () => AppointmentDetailsBloc(
+      appointmentController: sl(),
+      profileController: sl(),
+    ),
+  );
 
   //------------------------------------------------------------------------------
 
