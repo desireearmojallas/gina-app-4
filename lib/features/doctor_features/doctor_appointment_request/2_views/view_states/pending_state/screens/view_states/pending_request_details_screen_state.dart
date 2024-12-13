@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
+import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
 import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
@@ -44,8 +45,8 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
     ]);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Appointment Request'),
+      appBar: GinaDoctorAppBar(
+        title: patientData.name,
       ),
       body: Stack(
         children: [

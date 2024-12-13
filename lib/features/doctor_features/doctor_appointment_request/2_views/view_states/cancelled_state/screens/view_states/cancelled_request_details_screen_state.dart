@@ -4,10 +4,18 @@ import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
 import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 
 class CancelledRequestDetailsScreenState extends StatelessWidget {
-  const CancelledRequestDetailsScreenState({super.key});
+  final AppointmentModel appointment;
+  final UserModel patient;
+  const CancelledRequestDetailsScreenState({
+    super.key,
+    required this.appointment,
+    required this.patient,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +45,7 @@ class CancelledRequestDetailsScreenState extends StatelessWidget {
 
     return Scaffold(
       appBar: GinaDoctorAppBar(
-        title: 'Appointment Request',
+        title: patient.name,
       ),
       body: Stack(
         children: [
@@ -76,7 +84,7 @@ class CancelledRequestDetailsScreenState extends StatelessWidget {
                             SizedBox(
                               width: size.width * 0.5,
                               child: Text(
-                                'Desiree Armojallas',
+                                patient.name,
                                 style: ginaTheme.textTheme.titleSmall?.copyWith(
                                   color: GinaAppTheme.lightOnBackground,
                                   fontWeight: FontWeight.bold,
@@ -87,7 +95,7 @@ class CancelledRequestDetailsScreenState extends StatelessWidget {
                             SizedBox(
                               width: size.width * 0.5,
                               child: Text(
-                                'Appointment ID: 123456',
+                                'Appointment ID: ${appointment.appointmentUid}',
                                 style: ginaTheme.textTheme.labelSmall?.copyWith(
                                   color: GinaAppTheme.lightOutline,
                                 ),
@@ -103,8 +111,8 @@ class CancelledRequestDetailsScreenState extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               AppointmentStatusContainer(
-                                // todo: to change the status
-                                appointmentStatus: 3,
+                                appointmentStatus:
+                                    appointment.appointmentStatus,
                               ),
                             ],
                           ),
@@ -178,27 +186,6 @@ class CancelledRequestDetailsScreenState extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Contact number',
-                              style: labelStyle,
-                            ),
-                            const Gap(10),
-                            Text(
-                              '',
-                              style: textStyle,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    divider,
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
                               'Email address',
                               style: labelStyle,
                             ),
@@ -212,6 +199,7 @@ class CancelledRequestDetailsScreenState extends StatelessWidget {
                       ),
                     ),
                     divider,
+                    const Gap(20),
                     Container(
                       height: size.height * 0.08,
                       width: size.width / 1.12,
@@ -225,7 +213,9 @@ class CancelledRequestDetailsScreenState extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Online Consultation'.toUpperCase(),
+                            appointment.modeOfAppointment == 0
+                                ? 'Online Consultation'.toUpperCase()
+                                : 'Face-to-Face Consultation'.toUpperCase(),
                             style: ginaTheme.textTheme.labelSmall?.copyWith(
                               color: GinaAppTheme.lightTertiaryContainer,
                               fontSize: 12,
@@ -234,7 +224,7 @@ class CancelledRequestDetailsScreenState extends StatelessWidget {
                           ),
                           const Gap(5),
                           Text(
-                            'Tuesday, December 19 | 8:00 AM - 9:00 AM',
+                            '${appointment.appointmentDate} | ${appointment.appointmentTime}',
                             style: ginaTheme.textTheme.labelMedium?.copyWith(
                               color: GinaAppTheme.lightOutline,
                               fontSize: 12,
@@ -243,7 +233,7 @@ class CancelledRequestDetailsScreenState extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const Gap(20),
+                    const Gap(50),
                     TextButton(
                       onPressed: null,
                       style: ButtonStyle(
@@ -259,7 +249,7 @@ class CancelledRequestDetailsScreenState extends StatelessWidget {
                           Text(
                             'View Patient Data',
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 14,
                               color: GinaAppTheme.lightSurfaceVariant,
                             ),
                           ),
@@ -280,7 +270,7 @@ class CancelledRequestDetailsScreenState extends StatelessWidget {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(15, 20, 15, 15),
+                      padding: const EdgeInsets.fromLTRB(15, 50, 15, 20),
                       child: Container(
                         height: size.height * 0.06,
                         width: size.width / 1.15,

@@ -7,7 +7,9 @@ abstract class DeclinedRequestStateState extends Equatable {
   List<Object> get props => [];
 }
 
-abstract class DeclinedRequestActionState extends DeclinedRequestStateState {}
+abstract class DeclinedRequestActionState extends DeclinedRequestStateState {
+  const DeclinedRequestActionState();
+}
 
 class DeclinedRequestStateInitial extends DeclinedRequestStateState {}
 
@@ -35,7 +37,7 @@ class NavigateToDeclinedRequestDetailState extends DeclinedRequestActionState {
   final AppointmentModel appointment;
   final UserModel patientData;
 
-  NavigateToDeclinedRequestDetailState({
+  const NavigateToDeclinedRequestDetailState({
     required this.appointment,
     required this.patientData,
   });

@@ -384,7 +384,9 @@ Future<void> init() async {
   );
 
   sl.registerFactory(
-    () => CancelledRequestStateBloc(),
+    () => CancelledRequestStateBloc(
+      doctorAppointmentRequestController: sl(),
+    ),
   );
 
   sl.registerFactory(() => DoctorAppointmentRequestController());
