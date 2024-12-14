@@ -1,35 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class UpcomingAppointmentsContainer extends StatelessWidget {
   final String doctorName;
-  final String specialty;
+  final String appointmentId;
   final String date;
   final String time;
   final String appointmentType;
   final int appointmentStatus;
+  final AppointmentModel appointment;
   const UpcomingAppointmentsContainer({
     super.key,
     required this.doctorName,
-    required this.specialty,
+    required this.appointmentId,
     required this.date,
     required this.time,
     required this.appointmentType,
     required this.appointmentStatus,
+    required this.appointment,
   });
 
   @override
   Widget build(BuildContext context) {
+    final appointmentsBloc = context.read<AppointmentBloc>();
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     final ginaTheme = Theme.of(context);
     return GestureDetector(
       onTap: () {
-        debugPrint('test');
+        isFromAppointmentTabs = true;
+        appointmentsBloc.add(NavigateToAppointmentDetailsEvent(
+          doctorUid: appointment.doctorUid!,
+          appointmentUid: appointment.appointmentUid!,
+        ));
       },
       child: Container(
         decoration: BoxDecoration(
@@ -58,31 +68,35 @@ class UpcomingAppointmentsContainer extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: width * 0.35,
-                              child: Text(
-                                'Dr. $doctorName',
-                                style: ginaTheme.textTheme.bodyLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                        SizedBox(
+                          width: width * 0.4,
+                          child: Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  'Dr. $doctorName',
+                                  style:
+                                      ginaTheme.textTheme.bodyLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                  overflow: TextOverflow.visible,
+                                  softWrap: true,
                                 ),
-                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                            const Gap(8),
-                            const Icon(
-                              Bootstrap.patch_check_fill,
-                              color: Colors.white,
-                              size: 15,
-                            ),
-                          ],
+                              const Gap(8),
+                              const Icon(
+                                Bootstrap.patch_check_fill,
+                                color: Colors.white,
+                                size: 15,
+                              ),
+                            ],
+                          ),
                         ),
                         SizedBox(
                           width: width * 0.35,
                           child: Text(
-                            specialty,
+                            'ID: $appointmentId',
                             style: ginaTheme.textTheme.bodyMedium?.copyWith(
                               color: Colors.white.withOpacity(0.7),
                               fontSize: 11,
@@ -124,7 +138,8 @@ class UpcomingAppointmentsContainer extends StatelessWidget {
                               date,
                               style: ginaTheme.textTheme.bodySmall?.copyWith(
                                 color: Colors.white,
-                                fontSize: 12,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
@@ -141,7 +156,8 @@ class UpcomingAppointmentsContainer extends StatelessWidget {
                               time,
                               style: ginaTheme.textTheme.bodySmall?.copyWith(
                                 color: Colors.white,
-                                fontSize: 12,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
@@ -158,7 +174,8 @@ class UpcomingAppointmentsContainer extends StatelessWidget {
                               appointmentType,
                               style: ginaTheme.textTheme.bodySmall?.copyWith(
                                 color: Colors.white,
-                                fontSize: 12,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],

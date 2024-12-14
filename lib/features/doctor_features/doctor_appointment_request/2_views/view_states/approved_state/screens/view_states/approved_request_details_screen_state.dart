@@ -49,7 +49,7 @@ class ApprovedRequestDetailsScreenState extends StatelessWidget {
 
     return Scaffold(
       appBar: GinaDoctorAppBar(
-        title: 'Appointment Request',
+        title: patientData.name,
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 20.0),

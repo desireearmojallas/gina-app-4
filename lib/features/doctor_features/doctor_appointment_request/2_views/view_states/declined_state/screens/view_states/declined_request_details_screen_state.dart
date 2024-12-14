@@ -46,7 +46,7 @@ class DeclinedRequestDetailsScreenState extends StatelessWidget {
 
     return Scaffold(
       appBar: GinaDoctorAppBar(
-        title: 'Appointment Request',
+        title: patient.name,
       ),
       body: Stack(
         children: [

@@ -7,7 +7,9 @@ abstract class ApprovedRequestStateState extends Equatable {
   List<Object> get props => [];
 }
 
-abstract class ApprovedRequestActionState extends ApprovedRequestStateState {}
+abstract class ApprovedRequestActionState extends ApprovedRequestStateState {
+  const ApprovedRequestActionState();
+}
 
 class ApprovedRequestStateInitial extends ApprovedRequestStateState {}
 

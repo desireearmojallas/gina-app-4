@@ -5,6 +5,9 @@ import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_name_widget.dart';
+import 'package:gina_app_4/features/patient_features/appointment_details/2_views/bloc/appointment_details_bloc.dart';
+import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/reschedule_appointment_success.dart';
+import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/reschedule_filled_button.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/0_model/doctor_availability_model.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -22,6 +25,7 @@ class BookAppointmentInitialScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bookAppointmentBloc = context.read<BookAppointmentBloc>();
+    final appointmentDetailsBloc = context.read<AppointmentDetailsBloc>();
     final size = MediaQuery.of(context).size;
     final ginaTheme = Theme.of(context).textTheme;
     final modeOfAppointmentList =
@@ -534,29 +538,49 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                   final selectedTime =
                                       '${startTimes[selectedIndex]} - ${endTimes[selectedIndex]}';
 
-                                  debugPrint('Doctor ID: ${doctor.uid}');
-                                  debugPrint('Doctor Name: ${doctor.name}');
-                                  debugPrint(
-                                      'Doctor Address: ${doctor.officeAddress}');
-                                  debugPrint(
-                                      'Selected Date: ${bookAppointmentBloc.dateController.text}');
-                                  debugPrint('Selected Time: $selectedTime');
-                                  debugPrint(
-                                      'Mode of Appointment: ${modeOfAppointmentList[bookAppointmentBloc.selectedModeofAppointmentIndex]}');
+                                  if (isRescheduleMode) {
+                                    appointmentDetailsBloc.add(
+                                      RescheduleAppointmentEvent(
+                                        appointmentUid:
+                                            appointmentUidToReschedule!,
+                                        appointmentDate: bookAppointmentBloc
+                                            .dateController.text,
+                                        appointmentTime: selectedTime,
+                                        modeOfAppointment: bookAppointmentBloc
+                                            .selectedModeofAppointmentIndex,
+                                      ),
+                                    );
+                                    isRescheduleMode = false;
+                                    showRescheduleAppointmentSuccessDialog(
+                                      context,
+                                      appointmentUidToReschedule!,
+                                    );
+                                  } else {
+                                    debugPrint('Doctor ID: ${doctor.uid}');
+                                    debugPrint('Doctor Name: ${doctor.name}');
+                                    debugPrint(
+                                        'Doctor Address: ${doctor.officeAddress}');
+                                    debugPrint(
+                                        'Selected Date: ${bookAppointmentBloc.dateController.text}');
+                                    debugPrint('Selected Time: $selectedTime');
+                                    debugPrint(
+                                        'Mode of Appointment: ${modeOfAppointmentList[bookAppointmentBloc.selectedModeofAppointmentIndex]}');
 
-                                  bookAppointmentBloc.add(
-                                    BookForAnAppointmentEvent(
-                                      doctorId: doctor.uid,
-                                      doctorName: doctor.name,
-                                      doctorClinicAddress: doctor.officeAddress,
-                                      appointmentDate: bookAppointmentBloc
-                                          .dateController.text,
-                                      appointmentTime: selectedTime,
-                                    ),
-                                  );
+                                    bookAppointmentBloc.add(
+                                      BookForAnAppointmentEvent(
+                                        doctorId: doctor.uid,
+                                        doctorName: doctor.name,
+                                        doctorClinicAddress:
+                                            doctor.officeAddress,
+                                        appointmentDate: bookAppointmentBloc
+                                            .dateController.text,
+                                        appointmentTime: selectedTime,
+                                      ),
+                                    );
 
-                                  debugPrint(
-                                      'BookForAnAppointmentEvent dispatched');
+                                    debugPrint(
+                                        'BookForAnAppointmentEvent dispatched');
+                                  }
                                 }
                               }
                             },

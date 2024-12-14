@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
@@ -10,7 +9,6 @@ import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_vi
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/widgets/appointment_made_dialogue.dart';
-import 'package:icons_plus/icons_plus.dart';
 
 class ReviewAppointmentInitialScreen extends StatelessWidget {
   final DoctorModel doctorDetails;
