@@ -109,6 +109,8 @@ class DoctorChatMessageController with ChangeNotifier {
   //   return chatroom = recipientUid + currentDoctorUid;
   // }
 
+  //----------------- GENERATE ROOM ID ----------------
+
   String generateRoomId(String recipientUid) {
     String currentDoctorUid = auth.currentUser!.uid;
 
@@ -116,6 +118,8 @@ class DoctorChatMessageController with ChangeNotifier {
 
     return sortedUids.join();
   }
+
+  //----------------- CHAT UPDATE HANDLER ----------------
 
   chatUpdateHandler(List<ChatMessageModel> update) {
     for (ChatMessageModel message in update) {
