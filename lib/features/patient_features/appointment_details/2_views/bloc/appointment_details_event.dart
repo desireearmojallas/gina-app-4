@@ -39,3 +39,14 @@ class RescheduleAppointmentEvent extends AppointmentDetailsEvent {
         modeOfAppointment,
       ];
 }
+
+class NavigateToReviewRescheduledAppointmentEvent
+    extends AppointmentDetailsEvent {
+  final String appointmentUid;
+
+  const NavigateToReviewRescheduledAppointmentEvent(
+      {required this.appointmentUid});
+
+  @override
+  List<Object> get props => [appointmentUid];
+}

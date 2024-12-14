@@ -70,8 +70,7 @@ class SwiperBuilderWidget extends StatelessWidget {
                     child: UpcomingAppointmentsContainer(
                       appointment: appointment,
                       doctorName: appointment.doctorName!,
-                      // specialty: appointment.specialty,
-                      specialty: 'Dummy data',
+                      appointmentId: appointment.appointmentUid!,
                       date: appointment.appointmentDate!,
                       time: appointment.appointmentTime!,
                       appointmentType: appointment.modeOfAppointment == 0

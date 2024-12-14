@@ -10,7 +10,7 @@ import 'package:icons_plus/icons_plus.dart';
 
 class UpcomingAppointmentsContainer extends StatelessWidget {
   final String doctorName;
-  final String specialty;
+  final String appointmentId;
   final String date;
   final String time;
   final String appointmentType;
@@ -19,7 +19,7 @@ class UpcomingAppointmentsContainer extends StatelessWidget {
   const UpcomingAppointmentsContainer({
     super.key,
     required this.doctorName,
-    required this.specialty,
+    required this.appointmentId,
     required this.date,
     required this.time,
     required this.appointmentType,
@@ -93,17 +93,17 @@ class UpcomingAppointmentsContainer extends StatelessWidget {
                             ],
                           ),
                         ),
-                        // SizedBox(
-                        //   width: width * 0.35,
-                        //   child: Text(
-                        //     specialty,
-                        //     style: ginaTheme.textTheme.bodyMedium?.copyWith(
-                        //       color: Colors.white.withOpacity(0.7),
-                        //       fontSize: 11,
-                        //     ),
-                        //     overflow: TextOverflow.ellipsis,
-                        //   ),
-                        // ),
+                        SizedBox(
+                          width: width * 0.35,
+                          child: Text(
+                            'ID: $appointmentId',
+                            style: ginaTheme.textTheme.bodyMedium?.copyWith(
+                              color: Colors.white.withOpacity(0.7),
+                              fontSize: 11,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     ),
                     const Gap(35),

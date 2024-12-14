@@ -4,12 +4,12 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/gina_patient_app_bar/gina_patient_app_bar.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
-import 'package:gina_app_4/features/auth/1_controllers/patient_auth_controller.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart'
     as appointment_bloc;
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/bloc/appointment_details_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/screens/view_states/appointment_details_initial_screen.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/screens/view_states/appointment_details_status_screen.dart';
+import 'package:gina_app_4/features/patient_features/appointment_details/2_views/screens/view_states/review_rescheduled_appointment.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/cancel_appointment_widgets/cancellation_success_modal.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
@@ -25,6 +25,7 @@ class AppointmentDetailsScreenProvider extends StatelessWidget {
         final appointmentDetailsBloc = sl<AppointmentDetailsBloc>();
 
         appointmentDetailsBloc.add(NavigateToAppointmentDetailsStatusEvent());
+        debugPrint('Navigating to Appointment Details Status Screen');
 
         return appointmentDetailsBloc;
       },
@@ -131,6 +132,14 @@ class AppointmentDetailsScreen extends StatelessWidget {
           } else if (state is AppointmentDetailsError) {
             return Center(
               child: Text(state.errorMessage),
+            );
+          } else if (state is NavigateToReviewRescheduledAppointmentState) {
+            debugPrint(
+                'Navigating to Review Rescheduled Appointment Screen $state');
+            return ReviewRescheduledAppointmentScreen(
+              doctorDetails: state.doctor,
+              currentPatient: state.patient,
+              appointmentModel: state.appointment,
             );
           }
           return Container();

@@ -56,3 +56,25 @@ class RescheduleAppointmentError extends AppointmentDetailsActionState {
 }
 
 class RescheduleAppointmentLoading extends AppointmentDetailsActionState {}
+
+class NavigateToReviewRescheduledAppointmentState
+    extends AppointmentDetailsState {
+  final DoctorModel doctor;
+  final UserModel patient;
+  final AppointmentModel appointment;
+
+  const NavigateToReviewRescheduledAppointmentState({
+    required this.doctor,
+    required this.patient,
+    required this.appointment,
+  });
+
+  @override
+  List<Object> get props => [
+        doctor,
+        patient,
+        appointment,
+      ];
+}
+
+class NavigateToReviewRescheduledLoadingState extends AppointmentDetailsState {}

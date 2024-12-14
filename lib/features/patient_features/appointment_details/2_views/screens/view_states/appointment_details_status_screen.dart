@@ -51,6 +51,8 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
 
     final bookAppointmentBloc = context.read<BookAppointmentBloc>();
 
+    debugPrint('Inside Appointment Details Status Screen');
+
     return ScrollbarCustom(
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -63,7 +65,7 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
               appointmentStatus: appointment.appointmentStatus,
             ),
 
-            [2, 1].contains(appointment.appointmentStatus)
+            [2].contains(appointment.appointmentStatus)
                 ? const SizedBox()
                 : Column(
                     children: [

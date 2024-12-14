@@ -1,7 +1,10 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
+import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/1_controllers/appointment_controller.dart';
@@ -14,6 +17,7 @@ part 'appointment_details_event.dart';
 part 'appointment_details_state.dart';
 
 bool isRescheduleMode = false;
+AppointmentModel? storedAppointment;
 
 class AppointmentDetailsBloc
     extends Bloc<AppointmentDetailsEvent, AppointmentDetailsState> {
@@ -27,6 +31,8 @@ class AppointmentDetailsBloc
         navigateToAppointmentDetailsStatusEvent);
     on<CancelAppointmentEvent>(cancelAppointmentEvent);
     on<RescheduleAppointmentEvent>(rescheduleAppointmentEvent);
+    on<NavigateToReviewRescheduledAppointmentEvent>(
+        navigateToReviewRescheduledAppointmentEvent);
   }
 
   FutureOr<void> navigateToAppointmentDetailsStatusEvent(
@@ -95,5 +101,37 @@ class AppointmentDetailsBloc
         emit(RescheduleAppointmentState());
       },
     );
+  }
+
+  FutureOr<void> navigateToReviewRescheduledAppointmentEvent(
+      NavigateToReviewRescheduledAppointmentEvent event,
+      Emitter<AppointmentDetailsState> emit) async {
+    debugPrint('NavigateToReviewRescheduledAppointmentEvent triggered');
+    emit(NavigateToReviewRescheduledLoadingState());
+
+    final appointment = await appointmentController.getAppointmentDetails(
+        appointmentUid: event.appointmentUid);
+
+    appointment.fold(
+      (failure) {
+        emit(RescheduleAppointmentError(errorMessage: failure.toString()));
+      },
+      (appointment) {
+        storedAppointment = appointment;
+        debugPrint('Current patient: $currentActivePatient');
+        debugPrint('Emitting NavigateToReviewRescheduledAppointmentState');
+        emit(
+          NavigateToReviewRescheduledAppointmentState(
+            doctor: doctorDetails!,
+            patient: currentActivePatient!,
+            appointment: storedAppointment!,
+          ),
+        );
+        debugPrint('NavigateToReviewRescheduledAppointmentState emitted');
+      },
+    );
+    debugPrint('Doctor: $doctorDetails');
+    debugPrint('Patient: $currentActivePatient');
+    debugPrint('Appointment: $storedAppointment');
   }
 }
