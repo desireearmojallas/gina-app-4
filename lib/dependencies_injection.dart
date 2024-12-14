@@ -52,6 +52,7 @@ import 'package:gina_app_4/features/patient_features/appointment_details/2_views
 import 'package:gina_app_4/features/patient_features/book_appointment/1_controllers/appointment_controller.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
+import 'package:gina_app_4/features/patient_features/consultation/1_controllers/appointment_chat_controller.dart';
 import 'package:gina_app_4/features/patient_features/consultation_fee_details/1_controller/consultation_fee_details_controller.dart';
 import 'package:gina_app_4/features/patient_features/consultation_fee_details/2_views/bloc/consultation_fee_details_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/1_controller/doctor_availability_controller.dart';
@@ -503,7 +504,15 @@ Future<void> init() async {
 
   //! Features - Doctor Consultation Screen
   sl.registerFactory(
-    () => DoctorConsultationBloc(),
+    () => DoctorConsultationBloc(
+      doctorChatMessageController: sl(),
+      appointmentChatController: sl(),
+      doctorAppointmentRequestController: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => AppointmentChatController(),
   );
 
 // ----------------------------------------------------------------------------------

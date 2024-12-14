@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/widgets/doctor_chat_consultation_body.dart';
 
 class DoctorConsultationOnGoingAppointmentScreen extends StatefulWidget {
-  const DoctorConsultationOnGoingAppointmentScreen({super.key});
+  final String patientUid;
+  final String chatroom;
+  const DoctorConsultationOnGoingAppointmentScreen(
+      {super.key, required this.patientUid, required this.chatroom});
 
   @override
   State<DoctorConsultationOnGoingAppointmentScreen> createState() =>
