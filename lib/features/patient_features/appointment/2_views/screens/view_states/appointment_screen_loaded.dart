@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
+import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_consultation_history_container.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/swiper_builder.dart';
@@ -18,7 +19,6 @@ class AppointmentScreenLoaded extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appointmentBloc = context.read<AppointmentBloc>();
-    final ginaTheme = Theme.of(context).textTheme;
 
     final upcomingAppointments = appointments
         .where((appointment) =>
@@ -55,14 +55,30 @@ class AppointmentScreenLoaded extends StatelessWidget {
                 const Gap(30),
                 _title(context, 'Consultation history'),
                 const Gap(17),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: 10,
-                  itemBuilder: (context, index) {
-                    return const AppointmentConsultationHistoryContainer();
-                  },
-                ),
+                completedAppointments.isEmpty
+                    ? Center(
+                        child: Text(
+                          'No History\nYour consultation history will appear here.',
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: GinaAppTheme.lightOutline,
+                                  ),
+                          textAlign: TextAlign.center,
+                        ),
+                      )
+                    : ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: completedAppointments.length,
+                        itemBuilder: (context, index) {
+                          final completedAppointment =
+                              completedAppointments[index];
+
+                          return AppointmentConsultationHistoryContainer(
+                            appointment: completedAppointment,
+                          );
+                        },
+                      ),
               ],
             ),
           ),

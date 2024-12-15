@@ -191,8 +191,12 @@ Future<void> init() async {
   sl.registerFactory(
     () => HomeBloc(
       profileController: sl(),
+      appointmentController: sl(),
+      periodTrackerController: sl(),
     ),
   );
+
+  sl.registerFactory(() => PeriodTrackerController());
 
 //------------------------------------------------------------------------------
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_consultation_history_container.dart';
+import 'package:gina_app_4/features/patient_features/home/2_views/bloc/home_bloc.dart';
 
 class ConsultationHistoryContainer extends StatelessWidget {
   const ConsultationHistoryContainer({super.key});
@@ -73,12 +73,20 @@ class ConsultationHistoryContainer extends StatelessWidget {
             ),
           ), */
 
+          BlocBuilder<HomeBloc, HomeState>(
+            builder: (context, state) {
+              if (state
+                  is HomeGetPeriodTrackerDataAndConsultationHistorySuccess) {}
+              return Container();
+            },
+          ),
+
           Expanded(
             child: ListView.builder(
               physics: const NeverScrollableScrollPhysics(),
               itemCount: 3,
               itemBuilder: (context, index) {
-                return const AppointmentConsultationHistoryContainer();
+                // return const AppointmentConsultationHistoryContainer();
               },
             ),
           ),
