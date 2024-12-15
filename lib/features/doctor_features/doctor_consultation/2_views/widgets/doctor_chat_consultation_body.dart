@@ -34,7 +34,7 @@ class DoctorChatConsultationBody extends StatelessWidget {
                   child: Container(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height / 15,
-                    color: GinaAppTheme.appbarColorLight,
+                    color: GinaAppTheme.appbarColorLight.withOpacity(0.85),
                     child: Center(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 40.0),

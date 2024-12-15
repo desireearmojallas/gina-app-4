@@ -8,7 +8,6 @@ import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/widg
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/swiper_builder.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/consultation/0_model/chat_message_model.dart';
-import 'package:icons_plus/icons_plus.dart';
 
 class DoctorEConsultScreenLoaded extends StatelessWidget {
   final List<AppointmentModel> upcomingAppointments;
@@ -21,6 +20,7 @@ class DoctorEConsultScreenLoaded extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final doctorEConsultBloc = context.read<DoctorEconsultBloc>();
     return RefreshIndicator(
       onRefresh: () async {
         context
@@ -85,7 +85,10 @@ class DoctorEConsultScreenLoaded extends StatelessWidget {
                   ),
                 ),
                 const Gap(10),
-                const ChatEConsultCardList(),
+                ChatEConsultCardList(
+                  chatRooms: chatRooms,
+                  doctorEConsultBloc: doctorEConsultBloc,
+                ),
               ],
             ),
           ),

@@ -303,24 +303,29 @@ class _ChatCardState extends State<ChatCard> {
             children: [
               Text(
                 chat[index].seenBy.length > 1 ? "Seen by " : "Sent",
-                style: const TextStyle(color: Colors.grey, fontSize: 12),
+                style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
               for (String uid in chat[index].seenBy)
                 FutureBuilder(
-                    future: UserModel.fromUid(uid: uid),
-                    builder: (context, AsyncSnapshot snap) {
-                      if (snap.hasData &&
-                          chat[index].seenBy.length > 1 &&
-                          snap.data?.uid !=
-                              FirebaseAuth.instance.currentUser!.uid) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 2),
-                          width: 22,
-                          // child: AvatarImage(uid: snap.data?.uid)
-                        );
-                      }
-                      return const Text('');
-                    }),
+                  future: UserModel.fromUid(uid: uid),
+                  builder: (context, AsyncSnapshot<UserModel> snap) {
+                    if (snap.hasData &&
+                        chat[index].seenBy.length > 1 &&
+                        snap.data?.uid !=
+                            FirebaseAuth.instance.currentUser!.uid) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 2),
+                        width: 22,
+                        child: Text(
+                          snap.data?.name ?? '',
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 12),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
             ],
           ),
         ),
@@ -374,7 +379,7 @@ class _ChatCardState extends State<ChatCard> {
         child: Text(
           DateFormat("MMMM d, y hh:mm a")
               .format(chat[index].createdAt!.toDate()),
-          style: const TextStyle(color: Colors.grey, fontSize: 12),
+          style: const TextStyle(color: Colors.white, fontSize: 12),
         ),
       ),
     );

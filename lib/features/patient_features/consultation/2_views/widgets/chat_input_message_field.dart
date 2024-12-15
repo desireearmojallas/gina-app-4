@@ -3,6 +3,7 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
+import 'package:icons_plus/icons_plus.dart';
 
 class ChatInputMessageField extends StatelessWidget {
   final FocusNode messageFN;
@@ -81,9 +82,9 @@ class ChatInputMessageField extends StatelessWidget {
                 //   filterQuality: FilterQuality.high,
                 // ),
                 icon: const Icon(
-                  Icons.send,
+                  MingCute.send_plane_fill,
                   color: Colors.white,
-                  size: 20,
+                  size: 25,
                 ),
                 onPressed: () {
                   isChatWaiting ? null : send();

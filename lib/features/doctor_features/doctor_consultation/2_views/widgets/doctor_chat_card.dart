@@ -291,7 +291,7 @@ class _DoctorChatCardState extends State<DoctorChatCard> {
             children: [
               Text(
                 chat[index].seenBy.length > 1 ? "Seen" : "Sent",
-                style: const TextStyle(color: Colors.grey, fontSize: 12),
+                style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
               for (String uid in chat[index].seenBy)
                 FutureBuilder(
@@ -362,7 +362,7 @@ class _DoctorChatCardState extends State<DoctorChatCard> {
         child: Text(
           DateFormat("MMMM d, y hh:mm a")
               .format(chat[index].createdAt!.toDate()),
-          style: const TextStyle(color: Colors.grey, fontSize: 12),
+          style: const TextStyle(color: Colors.white, fontSize: 12),
         ),
       ),
     );

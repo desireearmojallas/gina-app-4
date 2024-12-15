@@ -1,4 +1,5 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: must_be_immutable
+
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper_view/flutter_swiper_view.dart';
 import 'package:gap/gap.dart';
@@ -38,10 +39,10 @@ class SwiperBuilderWidget extends StatelessWidget {
                   MingCute.unhappy_line,
                   color: GinaAppTheme.lightOutline,
                 ),
-                const Gap(10),
+                const Gap(8),
                 Text(
                   'No upcoming appointments',
-                  style: ginaTheme.bodyLarge?.copyWith(
+                  style: ginaTheme.bodySmall?.copyWith(
                     color: GinaAppTheme.lightOutline,
                   ),
                 ),

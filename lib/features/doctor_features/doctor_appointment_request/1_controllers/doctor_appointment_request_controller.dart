@@ -281,7 +281,7 @@ class DoctorAppointmentRequestController with ChangeNotifier {
       await firestore
           .collection('appointments')
           .doc(appointmentId)
-          .update({'appointStatus': AppointmentStatus.completed.index});
+          .update({'appointmentStatus': AppointmentStatus.completed.index});
 
       return const Right(true);
     } on FirebaseAuthException catch (e) {
