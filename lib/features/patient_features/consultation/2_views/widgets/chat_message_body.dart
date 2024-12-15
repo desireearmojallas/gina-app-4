@@ -1,18 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_consultation/1_controllers/doctor_chat_message_controller.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/widgets/doctor_chat_card.dart';
+import 'package:gina_app_4/features/patient_features/consultation/1_controllers/chat_message_controllers.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
+import 'package:gina_app_4/features/patient_features/consultation/2_views/widgets/chat_card.dart';
 import 'package:intl/intl.dart';
 
-class DoctorChatMessageBody extends StatelessWidget {
-  final DoctorChatMessageController chatController;
+class ChatMessageBody extends StatelessWidget {
+  final ChatMessageController chatController;
   final ScrollController scrollController;
   final String selectedDoctorUID;
-  const DoctorChatMessageBody({
+  const ChatMessageBody({
     super.key,
     required this.chatController,
     required this.scrollController,
@@ -53,7 +52,7 @@ class DoctorChatMessageBody extends StatelessWidget {
                                 AsyncSnapshot<Timestamp?> snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
-                                return const CustomLoadingIndicator();
+                                return const CircularProgressIndicator();
                               } else if (snapshot.hasError) {
                                 return Text('Error: ${snapshot.error}');
                               } else {
@@ -69,31 +68,31 @@ class DoctorChatMessageBody extends StatelessWidget {
                               }
                             },
                           ),
+
                           ListView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            scrollDirection: Axis.vertical,
-                            shrinkWrap: true,
-                            itemCount: chatController.messages.length,
-                            itemBuilder: (context, index) {
-                              return DoctorChatCard(
-                                scrollController: scrollController,
-                                index: index,
-                                chat: chatController.messages,
-                                chatroom: chatController.chatroom ?? '',
-                                recipient: selectedDoctorUID,
-                              );
-                            },
-                          ),
+                              physics: const NeverScrollableScrollPhysics(),
+                              scrollDirection: Axis.vertical,
+                              shrinkWrap: true,
+                              itemCount: chatController.messages.length,
+                              itemBuilder: (context, index) {
+                                return ChatCard(
+                                  scrollController: scrollController,
+                                  index: index,
+                                  chat: chatController.messages,
+                                  chatroom: chatController.chatroom ?? '',
+                                  recipient: selectedDoctorUID,
+                                );
+                              }),
+
                           // TODO
                           const Gap(15),
-                          // if (isConsultationFinished)
                           FutureBuilder<Timestamp?>(
                             future: chatController.getLastMessageTime(),
                             builder: (BuildContext context,
                                 AsyncSnapshot<Timestamp?> snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
-                                return const CustomLoadingIndicator();
+                                return const CircularProgressIndicator();
                               } else if (snapshot.hasError) {
                                 return Text('Error: ${snapshot.error}');
                               } else {

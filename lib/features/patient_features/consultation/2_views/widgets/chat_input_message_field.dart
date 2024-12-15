@@ -4,13 +4,12 @@ import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
 
-class DoctorChatInputMessageField extends StatelessWidget {
+class ChatInputMessageField extends StatelessWidget {
   final FocusNode messageFN;
   final TextEditingController messageController;
   final BuildContext context;
   final Function send;
-
-  const DoctorChatInputMessageField({
+  const ChatInputMessageField({
     super.key,
     required this.messageFN,
     required this.messageController,

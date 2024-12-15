@@ -7,14 +7,14 @@ import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/patient_features/consultation/0_model/chat_message_model.dart';
 import 'package:intl/intl.dart';
 
-class DoctorChatCard extends StatefulWidget {
+class ChatCard extends StatefulWidget {
   final ScrollController scrollController;
   final int index;
   final bool isGroup;
   final List<ChatMessageModel> chat;
   final String chatroom;
   final String recipient;
-  const DoctorChatCard({
+  const ChatCard({
     super.key,
     required this.scrollController,
     required this.index,
@@ -25,21 +25,21 @@ class DoctorChatCard extends StatefulWidget {
   });
 
   @override
-  State<DoctorChatCard> createState() => _DoctorChatCardState();
+  State<ChatCard> createState() => _ChatCardState();
 }
 
-class _DoctorChatCardState extends State<DoctorChatCard> {
+class _ChatCardState extends State<ChatCard> {
   var isVisible = false;
   double space = 0;
   List<ChatMessageModel> get chat => widget.chat;
   ScrollController get scrollController => widget.scrollController;
   int get index => widget.index;
   String get chatroom => widget.chatroom;
-  final isDoctor = FirebaseAuth.instance.currentUser?.uid;
+  final isPatient = FirebaseAuth.instance.currentUser?.uid;
 
   @override
   Widget build(BuildContext context) {
-    bool isCurrentUser = chat[index].authorUid == isDoctor;
+    bool isCurrentUser = chat[index].authorUid == isPatient;
     bool isNextSameAuthor = index < chat.length - 1 &&
         chat[index + 1].authorUid == chat[index].authorUid;
 
@@ -54,7 +54,7 @@ class _DoctorChatCardState extends State<DoctorChatCard> {
           if (!isCurrentUser)
             CircleAvatar(
               backgroundImage: !isNextSameAuthor
-                  ? AssetImage(Images.patientProfileIcon)
+                  ? AssetImage(Images.doctorProfileIcon1)
                   : null,
               backgroundColor: Colors.transparent,
             ),
@@ -118,20 +118,34 @@ class _DoctorChatCardState extends State<DoctorChatCard> {
                     FirebaseAuth.instance.currentUser?.uid) &&
                 (index == 0 ||
                     chat[index - 1].authorUid != chat[index].authorUid))
-              FutureBuilder(
-                future: DoctorModel.fromUid(uid: widget.recipient),
-                builder: (context, AsyncSnapshot<DoctorModel> snap) {
-                  if (!snap.hasData) {}
-                  return Padding(
-                    padding: widget.isGroup
-                        ? const EdgeInsets.only(top: 2.0, bottom: 5.0)
-                        : const EdgeInsets.only(top: 2.0, bottom: 5.0),
-                    child: const Row(
-                      children: [],
-                    ),
-                  );
-                },
-              ),
+              FutureBuilder<DoctorModel>(
+                  future: DoctorModel.fromUid(uid: widget.recipient),
+                  builder: (context, AsyncSnapshot<DoctorModel> snap) {
+                    if (!snap.hasData) {}
+                    return Padding(
+                      padding: widget.isGroup
+                          ? const EdgeInsets.only(top: 2.0, bottom: 5)
+                          : const EdgeInsets.only(top: 2.0, bottom: 5),
+                      child: const Row(
+                        children: [
+                          //! commented out to remove the doctor's name from the chat
+                          // Container(
+                          //   padding: EdgeInsets.only(left: 5, bottom: 3),
+                          //   child: Text(
+                          //     'Dr. ${snap.data?.name ?? ''}',
+                          //     style: Theme.of(context)
+                          //         .textTheme
+                          //         .labelMedium
+                          //         ?.copyWith(
+                          //           color: GinaAppTheme.lightOnBackground,
+                          //           fontWeight: FontWeight.w600,
+                          //         ),
+                          //   ),
+                          // ),
+                        ],
+                      ),
+                    );
+                  }),
             if (chat[index].isDeleted)
               Container(
                 padding: widget.isGroup
@@ -157,9 +171,10 @@ class _DoctorChatCardState extends State<DoctorChatCard> {
     return Container(
       constraints:
           BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 1.3),
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+      padding: const EdgeInsets.all(12),
       decoration: backgroundColor(context),
       child: Text(
+        overflow: TextOverflow.visible,
         chat[index].message!,
         style: TextStyle(
           fontSize: 14,
@@ -169,7 +184,6 @@ class _DoctorChatCardState extends State<DoctorChatCard> {
                   ? GinaAppTheme.appbarColorLight
                   : GinaAppTheme.lightOnPrimaryColor,
         ),
-        overflow: TextOverflow.visible,
       ),
     );
   }
@@ -200,75 +214,73 @@ class _DoctorChatCardState extends State<DoctorChatCard> {
     bool isNextSameAuthor = index < chat.length - 1 &&
         chat[index + 1].authorUid == chat[index].authorUid;
 
-    BorderRadius borderRadius;
     return BoxDecoration(
       border: Border.all(
           color: chat[index].isDeleted ? Colors.white : Colors.transparent),
-      borderRadius:
-          chat[index].authorUid == FirebaseAuth.instance.currentUser?.uid
-              ? (() {
-                  if (isPreviousSameAuthor && isNextSameAuthor) {
-                    // Middle message in a series
-                    return const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      bottomLeft: Radius.circular(20),
-                      topRight: Radius.circular(8),
-                      bottomRight: Radius.circular(8),
-                    );
-                  } else if (isPreviousSameAuthor) {
-                    // Last message in a series
-                    return const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      bottomLeft: Radius.circular(20),
-                      topRight: Radius.circular(8),
-                      bottomRight: Radius.circular(20),
-                    );
-                  } else if (isNextSameAuthor) {
-                    // First message in a series
-                    return const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      bottomLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                      bottomRight: Radius.circular(8),
-                    );
-                  } else {
-                    // Single message
-                    return const BorderRadius.all(Radius.circular(20));
-                  }
-                })()
-              : (() {
-                  if (isPreviousSameAuthor && isNextSameAuthor) {
-                    // Middle message in a series
-                    return const BorderRadius.only(
-                      topLeft: Radius.circular(8),
-                      bottomLeft: Radius.circular(8),
-                      topRight: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
-                    );
-                  } else if (isPreviousSameAuthor) {
-                    // Last message in a series
-                    return const BorderRadius.only(
-                      topLeft: Radius.circular(8),
-                      bottomLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
-                    );
-                  } else if (isNextSameAuthor) {
-                    // First message in a series
-                    return const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      bottomLeft: Radius.circular(8),
-                      topRight: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
-                    );
-                  } else {
-                    // Single message
-                    return const BorderRadius.all(Radius.circular(20));
-                  }
-                })(),
+      borderRadius: isCurrentUser
+          ? (() {
+              if (isPreviousSameAuthor && isNextSameAuthor) {
+                // Middle message in a series
+                return const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                  topRight: Radius.circular(8),
+                  bottomRight: Radius.circular(8),
+                );
+              } else if (isPreviousSameAuthor) {
+                // Last message in a series
+                return const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                  topRight: Radius.circular(8),
+                  bottomRight: Radius.circular(20),
+                );
+              } else if (isNextSameAuthor) {
+                // First message in a series
+                return const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                  bottomRight: Radius.circular(8),
+                );
+              } else {
+                // Single message
+                return const BorderRadius.all(Radius.circular(20));
+              }
+            })()
+          : (() {
+              if (isPreviousSameAuthor && isNextSameAuthor) {
+                // Middle message in a series
+                return const BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  bottomLeft: Radius.circular(8),
+                  topRight: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                );
+              } else if (isPreviousSameAuthor) {
+                // Last message in a series
+                return const BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  bottomLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                );
+              } else if (isNextSameAuthor) {
+                // First message in a series
+                return const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  bottomLeft: Radius.circular(8),
+                  topRight: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                );
+              } else {
+                // Single message
+                return const BorderRadius.all(Radius.circular(20));
+              }
+            })(),
       color: chat[index].isDeleted
           ? Colors.transparent
-          : chat[index].authorUid == FirebaseAuth.instance.currentUser?.uid
+          : isCurrentUser
               ? GinaAppTheme.lightTertiaryContainer
               : GinaAppTheme.appbarColorLight,
     );
@@ -290,7 +302,7 @@ class _DoctorChatCardState extends State<DoctorChatCard> {
                     : MainAxisAlignment.start,
             children: [
               Text(
-                chat[index].seenBy.length > 1 ? "Seen" : "Sent",
+                chat[index].seenBy.length > 1 ? "Seen by " : "Sent",
                 style: const TextStyle(color: Colors.grey, fontSize: 12),
               ),
               for (String uid in chat[index].seenBy)

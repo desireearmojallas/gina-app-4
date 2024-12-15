@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/1_controllers/doctor_chat_message_controller.dart';
@@ -68,42 +69,51 @@ class _DoctorConsultationOnGoingAppointmentScreenStateState
         }
         return Scaffold(
           resizeToAvoidBottomInset: true,
-          body: StreamBuilder(
-            stream: chatController.stream,
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              if (snapshot.hasData) {
-                if (snapshot.data == 'null') {
-                  return const ConsultationNoAppointmentScreen();
-                } else if (snapshot.data == 'success') {
-                  return DoctorChatConsultationBody(
-                    messageFN: messageFN,
-                    messageController: messageController,
-                    context: context,
-                    messages: DoctorChatMessageBody(
-                      chatController: chatController,
-                      scrollController: scrollController,
-                      selectedDoctorUID: selectedPatientUid,
+          backgroundColor: Colors.white,
+          body: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(Images.splashPic),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: StreamBuilder(
+              stream: chatController.stream,
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (snapshot.hasData) {
+                  if (snapshot.data == 'null') {
+                    return const ConsultationNoAppointmentScreen();
+                  } else if (snapshot.data == 'success') {
+                    return DoctorChatConsultationBody(
+                      messageFN: messageFN,
+                      messageController: messageController,
+                      context: context,
+                      messages: DoctorChatMessageBody(
+                        chatController: chatController,
+                        scrollController: scrollController,
+                        selectedDoctorUID: selectedPatientUid,
+                      ),
+                      send: send,
+                    );
+                  } else if (snapshot.data == 'empty') {
+                    return DoctorChatConsultationBody(
+                      messageFN: messageFN,
+                      messageController: messageController,
+                      context: context,
+                      messages: const DoctorChatFirstMessageBody(),
+                      send: firstSend,
+                    );
+                  }
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      snapshot.error.toString(),
                     ),
-                    send: send,
-                  );
-                } else if (snapshot.data == 'empty') {
-                  return DoctorChatConsultationBody(
-                    messageFN: messageFN,
-                    messageController: messageController,
-                    context: context,
-                    messages: const DoctorChatFirstMessageBody(),
-                    send: firstSend,
                   );
                 }
-              } else if (snapshot.hasError) {
-                return Center(
-                  child: Text(
-                    snapshot.error.toString(),
-                  ),
-                );
-              }
-              return const ConsultationLoadingAppointmentState();
-            },
+                return const ConsultationLoadingAppointmentState();
+              },
+            ),
           ),
         );
       },
