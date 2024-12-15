@@ -4,21 +4,22 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/screens/widgets/period_tracker_widgets/custom_divider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class MonthCalendar extends StatefulWidget {
   final int year;
   final int month;
-  final List<DateTime> periodDates;
+  final List<PeriodTrackerModel> periodTrackerModel;
   final bool isEditMode;
 
   const MonthCalendar({
     super.key,
     required this.year,
     required this.month,
-    required this.periodDates,
-    required this.isEditMode, required Null Function(dynamic newDates) onPeriodDatesChanged,
+    required this.periodTrackerModel,
+    required this.isEditMode,
   });
 
   @override
@@ -26,32 +27,48 @@ class MonthCalendar extends StatefulWidget {
 }
 
 class _MonthCalendarState extends State<MonthCalendar> {
+  late List<DateTime> periodDates = [];
+  late List<DateTime> averageBasedPredictionDates = [];
+  late List<DateTime> day28PredictionDates = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _extractDates();
+  }
+
+  void _extractDates() {
+    periodDates =
+        widget.periodTrackerModel.expand((p) => p.periodDates).toList();
+    averageBasedPredictionDates = widget.periodTrackerModel
+        .expand((p) => p.averageBasedPredictionDates)
+        .toList();
+    day28PredictionDates = widget.periodTrackerModel
+        .expand((p) => p.day28PredictionDates)
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return buildMonthCalendar(
       widget.year,
       widget.month,
-      widget.periodDates,
+      periodDates,
+      averageBasedPredictionDates,
+      day28PredictionDates,
       widget.isEditMode,
     );
   }
 
   Widget buildMonthCalendar(
-      int year, int month, List<DateTime> periodDates, bool isEditMode) {
+    int year,
+    int month,
+    List<DateTime> periodDates,
+    List<DateTime> averageBasedPredictionDates,
+    List<DateTime> day28PredictionDates,
+    bool isEditMode,
+  ) {
     DateTime firstDayOfMonth = DateTime(year, month, 1);
-
-    // Sample predicted dates for demonstration
-    List<DateTime> averageBasedPredictionDates = [
-      DateTime(year, month, 5),
-      DateTime(year, month, 6),
-      DateTime(year, month, 7),
-    ];
-
-    List<DateTime> day28PredictionDates = [
-      DateTime(year, month, 15),
-      DateTime(year, month, 16),
-      DateTime(year, month, 17),
-    ];
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -167,27 +184,27 @@ class _MonthCalendarState extends State<MonthCalendar> {
                 bool is28DayPredictionDate = false;
                 bool isPeriodDate = false;
 
-                if (averageBasedPredictionDates.any((date) =>
-                    date.year == day.year &&
-                    date.month == day.month &&
-                    date.day == day.day)) {
-                  isAverageBasedPredictionDate = true;
-                }
-
                 if (day28PredictionDates.any((date) =>
                     date.year == day.year &&
                     date.month == day.month &&
                     date.day == day.day)) {
                   is28DayPredictionDate = true;
+                }
+
+                if (averageBasedPredictionDates.any((date) =>
+                    date.year == day.year &&
+                    date.month == day.month &&
+                    date.day == day.day)) {
+                  isAverageBasedPredictionDate = true;
                   backgroundColor =
                       GinaAppTheme.lightPrimaryColor.withOpacity(0.5);
                 }
 
-                if (widget.periodDates.any((date) =>
+                if (periodDates.any((date) =>
                     date.year == day.year &&
                     date.month == day.month &&
                     date.day == day.day)) {
-                  backgroundColor = widget.isEditMode
+                  backgroundColor = isEditMode
                       ? Colors.transparent
                       : GinaAppTheme.lightTertiaryContainer;
                   isPeriodDate = true;
@@ -202,13 +219,17 @@ class _MonthCalendarState extends State<MonthCalendar> {
                   alignment: Alignment.center,
                   child: Text(
                     day.day.toString(),
-                    style: const TextStyle(
-                      color: GinaAppTheme.lightOnPrimaryColor,
+                    style: TextStyle(
+                      color: isPeriodDate
+                          ? Colors.white
+                          : GinaAppTheme.lightOnPrimaryColor,
+                      fontWeight:
+                          isPeriodDate ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                 );
 
-                if (widget.isEditMode) {
+                if (isEditMode) {
                   return InkWell(
                     onTap: () {
                       setState(() {
@@ -230,7 +251,7 @@ class _MonthCalendarState extends State<MonthCalendar> {
                           margin: const EdgeInsets.only(top: 5.0),
                           width: 20.0,
                           height: 20.0,
-                          child: isAverageBasedPredictionDate
+                          child: is28DayPredictionDate
                               ? DottedBorder(
                                   borderType: BorderType.Circle,
                                   color: GinaAppTheme.lightTertiaryContainer,
@@ -270,7 +291,7 @@ class _MonthCalendarState extends State<MonthCalendar> {
                                     border: Border.all(
                                       color: isPeriodDate
                                           ? Colors.transparent
-                                          : is28DayPredictionDate
+                                          : isAverageBasedPredictionDate
                                               ? GinaAppTheme.lightPrimaryColor
                                               : Colors.grey,
                                       width: 2,
@@ -294,7 +315,7 @@ class _MonthCalendarState extends State<MonthCalendar> {
                   );
                 }
 
-                if (isAverageBasedPredictionDate) {
+                if (is28DayPredictionDate) {
                   child = DottedBorder(
                     borderType: BorderType.Circle,
                     color: GinaAppTheme.lightTertiaryContainer,

@@ -35,7 +35,7 @@ class HomeCalendarTrackerContainer extends StatelessWidget {
             const Gap(15),
             EasyDateTimeLine(
               initialDate: DateTime.now(),
-              // disabledDates: periodTrackerModel,
+              disabledDates: periodTrackerModel,
               headerProps: EasyHeaderProps(
                 monthStyle:
                     ginaTheme.textTheme.headlineSmall?.copyWith(fontSize: 16),

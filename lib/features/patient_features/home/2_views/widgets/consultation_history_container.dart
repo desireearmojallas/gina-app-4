@@ -20,20 +20,22 @@ class ConsultationHistoryContainer extends StatelessWidget {
     final height = MediaQuery.of(context).size.height;
     final ginaTheme = Theme.of(context);
 
-    return BlocBuilder<HomeBloc, HomeState>(builder: (context, state) {
-      return GestureDetector(
+    return BlocBuilder<HomeBloc, HomeState>(
+      builder: (context, state) {
+        return GestureDetector(
           onTap: () => Navigator.pushNamed(context, '/appointments'),
           child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: GinaAppTheme.lightOnTertiary,
-                boxShadow: [
-                  GinaAppTheme.defaultBoxShadow,
-                ],
-              ),
-              height: height / 2.55,
-              width: width / 1.05,
-              child: Column(children: [
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: GinaAppTheme.lightOnTertiary,
+              boxShadow: [
+                GinaAppTheme.defaultBoxShadow,
+              ],
+            ),
+            height: height / 2.55,
+            width: width / 1.05,
+            child: Column(
+              children: [
                 Row(
                   children: [
                     Padding(
@@ -103,7 +105,11 @@ class ConsultationHistoryContainer extends StatelessWidget {
                           );
                         },
                       )
-              ])));
-    });
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }

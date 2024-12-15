@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/consultation/1_controllers/chat_message_controllers.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
@@ -52,7 +53,7 @@ class ChatMessageBody extends StatelessWidget {
                                 AsyncSnapshot<Timestamp?> snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
-                                return const CircularProgressIndicator();
+                                return const CustomLoadingIndicator();
                               } else if (snapshot.hasError) {
                                 return Text('Error: ${snapshot.error}');
                               } else {
@@ -92,7 +93,7 @@ class ChatMessageBody extends StatelessWidget {
                                 AsyncSnapshot<Timestamp?> snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
-                                return const CircularProgressIndicator();
+                                return const CustomLoadingIndicator();
                               } else if (snapshot.hasError) {
                                 return Text('Error: ${snapshot.error}');
                               } else {

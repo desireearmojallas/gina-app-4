@@ -276,6 +276,33 @@ class PeriodTrackerController with ChangeNotifier {
     }
   }
 
+  Future<Either<Exception, List<PeriodTrackerModel>>>
+      getDefaultPredictions() async {
+    try {
+      final defaultPeriodPredictions = await FirebaseFirestore.instance
+          .collection('patients')
+          .doc(currentUser!.uid)
+          .collection('defaultPeriodPredictions')
+          .get();
+
+      if (defaultPeriodPredictions.docs.isNotEmpty) {
+        final allDefaultPredictions = defaultPeriodPredictions.docs
+            .map((e) => PeriodTrackerModel.fromJson(e.data()))
+            .toList();
+
+        debugPrint('All menstrual periods: $allDefaultPredictions');
+        return Right(allDefaultPredictions);
+      } else {
+        return const Right([]);
+      }
+    } catch (e) {
+      debugPrint('Error retrieving period predictions: $e');
+      return Left(
+        Exception('Error retrieving period predictions: $e'),
+      );
+    }
+  }
+
   //! Add here the day before the period starts to notify user using alert dialog
   //TODO: Add the day before the period starts to notify user using alert dialog
 
@@ -332,10 +359,10 @@ class PeriodTrackerController with ChangeNotifier {
           .collection('periodPredictions')
           .get();
 
-      final default28DayPeriodPredictions = await firestore
+      final day28PredictionDates = await firestore
           .collection('patients')
           .doc(currentUser!.uid)
-          .collection('28dayPeriodPredictions')
+          .collection('day28PredictionDates')
           .get();
 
       List<PeriodTrackerModel> allPeriods = [];
@@ -352,8 +379,8 @@ class PeriodTrackerController with ChangeNotifier {
             .toList());
       }
 
-      if (default28DayPeriodPredictions.docs.isNotEmpty) {
-        allPeriods.addAll(default28DayPeriodPredictions.docs
+      if (day28PredictionDates.docs.isNotEmpty) {
+        allPeriods.addAll(day28PredictionDates.docs
             .map((e) => PeriodTrackerModel.fromJson(e.data()))
             .toList());
       }

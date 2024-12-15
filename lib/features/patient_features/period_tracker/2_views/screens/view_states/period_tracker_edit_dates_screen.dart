@@ -1,52 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/screens/widgets/period_tracker_legend.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/screens/widgets/period_tracker_widgets/yearly_calendar_widget.dart';
 
 class PeriodTrackerEditDatesScreen extends StatelessWidget {
-  const PeriodTrackerEditDatesScreen({super.key});
+  final List<PeriodTrackerModel> periodTrackerModel;
+  final List<DateTime> storedPeriodDates;
+  const PeriodTrackerEditDatesScreen({
+    super.key,
+    required this.periodTrackerModel,
+    required this.storedPeriodDates,
+  });
 
   @override
   Widget build(BuildContext context) {
     final ginaTheme = Theme.of(context);
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
+    return Stack(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            children: [
+              periodTrackerLegend(
+                ginaTheme,
+                isEditMode: true,
+              ),
+              const Gap(10),
+              // --- Calendar List ---
+              // const Expanded(
+              //   child: YearlyCalendarWidget(
+              //     isEditMode: true,
+              //   ),
+              // ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(25.0),
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                periodTrackerLegend(
-                  ginaTheme,
-                  isEditMode: true,                      
-                ),
-                const Gap(10),
-                // --- Calendar List ---
-                const Expanded(
-                  child: YearlyCalendarWidget(
-                    isEditMode: true,
-                  ),
-                ),
+                cancelEditButton(context),
+                saveEditButton(),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(25.0),
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  cancelEditButton(context),
-                  saveEditButton(),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

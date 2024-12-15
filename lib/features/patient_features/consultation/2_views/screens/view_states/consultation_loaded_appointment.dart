@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/core/resources/images.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
@@ -62,7 +63,7 @@ class _ConsultationOnGoingAppointmentScreenState
                   SizedBox(
                     height: 50.0,
                     width: 50.0,
-                    child: CircularProgressIndicator(),
+                    child: CustomLoadingIndicator(),
                   ),
                 ],
               ),

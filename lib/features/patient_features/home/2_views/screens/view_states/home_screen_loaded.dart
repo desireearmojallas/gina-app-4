@@ -28,7 +28,10 @@ class HomeScreenLoaded extends StatelessWidget {
     return ScrollbarCustom(
       child: RefreshIndicator(
         onRefresh: () async {
-          homeBloc.add(GetPatientNameEvent());
+          homeBloc.add(GetPatientCurrentLocationEvent());
+          // homeBloc.add(HomeGetPeriodTrackerDataAndConsultationHistoryEvent());
+          // homeBloc.add(GetPatientNameEvent());
+          homeBloc.add(HomeGetPeriodTrackerDataAndConsultationHistoryEvent());
         },
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
