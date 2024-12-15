@@ -196,8 +196,6 @@ Future<void> init() async {
     ),
   );
 
-  sl.registerFactory(() => PeriodTrackerController());
-
 //------------------------------------------------------------------------------
 
 //! Features - Floating Menu Bar

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/floating_menu_bar/2_views/floating_menu_bar.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/gina_header.dart';
@@ -16,7 +17,10 @@ class HomeScreenProvider extends StatelessWidget {
       create: (context) {
         final homeBloc = sl<HomeBloc>();
         homeBloc.add(GetPatientCurrentLocationEvent());
-        homeBloc.add(GetPatientNameEvent());
+        // homeBloc.add(HomeGetPeriodTrackerDataAndConsultationHistoryEvent());
+        // homeBloc.add(GetPatientNameEvent());
+        homeBloc.add(HomeGetPeriodTrackerDataAndConsultationHistoryEvent());
+
         return homeBloc;
       },
       child: const HomeScreen(),
@@ -47,13 +51,33 @@ class HomeScreen extends StatelessWidget {
         listenWhen: (previous, current) => current is HomeActionState,
         buildWhen: (previous, current) => current is! HomeActionState,
         listener: (context, state) {
-          // TODO: implement listener
+          if (state is HomeNavigateToFindDoctorActionState) {
+            Navigator.pushNamed(context, '/find').then((value) => homeBloc
+                .add(HomeGetPeriodTrackerDataAndConsultationHistoryEvent()));
+          } else if (state is HomeNavigateToForumActionState) {
+            Navigator.pushNamed(context, '/forums').then((value) => {
+                  homeBloc.add(
+                      HomeGetPeriodTrackerDataAndConsultationHistoryEvent()),
+                });
+          }
         },
         builder: (context, state) {
-          if (state is HomeInitial) {
-            return const HomeScreenLoaded();
+          if (state is HomeLoadedState) {
+            return HomeScreenLoaded(
+              patientName: state.patientName,
+              periodTrackerModel: state.periodTrackerModel,
+              filteredConsultationHistory: state.consultationHistory,
+            );
           }
-          return const HomeScreenLoaded();
+          return const HomeScreenLoaded(
+            patientName: '',
+            periodTrackerModel: [],
+            filteredConsultationHistory: [],
+          );
+
+          // return Center(
+          //   child: CustomLoadingIndicator(),
+          // );
         },
       ),
     );

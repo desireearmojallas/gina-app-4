@@ -101,36 +101,103 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     emit(HomeNavigateToForumActionState());
   }
 
+  // FutureOr<void> homeGetPeriodTrackerDataEvent(
+  //     HomeGetPeriodTrackerDataAndConsultationHistoryEvent event,
+  //     Emitter<HomeState> emit) async {
+  //   emit(HomeGetPeriodTrackerDataAndConsultationHistoryLoadingState());
+  //   List<AppointmentModel> filteredAppointments = [];
+  //   final consultationHistory =
+  //       await appointmentController.getCurrentPatientAppointment();
+
+  //   consultationHistory.fold(
+  //     (failure) {
+  //       emit(HomeInitialError(errorMessage: failure.toString()));
+  //     },
+  //     (consultationHistory) {
+  //       var filteredConsultationHistory = consultationHistory
+  //           .where((appointment) =>
+  //               appointment.appointmentStatus ==
+  //                   AppointmentStatus.completed.index ||
+  //               appointment.appointmentStatus ==
+  //                   AppointmentStatus.cancelled.index ||
+  //               appointment.appointmentStatus ==
+  //                   AppointmentStatus.declined.index)
+  //           .toList();
+
+  //       filteredAppointments = filteredConsultationHistory;
+  //     },
+  //   );
+
+  //   try {
+  //     // final periodTrackerData = await periodTrackerController.getAllPeriods();
+
+  //     final periodTrackerData =
+  //         await periodTrackerController.getAllPeriodsWith28DaysPredictions();
+
+  //     periodTrackerData.fold(
+  //       (failure) => emit(
+  //           HomeGetPeriodTrackerDataAndConsultationHistoryDataError(
+  //               errorMessage: failure.toString())),
+  //       (periodTrackerData) {
+  //         periodTrackerModelList = periodTrackerData;
+
+  //         List<DateTime> dateRange = [];
+
+  //         for (var period in periodTrackerModelList!) {
+  //           DateTime startDate = period.startDate;
+  //           int periodLength =
+  //               period.endDate.difference(period.startDate).inDays;
+
+  //           for (var i = 0; i <= periodLength; i++) {
+  //             dateRange.add(startDate.add(Duration(days: i)));
+  //           }
+  //         }
+
+  //         emit(HomeGetPeriodTrackerDataAndConsultationHistorySuccess(
+  //           periodTrackerModel: dateRange,
+  //           consultationHistory: filteredAppointments,
+  //         ));
+  //       },
+  //     );
+  //   } catch (e) {
+  //     emit(HomeGetPeriodTrackerDataAndConsultationHistoryDataError(
+  //         errorMessage: e.toString()));
+  //   }
+  // }
+
   FutureOr<void> homeGetPeriodTrackerDataEvent(
       HomeGetPeriodTrackerDataAndConsultationHistoryEvent event,
       Emitter<HomeState> emit) async {
     emit(HomeGetPeriodTrackerDataAndConsultationHistoryLoadingState());
-    List<AppointmentModel> filteredAppointments = [];
-    final consultationHistory =
-        await appointmentController.getCurrentPatientAppointment();
-
-    consultationHistory.fold(
-      (failure) {
-        emit(HomeInitialError(errorMessage: failure.toString()));
-      },
-      (consultationHistory) {
-        var filteredConsultationHistory = consultationHistory
-            .where((appointment) =>
-                appointment.appointmentStatus ==
-                    AppointmentStatus.completed.index ||
-                appointment.appointmentStatus ==
-                    AppointmentStatus.cancelled.index ||
-                appointment.appointmentStatus ==
-                    AppointmentStatus.declined.index)
-            .toList();
-
-        filteredAppointments = filteredConsultationHistory;
-      },
-    );
 
     try {
-      // final periodTrackerData = await periodTrackerController.getAllPeriods();
+      // Fetch patient name
+      final currentPatientName =
+          await profileController.getCurrentPatientName();
 
+      // Fetch consultation history
+      final consultationHistory =
+          await appointmentController.getCurrentPatientAppointment();
+
+      List<AppointmentModel> filteredAppointments = [];
+      consultationHistory.fold(
+        (failure) {
+          emit(HomeInitialError(errorMessage: failure.toString()));
+        },
+        (appointments) {
+          filteredAppointments = appointments
+              .where((appointment) =>
+                  appointment.appointmentStatus ==
+                      AppointmentStatus.completed.index ||
+                  appointment.appointmentStatus ==
+                      AppointmentStatus.cancelled.index ||
+                  appointment.appointmentStatus ==
+                      AppointmentStatus.declined.index)
+              .toList();
+        },
+      );
+
+      // Fetch period tracker data
       final periodTrackerData =
           await periodTrackerController.getAllPeriodsWith28DaysPredictions();
 
@@ -138,8 +205,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         (failure) => emit(
             HomeGetPeriodTrackerDataAndConsultationHistoryDataError(
                 errorMessage: failure.toString())),
-        (periodTrackerData) {
-          periodTrackerModelList = periodTrackerData;
+        (periods) {
+          periodTrackerModelList = periods;
 
           List<DateTime> dateRange = [];
 
@@ -153,7 +220,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             }
           }
 
-          emit(HomeGetPeriodTrackerDataAndConsultationHistorySuccess(
+          // Emit combined state
+          emit(HomeLoadedState(
+            patientName: currentPatientName,
             periodTrackerModel: dateRange,
             consultationHistory: filteredAppointments,
           ));

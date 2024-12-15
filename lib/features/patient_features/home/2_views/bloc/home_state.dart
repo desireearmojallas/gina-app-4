@@ -9,7 +9,23 @@ abstract class HomeState extends Equatable {
 
 abstract class HomeActionState extends HomeState {}
 
-final class HomeInitial extends HomeState {}
+class HomeInitial extends HomeState {}
+
+class HomeLoadedState extends HomeState {
+  final String patientName;
+  final List<DateTime> periodTrackerModel;
+  final List<AppointmentModel> consultationHistory;
+
+  const HomeLoadedState({
+    required this.patientName,
+    required this.periodTrackerModel,
+    required this.consultationHistory,
+  });
+
+  @override
+  List<Object> get props =>
+      [patientName, periodTrackerModel, consultationHistory];
+}
 
 class HomeGetPeriodTrackerDataState extends HomeState {}
 
