@@ -40,7 +40,7 @@ class ConsultationBloc extends Bloc<ConsultationEvent, ConsultationState> {
           chatroomId: chatroomId!, recipientUid: event.recipientUid));
     } else {
       final checkAppointmentForOnlineConsultation =
-          await appointmentChatController.chatStatusDecier(
+          await appointmentChatController.chatStatusDecider(
         appointmentId: storedAppointmentUid!,
       );
 

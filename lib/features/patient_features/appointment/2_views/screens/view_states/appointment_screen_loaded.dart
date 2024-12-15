@@ -50,6 +50,7 @@ class AppointmentScreenLoaded extends StatelessWidget {
                 const Gap(17),
                 SwiperBuilderWidget(
                   upcomingAppointments: upcomingAppointments,
+                  isDoctor: false,
                 ),
                 const Gap(30),
                 _title(context, 'Consultation history'),

@@ -40,6 +40,8 @@ class DoctorConsultationBloc
   FutureOr<void> getRequestedAppointmentEvent(
       DoctorConsultationGetRequestedAppointmentEvent event,
       Emitter<DoctorConsultationState> emit) async {
+    // emit(DoctorConsultationLoadingState());
+
     if (isFromChatRoomLists) {
       final chatRoomId = await doctorChatMessageController.initChatRoom(
         doctorChatMessageController.generateRoomId(event.recipientUid),
@@ -49,26 +51,23 @@ class DoctorConsultationBloc
       doctorChatRoom = chatRoomId;
 
       emit(DoctorConsultationLoadedAppointmentState(
-        chatRoomId: chatRoomId!,
-        recipientUid: event.recipientUid,
-      ));
+          chatRoomId: chatRoomId!, recipientUid: event.recipientUid));
     } else {
       final checkAppointmentForOnlineConsultation =
-          await appointmentChatController.chatStatusDecier(
+          await appointmentChatController.chatStatusDecider(
         appointmentId: selectedPatientAppointment!,
       );
       if (checkAppointmentForOnlineConsultation == 'canChat') {
         isAppointmentFinished = false;
         isChatWaiting = false;
         final chatRoomId = await doctorChatMessageController.initChatRoom(
-            doctorChatMessageController.generateRoomId(event.recipientUid),
-            event.recipientUid);
+          doctorChatMessageController.generateRoomId(event.recipientUid),
+          event.recipientUid,
+        );
 
         chatRoom = chatRoomId;
         emit(DoctorConsultationLoadedAppointmentState(
-          chatRoomId: chatRoomId!,
-          recipientUid: event.recipientUid,
-        ));
+            chatRoomId: chatRoomId!, recipientUid: event.recipientUid));
       } else if (checkAppointmentForOnlineConsultation ==
           'appointmentIsNotStartedYet') {
         emit(DoctorConsultationWaitingAppointmentState());
@@ -82,7 +81,6 @@ class DoctorConsultationBloc
         );
 
         chatRoom = chatRoomId;
-
         emit(DoctorConsultationLoadedAppointmentState(
             chatRoomId: chatRoomId!, recipientUid: event.recipientUid));
       } else if (checkAppointmentForOnlineConsultation == 'chatIsFinished') {

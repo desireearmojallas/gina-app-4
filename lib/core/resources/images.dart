@@ -84,4 +84,8 @@ class Images {
   //! Doctor No Consultation Illustration
   static String noConsultationIllustration =
       "assets/images/doctor_features/consultation/girl_question_mark.png";
+
+  //! Doctor Waiting For Consultation Illustration
+  static String waitingConsultationIllustration =
+      "assets/images/doctor_features/consultation/waiting_for_appointment.png";
 }

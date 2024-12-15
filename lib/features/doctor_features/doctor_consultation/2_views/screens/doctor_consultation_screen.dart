@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
+import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/screens/view_states/doctor_consultation_on_going_appointment_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/screens/view_states/patient_data_details_state.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/widgets/doctor_consultation_menu.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
-import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/view_states/consultation_no_appointment.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/view_states/consultation_waiting_appointment.dart';
 
@@ -23,6 +24,9 @@ class DoctorConsultationScreenProvider extends StatelessWidget {
 
         String formattedPatientUid =
             selectedPatientUid!.replaceAll('"', '').trim();
+
+        debugPrint('SelectedPatientUid: $selectedPatientUid');
+        debugPrint('FormattedPatientUid: $formattedPatientUid');
 
         doctorConsultationBloc.add(
           DoctorConsultationGetRequestedAppointmentEvent(
@@ -47,16 +51,7 @@ class DoctorConsultationScreen extends StatelessWidget {
     return BlocBuilder<DoctorConsultationBloc, DoctorConsultationState>(
       builder: (context, state) {
         return Scaffold(
-          //! Chat view with patient's name. different appbar for the patient information. to be changed with bloc implementation
-          // appBar: AppBar(
-          //   title: Text(
-          //     'Desiree Armojallas',
-          //   ),
-          //   actions: [
-          //     DoctorConsultationMenu(),
-          //   ],
-          // ),
-
+          backgroundColor: Colors.white,
           appBar: state is NavigateToPatientDataState
               ? GinaDoctorAppBar(
                   title: 'Patient Details',
@@ -91,8 +86,68 @@ class DoctorConsultationScreen extends StatelessWidget {
                 current is DoctorConsultationActionState,
             buildWhen: (previous, current) =>
                 current is! DoctorConsultationActionState,
-            listener: (context, state) {},
+            listener: (context, state) {
+              if (state is DoctorConsultationCompletedAppointmentState) {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    backgroundColor: GinaAppTheme.appbarColorLight,
+                    shadowColor: GinaAppTheme.appbarColorLight,
+                    surfaceTintColor: GinaAppTheme.appbarColorLight,
+                    icon: const Icon(
+                      Icons.check_circle_rounded,
+                      color: Colors.green,
+                      size: 80,
+                    ),
+                    content: SizedBox(
+                      height: 120,
+                      width: 250,
+                      child: Column(
+                        children: [
+                          Text(
+                            'Consultation has been Completed',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                          ),
+                          const Gap(20),
+                          SizedBox(
+                            height: 40,
+                            width: MediaQuery.of(context).size.width * 0.5,
+                            child: FilledButton(
+                                style: ButtonStyle(
+                                  shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('Okay')),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ).then((value) {
+                  Navigator.of(context).pop();
+                  Navigator.pushReplacementNamed(
+                      context, '/doctorBottomNavigation');
+                });
+              }
+            },
             builder: (context, state) {
+              debugPrint('Doctor consultation screen state: $state');
               if (state is DoctorConsultationNoAppointmentState) {
                 return const ConsultationNoAppointmentScreen();
               } else if (state is DoctorConsultationLoadingState) {
@@ -118,8 +173,9 @@ class DoctorConsultationScreen extends StatelessWidget {
                 );
               }
 
-              //! to be continued....
-              return const CustomLoadingIndicator();
+              return const Center(
+                child: CustomLoadingIndicator(),
+              );
             },
           ),
         );

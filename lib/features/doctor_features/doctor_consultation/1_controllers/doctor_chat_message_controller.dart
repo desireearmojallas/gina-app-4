@@ -59,65 +59,76 @@ class DoctorChatMessageController with ChangeNotifier {
     });
   }
 
-  // Future<String?> initChatRoom(String room, String currentRecipient) {
-  //   DoctorModel.fromUid(uid: FirebaseAuth.instance.currentUser!.uid)
-  //       .then((value) {
-  //     recipient = currentRecipient;
-  //     doctor = value;
-  //     if (doctor != null && doctor!.chatrooms.contains(room)) {
-  //       subscribe();
-  //     } else {
-  //       controller.add('empty');
-  //     }
-
-  //     chatroom = room;
-  //     return chatroom;
-  //   });
-  //   return Future.value(chatroom);
-  // }
-
-  Future<String?> initChatRoom(String room, String currentRecipient) async {
-    try {
-      DoctorModel doctor =
-          await DoctorModel.fromUid(uid: auth.currentUser!.uid);
-
+  Future<String?> initChatRoom(String room, String currentRecipient) {
+    debugPrint(
+        'initChatRoom called with room: $room, recipient: $currentRecipient');
+    DoctorModel.fromUid(uid: FirebaseAuth.instance.currentUser!.uid)
+        .then((value) {
       recipient = currentRecipient;
-
-      if (doctor.chatrooms.contains(room)) {
+      doctor = value;
+      if (doctor != null && doctor!.chatrooms.contains(room)) {
         subscribe();
       } else {
         controller.add('empty');
       }
 
       chatroom = room;
-      return chatroom; // Return the resolved chatroom.
-    } catch (e) {
-      controller.add('error');
-      return null; // Handle any errors gracefully.
-    }
+      debugPrint('Chatroom initialized: $chatroom');
+      return chatroom;
+    });
+    return Future.value(chatroom);
   }
 
-  // generateRoomId(String recipientUid) {
-  //   String currentDoctorUid = FirebaseAuth.instance.currentUser!.uid;
+  // Future<String?> initChatRoom(String room, String currentRecipient) async {
+  //   try {
+  //     DoctorModel doctor =
+  //         await DoctorModel.fromUid(uid: auth.currentUser!.uid);
 
-  //   if (currentDoctorUid.codeUnits[0] >= recipientUid.codeUnits[0]) {
-  //     if (currentDoctorUid.codeUnits[1] == recipientUid.codeUnits[1]) {
-  //       return chatroom = recipientUid + currentDoctorUid;
+  //     recipient = currentRecipient;
+
+  //     if (doctor.chatrooms.contains(room)) {
+  //       subscribe();
+  //     } else {
+  //       controller.add('empty');
   //     }
-  //     return chatroom = currentDoctorUid + recipientUid;
+
+  //     chatroom = room;
+  //     return chatroom; // Return the resolved chatroom.
+  //   } catch (e) {
+  //     controller.add('error');
+  //     return null; // Handle any errors gracefully.
   //   }
-  //   return chatroom = recipientUid + currentDoctorUid;
   // }
 
-  //----------------- GENERATE ROOM ID ----------------
+  generateRoomId(String recipientUid) {
+    String currentDoctorUid = FirebaseAuth.instance.currentUser!.uid;
+    debugPrint(
+        'Generating room ID for currentDoctorUid: $currentDoctorUid and recipientUid: $recipientUid');
 
-  String generateRoomId(String recipientUid) {
-    String currentDoctorUid = auth.currentUser!.uid;
-
-    List<String> sortedUids = [currentDoctorUid, recipientUid]..sort();
-
-    return sortedUids.join();
+    if (currentDoctorUid.codeUnits[0] >= recipientUid.codeUnits[0]) {
+      if (currentDoctorUid.codeUnits[1] == recipientUid.codeUnits[1]) {
+        chatroom = recipientUid + currentDoctorUid;
+        debugPrint('Room ID generated (case 1): $chatroom');
+        return chatroom;
+      }
+      chatroom = currentDoctorUid + recipientUid;
+      debugPrint('Room ID generated (case 2): $chatroom');
+      return chatroom;
+    }
+    chatroom = recipientUid + currentDoctorUid;
+    debugPrint('Room ID generated (case 3): $chatroom');
+    return chatroom;
   }
+
+  // //----------------- GENERATE ROOM ID ----------------
+
+  // String generateRoomId(String recipientUid) {
+  //   String currentDoctorUid = auth.currentUser!.uid;
+
+  //   List<String> sortedUids = [currentDoctorUid, recipientUid]..sort();
+
+  //   return sortedUids.join();
+  // }
 
   //----------------- CHAT UPDATE HANDLER ----------------
 
@@ -250,6 +261,47 @@ class DoctorChatMessageController with ChangeNotifier {
     } catch (e) {
       debugPrint('Error sending message: $e');
       rethrow;
+    }
+  }
+
+  //----------------- GET START AND END DATE AND TIME ----------------
+
+  Future<Timestamp?> getFirstMessageTime() async {
+    debugPrint('Getting first message time for chatroom $chatroom');
+
+    QuerySnapshot<Map<String, dynamic>> querySnapshot = await firestore
+        .collection('consultation-chatrooms')
+        .doc(chatroom)
+        .collection('messages')
+        .orderBy('createdAt')
+        .limit(1)
+        .get();
+
+    debugPrint('Got ${querySnapshot.docs.length} documents');
+
+    if (querySnapshot.docs.isNotEmpty) {
+      Timestamp? timestamp = querySnapshot.docs.first.data()['createdAt'];
+      debugPrint('First message time: $timestamp');
+      return timestamp;
+    } else {
+      debugPrint('No documents found');
+      return null;
+    }
+  }
+
+  Future<Timestamp?> getLastMessageTime() async {
+    QuerySnapshot<Map<String, dynamic>> querySnapshot = await firestore
+        .collection('consultation-chatrooms')
+        .doc(chatroom)
+        .collection('messages')
+        .orderBy('createdAt', descending: true)
+        .limit(1)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      return querySnapshot.docs.first.data()['createdAt'];
+    } else {
+      return null;
     }
   }
 }

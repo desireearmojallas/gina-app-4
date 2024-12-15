@@ -38,7 +38,8 @@ class ConsultationScreen extends StatelessWidget {
           appBar: GinaPatientAppBar(
             title: 'Dr. ${doctorDetails!.name}',
           ),
-          backgroundColor: state is ConsultationNoAppointmentState
+          backgroundColor: state is ConsultationNoAppointmentState ||
+                  state is ConsultationWaitingAppointmentState
               ? Colors.white
               : Colors.grey[200],
           body: BlocConsumer<ConsultationBloc, ConsultationState>(

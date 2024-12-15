@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 class AppointmentChatController with ChangeNotifier {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  Future<String> chatStatusDecier({
+  Future<String> chatStatusDecider({
     required String appointmentId,
   }) async {
     if (appointmentId.isEmpty) {
