@@ -11,14 +11,14 @@ import 'month_calendar.dart';
 class YearlyCalendarWidget extends StatefulWidget {
   final bool isEditMode;
   final List<PeriodTrackerModel> periodTrackerModel;
-  final List<PeriodTrackerModel> allPeriodsWithPredictions;
-  final List<PeriodTrackerModel> defaultPeriodPredictions;
+  final List<PeriodTrackerModel>? allPeriodsWithPredictions;
+  final List<PeriodTrackerModel>? defaultPeriodPredictions;
   const YearlyCalendarWidget({
     super.key,
     this.isEditMode = false,
     required this.periodTrackerModel,
-    required this.allPeriodsWithPredictions,
-    required this.defaultPeriodPredictions,
+    this.allPeriodsWithPredictions,
+    this.defaultPeriodPredictions,
   });
 
   @override

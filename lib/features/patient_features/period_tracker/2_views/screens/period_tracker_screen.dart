@@ -42,8 +42,8 @@ class PeriodTrackerScreen extends StatelessWidget {
         builder: (context, state) {
           if (state is NavigateToPeriodTrackerEditDatesState) {
             return PeriodTrackerEditDatesScreen(
-              periodTrackerModel: state.periodTrackerModel,
               storedPeriodDates: state.loggedPeriodDates,
+              periodTrackerModel: state.periodTrackerModel,
             );
           } else if (state is GetFirstMenstrualPeriodSuccess) {
             return PeriodTrackerInitialScreen(

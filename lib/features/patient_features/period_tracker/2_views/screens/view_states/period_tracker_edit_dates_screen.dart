@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/2_views/bloc/period_tracker_bloc.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/screens/widgets/period_tracker_legend.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/screens/widgets/period_tracker_widgets/yearly_calendar_widget.dart';
 
 class PeriodTrackerEditDatesScreen extends StatelessWidget {
-  final List<PeriodTrackerModel> periodTrackerModel;
   final List<DateTime> storedPeriodDates;
+  final List<PeriodTrackerModel> periodTrackerModel;
+
   const PeriodTrackerEditDatesScreen({
     super.key,
-    required this.periodTrackerModel,
     required this.storedPeriodDates,
+    required this.periodTrackerModel,
   });
 
   @override
   Widget build(BuildContext context) {
+    final periodTrackerBloc = context.read<PeriodTrackerBloc>();
     final ginaTheme = Theme.of(context);
 
     return Stack(
@@ -30,11 +34,20 @@ class PeriodTrackerEditDatesScreen extends StatelessWidget {
               ),
               const Gap(10),
               // --- Calendar List ---
-              // const Expanded(
-              //   child: YearlyCalendarWidget(
-              //     isEditMode: true,
-              //   ),
+
+              // BlocBuilder<PeriodTrackerBloc, PeriodTrackerState>(
+              //   builder: (context, state) {
+              //     return Column(
+              //       children: [],
+              //     );
+              //   },
               // ),
+              Expanded(
+                child: YearlyCalendarWidget(
+                  isEditMode: true,
+                  periodTrackerModel: periodTrackerModel,
+                ),
+              ),
             ],
           ),
         ),
@@ -63,8 +76,8 @@ class PeriodTrackerEditDatesScreen extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         foregroundColor: GinaAppTheme.lightOnPrimaryColor,
         backgroundColor: GinaAppTheme.lightSurfaceVariant,
-        shadowColor: GinaAppTheme.defaultBoxShadow.color,
-        elevation: 5,
+        // shadowColor: GinaAppTheme.defaultBoxShadow.color,
+        // elevation: 5,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
@@ -87,8 +100,8 @@ class PeriodTrackerEditDatesScreen extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,
         backgroundColor: GinaAppTheme.lightTertiaryContainer,
-        shadowColor: GinaAppTheme.defaultBoxShadow.color,
-        elevation: 5,
+        // shadowColor: GinaAppTheme.defaultBoxShadow.color,
+        // elevation: 5,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
