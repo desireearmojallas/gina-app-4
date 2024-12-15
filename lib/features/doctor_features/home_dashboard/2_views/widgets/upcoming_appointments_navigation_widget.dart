@@ -15,8 +15,7 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
 
     return Column(
       children: [
-       
-        /*  const Gap(10),
+        const Gap(10),
         const Align(
           alignment: Alignment.centerLeft,
           child: Text(
@@ -27,7 +26,7 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
               color: GinaAppTheme.lightOutline,
             ),
           ),
-        ), */
+        ),
         const Gap(10),
         Container(
           height: size.height * 0.22,

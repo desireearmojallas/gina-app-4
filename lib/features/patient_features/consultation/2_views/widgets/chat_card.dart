@@ -1,0 +1,387 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:gina_app_4/core/resources/images.dart';
+import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
+import 'package:gina_app_4/features/auth/0_model/user_model.dart';
+import 'package:gina_app_4/features/patient_features/consultation/0_model/chat_message_model.dart';
+import 'package:intl/intl.dart';
+
+class ChatCard extends StatefulWidget {
+  final ScrollController scrollController;
+  final int index;
+  final bool isGroup;
+  final List<ChatMessageModel> chat;
+  final String chatroom;
+  final String recipient;
+  const ChatCard({
+    super.key,
+    required this.scrollController,
+    required this.index,
+    this.isGroup = false,
+    required this.chat,
+    required this.chatroom,
+    required this.recipient,
+  });
+
+  @override
+  State<ChatCard> createState() => _ChatCardState();
+}
+
+class _ChatCardState extends State<ChatCard> {
+  var isVisible = false;
+  double space = 0;
+  List<ChatMessageModel> get chat => widget.chat;
+  ScrollController get scrollController => widget.scrollController;
+  int get index => widget.index;
+  String get chatroom => widget.chatroom;
+  final isPatient = FirebaseAuth.instance.currentUser?.uid;
+
+  @override
+  Widget build(BuildContext context) {
+    bool isCurrentUser = chat[index].authorUid == isPatient;
+    bool isNextSameAuthor = index < chat.length - 1 &&
+        chat[index + 1].authorUid == chat[index].authorUid;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment:
+            isCurrentUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        children: [
+          if (!isCurrentUser)
+            CircleAvatar(
+              backgroundImage: !isNextSameAuthor
+                  ? AssetImage(Images.doctorProfileIcon1)
+                  : null,
+              backgroundColor: Colors.transparent,
+            ),
+          Expanded(
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+              child: Column(
+                children: [
+                  messageDate(context),
+                  messageBubble(context),
+                  messageSeen(context),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  //-----------------Message Bubble-----------------
+  Row messageBubble(BuildContext context) {
+    return Row(
+      mainAxisAlignment:
+          chat[index].authorUid == FirebaseAuth.instance.currentUser?.uid
+              ? MainAxisAlignment.end
+              : MainAxisAlignment.start,
+      children: [
+        editedLeft(context),
+        messageBody(context),
+        editedRight(context),
+      ],
+    );
+  }
+
+  //-----------------Message Body Container-----------------
+  Container messageBody(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 1),
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            isVisible = !isVisible;
+          });
+        },
+        onLongPress: () {
+          chat[index].isDeleted
+              ? null
+              : chat[index].authorUid == FirebaseAuth.instance.currentUser?.uid
+                  ? null
+                  : null;
+        },
+        child: Column(
+          crossAxisAlignment:
+              chat[index].authorUid == FirebaseAuth.instance.currentUser?.uid
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
+          children: [
+            if ((chat[index].authorUid !=
+                    FirebaseAuth.instance.currentUser?.uid) &&
+                (index == 0 ||
+                    chat[index - 1].authorUid != chat[index].authorUid))
+              FutureBuilder<DoctorModel>(
+                  future: DoctorModel.fromUid(uid: widget.recipient),
+                  builder: (context, AsyncSnapshot<DoctorModel> snap) {
+                    if (!snap.hasData) {}
+                    return Padding(
+                      padding: widget.isGroup
+                          ? const EdgeInsets.only(top: 2.0, bottom: 5)
+                          : const EdgeInsets.only(top: 2.0, bottom: 5),
+                      child: const Row(
+                        children: [
+                          //! commented out to remove the doctor's name from the chat
+                          // Container(
+                          //   padding: EdgeInsets.only(left: 5, bottom: 3),
+                          //   child: Text(
+                          //     'Dr. ${snap.data?.name ?? ''}',
+                          //     style: Theme.of(context)
+                          //         .textTheme
+                          //         .labelMedium
+                          //         ?.copyWith(
+                          //           color: GinaAppTheme.lightOnBackground,
+                          //           fontWeight: FontWeight.w600,
+                          //         ),
+                          //   ),
+                          // ),
+                        ],
+                      ),
+                    );
+                  }),
+            if (chat[index].isDeleted)
+              Container(
+                padding: widget.isGroup
+                    ? EdgeInsets.only(left: space)
+                    : const EdgeInsets.only(left: 0),
+                child: deletedMessage(context),
+              )
+            else
+              Container(
+                padding: widget.isGroup
+                    ? EdgeInsets.only(left: space)
+                    : const EdgeInsets.only(left: 0),
+                child: stringMessage(context),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  //-----------------Message---------------------------
+  Container stringMessage(BuildContext context) {
+    return Container(
+      constraints:
+          BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 1.3),
+      padding: const EdgeInsets.all(12),
+      decoration: backgroundColor(context),
+      child: Text(
+        overflow: TextOverflow.visible,
+        chat[index].message!,
+        style: TextStyle(
+          fontSize: 14,
+          color: chat[index].isDeleted
+              ? Colors.white
+              : chat[index].authorUid == FirebaseAuth.instance.currentUser?.uid
+                  ? GinaAppTheme.appbarColorLight
+                  : GinaAppTheme.lightOnPrimaryColor,
+        ),
+      ),
+    );
+  }
+
+  //-------------------------Deleted Message---------------------
+  Container deletedMessage(BuildContext context) {
+    return Container(
+      constraints:
+          BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 1.3),
+      padding: const EdgeInsets.all(12),
+      decoration: backgroundColor(context),
+      child: Text(
+        overflow: TextOverflow.visible,
+        "message deleted",
+        style: TextStyle(
+            fontSize: 16,
+            color: Theme.of(context).textTheme.titleMedium?.color),
+      ),
+    );
+  }
+
+  BoxDecoration backgroundColor(BuildContext context) {
+    final currentUserUid = FirebaseAuth.instance.currentUser?.uid;
+    final isCurrentUser = chat[index].authorUid == currentUserUid;
+
+    bool isPreviousSameAuthor =
+        index > 0 && chat[index - 1].authorUid == chat[index].authorUid;
+    bool isNextSameAuthor = index < chat.length - 1 &&
+        chat[index + 1].authorUid == chat[index].authorUid;
+
+    return BoxDecoration(
+      border: Border.all(
+          color: chat[index].isDeleted ? Colors.white : Colors.transparent),
+      borderRadius: isCurrentUser
+          ? (() {
+              if (isPreviousSameAuthor && isNextSameAuthor) {
+                // Middle message in a series
+                return const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                  topRight: Radius.circular(8),
+                  bottomRight: Radius.circular(8),
+                );
+              } else if (isPreviousSameAuthor) {
+                // Last message in a series
+                return const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                  topRight: Radius.circular(8),
+                  bottomRight: Radius.circular(20),
+                );
+              } else if (isNextSameAuthor) {
+                // First message in a series
+                return const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                  bottomRight: Radius.circular(8),
+                );
+              } else {
+                // Single message
+                return const BorderRadius.all(Radius.circular(20));
+              }
+            })()
+          : (() {
+              if (isPreviousSameAuthor && isNextSameAuthor) {
+                // Middle message in a series
+                return const BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  bottomLeft: Radius.circular(8),
+                  topRight: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                );
+              } else if (isPreviousSameAuthor) {
+                // Last message in a series
+                return const BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  bottomLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                );
+              } else if (isNextSameAuthor) {
+                // First message in a series
+                return const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  bottomLeft: Radius.circular(8),
+                  topRight: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                );
+              } else {
+                // Single message
+                return const BorderRadius.all(Radius.circular(20));
+              }
+            })(),
+      color: chat[index].isDeleted
+          ? Colors.transparent
+          : isCurrentUser
+              ? GinaAppTheme.lightTertiaryContainer
+              : GinaAppTheme.appbarColorLight,
+    );
+  }
+
+  //------------------ Visibility Widgets-------------------
+  Visibility messageSeen(BuildContext context) {
+    return Visibility(
+      visible: isVisible,
+      child: Container(
+        alignment: Alignment.center,
+        width: double.infinity,
+        child: Container(
+          padding: const EdgeInsets.only(right: 10, left: 10),
+          child: Row(
+            mainAxisAlignment:
+                chat[index].authorUid == FirebaseAuth.instance.currentUser?.uid
+                    ? MainAxisAlignment.end
+                    : MainAxisAlignment.start,
+            children: [
+              Text(
+                chat[index].seenBy.length > 1 ? "Seen by " : "Sent",
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
+              for (String uid in chat[index].seenBy)
+                FutureBuilder(
+                  future: UserModel.fromUid(uid: uid),
+                  builder: (context, AsyncSnapshot<UserModel> snap) {
+                    if (snap.hasData &&
+                        chat[index].seenBy.length > 1 &&
+                        snap.data?.uid !=
+                            FirebaseAuth.instance.currentUser!.uid) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 2),
+                        width: 22,
+                        child: Text(
+                          snap.data?.name ?? '',
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 12),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Visibility editedRight(BuildContext context) {
+    return Visibility(
+      visible: chat[index].isEdited
+          ? chat[index].isDeleted
+              ? false
+              : chat[index].authorUid == FirebaseAuth.instance.currentUser?.uid
+                  ? false
+                  : true
+          : false,
+      child: Padding(
+        padding: const EdgeInsets.all(5),
+        child: Text(
+          '(edited)',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ),
+    );
+  }
+
+  Visibility editedLeft(BuildContext context) {
+    return Visibility(
+      visible: chat[index].isEdited
+          ? chat[index].isDeleted
+              ? false
+              : chat[index].authorUid == FirebaseAuth.instance.currentUser?.uid
+          : false,
+      child: Padding(
+        padding: const EdgeInsets.all(5),
+        child: Text(
+          '(edited)',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ),
+    );
+  }
+
+  Visibility messageDate(BuildContext context) {
+    return Visibility(
+      visible: isVisible,
+      child: Container(
+        padding: const EdgeInsets.only(bottom: 5, top: 15),
+        alignment: Alignment.center,
+        width: double.infinity,
+        child: Text(
+          DateFormat("MMMM d, y hh:mm a")
+              .format(chat[index].createdAt!.toDate()),
+          style: const TextStyle(color: Colors.white, fontSize: 12),
+        ),
+      ),
+    );
+  }
+}

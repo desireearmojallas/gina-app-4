@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/bloc/home_bloc.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/widgets/book_appointment_container.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/widgets/consultation_history_container.dart';
@@ -10,7 +11,15 @@ import 'package:gina_app_4/features/patient_features/home/2_views/widgets/home_c
 import 'package:gina_app_4/features/patient_features/home/2_views/widgets/patient_greeting_widget.dart';
 
 class HomeScreenLoaded extends StatelessWidget {
-  const HomeScreenLoaded({super.key});
+  final String patientName;
+  final List<DateTime> periodTrackerModel;
+  final List<AppointmentModel> filteredConsultationHistory;
+  const HomeScreenLoaded({
+    super.key,
+    required this.patientName,
+    required this.periodTrackerModel,
+    required this.filteredConsultationHistory,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +28,10 @@ class HomeScreenLoaded extends StatelessWidget {
     return ScrollbarCustom(
       child: RefreshIndicator(
         onRefresh: () async {
-          homeBloc.add(GetPatientNameEvent());
+          homeBloc.add(GetPatientCurrentLocationEvent());
+          // homeBloc.add(HomeGetPeriodTrackerDataAndConsultationHistoryEvent());
+          // homeBloc.add(GetPatientNameEvent());
+          homeBloc.add(HomeGetPeriodTrackerDataAndConsultationHistoryEvent());
         },
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -30,18 +42,42 @@ class HomeScreenLoaded extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const Gap(15),
-                BlocBuilder<HomeBloc, HomeState>(
-                  builder: (context, state) {
-                    if (state is GetPatientNameState) {
-                      return PatientGreetingWidget(
-                        patientName: state.patientName,
-                      );
-                    }
-                    return const SizedBox();
-                  },
+                // BlocBuilder<HomeBloc, HomeState>(
+                //   builder: (context, state) {
+                //     if (state is GetPatientNameState) {
+                //       return PatientGreetingWidget(
+                //         patientName: state.patientName,
+                //       );
+                //     }
+                //     return const SizedBox();
+                //   },
+                // ),
+                PatientGreetingWidget(
+                  patientName: patientName,
                 ),
                 const Gap(20),
-                const HomeCalendarTrackerContainer(),
+                // BlocBuilder<HomeBloc, HomeState>(
+                //   builder: (context, state) {
+                //     if (state
+                //         is HomeGetPeriodTrackerDataAndConsultationHistorySuccess) {
+                //       return HomeCalendarTrackerContainer(
+                //         periodTrackerModel: state.periodTrackerModel,
+                //       );
+                //     } else if (state
+                //         is HomeGetPeriodTrackerDataAndConsultationHistoryLoadingState) {
+                //       return const HomeCalendarTrackerContainer(
+                //         periodTrackerModel: [],
+                //       );
+                //     }
+                //     return const HomeCalendarTrackerContainer(
+                //       periodTrackerModel: [],
+                //     );
+                //   },
+                // ),
+
+                HomeCalendarTrackerContainer(
+                  periodTrackerModel: periodTrackerModel,
+                ),
                 const Gap(20),
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -52,7 +88,9 @@ class HomeScreenLoaded extends StatelessWidget {
                   ],
                 ),
                 const Gap(20),
-                const ConsultationHistoryContainer(),
+                ConsultationHistoryContainer(
+                  filteredConsultationHistory: filteredConsultationHistory,
+                ),
               ],
             ),
           ),

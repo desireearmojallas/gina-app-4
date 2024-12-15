@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_upcoming_appointments/2_views/bloc/doctor_upcoming_appointments_bloc.dart';
+import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
 
 class DoctorConsultationMenu extends StatelessWidget {
-  const DoctorConsultationMenu({super.key});
+  final String appointmentId;
+  const DoctorConsultationMenu({super.key, required this.appointmentId});
 
   @override
   Widget build(BuildContext context) {
+    final doctorConsultationBloc = context.read<DoctorConsultationBloc>();
+
     final ginaTheme = Theme.of(context).textTheme;
     return SubmenuButton(
       style: const ButtonStyle(
@@ -28,7 +36,7 @@ class DoctorConsultationMenu extends StatelessWidget {
         backgroundColor: const MaterialStatePropertyAll<Color>(
           Colors.white,
         ),
-        elevation: const MaterialStatePropertyAll<double>(0.5),
+        elevation: const MaterialStatePropertyAll<double>(0),
         shadowColor: MaterialStatePropertyAll<Color>(
           Colors.black.withOpacity(0.2),
         ),
@@ -59,6 +67,13 @@ class DoctorConsultationMenu extends StatelessWidget {
               const Gap(15),
             ],
           ),
+          onPressed: () {
+            debugPrint('View patient data');
+            doctorConsultationBloc.add(NavigateToPatientDataEvent(
+                patientData: patientDataFromDoctorUpcomingAppointmentsBloc!,
+                appointment:
+                    appointmentDataFromDoctorUpcomingAppointmentsBloc!));
+          },
         ),
         Divider(
           color: GinaAppTheme.lightOnPrimaryColor.withOpacity(0.2),
@@ -66,9 +81,20 @@ class DoctorConsultationMenu extends StatelessWidget {
         ),
         const Gap(10),
         MenuItemButton(
+          onPressed: isFromChatRoomLists || isAppointmentFinished
+              ? null
+              : () {
+                  debugPrint('End consultation');
+
+                  doctorConsultationBloc.add(
+                      CompleteDoctorConsultationButtonEvent(
+                          appointmentId: appointmentId));
+                },
           child: Container(
             decoration: BoxDecoration(
-              color: GinaAppTheme.declinedTextColor,
+              color: isFromChatRoomLists || isAppointmentFinished
+                  ? Colors.grey[200]?.withOpacity(0.8)
+                  : GinaAppTheme.declinedTextColor,
               borderRadius: BorderRadius.circular(30.0),
             ),
             child: Padding(
@@ -76,15 +102,19 @@ class DoctorConsultationMenu extends StatelessWidget {
               child: Row(
                 children: [
                   const Gap(15),
-                  const Icon(
+                  Icon(
                     Icons.call_end_rounded,
-                    color: Colors.white,
+                    color: isFromChatRoomLists || isAppointmentFinished
+                        ? Colors.white.withOpacity(0.9)
+                        : Colors.white,
                   ),
                   const Gap(15),
                   Text(
                     'End consultation',
                     style: ginaTheme.bodyMedium?.copyWith(
-                      color: Colors.white,
+                      color: isFromChatRoomLists || isAppointmentFinished
+                          ? Colors.white.withOpacity(0.9)
+                          : Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
