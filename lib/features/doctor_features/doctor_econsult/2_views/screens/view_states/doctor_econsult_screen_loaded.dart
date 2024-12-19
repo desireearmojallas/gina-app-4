@@ -31,6 +31,7 @@ class DoctorEConsultScreenLoaded extends StatelessWidget {
                 ),
               ),
               // TODO: View all upcoming appointments and make it slidable like the patient side
+              //! will work on the upcoming appointments slideable widget
               const UpcomingAppointmentsNavigationWidget(),
               const Gap(20),
               Align(
