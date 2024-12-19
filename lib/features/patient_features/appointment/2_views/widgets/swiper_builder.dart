@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper_view/flutter_swiper_view.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/doctor_upcoming_appointments_container.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/upcoming_appointments_container.dart';
@@ -8,7 +9,12 @@ import 'package:icons_plus/icons_plus.dart';
 
 class SwiperBuilderWidget extends StatelessWidget {
   final List<AppointmentModel> upcomingAppointments;
-  const SwiperBuilderWidget({super.key, required this.upcomingAppointments});
+  final bool? isDoctor;
+  const SwiperBuilderWidget({
+    super.key,
+    required this.upcomingAppointments,
+    this.isDoctor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -67,17 +73,29 @@ class SwiperBuilderWidget extends StatelessWidget {
                         GinaAppTheme.defaultBoxShadow,
                       ],
                     ),
-                    child: UpcomingAppointmentsContainer(
-                      appointment: appointment,
-                      doctorName: appointment.doctorName!,
-                      appointmentId: appointment.appointmentUid!,
-                      date: appointment.appointmentDate!,
-                      time: appointment.appointmentTime!,
-                      appointmentType: appointment.modeOfAppointment == 0
-                          ? 'Online'
-                          : 'Face-to-Face',
-                      appointmentStatus: appointment.appointmentStatus,
-                    ),
+                    child: isDoctor == true
+                        ? DoctorUpcomingAppointmentsContainer(
+                            appointment: appointment,
+                            patientName: appointment.patientName!,
+                            appointmentId: appointment.appointmentUid!,
+                            date: appointment.appointmentDate!,
+                            time: appointment.appointmentTime!,
+                            appointmentType: appointment.modeOfAppointment == 0
+                                ? 'Online'
+                                : 'Face-to-Face',
+                            appointmentStatus: appointment.appointmentStatus,
+                          )
+                        : UpcomingAppointmentsContainer(
+                            appointment: appointment,
+                            doctorName: appointment.doctorName!,
+                            appointmentId: appointment.appointmentUid!,
+                            date: appointment.appointmentDate!,
+                            time: appointment.appointmentTime!,
+                            appointmentType: appointment.modeOfAppointment == 0
+                                ? 'Online'
+                                : 'Face-to-Face',
+                            appointmentStatus: appointment.appointmentStatus,
+                          ),
                   );
                 },
                 itemCount: upcomingAppointments.length,
