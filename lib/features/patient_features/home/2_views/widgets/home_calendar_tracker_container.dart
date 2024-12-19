@@ -6,7 +6,9 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 
 class HomeCalendarTrackerContainer extends StatelessWidget {
-  const HomeCalendarTrackerContainer({super.key});
+  final List<DateTime> periodTrackerModel;
+  const HomeCalendarTrackerContainer(
+      {super.key, required this.periodTrackerModel});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +35,7 @@ class HomeCalendarTrackerContainer extends StatelessWidget {
             const Gap(15),
             EasyDateTimeLine(
               initialDate: DateTime.now(),
-              // disabledDates: periodTrackerModel,
+              disabledDates: periodTrackerModel,
               headerProps: EasyHeaderProps(
                 monthStyle:
                     ginaTheme.textTheme.headlineSmall?.copyWith(fontSize: 16),

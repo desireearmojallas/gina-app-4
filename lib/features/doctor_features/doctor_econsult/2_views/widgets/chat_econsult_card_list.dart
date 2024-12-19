@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
+import 'package:gina_app_4/features/patient_features/consultation/0_model/chat_message_model.dart';
+import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
+import 'package:intl/intl.dart';
 
 class ChatEConsultCardList extends StatelessWidget {
-  const ChatEConsultCardList({super.key});
+  final DoctorEconsultBloc doctorEConsultBloc;
+  final List<ChatMessageModel> chatRooms;
+  const ChatEConsultCardList({
+    super.key,
+    required this.doctorEConsultBloc,
+    required this.chatRooms,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,13 +31,35 @@ class ChatEConsultCardList extends StatelessWidget {
         },
         child: ScrollbarCustom(
           child: ListView.builder(
-              physics: const BouncingScrollPhysics(),
-              itemCount: 5, // todo: to change
+              physics: const BouncingScrollPhysics(
+                  decelerationRate: ScrollDecelerationRate.fast),
+              itemCount: chatRooms.length,
               itemBuilder: (context, index) {
+                final chatRoom = chatRooms[index];
+                DateTime now = DateTime.now();
+                DateTime createdAt = chatRoom.createdAt!.toDate();
+                String time;
+                if (now.difference(createdAt).inHours < 24) {
+                  time = DateFormat.jm().format(createdAt);
+                } else if (now.difference(createdAt).inDays == 1) {
+                  time = 'Yesterday';
+                } else if (now.difference(createdAt).inDays <= 7) {
+                  time = DateFormat('EEEE').format(createdAt);
+                } else {
+                  time = DateFormat.yMd().format(createdAt);
+                }
+
                 return GestureDetector(
                   onTap: () {
-                    //todo:  to change route when bloc implemented
-                    Navigator.pushNamed(context, '/doctorOnlineConsultChat');
+                    selectedPatientUid = chatRoom.patientUid;
+                    selectedPatientName = chatRoom.patientName;
+
+                    doctorEConsultBloc.add(
+                        GetPatientDataEvent(patientUid: chatRoom.patientUid!));
+                    Navigator.pushNamed(context, '/doctorOnlineConsultChat')
+                        .then((value) => context
+                            .read<DoctorEconsultBloc>()
+                            .add(GetRequestedEConsultsDiplayEvent()));
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(4.0),
@@ -47,24 +81,24 @@ class ChatEConsultCardList extends StatelessWidget {
                                 Row(
                                   children: [
                                     CircleAvatar(
-                                      radius: 28.0,
+                                      radius: 25.0,
                                       backgroundImage: AssetImage(
                                         Images.patientProfileIcon,
                                       ),
                                     ),
-                                    const Gap(10),
-                                    const Column(
+                                    const Gap(15),
+                                    Column(
                                       children: [
                                         Row(
                                           children: [
                                             SizedBox(
                                               width: 200,
                                               child: Text(
-                                                'Desiree Armojallas',
-                                                style: TextStyle(
+                                                chatRoom.patientName!,
+                                                style: const TextStyle(
                                                   color: GinaAppTheme
-                                                      .cancelledTextColor,
-                                                  fontSize: 16,
+                                                      .lightOnPrimaryColor,
+                                                  fontSize: 14,
                                                   fontWeight: FontWeight.w600,
                                                 ),
                                                 overflow: TextOverflow.ellipsis,
@@ -78,8 +112,11 @@ class ChatEConsultCardList extends StatelessWidget {
                                             SizedBox(
                                               width: 200,
                                               child: Text(
-                                                'You: Hi, how are you?',
-                                                style: TextStyle(
+                                                (chatRoom.doctorName ==
+                                                        chatRoom.authorName)
+                                                    ? 'You: ${chatRoom.message}'
+                                                    : chatRoom.message!,
+                                                style: const TextStyle(
                                                   color: GinaAppTheme
                                                       .cancelledTextColor,
                                                   fontSize: 12,
@@ -93,10 +130,10 @@ class ChatEConsultCardList extends StatelessWidget {
                                         ),
                                       ],
                                     ),
-                                    const Gap(30),
-                                    const Text(
-                                      'Yesterday',
-                                      style: TextStyle(
+                                    const Gap(45),
+                                    Text(
+                                      time,
+                                      style: const TextStyle(
                                         color: GinaAppTheme.cancelledTextColor,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w400,

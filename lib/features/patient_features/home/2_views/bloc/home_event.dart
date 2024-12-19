@@ -12,3 +12,11 @@ class HomeInitialEvent extends HomeEvent {}
 class GetPatientNameEvent extends HomeEvent {}
 
 class GetPatientCurrentLocationEvent extends HomeEvent {}
+
+class HomeNavigateToFindDoctorEvent extends HomeEvent {}
+
+class HomeNavigateToPeriodTrackerEvent extends HomeEvent {}
+
+class HomeNavigateToForumEvent extends HomeEvent {}
+
+class HomeGetPeriodTrackerDataAndConsultationHistoryEvent extends HomeEvent {}

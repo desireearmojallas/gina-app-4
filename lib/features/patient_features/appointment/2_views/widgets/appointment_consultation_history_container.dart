@@ -2,15 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:intl/intl.dart';
 
 class AppointmentConsultationHistoryContainer extends StatelessWidget {
-  const AppointmentConsultationHistoryContainer({super.key});
+  final AppointmentModel appointment;
+  const AppointmentConsultationHistoryContainer({
+    super.key,
+    required this.appointment,
+  });
 
   @override
   Widget build(BuildContext context) {
+    String appointmentData = appointment.appointmentDate!;
+    DateTime appointmentDate =
+        DateFormat('MMMM dd, yyyy').parse(appointmentData);
+    String abbreviatedMonth = DateFormat('MMM').format(appointmentDate);
+    int day = appointmentDate.day;
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     final ginaTheme = Theme.of(context);
+
     return GestureDetector(
       onTap: () {
         debugPrint('test');
@@ -35,14 +47,14 @@ class AppointmentConsultationHistoryContainer extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Oct',
+                        abbreviatedMonth,
                         style: ginaTheme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w700,
                           fontSize: 20,
                         ),
                       ),
                       Text(
-                        '20',
+                        day.toString(),
                         style: ginaTheme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w700,
                           fontSize: 20,
@@ -50,32 +62,56 @@ class AppointmentConsultationHistoryContainer extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const Gap(35),
+                  const Gap(30),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Dr. Maria Santos',
-                        style: ginaTheme.textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
+                      SizedBox(
+                        width: width * 0.45,
+                        child: Row(
+                          // crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                'Dr. ${appointment.doctorName}',
+                                style: ginaTheme.textTheme.bodyLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.visible,
+                                softWrap: true,
+                              ),
+                            ),
+                            const Gap(5),
+                            const Icon(
+                              Icons.verified_rounded,
+                              color: GinaAppTheme.verifiedColor,
+                              size: 18,
+                            ),
+                          ],
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
                       Row(
                         children: [
                           Text(
-                            '10:00 AM',
-                            style: ginaTheme.textTheme.bodyMedium?.copyWith(
+                            appointment.appointmentTime!,
+                            style: ginaTheme.textTheme.bodySmall?.copyWith(
                               fontWeight: FontWeight.w600,
                               color: GinaAppTheme.lightOutline,
                             ),
                           ),
                           const Gap(5),
-                          Text('•', style: ginaTheme.textTheme.titleMedium),
+                          Text('•',
+                              style: ginaTheme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: GinaAppTheme.lightOutline,
+                              )),
                           const Gap(5),
                           Text(
-                            'Online',
-                            style: ginaTheme.textTheme.bodyMedium?.copyWith(
+                            appointment.modeOfAppointment == 0
+                                ? 'Online'
+                                : 'Face-to-face',
+                            style: ginaTheme.textTheme.bodySmall?.copyWith(
                               fontWeight: FontWeight.w600,
                               color: GinaAppTheme.lightTertiaryContainer,
                             ),
@@ -86,7 +122,7 @@ class AppointmentConsultationHistoryContainer extends StatelessWidget {
                   ),
                   const Spacer(),
                   AppointmentStatusContainer(
-                    appointmentStatus: 2,
+                    appointmentStatus: appointment.appointmentStatus,
                   ),
                 ],
               ),

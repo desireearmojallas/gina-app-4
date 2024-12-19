@@ -1,10 +1,34 @@
 part of 'doctor_econsult_bloc.dart';
 
-sealed class DoctorEconsultState extends Equatable {
-  const DoctorEconsultState();
-  
+abstract class DoctorEConsultState extends Equatable {
+  const DoctorEConsultState();
+
   @override
   List<Object> get props => [];
 }
 
-final class DoctorEconsultInitial extends DoctorEconsultState {}
+abstract class DoctorEConsultActionState extends DoctorEConsultState {}
+
+class DoctorEConsultInitial extends DoctorEConsultState {}
+
+class DoctorEConsultLoadingState extends DoctorEConsultActionState {}
+
+class DoctorEConsultLoadedState extends DoctorEConsultActionState {
+  final List<AppointmentModel> upcomingAppointments;
+  final List<ChatMessageModel> chatRooms;
+
+  DoctorEConsultLoadedState(
+      {required this.upcomingAppointments, required this.chatRooms});
+
+  @override
+  List<Object> get props => [upcomingAppointments, chatRooms];
+}
+
+class DoctorEConsultErrorState extends DoctorEConsultActionState {
+  final String message;
+
+  DoctorEConsultErrorState({required this.message});
+
+  @override
+  List<Object> get props => [message];
+}
