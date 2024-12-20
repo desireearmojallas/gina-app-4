@@ -3,9 +3,12 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/patient_features/consultation/0_model/chat_message_model.dart';
+import 'package:intl/intl.dart';
 
 class ChatEConsultCardList extends StatelessWidget {
-  const ChatEConsultCardList({super.key});
+  final List<ChatMessageModel> chatRooms;
+  const ChatEConsultCardList({super.key, required this.chatRooms});
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +23,21 @@ class ChatEConsultCardList extends StatelessWidget {
         child: ScrollbarCustom(
           child: ListView.builder(
               physics: const BouncingScrollPhysics(),
-              itemCount: 5, // todo: to change
+              itemCount: chatRooms.length, // todo: to change
               itemBuilder: (context, index) {
+                final chatRoom = chatRooms[index];
+                DateTime now = DateTime.now();
+                DateTime createdAt = chatRoom.createdAt!.toDate();
+                String time;
+                if (now.difference(createdAt).inHours < 24) {
+                  time = DateFormat.jm().format(createdAt);
+                } else if (now.difference(createdAt).inDays == 1) {
+                  time = 'Yesterday';
+                } else if (now.difference(createdAt).inDays <= 7) {
+                  time = DateFormat('EEEE').format(createdAt);
+                } else {
+                  time = DateFormat.yMd().format(createdAt);
+                }
                 return GestureDetector(
                   onTap: () {
                     //todo:  to change route when bloc implemented
@@ -53,15 +69,15 @@ class ChatEConsultCardList extends StatelessWidget {
                                       ),
                                     ),
                                     const Gap(10),
-                                    const Column(
+                                    Column(
                                       children: [
                                         Row(
                                           children: [
                                             SizedBox(
                                               width: 200,
                                               child: Text(
-                                                'Desiree Armojallas',
-                                                style: TextStyle(
+                                                chatRoom.patientName ?? '',
+                                                style: const TextStyle(
                                                   color: GinaAppTheme
                                                       .cancelledTextColor,
                                                   fontSize: 16,
@@ -78,8 +94,11 @@ class ChatEConsultCardList extends StatelessWidget {
                                             SizedBox(
                                               width: 200,
                                               child: Text(
-                                                'You: Hi, how are you?',
-                                                style: TextStyle(
+                                                (chatRoom.doctorName ==
+                                                        chatRoom.authorName)
+                                                    ? 'You: ${chatRoom.message}'
+                                                    : chatRoom.message!,
+                                                style: const TextStyle(
                                                   color: GinaAppTheme
                                                       .cancelledTextColor,
                                                   fontSize: 12,
@@ -94,15 +113,16 @@ class ChatEConsultCardList extends StatelessWidget {
                                       ],
                                     ),
                                     const Gap(30),
-                                    const Text(
-                                      'Yesterday',
-                                      style: TextStyle(
+                                    Text(
+                                      time,
+                                      style: const TextStyle(
                                         color: GinaAppTheme.cancelledTextColor,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w400,
                                       ),
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 1,
+                                      textAlign: TextAlign.right,
                                     ),
                                   ],
                                 ),

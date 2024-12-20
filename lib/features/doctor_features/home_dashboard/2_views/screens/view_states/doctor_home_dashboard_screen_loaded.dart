@@ -22,10 +22,12 @@ import 'package:icons_plus/icons_plus.dart';
 class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
   final int pendingRequests;
   final int confirmedAppointments;
+  final String doctorName;
   const DoctorHomeScreenDashboardLoaded({
     super.key,
     required this.pendingRequests,
     required this.confirmedAppointments,
+    required this.doctorName,
   });
 
   @override
@@ -44,15 +46,18 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const Gap(30),
-                BlocBuilder<HomeDashboardBloc, HomeDashboardState>(
-                  builder: (context, state) {
-                    if (state is GetDoctorNameState) {
-                      return GreetingWidget(
-                        doctorName: state.doctorName,
-                      );
-                    }
-                    return const SizedBox();
-                  },
+                // BlocBuilder<HomeDashboardBloc, HomeDashboardState>(
+                //   builder: (context, state) {
+                //     if (state is GetDoctorNameState) {
+                //       return GreetingWidget(
+                //         doctorName: state.doctorName,
+                //       );
+                //     }
+                //     return const SizedBox();
+                //   },
+                // ),
+                GreetingWidget(
+                  doctorName: doctorName,
                 ),
                 const Gap(20),
                 const HomeDashboardCalendarWidget(),

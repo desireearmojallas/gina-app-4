@@ -17,6 +17,7 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
   }) : super(HomeDashboardInitial(
           pendingAppointments: pendingAppointmentsCount ?? 0,
           confirmedAppointments: confirmedAppointmentsCount ?? 0,
+          doctorName: doctorName ?? '',
         )) {
     on<HomeInitialEvent>(homeInitialEvent);
     on<GetDoctorNameEvent>(getDoctorName);
@@ -32,9 +33,14 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
     final getTheNumberOfPendingAppointments =
         await doctorHomeDashboardController.getPendingAppointments();
 
+    final currentDoctorName =
+        await doctorProfileController.getCurrentDoctorName();
+
     getTheNumberOfPendingAppointments.fold((failure) {}, (pendingAppointments) {
       pendingAppointmentsCount = pendingAppointments;
     });
+
+    // doctorName = currentDoctorName;
 
     getTheNumberOfConfirmedAppointments.fold((failure) {},
         (confirmedAppointments) {
@@ -43,6 +49,7 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
       emit(HomeDashboardInitial(
         pendingAppointments: pendingAppointmentsCount ?? 0,
         confirmedAppointments: confirmedAppointments,
+        doctorName: currentDoctorName,
       ));
     });
   }

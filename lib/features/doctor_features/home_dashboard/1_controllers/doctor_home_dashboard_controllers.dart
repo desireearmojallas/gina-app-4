@@ -6,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
 
-
 int? pendingAppointmentsCount;
 int? confirmedAppointmentsCount;
 String? doctorName;
@@ -69,4 +68,20 @@ class DoctorHomeDashboardController extends ChangeNotifier {
       return Left(Exception(e.message));
     }
   }
+
+  // Future<Either<Exception, String>> getCurrentDoctorName() async {
+  //   try {
+  //     DocumentSnapshot<Map<String, dynamic>> doctorSnapshot =
+  //         await firestore.collection('doctors').doc(currentUser!.uid).get();
+
+  //     doctorName = doctorSnapshot.data()!['doctorName'];
+  //     return Right(doctorName!);
+  //   } on FirebaseAuthException catch (e) {
+  //     debugPrint('FirebaseAuthException: ${e.message}');
+  //     debugPrint('FirebaseAuthException code: ${e.code}');
+  //     error = e;
+  //     notifyListeners();
+  //     return Left(Exception(e.message));
+  //   }
+  // }
 }

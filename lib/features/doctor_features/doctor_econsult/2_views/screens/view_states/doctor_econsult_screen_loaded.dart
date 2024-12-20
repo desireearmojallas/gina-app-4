@@ -35,13 +35,10 @@ class DoctorEConsultScreenLoaded extends StatelessWidget {
               ),
             ),
             const Gap(15),
-
             SwiperBuilderWidget(
               upcomingAppointments: upcomingAppointments,
               isDoctor: true,
             ),
-
-            // const UpcomingAppointmentsNavigationWidget(),
             const Gap(20),
             Align(
               alignment: Alignment.centerLeft,
@@ -54,7 +51,9 @@ class DoctorEConsultScreenLoaded extends StatelessWidget {
               ),
             ),
             const Gap(10),
-            const ChatEConsultCardList(),
+            ChatEConsultCardList(
+              chatRooms: chatRooms,
+            ),
           ],
         ),
       ),

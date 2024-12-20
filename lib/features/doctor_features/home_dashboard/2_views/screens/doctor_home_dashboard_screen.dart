@@ -15,8 +15,8 @@ class DoctorHomeScreenDashboardProvider extends StatelessWidget {
     return BlocProvider(
       create: (context) {
         final homeDashboardBloc = sl<HomeDashboardBloc>();
-        // homeDashboardBloc.add(HomeInitialEvent());
-        homeDashboardBloc.add(GetDoctorNameEvent());
+        homeDashboardBloc.add(HomeInitialEvent());
+        // homeDashboardBloc.add(GetDoctorNameEvent());
         return homeDashboardBloc;
       },
       child: const DoctorHomeScreenDashboard(),
@@ -59,11 +59,13 @@ class DoctorHomeScreenDashboard extends StatelessWidget {
             return DoctorHomeScreenDashboardLoaded(
               pendingRequests: state.pendingAppointments,
               confirmedAppointments: state.confirmedAppointments,
+              doctorName: state.doctorName,
             );
           }
           return const DoctorHomeScreenDashboardLoaded(
             pendingRequests: 0,
             confirmedAppointments: 0,
+            doctorName: '',
           );
         },
       ),
