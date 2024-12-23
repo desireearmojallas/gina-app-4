@@ -26,6 +26,12 @@ class ApprovedRequestDetailsScreenState extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     final ginaTheme = Theme.of(context);
 
+    debugPrint('Patient Name: ${patientData.name}');
+    debugPrint('Patient Date of Birth: ${patientData.dateOfBirth}');
+    debugPrint('Patient Gender: ${patientData.gender}');
+    debugPrint('Patient Address: ${patientData.address}');
+    debugPrint('Patient Email: ${patientData.email}');
+
     final labelStyle = ginaTheme.textTheme.bodySmall?.copyWith(
       color: GinaAppTheme.lightOutline,
     );
@@ -111,12 +117,16 @@ class ApprovedRequestDetailsScreenState extends StatelessWidget {
                             ),
                             SizedBox(
                               width: size.width * 0.5,
-                              child: Text(
-                                'Appointment ID: ${appointment.appointmentUid}',
-                                style: ginaTheme.textTheme.labelSmall?.copyWith(
-                                  color: GinaAppTheme.lightOutline,
+                              child: Flexible(
+                                child: Text(
+                                  'Appointment ID: ${appointment.appointmentUid}',
+                                  style:
+                                      ginaTheme.textTheme.labelSmall?.copyWith(
+                                    color: GinaAppTheme.lightOutline,
+                                  ),
+                                  overflow: TextOverflow.visible,
+                                  softWrap: true,
                                 ),
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],

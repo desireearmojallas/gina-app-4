@@ -17,6 +17,13 @@ Future<dynamic> showConfirmingPendingRequestDialog(
 }) {
   final pendingRequestStateBloc = context.read<PendingRequestStateBloc>();
 
+  // Debug prints to check the values of patientData
+  debugPrint('Parent Patient Name: ${patientData.name}');
+  debugPrint('Parent Patient Date of Birth: ${patientData.dateOfBirth}');
+  debugPrint('Parent Patient Gender: ${patientData.gender}');
+  debugPrint('Parent Patient Address: ${patientData.address}');
+  debugPrint('Parent Patient Email: ${patientData.email}');
+
   return showDialog(
     context: context,
     builder: (context) => AlertDialog(
@@ -80,7 +87,7 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                 onPressed: () {
                   pendingRequestStateBloc.add(
                       ApproveAppointmentEvent(appointmentId: appointmentId));
-                  Navigator.pop(context);
+                  // Navigator.pop(context);
                   Navigator.pushReplacement(context, MaterialPageRoute(
                     builder: (context) {
                       return ApprovedRequestDetailsScreenState(
@@ -114,7 +121,7 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                 onPressed: () {
                   pendingRequestStateBloc.add(
                       DeclineAppointmentEvent(appointmentId: appointmentId));
-                  Navigator.pop(context);
+                  // Navigator.pop(context);
                   Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(

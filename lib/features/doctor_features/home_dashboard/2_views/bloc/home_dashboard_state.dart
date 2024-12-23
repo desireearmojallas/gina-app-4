@@ -29,11 +29,17 @@ class HomeDashboardInitial extends HomeDashboardState {
   final int pendingAppointments;
   final int confirmedAppointments;
   final String doctorName;
+  final AppointmentModel? upcomingAppointment;
+  final AppointmentModel? pendingAppointmentLatest;
+  final UserModel? patientData;
 
   const HomeDashboardInitial({
     required this.pendingAppointments,
     required this.confirmedAppointments,
     required this.doctorName,
+    this.upcomingAppointment,
+    this.pendingAppointmentLatest,
+    this.patientData,
   });
 
   @override
@@ -41,6 +47,9 @@ class HomeDashboardInitial extends HomeDashboardState {
         pendingAppointments,
         confirmedAppointments,
         doctorName,
+        upcomingAppointment ?? Object(),
+        pendingAppointmentLatest ?? Object(),
+        patientData ?? Object(),
       ];
 }
 

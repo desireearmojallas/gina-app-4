@@ -3,19 +3,32 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:intl/intl.dart';
 
 class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
-  const UpcomingAppointmentsNavigationWidget({super.key});
+  final AppointmentModel? upcomingAppointment;
+  const UpcomingAppointmentsNavigationWidget(
+      {super.key, this.upcomingAppointment});
 
   @override
   Widget build(BuildContext context) {
     final ginaTheme = Theme.of(context);
     final size = MediaQuery.of(context).size;
+    String formattedDate = 'No upcoming appointment';
+    if (upcomingAppointment?.appointmentDate != null) {
+      try {
+        DateTime appointmentDate = DateFormat('MMMM d, yyyy')
+            .parse(upcomingAppointment!.appointmentDate!);
+        formattedDate = DateFormat('EEEE, MMMM d').format(appointmentDate);
+      } catch (e) {
+        debugPrint('Error parsing date: $e');
+      }
+    }
 
     return Column(
       children: [
-       
         /*  const Gap(10),
         const Align(
           alignment: Alignment.centerLeft,
@@ -28,7 +41,7 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
             ),
           ),
         ), */
-        const Gap(10),
+        // const Gap(10),
         Container(
           height: size.height * 0.22,
           width: size.width / 1.05,
@@ -65,7 +78,8 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Desiree Armojallas',
+                              upcomingAppointment?.patientName ??
+                                  'Patient Name',
                               style: ginaTheme.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white, // Adjusted color
@@ -74,7 +88,9 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
                             ),
                             const Gap(3),
                             Text(
-                              'Online Consultation'.toUpperCase(),
+                              upcomingAppointment?.modeOfAppointment == 0
+                                  ? 'Online Consultation'.toUpperCase()
+                                  : 'Face-to-face Consultation'.toUpperCase(),
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.6),
                                 fontSize: 10,
@@ -91,8 +107,7 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(right: 30.0),
                     child: AppointmentStatusContainer(
-                      // todo: to change the status
-                      appointmentStatus: 1,
+                      appointmentStatus: upcomingAppointment!.appointmentStatus,
                       colorOverride: Colors.white,
                     ),
                   ),
@@ -118,9 +133,11 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
                         size: 20,
                       ),
                       const Gap(10),
-                      const Text(
-                        'Monday, December 18',
-                        style: TextStyle(
+                      Text(
+                        formattedDate.isNotEmpty
+                            ? formattedDate
+                            : 'No upcoming appointment',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -142,10 +159,10 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
                         size: 20,
                       ),
                       const Gap(10),
-                      const Text(
-                        '8:00 AM - 9:00 AM',
-                        style: TextStyle(
-                          color: Colors.white, // Adjusted color
+                      Text(
+                        upcomingAppointment?.appointmentTime ?? 'No time',
+                        style: const TextStyle(
+                          color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),

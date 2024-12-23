@@ -91,9 +91,16 @@ class PendingRequestStateBloc
     result.fold(
       (failure) =>
           emit(ApproveAppointmentFailedState(errorMessage: failure.toString())),
-      (success) {
-        emit(NavigateToApprovedRequestDetailedState(
-            appointment: storedAppointment!, patientData: storedPatientData!));
+      (appointment) {
+        // Ensure storedAppointment and storedPatientData are not null
+        if (storedAppointment != null && storedPatientData != null) {
+          emit(NavigateToApprovedRequestDetailedState(
+              appointment: storedAppointment!,
+              patientData: storedPatientData!));
+        } else {
+          emit(const ApproveAppointmentFailedState(
+              errorMessage: 'Stored appointment or patient data is null'));
+        }
       },
     );
   }
@@ -110,8 +117,14 @@ class PendingRequestStateBloc
         emit(DeclineAppointmentFailedState(errorMessage: failure.toString()));
       },
       (success) {
-        emit(NavigateToDeclinedRequestDetailedState(
-            appointment: storedAppointment!));
+        // Ensure storedAppointment is not null
+        if (storedAppointment != null) {
+          emit(NavigateToDeclinedRequestDetailedState(
+              appointment: storedAppointment!));
+        } else {
+          emit(const DeclineAppointmentFailedState(
+              errorMessage: 'Stored appointment is null'));
+        }
       },
     );
   }

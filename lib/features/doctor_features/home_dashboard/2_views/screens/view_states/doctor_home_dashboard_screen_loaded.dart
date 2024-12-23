@@ -4,11 +4,10 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/bloc/doctor_consultation_fee_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/view_states/edit_doctor_consultation_fee_screen_loaded.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/bloc/doctor_emergency_announcements_bloc.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/view_states/doctor_emergency_announcement_create_announcement.dart';
-import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/widget_navigation_cards.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/doctor_forums_navigation_widget.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/emergency_announcement_navigation_widget.dart';
@@ -17,22 +16,42 @@ import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widge
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/pending_requests_navigation_widget.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/schedule_management_navigation_widget.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/upcoming_appointments_navigation_widget.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
   final int pendingRequests;
   final int confirmedAppointments;
   final String doctorName;
+  final AppointmentModel upcomingAppointment;
+  final AppointmentModel pendingAppointment;
+  final UserModel patientData;
+
   const DoctorHomeScreenDashboardLoaded({
     super.key,
     required this.pendingRequests,
     required this.confirmedAppointments,
     required this.doctorName,
+    required this.upcomingAppointment,
+    required this.pendingAppointment,
+    required this.patientData,
   });
 
   @override
   Widget build(BuildContext context) {
     final ginaTheme = Theme.of(context);
+
+    // Debug prints to check the values of patientData
+    debugPrint(
+        'DoctorHomeScreenDashboardLoaded Patient Name: ${patientData.name}');
+    debugPrint(
+        'DoctorHomeScreenDashboardLoaded Patient Date of Birth: ${patientData.dateOfBirth}');
+    debugPrint(
+        'DoctorHomeScreenDashboardLoaded Patient Gender: ${patientData.gender}');
+    debugPrint(
+        'DoctorHomeScreenDashboardLoaded Patient Address: ${patientData.address}');
+    debugPrint(
+        'DoctorHomeScreenDashboardLoaded Patient Email: ${patientData.email}');
 
     return RefreshIndicator(
       onRefresh: () async {},
@@ -46,16 +65,6 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const Gap(30),
-                // BlocBuilder<HomeDashboardBloc, HomeDashboardState>(
-                //   builder: (context, state) {
-                //     if (state is GetDoctorNameState) {
-                //       return GreetingWidget(
-                //         doctorName: state.doctorName,
-                //       );
-                //     }
-                //     return const SizedBox();
-                //   },
-                // ),
                 GreetingWidget(
                   doctorName: doctorName,
                 ),
@@ -104,22 +113,6 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                       builder: (context, state) {
                         if (state is CreateAnnouncementState) {
                           debugPrint('Create Announcement State');
-                          // WidgetsBinding.instance.addPostFrameCallback((_) {
-                          //   Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //       builder: (context) => Scaffold(
-                          //         appBar: GinaDoctorAppBar(
-                          //           title: 'Create Announcement',
-                          //         ),
-                          //         body:
-                          //             DoctorEmergencyAnnouncementCreateAnnouncementScreen(),
-                          //       ),
-                          //     ),
-                          //   );
-                          //   debugPrint(
-                          //       'Successfully navigated to Create Emergency Announcement');
-                          // });
                         }
                         return WidgetNavigationCards(
                           widgetText: 'Create Emergency\nAnnouncement',
@@ -153,10 +146,12 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                         color: GinaAppTheme.lightTertiaryContainer,
                         shape: BoxShape.circle,
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Text(
-                          '3',
-                          style: TextStyle(
+                          confirmedAppointments == 0
+                              ? '0'
+                              : confirmedAppointments.toString(),
+                          style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
                             fontSize: 10,
@@ -165,10 +160,8 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    GestureDetector(
-                      onTap: () {
-                        // TODO: UPCOMING APPOINTMENTS ROUTE
-                      },
+                    TextButton(
+                      onPressed: () {},
                       child: Align(
                         alignment: Alignment.topRight,
                         child: Text(
@@ -182,9 +175,15 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                     ),
                   ],
                 ),
-                const UpcomingAppointmentsNavigationWidget(),
-                const Gap(40),
-                const PendingRequestsNavigationWidget(),
+                UpcomingAppointmentsNavigationWidget(
+                  upcomingAppointment: upcomingAppointment,
+                ),
+                const Gap(30),
+                PendingRequestsNavigationWidget(
+                  pendingRequests: pendingRequests,
+                  pendingAppointment: pendingAppointment,
+                  patientData: patientData,
+                ),
                 const Gap(40),
                 Align(
                   alignment: Alignment.centerLeft,

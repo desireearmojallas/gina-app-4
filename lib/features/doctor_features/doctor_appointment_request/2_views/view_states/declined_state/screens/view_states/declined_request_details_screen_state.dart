@@ -95,12 +95,16 @@ class DeclinedRequestDetailsScreenState extends StatelessWidget {
                             ),
                             SizedBox(
                               width: size.width * 0.5,
-                              child: Text(
-                                'Appointment ID: ${appointment.appointmentUid}',
-                                style: ginaTheme.textTheme.labelSmall?.copyWith(
-                                  color: GinaAppTheme.lightOutline,
+                              child: Flexible(
+                                child: Text(
+                                  'Appointment ID: ${appointment.appointmentUid}',
+                                  style:
+                                      ginaTheme.textTheme.labelSmall?.copyWith(
+                                    color: GinaAppTheme.lightOutline,
+                                  ),
+                                  overflow: TextOverflow.visible,
+                                  softWrap: true,
                                 ),
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],

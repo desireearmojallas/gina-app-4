@@ -2,15 +2,60 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/auth/0_model/user_model.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/widgets/confirming_pending_request_modal.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:intl/intl.dart';
 
 class PendingRequestsNavigationWidget extends StatelessWidget {
-  const PendingRequestsNavigationWidget({super.key});
+  final int pendingRequests;
+  final AppointmentModel? pendingAppointment;
+  final UserModel patientData;
+  const PendingRequestsNavigationWidget({
+    super.key,
+    required this.pendingRequests,
+    required this.pendingAppointment,
+    required this.patientData,
+  });
 
   @override
   Widget build(BuildContext context) {
     final ginaTheme = Theme.of(context);
     final size = MediaQuery.of(context).size;
+    String formattedDate = 'No pending appointment';
+    String formattedTime = 'No time';
+    if (pendingAppointment?.appointmentDate != null) {
+      try {
+        DateTime appointmentDate = DateFormat('MMMM d, yyyy')
+            .parse(pendingAppointment!.appointmentDate!);
+        formattedDate = DateFormat('EEEE, MMMM d').format(appointmentDate);
+        formattedTime = pendingAppointment!.appointmentTime ?? 'No time';
+      } catch (e) {
+        debugPrint('Error parsing date: $e');
+      }
+    }
+
+    String appointmentType;
+    if (pendingAppointment?.modeOfAppointment == 0) {
+      appointmentType = 'Online Consultation';
+    } else if (pendingAppointment?.modeOfAppointment == 1) {
+      appointmentType = 'F2F Consultation';
+    } else {
+      appointmentType = 'No appointment';
+    }
+
+    // Debug prints to check the values of patientData
+    debugPrint(
+        'PendingRequestsNavigationWidget Patient Name: ${patientData.name}');
+    debugPrint(
+        'PendingRequestsNavigationWidget Patient Date of Birth: ${patientData.dateOfBirth}');
+    debugPrint(
+        'PendingRequestsNavigationWidget Patient Gender: ${patientData.gender}');
+    debugPrint(
+        'PendingRequestsNavigationWidget Patient Address: ${patientData.address}');
+    debugPrint(
+        'PendingRequestsNavigationWidget Patient Email: ${patientData.email}');
 
     return Column(
       children: [
@@ -31,10 +76,10 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                 color: GinaAppTheme.lightTertiaryContainer,
                 shape: BoxShape.circle,
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
-                  '14',
-                  style: TextStyle(
+                  pendingRequests.toString(),
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
                     fontSize: 10,
@@ -43,28 +88,25 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            GestureDetector(
-              onTap: () {
-                // TODO: UPCOMING APPOINTMENTS ROUTE
+            TextButton(
+              onPressed: () {
+                // TODO: PENDING REQUESTS ROUTE
               },
-              child: Align(
-                alignment: Alignment.topRight,
-                child: Text(
-                  'See all',
-                  style: ginaTheme.textTheme.labelMedium?.copyWith(
-                    color: GinaAppTheme.lightTertiaryContainer,
-                    fontWeight: FontWeight.w600,
-                  ),
+              child: Text(
+                'See all',
+                style: ginaTheme.textTheme.labelMedium?.copyWith(
+                  color: GinaAppTheme.lightTertiaryContainer,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
           ],
         ),
-        const Gap(10),
+        // const Gap(10),
         GestureDetector(
           onTap: () {},
           child: Container(
-            height: size.height * 0.11,
+            height: size.height * 0.12,
             width: size.width / 1.05,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
@@ -76,7 +118,10 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
             child: Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0,
+                    vertical: 10.0,
+                  ),
                   child: CircleAvatar(
                     radius: 37,
                     backgroundImage: AssetImage(
@@ -89,16 +134,20 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Desiree Armojallas',
-                      style: ginaTheme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
+                    SizedBox(
+                      width: size.width * 0.33,
+                      child: Text(
+                        pendingAppointment?.patientName ?? 'No Patient',
+                        style: ginaTheme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.visible,
+                        softWrap: true,
                       ),
-                      overflow: TextOverflow.ellipsis,
                     ),
                     const Gap(5),
                     Text(
-                      'Online Consultation'.toUpperCase(),
+                      appointmentType.toUpperCase(),
                       style: ginaTheme.textTheme.labelSmall?.copyWith(
                         color: GinaAppTheme.lightTertiaryContainer,
                         fontSize: 10,
@@ -107,7 +156,8 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                     ),
                     const Gap(5),
                     Text(
-                      'Tuesday, December 19\n8:00 AM - 9:00 AM',
+                      // 'Tuesday, December 19\n8:00 AM - 9:00 AM',
+                      '$formattedDate\n$formattedTime',
                       style: ginaTheme.textTheme.labelMedium?.copyWith(
                         color: GinaAppTheme.lightOutline,
                         fontSize: 10,
@@ -117,11 +167,18 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                 ),
                 const Spacer(),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
                   child: Row(
                     children: [
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          showConfirmingPendingRequestDialog(
+                            context,
+                            appointmentId: pendingAppointment!.appointmentUid!,
+                            appointment: pendingAppointment!,
+                            patientData: patientData,
+                          );
+                        },
                         icon: Icon(
                           MingCute.close_circle_fill,
                           color: Colors.grey[300],
@@ -129,7 +186,14 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                         ),
                       ),
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          showConfirmingPendingRequestDialog(
+                            context,
+                            appointmentId: pendingAppointment!.appointmentUid!,
+                            appointment: pendingAppointment!,
+                            patientData: patientData,
+                          );
+                        },
                         icon: const Icon(
                           MingCute.check_circle_fill,
                           color: GinaAppTheme.lightTertiaryContainer,
