@@ -26,6 +26,8 @@ class Images {
   static String doctorProfileIcon1 = "assets/images/doctor_avatar.jpg";
   static String doctorProfileIcon2 = "assets/images/doctor_avatar_2.jpg";
   static String doctorProfileIcon3 = "assets/images/doctor_avatar_2.png";
+  static String placeholderProfileIcon =
+      "assets/images/placeholder_profile_pic.png";
 
   //! Home Screen
   static String appointmentImage =

@@ -8,6 +8,7 @@ import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/bloc/doctor_consultation_fee_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/view_states/edit_doctor_consultation_fee_screen_loaded.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/bloc/doctor_emergency_announcements_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/widget_navigation_cards.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/doctor_forums_navigation_widget.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/emergency_announcement_navigation_widget.dart';
@@ -40,6 +41,7 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ginaTheme = Theme.of(context);
+    final homeDashboardBloc = context.read<HomeDashboardBloc>();
 
     // Debug prints to check the values of patientData
     debugPrint(
@@ -54,7 +56,9 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
         'DoctorHomeScreenDashboardLoaded Patient Email: ${patientData.email}');
 
     return RefreshIndicator(
-      onRefresh: () async {},
+      onRefresh: () async {
+        homeDashboardBloc.add(HomeInitialEvent());
+      },
       child: ScrollbarCustom(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -142,8 +146,10 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                     Container(
                       height: 20,
                       width: 20,
-                      decoration: const BoxDecoration(
-                        color: GinaAppTheme.lightTertiaryContainer,
+                      decoration: BoxDecoration(
+                        color: confirmedAppointments == 0
+                            ? Colors.grey[300]
+                            : GinaAppTheme.lightTertiaryContainer,
                         shape: BoxShape.circle,
                       ),
                       child: Center(
@@ -167,7 +173,9 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                         child: Text(
                           'See all',
                           style: ginaTheme.textTheme.labelMedium?.copyWith(
-                            color: GinaAppTheme.lightTertiaryContainer,
+                            color: confirmedAppointments == 0
+                                ? Colors.grey[300]
+                                : GinaAppTheme.lightTertiaryContainer,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

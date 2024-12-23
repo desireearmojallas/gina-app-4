@@ -31,122 +31,142 @@ class ApprovedRequestStateScreenLoaded extends StatelessWidget {
         return Future.value();
       },
       child: ScrollbarCustom(
-        child: ListView.builder(
-          physics: const BouncingScrollPhysics(),
-          itemCount: approvedRequests.length,
-          itemBuilder: (context, index) {
-            final date = dates[index];
-            final requestsOnDate = approvedRequests[date]!;
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                  child: Text(
-                    DateFormat('MMMM d, EEEE').format(date),
-                    style: const TextStyle(
-                      color: GinaAppTheme.lightOutline,
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: "SF UI Display",
-                    ),
-                  ),
-                ),
-                ...requestsOnDate.map(
-                  (request) => GestureDetector(
-                    onTap: () {
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => const ApprovedRequestDetailsScreenState(),
-                      //   ),
-                      // );
-                      approvedRequestBloc.add(
-                          NavigateToApprovedRequestDetailEvent(
-                              appointment: request));
-                    },
-                    child: Container(
-                      height: size.height * 0.11,
-                      width: size.width / 1.05,
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 10.0, horizontal: 15.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: GinaAppTheme.lightOnTertiary,
-                        boxShadow: [
-                          GinaAppTheme.defaultBoxShadow,
-                        ],
+        child: approvedRequests.isEmpty
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'No approved requests',
+                      style: ginaTheme.textTheme.titleSmall?.copyWith(
+                        color: GinaAppTheme.lightOutline,
                       ),
-                      child: Row(
-                        children: [
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: CircleAvatar(
-                              radius: 37,
-                              backgroundImage: AssetImage(
-                                Images.patientProfileIcon,
-                              ),
-                              backgroundColor: Colors.white,
+                    ),
+                    const Gap(150),
+                  ],
+                ),
+              )
+            : ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                itemCount: approvedRequests.length,
+                itemBuilder: (context, index) {
+                  final date = dates[index];
+                  final requestsOnDate = approvedRequests[date]!;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                        child: Text(
+                          DateFormat('MMMM d, EEEE').format(date),
+                          style: const TextStyle(
+                            color: GinaAppTheme.lightOutline,
+                            fontSize: 12.0,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: "SF UI Display",
+                          ),
+                        ),
+                      ),
+                      ...requestsOnDate.map(
+                        (request) => GestureDetector(
+                          onTap: () {
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (context) => const ApprovedRequestDetailsScreenState(),
+                            //   ),
+                            // );
+                            approvedRequestBloc.add(
+                                NavigateToApprovedRequestDetailEvent(
+                                    appointment: request));
+                          },
+                          child: Container(
+                            height: size.height * 0.11,
+                            width: size.width / 1.05,
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 10.0, horizontal: 15.0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: GinaAppTheme.lightOnTertiary,
+                              boxShadow: [
+                                GinaAppTheme.defaultBoxShadow,
+                              ],
                             ),
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                request.patientName ?? "",
-                                style: ginaTheme.textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const Gap(5),
-                              Text(
-                                request.modeOfAppointment ==
-                                        ModeOfAppointmentId
-                                            .onlineConsultation.index
-                                    ? 'Online Consultation'.toUpperCase()
-                                    : 'Face-to-face Consultation'.toUpperCase(),
-                                style: ginaTheme.textTheme.labelSmall?.copyWith(
-                                  color: GinaAppTheme.lightTertiaryContainer,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const Gap(5),
-                              Text(
-                                '${request.appointmentDate}\n${request.appointmentTime}',
-                                style:
-                                    ginaTheme.textTheme.labelMedium?.copyWith(
-                                  color: GinaAppTheme.lightOutline,
-                                  fontSize: 10,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 30.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            child: Row(
                               children: [
-                                AppointmentStatusContainer(
-                                  appointmentStatus: request.appointmentStatus,
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20.0),
+                                  child: CircleAvatar(
+                                    radius: 37,
+                                    backgroundImage: AssetImage(
+                                      Images.patientProfileIcon,
+                                    ),
+                                    backgroundColor: Colors.white,
+                                  ),
+                                ),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      request.patientName ?? "",
+                                      style: ginaTheme.textTheme.titleSmall
+                                          ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const Gap(5),
+                                    Text(
+                                      request.modeOfAppointment ==
+                                              ModeOfAppointmentId
+                                                  .onlineConsultation.index
+                                          ? 'Online Consultation'.toUpperCase()
+                                          : 'Face-to-face Consultation'
+                                              .toUpperCase(),
+                                      style: ginaTheme.textTheme.labelSmall
+                                          ?.copyWith(
+                                        color:
+                                            GinaAppTheme.lightTertiaryContainer,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const Gap(5),
+                                    Text(
+                                      '${request.appointmentDate}\n${request.appointmentTime}',
+                                      style: ginaTheme.textTheme.labelMedium
+                                          ?.copyWith(
+                                        color: GinaAppTheme.lightOutline,
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const Spacer(),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 30.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      AppointmentStatusContainer(
+                                        appointmentStatus:
+                                            request.appointmentStatus,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
+                    ],
+                  );
+                },
+              ),
       ),
     );
   }

@@ -27,6 +27,18 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
       }
     }
 
+    String appointmentType;
+    if (upcomingAppointment?.modeOfAppointment == 0) {
+      appointmentType = 'Online Consultation';
+    } else if (upcomingAppointment?.modeOfAppointment == 1) {
+      appointmentType = 'F2F Consultation';
+    } else {
+      appointmentType = 'No appointment';
+    }
+
+    bool isEmpty = upcomingAppointment!.appointmentUid == null ||
+        upcomingAppointment!.appointmentUid!.isEmpty;
+
     return Column(
       children: [
         /*  const Gap(10),
@@ -48,7 +60,9 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             gradient: LinearGradient(
-              colors: GinaAppTheme.gradientColors,
+              colors: isEmpty
+                  ? [Colors.white, Colors.white]
+                  : GinaAppTheme.gradientColors,
               begin: Alignment.bottomRight,
               end: Alignment.topRight,
             ),
@@ -67,7 +81,9 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
                         child: CircleAvatar(
                           radius: 40,
                           backgroundImage: AssetImage(
-                            Images.patientProfileIcon,
+                            isEmpty
+                                ? Images.placeholderProfileIcon
+                                : Images.patientProfileIcon,
                           ),
                           backgroundColor: Colors.white,
                         ),
@@ -78,39 +94,62 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              upcomingAppointment?.patientName ??
-                                  'Patient Name',
+                              upcomingAppointment?.patientName ?? 'No Patient',
                               style: ginaTheme.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.w700,
-                                color: Colors.white, // Adjusted color
+                                color:
+                                    isEmpty ? Colors.grey[300] : Colors.white,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
                             const Gap(3),
                             Text(
-                              upcomingAppointment?.modeOfAppointment == 0
-                                  ? 'Online Consultation'.toUpperCase()
-                                  : 'Face-to-face Consultation'.toUpperCase(),
+                              appointmentType.toUpperCase(),
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.6),
+                                color: isEmpty
+                                    ? Colors.grey[300]
+                                    : Colors.white.withOpacity(0.8),
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                               ),
                               overflow: TextOverflow.ellipsis,
+                            ),
+                            const Gap(3),
+                            SizedBox(
+                              width: size.width * 0.33,
+                              child: Flexible(
+                                child: Text(
+                                  upcomingAppointment!.appointmentUid != null
+                                      ? 'ID: ${upcomingAppointment!.appointmentUid}'
+                                      : 'No appointment ID',
+                                  style: TextStyle(
+                                    color: isEmpty
+                                        ? Colors.grey[300]
+                                        : Colors.white.withOpacity(0.6),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  overflow: TextOverflow.visible,
+                                  softWrap: true,
+                                ),
+                              ),
                             ),
                           ],
                         ),
                       ),
                     ],
                   ),
-                  const Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 30.0),
-                    child: AppointmentStatusContainer(
-                      appointmentStatus: upcomingAppointment!.appointmentStatus,
-                      colorOverride: Colors.white,
+                  if (!isEmpty) ...[
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 30.0),
+                      child: AppointmentStatusContainer(
+                        appointmentStatus:
+                            upcomingAppointment!.appointmentStatus,
+                        colorOverride: Colors.white,
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
               Padding(
@@ -121,7 +160,9 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.6),
+                      color: isEmpty
+                          ? Colors.grey[300]!
+                          : Colors.white.withOpacity(0.6),
                     ),
                   ),
                   child: Row(
@@ -129,7 +170,9 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
                     children: [
                       Icon(
                         MingCute.calendar_line,
-                        color: Colors.white.withOpacity(0.6),
+                        color: isEmpty
+                            ? Colors.grey[300]
+                            : Colors.white.withOpacity(0.6),
                         size: 20,
                       ),
                       const Gap(10),
@@ -137,8 +180,8 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
                         formattedDate.isNotEmpty
                             ? formattedDate
                             : 'No upcoming appointment',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: isEmpty ? Colors.grey[300] : Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -147,7 +190,9 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
                       Text(
                         '|',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.6),
+                          color: isEmpty
+                              ? Colors.grey[300]
+                              : Colors.white.withOpacity(0.6),
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -155,14 +200,16 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
                       const Gap(10),
                       Icon(
                         MingCute.time_line,
-                        color: Colors.white.withOpacity(0.6),
+                        color: isEmpty
+                            ? Colors.grey[300]
+                            : Colors.white.withOpacity(0.6),
                         size: 20,
                       ),
                       const Gap(10),
                       Text(
                         upcomingAppointment?.appointmentTime ?? 'No time',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: isEmpty ? Colors.grey[300] : Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),

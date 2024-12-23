@@ -65,7 +65,7 @@ class DoctorAppointmentRequestScreenLoaded extends StatelessWidget {
                 DoctorAppointmentRequestScreenLoadedState>(
               builder: (context, state) {
                 return TabBarView(
-                  // physics: const NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   children: [
                     Center(child: state.selectedScreen),
                     Center(child: state.selectedScreen),

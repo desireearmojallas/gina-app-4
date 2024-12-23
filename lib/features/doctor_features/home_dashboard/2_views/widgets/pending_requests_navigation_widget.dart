@@ -72,8 +72,10 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
             Container(
               height: 20,
               width: 20,
-              decoration: const BoxDecoration(
-                color: GinaAppTheme.lightTertiaryContainer,
+              decoration: BoxDecoration(
+                color: pendingRequests == 0
+                    ? Colors.grey[300]
+                    : GinaAppTheme.lightTertiaryContainer,
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -90,12 +92,17 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
             const Spacer(),
             TextButton(
               onPressed: () {
+                // pendingRequests == 0
+                //     ? null
+                //     : Navigator.of(context).pushNamed('');
                 // TODO: PENDING REQUESTS ROUTE
               },
               child: Text(
                 'See all',
                 style: ginaTheme.textTheme.labelMedium?.copyWith(
-                  color: GinaAppTheme.lightTertiaryContainer,
+                  color: pendingRequests == 0
+                      ? Colors.grey[300]
+                      : GinaAppTheme.lightTertiaryContainer,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -106,7 +113,7 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
         GestureDetector(
           onTap: () {},
           child: Container(
-            height: size.height * 0.12,
+            height: size.height * 0.14,
             width: size.width / 1.05,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
@@ -119,13 +126,15 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0,
+                    horizontal: 16.0,
                     vertical: 10.0,
                   ),
                   child: CircleAvatar(
                     radius: 37,
                     backgroundImage: AssetImage(
-                      Images.patientProfileIcon,
+                      pendingRequests == 0
+                          ? Images.placeholderProfileIcon
+                          : Images.patientProfileIcon,
                     ),
                     backgroundColor: Colors.white,
                   ),
@@ -135,11 +144,34 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
+                      width: size.width * 0.4,
+                      child: Flexible(
+                        child: Text(
+                          pendingAppointment != null &&
+                                  pendingAppointment!.appointmentUid != null
+                              ? 'Appt. ID: ${pendingAppointment!.appointmentUid}'
+                              : 'No Appointment ID',
+                          style: ginaTheme.textTheme.labelSmall?.copyWith(
+                            color: pendingRequests == 0
+                                ? Colors.grey[300]
+                                : GinaAppTheme.lightOutline,
+                            fontSize: 9,
+                          ),
+                          overflow: TextOverflow.visible,
+                          softWrap: true,
+                        ),
+                      ),
+                    ),
+                    const Gap(5),
+                    SizedBox(
                       width: size.width * 0.33,
                       child: Text(
                         pendingAppointment?.patientName ?? 'No Patient',
                         style: ginaTheme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
+                          color: pendingRequests == 0
+                              ? Colors.grey[300]
+                              : GinaAppTheme.lightOnPrimaryColor,
                         ),
                         overflow: TextOverflow.visible,
                         softWrap: true,
@@ -149,17 +181,20 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                     Text(
                       appointmentType.toUpperCase(),
                       style: ginaTheme.textTheme.labelSmall?.copyWith(
-                        color: GinaAppTheme.lightTertiaryContainer,
+                        color: pendingRequests == 0
+                            ? Colors.grey[300]
+                            : GinaAppTheme.lightTertiaryContainer,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const Gap(5),
                     Text(
-                      // 'Tuesday, December 19\n8:00 AM - 9:00 AM',
                       '$formattedDate\n$formattedTime',
                       style: ginaTheme.textTheme.labelMedium?.copyWith(
-                        color: GinaAppTheme.lightOutline,
+                        color: pendingRequests == 0
+                            ? Colors.grey[300]
+                            : GinaAppTheme.lightOutline,
                         fontSize: 10,
                       ),
                     ),
@@ -167,42 +202,52 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                 ),
                 const Spacer(),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                  padding: const EdgeInsets.fromLTRB(0, 0, 12, 0),
                   child: Row(
                     children: [
                       IconButton(
-                        onPressed: () {
-                          showConfirmingPendingRequestDialog(
-                            context,
-                            appointmentId: pendingAppointment!.appointmentUid!,
-                            appointment: pendingAppointment!,
-                            patientData: patientData,
-                          );
-                        },
+                        onPressed: pendingRequests == 0
+                            ? null
+                            : () {
+                                showConfirmingPendingRequestDialog(
+                                  context,
+                                  appointmentId:
+                                      pendingAppointment!.appointmentUid!,
+                                  appointment: pendingAppointment!,
+                                  patientData: patientData,
+                                );
+                              },
                         icon: Icon(
                           MingCute.close_circle_fill,
-                          color: Colors.grey[300],
+                          color: pendingRequests == 0
+                              ? Colors.grey[100]
+                              : Colors.grey[300],
                           size: 38,
                         ),
                       ),
                       IconButton(
-                        onPressed: () {
-                          showConfirmingPendingRequestDialog(
-                            context,
-                            appointmentId: pendingAppointment!.appointmentUid!,
-                            appointment: pendingAppointment!,
-                            patientData: patientData,
-                          );
-                        },
-                        icon: const Icon(
+                        onPressed: pendingRequests == 0
+                            ? null
+                            : () {
+                                showConfirmingPendingRequestDialog(
+                                  context,
+                                  appointmentId:
+                                      pendingAppointment!.appointmentUid!,
+                                  appointment: pendingAppointment!,
+                                  patientData: patientData,
+                                );
+                              },
+                        icon: Icon(
                           MingCute.check_circle_fill,
-                          color: GinaAppTheme.lightTertiaryContainer,
+                          color: pendingRequests == 0
+                              ? Colors.grey[100]
+                              : GinaAppTheme.lightTertiaryContainer,
                           size: 38,
                         ),
                       ),
                     ],
                   ),
-                ),
+                )
               ],
             ),
           ),
