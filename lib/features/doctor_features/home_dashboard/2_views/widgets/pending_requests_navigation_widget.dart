@@ -3,6 +3,8 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/screens/doctor_appointment_request.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/screens/view_states/pending_request_details_screen_state.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/widgets/confirming_pending_request_modal.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -92,10 +94,12 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
             const Spacer(),
             TextButton(
               onPressed: () {
-                // pendingRequests == 0
-                //     ? null
-                //     : Navigator.of(context).pushNamed('');
-                // TODO: PENDING REQUESTS ROUTE
+                pendingRequests == 0
+                    ? null
+                    : Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                        return const DoctorAppointmentRequestProvider();
+                      }));
               },
               child: Text(
                 'See all',
@@ -111,7 +115,14 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
         ),
         // const Gap(10),
         GestureDetector(
-          onTap: () {},
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return PendingRequestDetailsScreenState(
+                appointment: pendingAppointment!,
+                patientData: patientData,
+              );
+            }));
+          },
           child: Container(
             height: size.height * 0.14,
             width: size.width / 1.05,
