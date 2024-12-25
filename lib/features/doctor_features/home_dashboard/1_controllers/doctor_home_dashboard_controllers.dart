@@ -15,6 +15,7 @@ String? doctorName;
 AppointmentModel? upcomingAppointment;
 AppointmentModel? pendingAppointment;
 UserModel? patientDataCont;
+Map<DateTime, List<AppointmentModel>>? completedAppointments = {};
 
 class DoctorHomeDashboardController extends ChangeNotifier {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -165,6 +166,53 @@ class DoctorHomeDashboardController extends ChangeNotifier {
       debugPrint('FirebaseAuthException: ${e.message}');
       debugPrint('FirebaseAuthException code: ${e.code}');
       error = e;
+      return Left(Exception(e.message));
+    }
+  }
+
+  Future<Either<Exception, Map<DateTime, List<AppointmentModel>>>>
+      getCompletedAppointments() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> appointmentSnapshot = await firestore
+          .collection('appointments')
+          .where('doctorUid', isEqualTo: currentUser!.uid)
+          .where('appointmentStatus',
+              isEqualTo: AppointmentStatus.completed.index)
+          .get();
+
+      var patientCompletedAppointment = appointmentSnapshot.docs
+          .map((doc) => AppointmentModel.fromJson(doc.data()))
+          .toList()
+        ..sort((a, b) {
+          final aDate = DateFormat('MMMM d, yyyy').parse(a.appointmentDate!);
+          final bDate = DateFormat('MMMM d, yyyy').parse(b.appointmentDate!);
+
+          return aDate
+              .difference(DateTime.now())
+              .abs()
+              .compareTo(bDate.difference(DateTime.now()).abs());
+        });
+
+      if (patientCompletedAppointment.isNotEmpty) {
+        Map<DateTime, List<AppointmentModel>> completedAppointmentsMap = {};
+        for (var appointment in patientCompletedAppointment) {
+          final appointmentDate =
+              DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
+          if (completedAppointmentsMap.containsKey(appointmentDate)) {
+            completedAppointmentsMap[appointmentDate]!.add(appointment);
+          } else {
+            completedAppointmentsMap[appointmentDate] = [appointment];
+          }
+        }
+        return Right(completedAppointmentsMap);
+      } else {
+        return const Right(<DateTime, List<AppointmentModel>>{});
+      }
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException code: ${e.code}');
+      error = e;
+      notifyListeners();
       return Left(Exception(e.message));
     }
   }

@@ -66,6 +66,7 @@ class DoctorHomeScreenDashboard extends StatelessWidget {
               upcomingAppointment: state.upcomingAppointment!,
               pendingAppointment: state.pendingAppointmentLatest!,
               patientData: state.patientData!,
+              completedAppointmentsList: state.completedAppointmentList!,
             );
           }
           return DoctorHomeScreenDashboardLoaded(
@@ -87,6 +88,7 @@ class DoctorHomeScreenDashboard extends StatelessWidget {
               chatrooms: const [],
               appointmentsBooked: const [],
             ),
+            completedAppointmentsList: const {},
           );
         },
       ),

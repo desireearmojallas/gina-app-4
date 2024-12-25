@@ -10,6 +10,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_vi
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/bloc/doctor_emergency_announcements_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/my_past_appointments_navigation_widget.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/widget_navigation_cards.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/doctor_forums_navigation_widget.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/emergency_announcement_navigation_widget.dart';
@@ -28,6 +29,7 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
   final AppointmentModel upcomingAppointment;
   final AppointmentModel pendingAppointment;
   final UserModel patientData;
+  final Map<DateTime, List<AppointmentModel>> completedAppointmentsList;
 
   const DoctorHomeScreenDashboardLoaded({
     super.key,
@@ -37,6 +39,7 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
     required this.upcomingAppointment,
     required this.pendingAppointment,
     required this.patientData,
+    required this.completedAppointmentsList,
   });
 
   @override
@@ -210,17 +213,23 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                   ),
                 ),
                 const Gap(20),
-                const SingleChildScrollView(
+                SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  physics: BouncingScrollPhysics(),
+                  physics: const BouncingScrollPhysics(),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      EmergencyAnnouncementNavigationWidget(),
-                      Gap(15),
-                      ScheduleManagementNavigationWidget(),
-                      Gap(15),
-                      DoctorForumsNavigationWidget(),
+                      MyPastAppointmentsNavigationWidget(
+                        // completed appointments bloc/controller
+                        completedAppointmentsList: completedAppointmentsList,
+                        patientData: patientData,
+                      ),
+                      const Gap(15),
+                      const EmergencyAnnouncementNavigationWidget(),
+                      const Gap(15),
+                      const ScheduleManagementNavigationWidget(),
+                      const Gap(15),
+                      const DoctorForumsNavigationWidget(),
                     ],
                   ),
                 ),

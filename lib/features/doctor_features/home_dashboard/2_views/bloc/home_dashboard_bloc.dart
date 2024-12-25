@@ -37,6 +37,7 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
                 chatrooms: const [],
                 appointmentsBooked: const [],
               ),
+          completedAppointmentList: completedAppointments,
         )) {
     on<HomeInitialEvent>(homeInitialEvent);
     on<GetDoctorNameEvent>(getDoctorName);
@@ -49,6 +50,7 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
     AppointmentModel? latestUpcomingAppointment;
     AppointmentModel? latestPendingAppointment;
     UserModel? latestPatientData;
+    Map<DateTime, List<AppointmentModel>> completedAppointmentsList = {};
 
     final getTheNumberOfConfirmedAppointments =
         await doctorHomeDashboardController.getConfirmedAppointments();
@@ -65,6 +67,9 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
     final pendingAppointment =
         await doctorHomeDashboardController.getPendingAppointmentLatest();
 
+    final completedAppointment =
+        await doctorHomeDashboardController.getCompletedAppointments();
+
     getTheNumberOfPendingAppointments.fold((failure) {}, (pendingAppointments) {
       pendingAppointmentsCount = pendingAppointments;
     });
@@ -78,6 +83,13 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
       (failure) {},
       (appointment) {
         latestUpcomingAppointment = appointment;
+      },
+    );
+
+    completedAppointment.fold(
+      (failure) {},
+      (appointmentList) {
+        completedAppointmentsList = appointmentList;
       },
     );
 
@@ -129,6 +141,7 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
             chatrooms: const [],
             appointmentsBooked: const [],
           ),
+      completedAppointmentList: completedAppointmentsList,
     ));
   }
 

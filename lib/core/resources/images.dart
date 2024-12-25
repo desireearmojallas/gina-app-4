@@ -60,6 +60,14 @@ class Images {
       "assets/images/doctor_features/home/schedule_management.png";
   static String emergencyAnnouncementIcon =
       "assets/images/doctor_features/home/emergency_announcement_doctor.png";
+  static String pastAppointmentsIcon =
+      "assets/images/doctor_features/home/past_appointments.png";
+  static String pastAppointmentsIcon2 =
+      "assets/images/doctor_features/home/past_appointments_2.png";
+  static String completedAppointments =
+      "assets/images/doctor_features/home/completed_appointments.png";
+  static String completedAppointmentsIcon =
+      "assets/images/doctor_features/home/completed_appointments_2.png";
 
   //! Doctor Forum Badges Screen
   static String newDoctorForumBadgeBackground =
