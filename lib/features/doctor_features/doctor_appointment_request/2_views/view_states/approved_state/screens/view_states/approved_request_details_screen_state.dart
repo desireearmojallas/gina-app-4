@@ -13,8 +13,8 @@ import 'package:icons_plus/icons_plus.dart';
 class ApprovedRequestDetailsScreenState extends StatelessWidget {
   final AppointmentModel appointment;
   final UserModel patientData;
-  int? appointmentStatus;
-  ApprovedRequestDetailsScreenState({
+  final int? appointmentStatus;
+  const ApprovedRequestDetailsScreenState({
     super.key,
     required this.appointment,
     required this.patientData,

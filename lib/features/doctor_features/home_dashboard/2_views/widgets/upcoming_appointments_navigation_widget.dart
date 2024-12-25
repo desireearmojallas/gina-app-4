@@ -62,13 +62,15 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
         const Gap(10),
         GestureDetector(
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return ApprovedRequestDetailsScreenState(
-                appointment: upcomingAppointment!,
-                patientData: patientData,
-                appointmentStatus: upcomingAppointment?.appointmentStatus,
-              );
-            }));
+            upcomingAppointment?.appointmentUid != null
+                ? Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return ApprovedRequestDetailsScreenState(
+                      appointment: upcomingAppointment!,
+                      patientData: patientData,
+                      appointmentStatus: upcomingAppointment?.appointmentStatus,
+                    );
+                  }))
+                : null;
           },
           child: Container(
             height: size.height * 0.22,

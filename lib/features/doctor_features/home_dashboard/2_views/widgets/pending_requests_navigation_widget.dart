@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
@@ -6,6 +7,7 @@ import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/screens/doctor_appointment_request.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/screens/view_states/pending_request_details_screen_state.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/widgets/confirming_pending_request_modal.dart';
+import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
@@ -23,6 +25,7 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final homeDashboardBloc = context.read<HomeDashboardBloc>();
     final ginaTheme = Theme.of(context);
     final size = MediaQuery.of(context).size;
     String formattedDate = 'No pending appointment';
@@ -104,12 +107,14 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
         // const Gap(10),
         GestureDetector(
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return PendingRequestDetailsScreenState(
-                appointment: pendingAppointment!,
-                patientData: patientData,
-              );
-            }));
+            pendingRequests == 0
+                ? null
+                : Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return PendingRequestDetailsScreenState(
+                      appointment: pendingAppointment!,
+                      patientData: patientData,
+                    );
+                  }));
           },
           child: Container(
             height: size.height * 0.14,
@@ -214,7 +219,9 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                                       pendingAppointment!.appointmentUid!,
                                   appointment: pendingAppointment!,
                                   patientData: patientData,
-                                );
+                                ).then((value) {
+                                  homeDashboardBloc.add(HomeInitialEvent());
+                                });
                               },
                         icon: Icon(
                           MingCute.close_circle_fill,
@@ -234,7 +241,9 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                                       pendingAppointment!.appointmentUid!,
                                   appointment: pendingAppointment!,
                                   patientData: patientData,
-                                );
+                                ).then((value) {
+                                  homeDashboardBloc.add(HomeInitialEvent());
+                                });
                               },
                         icon: Icon(
                           MingCute.check_circle_fill,

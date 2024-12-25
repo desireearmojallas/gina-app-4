@@ -5,7 +5,6 @@ import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/floatin
 import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/gina_header.dart';
-import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/screens/view_states/doctor_home_dashboard_screen_loaded.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';

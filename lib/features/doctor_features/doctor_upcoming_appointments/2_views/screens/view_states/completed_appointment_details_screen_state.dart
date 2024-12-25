@@ -7,6 +7,7 @@ import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_upcoming_appointments/2_views/screens/view_states/completed_appointment_detailed_screen.dart';
+import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:intl/intl.dart';
@@ -28,8 +29,9 @@ class CompletedAppointmentDetailScreenState extends StatelessWidget {
     var dates = completedAppointmentsList.keys.toList();
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: GinaDoctorAppBar(
-        title: 'Completed Appointments',
+        title: 'My Past Appointments',
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -47,7 +49,7 @@ class CompletedAppointmentDetailScreenState extends StatelessWidget {
                           color: GinaAppTheme.lightOutline,
                         ),
                       ),
-                      const Gap(150),
+                      const Gap(60),
                     ],
                   ),
                 )
@@ -55,9 +57,22 @@ class CompletedAppointmentDetailScreenState extends StatelessWidget {
                   physics: const BouncingScrollPhysics(),
                   child: Column(
                     children: [
+                      const Gap(30),
+                      Text('Thank you for your service,',
+                          style: ginaTheme.textTheme.titleSmall?.copyWith(
+                            color: GinaAppTheme.lightOutline,
+                          )),
+                      const Gap(3),
+                      Text(
+                        'Dr. $doctorName!',
+                        style: ginaTheme.textTheme.titleLarge?.copyWith(
+                          color: GinaAppTheme.lightSecondary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       Center(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 30.0),
+                          padding: const EdgeInsets.fromLTRB(0, 25, 0, 30),
                           child: Column(
                             children: [
                               Image.asset(
@@ -71,6 +86,7 @@ class CompletedAppointmentDetailScreenState extends StatelessWidget {
                       SizedBox(
                         height: size.height * 0.8,
                         child: ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
                           padding: const EdgeInsets.only(bottom: 10.0),
                           itemCount: completedAppointmentsList.length,
                           itemBuilder: (context, index) {
@@ -116,9 +132,13 @@ class CompletedAppointmentDetailScreenState extends StatelessWidget {
                                       decoration: BoxDecoration(
                                         color: Colors.white,
                                         borderRadius: BorderRadius.circular(10),
-                                        boxShadow: [
-                                          GinaAppTheme.defaultBoxShadow
-                                        ],
+                                        border: Border.all(
+                                          color: GinaAppTheme.lightOutline
+                                              .withOpacity(0.5),
+                                        ),
+                                        // boxShadow: [
+                                        //   GinaAppTheme.defaultBoxShadow
+                                        // ],
                                       ),
                                       child: Row(
                                         children: [

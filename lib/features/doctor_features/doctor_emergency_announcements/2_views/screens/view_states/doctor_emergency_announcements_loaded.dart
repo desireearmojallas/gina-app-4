@@ -7,9 +7,9 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/0_model/emergency_announcements_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/bloc/doctor_emergency_announcements_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/view_states/doctor_emergency_announcement_initial.dart';
+import 'package:intl/intl.dart';
 
 class DoctorEmergencyAnnouncementsLoadedScreen extends StatelessWidget {
-  final sampleChecker = false;
   final List<EmergencyAnnouncementModel> emergencyAnnouncements;
   const DoctorEmergencyAnnouncementsLoadedScreen(
       {super.key, required this.emergencyAnnouncements});
@@ -23,7 +23,7 @@ class DoctorEmergencyAnnouncementsLoadedScreen extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {},
-      child: sampleChecker
+      child: emergencyAnnouncements.isEmpty
           ? const DoctorEmergencyAnnouncementInitialScreen()
           : ScrollbarCustom(
               child: Padding(
@@ -33,8 +33,23 @@ class DoctorEmergencyAnnouncementsLoadedScreen extends StatelessWidget {
                   itemCount: emergencyAnnouncements.length,
                   itemBuilder: (context, index) {
                     final emergencyAnnouncement = emergencyAnnouncements[index];
+                    DateTime now = DateTime.now();
+                    DateTime createdAt =
+                        emergencyAnnouncement.createdAt.toDate();
+                    String time;
+                    if (now.difference(createdAt).inHours < 24) {
+                      time = DateFormat.jm().format(createdAt);
+                    } else if (now.difference(createdAt).inDays == 1) {
+                      time = 'Yesterday';
+                    } else if (now.difference(createdAt).inDays <= 7) {
+                      time = DateFormat('EEEE').format(createdAt);
+                    } else {
+                      time = DateFormat.yMd().format(createdAt);
+                    }
+
                     return InkWell(
                       onTap: () {
+                        //! navigation not yet working
                         doctorEmergencyAnnouncementsBloc.add(
                           NavigateToDoctorCreatedAnnouncementEvent(
                             emergencyAnnouncement: emergencyAnnouncement,
@@ -46,7 +61,7 @@ class DoctorEmergencyAnnouncementsLoadedScreen extends StatelessWidget {
                           vertical: 8,
                           horizontal: 20,
                         ),
-                        height: size.height * 0.1,
+                        height: size.height * 0.18,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
@@ -72,25 +87,30 @@ class DoctorEmergencyAnnouncementsLoadedScreen extends StatelessWidget {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      'Desiree Armojallas',
+                                      emergencyAnnouncement.patientName,
                                       style: ginaTheme.bodyMedium?.copyWith(
                                         fontWeight: FontWeight.bold,
                                       ),
                                       overflow: TextOverflow.ellipsis,
                                     ),
+                                    const Gap(10),
                                     Text(
-                                      'Good day! I will be out of town for a week.',
+                                      emergencyAnnouncement.message,
                                       style: ginaTheme.bodySmall,
+                                      maxLines: 6,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ],
                                 ),
                               ),
-                              const Gap(5),
-                              Text(
-                                '12:00 PM',
-                                style: ginaTheme.bodySmall?.copyWith(
-                                  color: GinaAppTheme.lightOutline,
+                              const Gap(20),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  time,
+                                  style: ginaTheme.bodySmall?.copyWith(
+                                    color: GinaAppTheme.lightOutline,
+                                  ),
                                 ),
                               ),
                             ],

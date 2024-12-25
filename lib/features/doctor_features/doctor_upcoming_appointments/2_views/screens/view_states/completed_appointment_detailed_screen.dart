@@ -44,6 +44,7 @@ class CompletedAppointmentDetailedScreenState extends StatelessWidget {
     ]);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: GinaDoctorAppBar(
         title: patientData.name,
       ),

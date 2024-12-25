@@ -61,7 +61,7 @@ class DoctorEmergencyAnnouncementScreen extends StatelessWidget {
                       )
                     : null,
             title: state is DoctorEmergencyGetApprovedPatientList
-                ? 'Select a Patient'
+                ? 'Select a patient'
                 : state is CreateAnnouncementState
                     ? 'Create Announcement'
                     : 'Emergency Announcements',
