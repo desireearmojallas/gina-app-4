@@ -47,18 +47,6 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
       appointmentType = 'No appointment';
     }
 
-    // Debug prints to check the values of patientData
-    debugPrint(
-        'PendingRequestsNavigationWidget Patient Name: ${patientData.name}');
-    debugPrint(
-        'PendingRequestsNavigationWidget Patient Date of Birth: ${patientData.dateOfBirth}');
-    debugPrint(
-        'PendingRequestsNavigationWidget Patient Gender: ${patientData.gender}');
-    debugPrint(
-        'PendingRequestsNavigationWidget Patient Address: ${patientData.address}');
-    debugPrint(
-        'PendingRequestsNavigationWidget Patient Email: ${patientData.email}');
-
     return Column(
       children: [
         Row(
@@ -86,7 +74,7 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
-                    fontSize: 10,
+                    fontSize: 12,
                   ),
                 ),
               ),

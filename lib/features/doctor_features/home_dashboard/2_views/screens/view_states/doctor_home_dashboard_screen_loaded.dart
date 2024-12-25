@@ -8,7 +8,6 @@ import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/bloc/doctor_consultation_fee_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/view_states/edit_doctor_consultation_fee_screen_loaded.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/bloc/doctor_emergency_announcements_bloc.dart';
-import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/my_past_appointments_navigation_widget.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/widget_navigation_cards.dart';
@@ -46,18 +45,6 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
   Widget build(BuildContext context) {
     final ginaTheme = Theme.of(context);
     final homeDashboardBloc = context.read<HomeDashboardBloc>();
-
-    // Debug prints to check the values of patientData
-    debugPrint(
-        'DoctorHomeScreenDashboardLoaded Patient Name: ${patientData.name}');
-    debugPrint(
-        'DoctorHomeScreenDashboardLoaded Patient Date of Birth: ${patientData.dateOfBirth}');
-    debugPrint(
-        'DoctorHomeScreenDashboardLoaded Patient Gender: ${patientData.gender}');
-    debugPrint(
-        'DoctorHomeScreenDashboardLoaded Patient Address: ${patientData.address}');
-    debugPrint(
-        'DoctorHomeScreenDashboardLoaded Patient Email: ${patientData.email}');
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -136,7 +123,7 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                     ),
                   ],
                 ),
-                const Gap(30),
+                const Gap(20),
                 Row(
                   children: [
                     Text(
@@ -164,7 +151,7 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
-                            fontSize: 10,
+                            fontSize: 12,
                           ),
                         ),
                       ),
@@ -194,14 +181,15 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                 ),
                 UpcomingAppointmentsNavigationWidget(
                   upcomingAppointment: upcomingAppointment,
+                  patientData: patientData,
                 ),
-                const Gap(30),
+                const Gap(20),
                 PendingRequestsNavigationWidget(
                   pendingRequests: pendingRequests,
                   pendingAppointment: pendingAppointment,
                   patientData: patientData,
                 ),
-                const Gap(40),
+                const Gap(30),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -220,7 +208,6 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       MyPastAppointmentsNavigationWidget(
-                        // completed appointments bloc/controller
                         completedAppointmentsList: completedAppointmentsList,
                         patientData: patientData,
                       ),
@@ -233,7 +220,7 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Gap(120),
+                const Gap(100),
               ],
             ),
           ),
