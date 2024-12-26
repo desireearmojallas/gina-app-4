@@ -10,6 +10,12 @@ class DoctorAppointmentRequestScreenLoaded extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+
+    // Reset the tab index to 0 when the screen is built
+    context
+        .read<DoctorAppointmentRequestScreenLoadedBloc>()
+        .add(const TabChangedEvent(tab: 0));
+
     return DefaultTabController(
       length: 4,
       child: Column(
