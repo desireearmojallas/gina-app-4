@@ -8,6 +8,9 @@ import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/bloc/doctor_consultation_fee_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/view_states/edit_doctor_consultation_fee_screen_loaded.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/bloc/doctor_emergency_announcements_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/doctor_emergency_announcement_screen.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/view_states/doctor_emergency_announcement_create_announcement.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/view_states/doctor_emergency_announcement_patient_list.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/my_past_appointments_navigation_widget.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/widget_navigation_cards.dart';
@@ -102,22 +105,59 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                       },
                     ),
 
-                    //Create Emergency Announcement
-                    BlocBuilder<DoctorEmergencyAnnouncementsBloc,
-                        DoctorEmergencyAnnouncementsState>(
-                      builder: (context, state) {
-                        if (state is CreateAnnouncementState) {
-                          debugPrint('Create Announcement State');
-                        }
-                        return WidgetNavigationCards(
-                          widgetText: 'Create Emergency\nAnnouncement',
-                          icon: MingCute.report_fill,
-                          onPressed: () {
-                            debugPrint('Create emergency announcement clicked');
-                            context.read<DoctorEmergencyAnnouncementsBloc>().add(
-                                NavigateToDoctorEmergencyCreateAnnouncementEvent());
-                            debugPrint('Successfully added to the bloc');
-                          },
+                    // //Create Emergency Announcement
+                    // BlocBuilder<DoctorEmergencyAnnouncementsBloc,
+                    //     DoctorEmergencyAnnouncementsState>(
+                    //   builder: (context, state) {
+                    //     if (state is CreateAnnouncementState) {
+                    //       debugPrint('Create Announcement State');
+                    //       // return DoctorEmergencyAnnouncementCreateAnnouncementScreen();
+                    //       Future.microtask(() {
+                    //         Navigator.push(
+                    //           context,
+                    //           MaterialPageRoute(
+                    //             builder: (context) => Scaffold(
+                    //               appBar: GinaDoctorAppBar(
+                    //                 title: 'Create Announcement',
+                    //               ),
+                    //               body:
+                    //                   DoctorEmergencyAnnouncementCreateAnnouncementScreen(),
+                    //             ),
+                    //           ),
+                    //         );
+                    //       });
+                    //     } else if (state
+                    //         is DoctorEmergencyGetApprovedPatientList) {
+                    //       return DoctorEmergencyAnnouncementPatientList(
+                    //         approvedPatients: state.approvedPatientList,
+                    //       );
+                    //     }
+                    //     return WidgetNavigationCards(
+                    //       widgetText: 'Create Emergency\nAnnouncement',
+                    //       icon: MingCute.report_fill,
+                    //       onPressed: () {
+                    //         debugPrint('Create emergency announcement clicked');
+                    //         Navigator.pushNamed(
+                    //             context, '/doctorEmergencyAnnouncements');
+                    //         context.read<DoctorEmergencyAnnouncementsBloc>().add(
+                    //             NavigateToDoctorEmergencyCreateAnnouncementEvent());
+                    //         debugPrint('Successfully added to the bloc');
+                    //       },
+                    //     );
+                    //   },
+                    // ),
+
+                    WidgetNavigationCards(
+                      widgetText: 'Create Emergency\nAnnouncement',
+                      icon: MingCute.report_fill,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const DoctorEmergencyAnnouncementScreenProvider(
+                                    navigateToCreate: true),
+                          ),
                         );
                       },
                     ),

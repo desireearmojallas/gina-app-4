@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/bloc/doctor_emergency_announcements_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/widgets/posted_confirmation_dialog.dart';
@@ -8,11 +9,14 @@ import 'package:icons_plus/icons_plus.dart';
 
 class DoctorEmergencyAnnouncementCreateAnnouncementScreen
     extends StatelessWidget {
-  DoctorEmergencyAnnouncementCreateAnnouncementScreen({super.key});
+  final bool isLoading;
 
   final TextEditingController emergencyMessageController =
       TextEditingController();
   final int characterLimit = 2000;
+
+  DoctorEmergencyAnnouncementCreateAnnouncementScreen(
+      {super.key, required this.isLoading});
 
   @override
   Widget build(BuildContext context) {
@@ -66,15 +70,21 @@ class DoctorEmergencyAnnouncementCreateAnnouncementScreen
                               controller: patientChosenController,
                               maxLines: 1,
                               style: ginaTheme.titleSmall?.copyWith(
-                                color: GinaAppTheme.lightTertiaryContainer,
+                                color: GinaAppTheme.lightOutline,
                                 fontWeight: FontWeight.w600,
                               ),
                               decoration: InputDecoration(
                                 border: InputBorder.none,
                                 suffixIcon: IconButton(
                                   onPressed: () {
-                                    doctorEmergencyAnnouncementBloc
+                                    debugPrint(
+                                        'Navigate to patient list clicked');
+                                    context
+                                        .read<
+                                            DoctorEmergencyAnnouncementsBloc>()
                                         .add(NavigateToPatientList());
+                                    debugPrint(
+                                        'Successfully added NavigateToPatientList event to the bloc');
                                   },
                                   icon: const Icon(
                                     MingCute.user_add_2_line,
@@ -136,6 +146,8 @@ class DoctorEmergencyAnnouncementCreateAnnouncementScreen
                         final appointment = state is SelectedAPatientState
                             ? state.appointment
                             : null;
+                        final isLoading =
+                            state is CreateAnnouncementLoadingState;
                         return FilledButton(
                           style: ButtonStyle(
                             shape: MaterialStateProperty.all<
@@ -170,12 +182,22 @@ class DoctorEmergencyAnnouncementCreateAnnouncementScreen
                               ));
                             }
                           },
-                          child: const Text(
-                            'Post',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          child: isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CustomLoadingIndicator(
+                                    colors: [
+                                      GinaAppTheme.appbarColorLight,
+                                    ],
+                                  ),
+                                )
+                              : const Text(
+                                  'Post',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                         );
                       },
                     ),

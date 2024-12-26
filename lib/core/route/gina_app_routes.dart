@@ -83,7 +83,9 @@ Map<String, WidgetBuilder> ginaAppRoutes() {
     '/doctorPatientDetails': (context) =>
         const DoctorViewPatientDetailsScreenProvider(),
     '/doctorEmergencyAnnouncements': (context) =>
-        const DoctorEmergencyAnnouncementScreenProvider(),
+        const DoctorEmergencyAnnouncementScreenProvider(
+          navigateToCreate: false,
+        ),
     '/doctorScheduleManagement': (context) =>
         const DoctorScheduleManagementScreenProvider(),
     '/doctorCreateSchedule': (context) =>

@@ -10,7 +10,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcemen
 import 'package:intl/intl.dart';
 
 class DoctorEmergencyAnnouncementsLoadedScreen extends StatelessWidget {
-  final List<EmergencyAnnouncementModel> emergencyAnnouncements;
+  final Map<DateTime, List<EmergencyAnnouncementModel>> emergencyAnnouncements;
   const DoctorEmergencyAnnouncementsLoadedScreen(
       {super.key, required this.emergencyAnnouncements});
 
@@ -20,6 +20,7 @@ class DoctorEmergencyAnnouncementsLoadedScreen extends StatelessWidget {
         context.read<DoctorEmergencyAnnouncementsBloc>();
     final ginaTheme = Theme.of(context).textTheme;
     final size = MediaQuery.of(context).size;
+    var dates = emergencyAnnouncements.keys.toList();
 
     return ScrollbarCustom(
       child: RefreshIndicator(
@@ -30,7 +31,7 @@ class DoctorEmergencyAnnouncementsLoadedScreen extends StatelessWidget {
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Padding(
-            padding: const EdgeInsets.only(bottom: 30.0),
+            padding: const EdgeInsets.only(bottom: 10.0),
             child: Column(
               children: [
                 emergencyAnnouncements.isEmpty
@@ -88,7 +89,7 @@ class DoctorEmergencyAnnouncementsLoadedScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const Gap(10),
+                const Gap(20),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: ListView.builder(
@@ -96,110 +97,139 @@ class DoctorEmergencyAnnouncementsLoadedScreen extends StatelessWidget {
                     shrinkWrap: true,
                     itemCount: emergencyAnnouncements.length,
                     itemBuilder: (context, index) {
-                      final emergencyAnnouncement =
-                          emergencyAnnouncements[index];
-                      DateTime now = DateTime.now();
-                      DateTime createdAt =
-                          emergencyAnnouncement.createdAt.toDate();
-                      String time;
-                      if (now.difference(createdAt).inHours < 24) {
-                        time = DateFormat.jm().format(createdAt);
-                      } else if (now.difference(createdAt).inDays == 1) {
-                        time = 'Yesterday';
-                      } else if (now.difference(createdAt).inDays <= 7) {
-                        time = DateFormat('EEEE').format(createdAt);
-                      } else {
-                        time = DateFormat.yMd().format(createdAt);
-                      }
+                      final date = dates[index];
+                      final announcements = emergencyAnnouncements[date]!;
 
-                      return InkWell(
-                        onTap: () {
-                          doctorEmergencyAnnouncementsBloc.add(
-                            NavigateToDoctorCreatedAnnouncementEvent(
-                              emergencyAnnouncement: emergencyAnnouncement,
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 15.0),
+                            child: Text(
+                              DateFormat('MMMM d, EEEE').format(date),
+                              style: const TextStyle(
+                                color: GinaAppTheme.lightOutline,
+                                fontSize: 12.0,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: "SF UI Display",
+                              ),
                             ),
-                          );
-                        },
-                        child: IntrinsicHeight(
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 20,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                GinaAppTheme.defaultBoxShadow,
-                              ],
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(15.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  CircleAvatar(
-                                    radius: 30,
-                                    backgroundImage: AssetImage(
-                                      Images.patientProfileIcon,
-                                    ),
+                          ),
+                          ...announcements.map((announcement) {
+                            DateTime now = DateTime.now();
+                            DateTime createdAt =
+                                announcement.createdAt.toDate();
+                            String time;
+                            if (now.difference(createdAt).inHours < 24) {
+                              time = DateFormat.jm().format(createdAt);
+                            } else if (now.difference(createdAt).inDays == 1) {
+                              time = 'Yesterday';
+                            } else if (now.difference(createdAt).inDays <= 7) {
+                              time = DateFormat('EEEE').format(createdAt);
+                            } else {
+                              time = DateFormat.yMd().format(createdAt);
+                            }
+                            return InkWell(
+                              onTap: () {
+                                doctorEmergencyAnnouncementsBloc.add(
+                                  NavigateToDoctorCreatedAnnouncementEvent(
+                                    emergencyAnnouncement: announcement,
+                                    appointmentUid: announcement.appointmentUid,
                                   ),
-                                  const Gap(15),
-                                  SizedBox(
-                                    width: size.width * 0.5,
-                                    child: Column(
+                                );
+                              },
+                              child: IntrinsicHeight(
+                                child: Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                    horizontal: 20,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      GinaAppTheme.defaultBoxShadow,
+                                    ],
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(15.0),
+                                    child: Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
                                       children: [
-                                        Text(
-                                          'Announcement ID: ${emergencyAnnouncement.emergencyId}',
-                                          style: ginaTheme.bodySmall?.copyWith(
-                                            color: GinaAppTheme.lightOutline,
-                                            fontSize: 9,
+                                        CircleAvatar(
+                                          radius: 30,
+                                          backgroundImage: AssetImage(
+                                            Images.patientProfileIcon,
                                           ),
                                         ),
-                                        const Gap(10),
-                                        Text(
-                                          emergencyAnnouncement.patientName,
-                                          style: ginaTheme.bodyMedium?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const Gap(10),
+                                        const Gap(15),
                                         SizedBox(
                                           width: size.width * 0.5,
-                                          child: Text(
-                                            emergencyAnnouncement.message,
-                                            style: ginaTheme.bodySmall,
-                                            maxLines: 6,
-                                            overflow: TextOverflow.ellipsis,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                'Announcement ID: ${announcement.emergencyId}',
+                                                style: ginaTheme.bodySmall
+                                                    ?.copyWith(
+                                                  color:
+                                                      GinaAppTheme.lightOutline,
+                                                  fontSize: 9,
+                                                ),
+                                              ),
+                                              const Gap(10),
+                                              Text(
+                                                announcement.patientName,
+                                                style: ginaTheme.bodyMedium
+                                                    ?.copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              const Gap(10),
+                                              SizedBox(
+                                                width: size.width * 0.5,
+                                                child: Text(
+                                                  announcement.message,
+                                                  style: ginaTheme.bodySmall,
+                                                  maxLines: 6,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const Gap(20),
+                                        SizedBox(
+                                          width: size.width * 0.1,
+                                          child: Align(
+                                            alignment: Alignment.centerRight,
+                                            child: Text(
+                                              time,
+                                              style:
+                                                  ginaTheme.bodySmall?.copyWith(
+                                                color:
+                                                    GinaAppTheme.lightOutline,
+                                                fontSize: 10.0,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  const Gap(20),
-                                  SizedBox(
-                                    width: size.width * 0.1,
-                                    child: Align(
-                                      alignment: Alignment.centerRight,
-                                      child: Text(
-                                        time,
-                                        style: ginaTheme.bodySmall?.copyWith(
-                                          color: GinaAppTheme.lightOutline,
-                                          fontSize: 10.0,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
-                          ),
-                        ),
+                            );
+                          }),
+                          const Gap(20),
+                        ],
                       );
                     },
                   ),

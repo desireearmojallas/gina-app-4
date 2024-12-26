@@ -18,7 +18,7 @@ class DoctorEmergencyAnnouncementsLoading
 
 class DoctorEmergencyAnnouncementsLoaded
     extends DoctorEmergencyAnnouncementsState {
-  final List<EmergencyAnnouncementModel> emergencyAnnouncements;
+  final Map<DateTime, List<EmergencyAnnouncementModel>> emergencyAnnouncements;
 
   const DoctorEmergencyAnnouncementsLoaded(
       {required this.emergencyAnnouncements});
@@ -52,6 +52,9 @@ class DoctorEmergencyGetApprovedPatientList
 }
 
 class CreateAnnouncementState extends DoctorEmergencyAnnouncementsState {}
+
+class CreateAnnouncementLoadingState
+    extends DoctorEmergencyAnnouncementsState {}
 
 class SelectedAPatientState extends DoctorEmergencyAnnouncementsState {
   final AppointmentModel appointment;

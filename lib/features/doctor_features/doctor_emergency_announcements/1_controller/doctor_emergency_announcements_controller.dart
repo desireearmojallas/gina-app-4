@@ -11,6 +11,8 @@ import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcemen
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:intl/intl.dart';
 
+AppointmentModel? chosenAppointment;
+
 class DoctorEmergencyAnnouncementsController with ChangeNotifier {
   final FirebaseAuth auth = FirebaseAuth.instance;
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -38,15 +40,24 @@ class DoctorEmergencyAnnouncementsController with ChangeNotifier {
 
       var patientAppointment = appointmentSnapshot.docs
           .map((doc) => AppointmentModel.fromJson(doc.data()))
-          .toList()
-        ..sort((a, b) {
-          final aDate = DateFormat('MMMM d, yyyy').parse(a.appointmentDate!);
-          final bDate = DateFormat('MMMM d, yyyy').parse(b.appointmentDate!);
-          return aDate
-              .difference(DateTime.now())
-              .abs()
-              .compareTo(bDate.difference(DateTime.now()).abs());
-        });
+          .toList();
+
+      // Filter out past dates
+      final today = DateTime.now();
+      final todayDateOnly = DateTime(today.year, today.month, today.day);
+      patientAppointment = patientAppointment.where((appointment) {
+        final appointmentDate =
+            DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
+        return appointmentDate.isAfter(todayDateOnly) ||
+            appointmentDate.isAtSameMomentAs(todayDateOnly);
+      }).toList();
+
+      // Sort future dates
+      patientAppointment.sort((a, b) {
+        final aDate = DateFormat('MMMM d, yyyy').parse(a.appointmentDate!);
+        final bDate = DateFormat('MMMM d, yyyy').parse(b.appointmentDate!);
+        return aDate.compareTo(bDate);
+      });
 
       var groupedAppointments = groupBy<AppointmentModel, DateTime>(
         patientAppointment,
@@ -54,18 +65,10 @@ class DoctorEmergencyAnnouncementsController with ChangeNotifier {
             DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!),
       );
 
-      final today = DateTime.now();
-      final todayDateOnly = DateTime(today.year, today.month, today.day);
-      if (groupedAppointments.containsKey(todayDateOnly)) {
-        groupedAppointments[todayDateOnly] = [];
-      }
-
       return Right(groupedAppointments);
     } on FirebaseAuthException catch (e) {
       debugPrint('FirebaseAuthException: ${e.message}');
       debugPrint('FirebaseAuthException: ${e.code}');
-      error = e;
-
       return Left(Exception(e.message));
     }
   }
@@ -145,6 +148,22 @@ class DoctorEmergencyAnnouncementsController with ChangeNotifier {
           .delete();
 
       return const Right(true);
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException: ${e.code}');
+      return Left(Exception(e.message));
+    }
+  }
+
+  Future<Either<Exception, AppointmentModel>> getChosenAppointment(
+      String appointmentUid) async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await firestore.collection('appointments').doc(appointmentUid).get();
+
+      final appointment = AppointmentModel.fromJson(snapshot.data()!);
+
+      return Right(appointment);
     } on FirebaseAuthException catch (e) {
       debugPrint('FirebaseAuthException: ${e.message}');
       debugPrint('FirebaseAuthException: ${e.code}');
