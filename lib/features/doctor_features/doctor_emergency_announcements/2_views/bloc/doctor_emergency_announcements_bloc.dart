@@ -25,6 +25,7 @@ class DoctorEmergencyAnnouncementsBloc extends Bloc<
     on<NavigateToDoctorCreatedAnnouncementEvent>(
         navigateToDoctorCreatedAnnouncementEvent);
     on<CreateEmergencyAnnouncementEvent>(createEmergencyAnnouncementEvent);
+    on<DeleteEmergencyAnnouncementEvent>(deleteEmergencyAnnouncementEvent);
   }
 
   FutureOr<void> getDoctorEmergencyAnnouncementsEvent(
@@ -41,6 +42,10 @@ class DoctorEmergencyAnnouncementsBloc extends Bloc<
             errorMessage: failure.toString()));
       },
       (emergencyAnnouncements) {
+        // Sort the announcements by createdAt in descending order
+        emergencyAnnouncements
+            .sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
         emit(DoctorEmergencyAnnouncementsLoaded(
           emergencyAnnouncements: emergencyAnnouncements,
         ));
@@ -106,6 +111,41 @@ class DoctorEmergencyAnnouncementsBloc extends Bloc<
       },
       (success) {
         emit(CreateEmergencyAnnouncementPostSuccessState());
+      },
+    );
+  }
+
+  Future<void> deleteEmergencyAnnouncementEvent(
+      DeleteEmergencyAnnouncementEvent event,
+      Emitter<DoctorEmergencyAnnouncementsState> emit) async {
+    emit(DoctorEmergencyAnnouncementsLoading());
+
+    final deleteEmergencyAnnouncement =
+        await doctorEmergencyAnnouncementsController
+            .deleteEmergencyAnnouncement(event.emergencyAnnouncement);
+
+    deleteEmergencyAnnouncement.fold(
+      (failure) {
+        emit(DoctorEmergencyAnnouncementsError(
+            errorMessage: failure.toString()));
+      },
+      (success) async {
+        final emergencyAnnouncements =
+            await doctorEmergencyAnnouncementsController
+                .getEmergencyAnnouncements();
+        emergencyAnnouncements.fold(
+          (failure) {
+            emit(DoctorEmergencyAnnouncementsError(
+                errorMessage: failure.toString()));
+          },
+          (emergencyAnnouncements) {
+            if (!emit.isDone) {
+              emit(DoctorEmergencyAnnouncementsLoaded(
+                emergencyAnnouncements: emergencyAnnouncements,
+              ));
+            }
+          },
+        );
       },
     );
   }

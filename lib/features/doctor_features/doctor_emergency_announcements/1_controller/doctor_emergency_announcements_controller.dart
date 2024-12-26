@@ -134,4 +134,21 @@ class DoctorEmergencyAnnouncementsController with ChangeNotifier {
       return Left(Exception(e.message));
     }
   }
+
+  Future<Either<Exception, bool>> deleteEmergencyAnnouncement(
+    EmergencyAnnouncementModel emergencyAnnouncement,
+  ) async {
+    try {
+      await firestore
+          .collection('emergencyAnnouncements')
+          .doc(emergencyAnnouncement.emergencyId)
+          .delete();
+
+      return const Right(true);
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException: ${e.code}');
+      return Left(Exception(e.message));
+    }
+  }
 }

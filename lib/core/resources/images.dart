@@ -86,6 +86,8 @@ class Images {
   //! Doctor Emergency Announcement Screen
   static String emergencyAnnouncementIllustration =
       "assets/images/doctor_features/emergency_announcements/no_emergency_announcement_illustration.png";
+  static String emergencyAnnouncementLoaded =
+      "assets/images/doctor_features/emergency_announcements/emergency_announcement_loaded.png";
 
   //! Doctor Schedule Management
   static String reviewScheduleIllustration =

@@ -46,3 +46,13 @@ class CreateEmergencyAnnouncementEvent
   @override
   List<Object> get props => [message, appointment];
 }
+
+class DeleteEmergencyAnnouncementEvent
+    extends DoctorEmergencyAnnouncementsEvent {
+  final EmergencyAnnouncementModel emergencyAnnouncement;
+
+  const DeleteEmergencyAnnouncementEvent({required this.emergencyAnnouncement});
+
+  @override
+  List<Object> get props => [emergencyAnnouncement];
+}

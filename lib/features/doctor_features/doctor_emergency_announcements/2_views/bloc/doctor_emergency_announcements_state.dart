@@ -66,10 +66,10 @@ class CreateEmergencyAnnouncementPostSuccessState
     extends DoctorEmergencyAnnouncementsActionState {}
 
 class NavigateToDoctorCreatedAnnouncementState
-    extends DoctorEmergencyAnnouncementsActionState {
+    extends DoctorEmergencyAnnouncementsState {
   final EmergencyAnnouncementModel emergencyAnnouncement;
 
-  NavigateToDoctorCreatedAnnouncementState(
+  const NavigateToDoctorCreatedAnnouncementState(
       {required this.emergencyAnnouncement});
 
   @override

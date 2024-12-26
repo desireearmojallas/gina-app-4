@@ -12,7 +12,7 @@ class DoctorEmergencyAnnouncementCreateAnnouncementScreen
 
   final TextEditingController emergencyMessageController =
       TextEditingController();
-  final int characterLimit = 1000;
+  final int characterLimit = 2000;
 
   @override
   Widget build(BuildContext context) {
