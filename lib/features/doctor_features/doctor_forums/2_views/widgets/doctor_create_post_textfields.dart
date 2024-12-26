@@ -40,8 +40,8 @@ class DoctorCreatePostTextFields extends StatelessWidget {
               controller: textFieldController,
               maxLines: maxLines,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontSize: isTitle ? 20.0 : 14.0,
-                    fontWeight: isTitle ? FontWeight.bold : FontWeight.w600,
+                    fontSize: isTitle ? 18.0 : 12.0,
+                    fontWeight: isTitle ? FontWeight.bold : FontWeight.w500,
                   ),
               textCapitalization: TextCapitalization.sentences,
               keyboardType: TextInputType.multiline,

@@ -22,7 +22,7 @@ class MyForumsPostScreenState extends StatelessWidget {
     final ginaTheme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
       child: myForumsPost.isEmpty
           ? const MyForumsEmptyScreenState()
           : RefreshIndicator(
@@ -62,7 +62,7 @@ class MyForumsPostScreenState extends StatelessWidget {
                       );
                     },
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      padding: const EdgeInsets.symmetric(vertical: 5.0),
                       child: Container(
                         width: width * 0.94,
                         decoration: BoxDecoration(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
+import 'package:gina_app_4/core/reusable_widgets/gina_divider.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_consultation_history_container.dart';
@@ -51,7 +52,8 @@ class AppointmentScreenLoaded extends StatelessWidget {
                 SwiperBuilderWidget(
                   upcomingAppointments: upcomingAppointments,
                 ),
-                const Gap(30),
+                // const Gap(30),
+                const GinaDivider(),
                 _title(context, 'Consultation history'),
                 const Gap(17),
                 ListView.builder(

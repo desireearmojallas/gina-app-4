@@ -2,8 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/reusable_widgets/gina_divider.dart';
+import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/gina_patient_app_bar/gina_patient_app_bar.dart';
-import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/widgets/create_post_textfields.dart';
@@ -17,11 +18,17 @@ class CreatePostScreenState extends StatelessWidget {
   Widget build(BuildContext context) {
     final forumsBloc = context.read<ForumsBloc>();
     final width = MediaQuery.sizeOf(context).width;
+    final height = MediaQuery.sizeOf(context).height;
+
     return Scaffold(
       appBar: GinaPatientAppBar(title: 'Create Post'),
-      body: ScrollbarCustom(
-        child: SingleChildScrollView(
-          child: Center(
+      resizeToAvoidBottomInset: true,
+      body: Stack(
+        children: [
+          const GradientBackground(),
+          SingleChildScrollView(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
@@ -32,13 +39,13 @@ class CreatePostScreenState extends StatelessWidget {
                     maxLines: 3,
                     isTitle: true,
                   ),
-                  const Gap(15),
+                  const GinaDivider(),
                   CreatePostTextFields(
                     textFieldController: contentController,
                     contentTitle: 'Content',
-                    maxLines: 14,
+                    maxLines: 25,
                   ),
-                  const Gap(40),
+                  const Gap(35),
                   BlocConsumer<ForumsBloc, ForumsState>(
                     listenWhen: (previous, current) =>
                         current is ForumsActionState,
@@ -52,12 +59,13 @@ class CreatePostScreenState extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           SizedBox(
-                            width: width * 0.4,
+                            height: height * 0.05,
+                            width: width * 0.43,
                             child: FilledButton(
                               style: ButtonStyle(
                                 backgroundColor:
                                     MaterialStateProperty.all<Color?>(
-                                  Colors.grey[350],
+                                  Colors.grey[100],
                                 ),
                                 shape: MaterialStateProperty.all(
                                   RoundedRectangleBorder(
@@ -79,7 +87,8 @@ class CreatePostScreenState extends StatelessWidget {
                             ),
                           ),
                           SizedBox(
-                            width: width * 0.4,
+                            height: height * 0.05,
+                            width: width * 0.43,
                             child: FilledButton(
                               style: ButtonStyle(
                                 shape: MaterialStateProperty.all(
@@ -130,7 +139,7 @@ class CreatePostScreenState extends StatelessWidget {
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

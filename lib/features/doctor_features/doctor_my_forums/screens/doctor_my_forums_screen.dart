@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
+import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_my_forums/bloc/doctor_my_forums_bloc.dart';
 import 'package:gina_app_4/features/patient_features/my_forums/2_views/screens/view_states/my_forums_post_empty_screen_state.dart';
@@ -43,31 +44,36 @@ class DoctorMyForumsScreen extends StatelessWidget {
             ),
           ),
         ),
-        body: BlocConsumer<DoctorMyForumsBloc, DoctorMyForumsState>(
-          listenWhen: (previous, current) =>
-              current is DoctorMyForumsActionState,
-          buildWhen: (previous, current) =>
-              current is! DoctorMyForumsActionState,
-          listener: (context, state) {},
-          builder: (context, state) {
-            if (state is GetMyForumsPostState) {
-              return MyForumsPostScreenState(
-                myForumsPost: state.myForumsPost,
-              );
-            } else if (state is GetMyForumsPostEmptyState) {
-              return const MyForumsEmptyScreenState();
-            } else if (state is GetMyForumsPostErrorState) {
-              final errorMessage = state.error;
-              return Center(
-                child: Text(errorMessage),
-              );
-            } else if (state is GetMyForumsLoadingState) {
-              return const Center(
-                child: CustomLoadingIndicator(),
-              );
-            }
-            return const SizedBox();
-          },
+        body: Stack(
+          children: [
+            const GradientBackground(),
+            BlocConsumer<DoctorMyForumsBloc, DoctorMyForumsState>(
+              listenWhen: (previous, current) =>
+                  current is DoctorMyForumsActionState,
+              buildWhen: (previous, current) =>
+                  current is! DoctorMyForumsActionState,
+              listener: (context, state) {},
+              builder: (context, state) {
+                if (state is GetMyForumsPostState) {
+                  return MyForumsPostScreenState(
+                    myForumsPost: state.myForumsPost,
+                  );
+                } else if (state is GetMyForumsPostEmptyState) {
+                  return const MyForumsEmptyScreenState();
+                } else if (state is GetMyForumsPostErrorState) {
+                  final errorMessage = state.error;
+                  return Center(
+                    child: Text(errorMessage),
+                  );
+                } else if (state is GetMyForumsLoadingState) {
+                  return const Center(
+                    child: CustomLoadingIndicator(),
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
+          ],
         ));
   }
 }
