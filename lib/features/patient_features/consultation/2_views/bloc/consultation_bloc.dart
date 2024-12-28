@@ -4,6 +4,10 @@ import 'package:equatable/equatable.dart';
 part 'consultation_event.dart';
 part 'consultation_state.dart';
 
+String? chatRoom;
+bool isAppointmentFinished = false;
+bool isChatWaiting = false;
+
 class ConsultationBloc extends Bloc<ConsultationEvent, ConsultationState> {
   ConsultationBloc() : super(ConsultationInitial()) {
     on<ConsultationEvent>((event, emit) {

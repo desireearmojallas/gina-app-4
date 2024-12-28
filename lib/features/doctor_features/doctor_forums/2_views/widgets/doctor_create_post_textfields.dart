@@ -36,17 +36,24 @@ class DoctorCreatePostTextFields extends StatelessWidget {
                     color: GinaAppTheme.lightOutline,
                   ),
             ),
-            TextField(
-              controller: textFieldController,
-              maxLines: maxLines,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontSize: isTitle ? 18.0 : 12.0,
-                    fontWeight: isTitle ? FontWeight.bold : FontWeight.w500,
-                  ),
-              textCapitalization: TextCapitalization.sentences,
-              keyboardType: TextInputType.multiline,
-              decoration: const InputDecoration(
-                border: InputBorder.none,
+            ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxHeight: 400,
+              ),
+              child: TextField(
+                controller: textFieldController,
+                maxLines: isTitle
+                    ? 3
+                    : (MediaQuery.of(context).size.height / 50).floor(),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontSize: isTitle ? 18.0 : 12.0,
+                      fontWeight: isTitle ? FontWeight.bold : FontWeight.w500,
+                    ),
+                textCapitalization: TextCapitalization.sentences,
+                keyboardType: TextInputType.multiline,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                ),
               ),
             ),
           ],

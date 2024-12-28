@@ -28,15 +28,15 @@ class BookAppointmentInitialScreen extends StatelessWidget {
     final appointmentDetailsBloc = context.read<AppointmentDetailsBloc>();
     final size = MediaQuery.of(context).size;
     final ginaTheme = Theme.of(context).textTheme;
-    final modeOfAppointmentList =
-        bookAppointmentBloc.getModeOfAppointment(doctorAvailabilityModel);
 
-    final startTimes = doctorAvailabilityModel.startTimes;
-    final endTimes = doctorAvailabilityModel.endTimes;
+    // Ensure modeOfAppointmentList always has both options
+    final modeOfAppointmentList = ['Online Consultation', 'Face-to-Face'];
+    final availableModes =
+        bookAppointmentBloc.getModeOfAppointment(doctorAvailabilityModel);
 
     // Debugging: Print the mode of appointment list
     debugPrint(
-        'Mode of Appointment List in booked appt initial: $modeOfAppointmentList');
+        'Mode of Appointment List in booked appt initial: $availableModes');
 
     return ScrollbarCustom(
       child: SingleChildScrollView(
@@ -185,10 +185,13 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                               final List<String> morningTimeslots = [];
                               final List<String> afternoonTimeslots = [];
 
-                              for (var i = 0; i < startTimes.length; i++) {
+                              for (var i = 0;
+                                  i < doctorAvailabilityModel.startTimes.length;
+                                  i++) {
                                 final timeslot =
-                                    '${startTimes[i]} - ${endTimes[i]}';
-                                if (startTimes[i].contains('AM')) {
+                                    '${doctorAvailabilityModel.startTimes[i]} - ${doctorAvailabilityModel.endTimes[i]}';
+                                if (doctorAvailabilityModel.startTimes[i]
+                                    .contains('AM')) {
                                   morningTimeslots.add(timeslot);
                                 } else {
                                   afternoonTimeslots.add(timeslot);
@@ -255,8 +258,11 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                   SelectTimeEvent(
                                                     index: index,
                                                     startingTime:
-                                                        startTimes[index],
-                                                    endingTime: endTimes[index],
+                                                        doctorAvailabilityModel
+                                                            .startTimes[index],
+                                                    endingTime:
+                                                        doctorAvailabilityModel
+                                                            .endTimes[index],
                                                   ),
                                                 );
                                               }
@@ -367,10 +373,14 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                   bookAppointmentBloc.add(
                                                     SelectTimeEvent(
                                                       index: afternoonIndex,
-                                                      startingTime: startTimes[
-                                                          afternoonIndex],
-                                                      endingTime: endTimes[
-                                                          afternoonIndex],
+                                                      startingTime:
+                                                          doctorAvailabilityModel
+                                                                  .startTimes[
+                                                              afternoonIndex],
+                                                      endingTime:
+                                                          doctorAvailabilityModel
+                                                                  .endTimes[
+                                                              afternoonIndex],
                                                     ),
                                                   );
                                                 }
@@ -455,21 +465,25 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                             children: List<Widget>.generate(
                               modeOfAppointmentList.length,
                               (index) {
+                                final isAvailable = availableModes
+                                    .contains(modeOfAppointmentList[index]);
                                 return InkWell(
-                                  onTap: () {
-                                    // Debugging: Print the clicked index and mode of appointment
-                                    debugPrint('Clicked Index: $index');
-                                    debugPrint(
-                                        'Clicked Mode of Appointment: ${modeOfAppointmentList[index]}');
+                                  onTap: isAvailable
+                                      ? () {
+                                          // Debugging: Print the clicked index and mode of appointment
+                                          debugPrint('Clicked Index: $index');
+                                          debugPrint(
+                                              'Clicked Mode of Appointment: ${modeOfAppointmentList[index]}');
 
-                                    bookAppointmentBloc.add(
-                                      SelectedModeOfAppointmentEvent(
-                                        index: index,
-                                        modeOfAppointment:
-                                            modeOfAppointmentList[index],
-                                      ),
-                                    );
-                                  },
+                                          bookAppointmentBloc.add(
+                                            SelectedModeOfAppointmentEvent(
+                                              index: index,
+                                              modeOfAppointment:
+                                                  modeOfAppointmentList[index],
+                                            ),
+                                          );
+                                        }
+                                      : null,
                                   child: BlocBuilder<BookAppointmentBloc,
                                       BookAppointmentState>(
                                     builder: (context, state) {
@@ -489,7 +503,10 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                           border: Border.all(
                                             color: selectedIndex == index
                                                 ? Colors.transparent
-                                                : GinaAppTheme.lightOutline,
+                                                : isAvailable
+                                                    ? GinaAppTheme.lightOutline
+                                                    : GinaAppTheme
+                                                        .lightSurfaceVariant,
                                           ),
                                         ),
                                         height: 40,
@@ -508,8 +525,11 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                     color: selectedIndex ==
                                                             index
                                                         ? Colors.white
-                                                        : GinaAppTheme
-                                                            .lightOnPrimaryColor,
+                                                        : isAvailable
+                                                            ? GinaAppTheme
+                                                                .lightOnPrimaryColor
+                                                            : GinaAppTheme
+                                                                .lightOutline,
                                                   ),
                                             ),
                                           ),
@@ -568,7 +588,7 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                         final selectedIndex =
                                             currentState.selectedTimeIndex!;
                                         final selectedTime =
-                                            '${startTimes[selectedIndex]} - ${endTimes[selectedIndex]}';
+                                            '${doctorAvailabilityModel.startTimes[selectedIndex]} - ${doctorAvailabilityModel.endTimes[selectedIndex]}';
 
                                         if (isRescheduleMode) {
                                           appointmentDetailsBloc.add(

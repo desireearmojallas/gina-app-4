@@ -87,7 +87,7 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                 onPressed: () {
                   pendingRequestStateBloc.add(
                       ApproveAppointmentEvent(appointmentId: appointmentId));
-                  // Navigator.pop(context);
+                  Navigator.pop(context);
                   Navigator.pushReplacement(context, MaterialPageRoute(
                     builder: (context) {
                       return ApprovedRequestDetailsScreenState(
@@ -121,7 +121,7 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                 onPressed: () {
                   pendingRequestStateBloc.add(
                       DeclineAppointmentEvent(appointmentId: appointmentId));
-                  // Navigator.pop(context);
+                  Navigator.pop(context);
                   Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(

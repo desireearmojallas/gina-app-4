@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_upcoming_appointments/2_views/bloc/doctor_upcoming_appointments_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
@@ -30,6 +33,7 @@ class DoctorUpcomingAppointmentsContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appointmentsBloc = context.read<AppointmentBloc>();
+    final doctorEConsultBloc = context.read<DoctorEconsultBloc>();
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     final ginaTheme = Theme.of(context);
@@ -40,6 +44,20 @@ class DoctorUpcomingAppointmentsContainer extends StatelessWidget {
         //   doctorUid: appointment.doctorUid!,
         //   appointmentUid: appointment.appointmentUid!,
         // ));
+
+        selectedPatientUid = appointment.patientUid!;
+
+        doctorEConsultBloc
+            .add(GetPatientDataEvent(patientUid: appointment.patientUid!));
+
+        isFromChatRoomLists = false;
+
+        appointmentDataFromDoctorUpcomingAppointmentsBloc = appointment;
+
+        Navigator.pushNamed(context, '/doctorOnlineConsultChat').then((value) =>
+            context
+                .read<DoctorEconsultBloc>()
+                .add(GetRequestedEconsultsDisplayEvent()));
       },
       child: Container(
         decoration: BoxDecoration(

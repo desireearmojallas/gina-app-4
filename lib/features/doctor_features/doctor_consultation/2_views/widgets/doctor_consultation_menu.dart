@@ -3,7 +3,8 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 
 class DoctorConsultationMenu extends StatelessWidget {
-  const DoctorConsultationMenu({super.key});
+  final String appointmentId;
+  const DoctorConsultationMenu({super.key, required this.appointmentId});
 
   @override
   Widget build(BuildContext context) {

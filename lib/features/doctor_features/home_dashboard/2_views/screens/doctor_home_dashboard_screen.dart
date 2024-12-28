@@ -18,7 +18,6 @@ class DoctorHomeScreenDashboardProvider extends StatelessWidget {
       create: (context) {
         final homeDashboardBloc = sl<HomeDashboardBloc>();
         homeDashboardBloc.add(HomeInitialEvent());
-        // homeDashboardBloc.add(GetDoctorNameEvent());
         return homeDashboardBloc;
       },
       child: const DoctorHomeScreenDashboard(),
@@ -58,13 +57,28 @@ class DoctorHomeScreenDashboard extends StatelessWidget {
         },
         builder: (context, state) {
           if (state is HomeDashboardInitial) {
+            // Debug statements to check patientData
+            debugPrint('Patient Data: ${state.patientData}');
             return DoctorHomeScreenDashboardLoaded(
               pendingRequests: state.pendingAppointments,
               confirmedAppointments: state.confirmedAppointments,
               doctorName: state.doctorName,
               upcomingAppointment: state.upcomingAppointment!,
               pendingAppointment: state.pendingAppointmentLatest!,
-              patientData: state.patientData!,
+              patientData: state.patientData ??
+                  UserModel(
+                    name: '',
+                    email: '',
+                    uid: '',
+                    gender: '',
+                    dateOfBirth: '',
+                    profileImage: '',
+                    headerImage: '',
+                    accountType: '',
+                    address: '',
+                    chatrooms: const [],
+                    appointmentsBooked: const [],
+                  ),
               completedAppointmentsList: state.completedAppointmentList!,
             );
           }

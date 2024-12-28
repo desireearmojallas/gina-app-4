@@ -46,68 +46,66 @@ class SwiperBuilderWidget extends StatelessWidget {
               ],
             ),
           )
-        : InkWell(
-            child: SizedBox(
-              height: height * 0.2,
-              child: Swiper(
-                physics: const BouncingScrollPhysics(),
-                itemWidth: width * 0.9,
-                itemHeight: height * 0.2,
-                curve: Curves.fastEaseInToSlowEaseOut,
-                duration: 100,
-                scrollDirection: Axis.horizontal,
-                axisDirection: AxisDirection.left,
-                itemBuilder: (context, index) {
-                  final appointment = upcomingAppointments[index];
-                  final colors =
-                      gradientBGColors[index % gradientBGColors.length];
-                  return Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: colors,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        GinaAppTheme.defaultBoxShadow,
-                      ],
+        : SizedBox(
+            height: height * 0.2,
+            child: Swiper(
+              physics: const BouncingScrollPhysics(),
+              itemWidth: width * 0.9,
+              itemHeight: height * 0.2,
+              curve: Curves.fastEaseInToSlowEaseOut,
+              duration: 100,
+              scrollDirection: Axis.horizontal,
+              axisDirection: AxisDirection.left,
+              itemBuilder: (context, index) {
+                final appointment = upcomingAppointments[index];
+                final colors =
+                    gradientBGColors[index % gradientBGColors.length];
+                return Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: colors,
                     ),
-                    child: isDoctor == true
-                        ? DoctorUpcomingAppointmentsContainer(
-                            appointment: appointment,
-                            patientName: appointment.patientName!,
-                            appointmentId: appointment.appointmentUid!,
-                            date: appointment.appointmentDate!,
-                            time: appointment.appointmentTime!,
-                            appointmentType: appointment.modeOfAppointment == 0
-                                ? 'Online'
-                                : 'Face-to-Face',
-                            appointmentStatus: appointment.appointmentStatus,
-                          )
-                        : UpcomingAppointmentsContainer(
-                            appointment: appointment,
-                            doctorName: appointment.doctorName!,
-                            appointmentId: appointment.appointmentUid!,
-                            date: appointment.appointmentDate!,
-                            time: appointment.appointmentTime!,
-                            appointmentType: appointment.modeOfAppointment == 0
-                                ? 'Online'
-                                : 'Face-to-Face',
-                            appointmentStatus: appointment.appointmentStatus,
-                          ),
-                  );
-                },
-                itemCount: upcomingAppointments.length,
-                layout: SwiperLayout.STACK,
-                pagination: SwiperPagination(
-                  alignment: Alignment.bottomCenter,
-                  builder: DotSwiperPaginationBuilder(
-                    size: 8,
-                    activeSize: 9,
-                    color: Colors.white.withOpacity(0.3),
-                    activeColor: GinaAppTheme.appbarColorLight,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      GinaAppTheme.defaultBoxShadow,
+                    ],
                   ),
+                  child: isDoctor == true
+                      ? DoctorUpcomingAppointmentsContainer(
+                          appointment: appointment,
+                          patientName: appointment.patientName!,
+                          appointmentId: appointment.appointmentUid!,
+                          date: appointment.appointmentDate!,
+                          time: appointment.appointmentTime!,
+                          appointmentType: appointment.modeOfAppointment == 0
+                              ? 'Online'
+                              : 'Face-to-Face',
+                          appointmentStatus: appointment.appointmentStatus,
+                        )
+                      : UpcomingAppointmentsContainer(
+                          appointment: appointment,
+                          doctorName: appointment.doctorName!,
+                          appointmentId: appointment.appointmentUid!,
+                          date: appointment.appointmentDate!,
+                          time: appointment.appointmentTime!,
+                          appointmentType: appointment.modeOfAppointment == 0
+                              ? 'Online'
+                              : 'Face-to-Face',
+                          appointmentStatus: appointment.appointmentStatus,
+                        ),
+                );
+              },
+              itemCount: upcomingAppointments.length,
+              layout: SwiperLayout.STACK,
+              pagination: SwiperPagination(
+                alignment: Alignment.bottomCenter,
+                builder: DotSwiperPaginationBuilder(
+                  size: 8,
+                  activeSize: 9,
+                  color: Colors.white.withOpacity(0.3),
+                  activeColor: GinaAppTheme.appbarColorLight,
                 ),
               ),
             ),

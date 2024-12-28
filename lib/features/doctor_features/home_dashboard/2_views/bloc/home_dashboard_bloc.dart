@@ -18,26 +18,25 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
     required this.doctorHomeDashboardController,
     required this.doctorProfileController,
   }) : super(HomeDashboardInitial(
-          pendingAppointments: pendingAppointmentsCount ?? 0,
-          confirmedAppointments: confirmedAppointmentsCount ?? 0,
-          doctorName: doctorName ?? '',
-          upcomingAppointment: upcomingAppointment ?? AppointmentModel(),
-          pendingAppointmentLatest: pendingAppointment ?? AppointmentModel(),
-          patientData: patientDataCont ??
-              UserModel(
-                name: '',
-                email: '',
-                uid: '',
-                gender: '',
-                dateOfBirth: '',
-                profileImage: '',
-                headerImage: '',
-                accountType: '',
-                address: '',
-                chatrooms: const [],
-                appointmentsBooked: const [],
-              ),
-          completedAppointmentList: completedAppointments,
+          pendingAppointments: 0,
+          confirmedAppointments: 0,
+          doctorName: '',
+          upcomingAppointment: AppointmentModel(),
+          pendingAppointmentLatest: AppointmentModel(),
+          patientData: UserModel(
+            name: '',
+            email: '',
+            uid: '',
+            gender: '',
+            dateOfBirth: '',
+            profileImage: '',
+            headerImage: '',
+            accountType: '',
+            address: '',
+            chatrooms: const [],
+            appointmentsBooked: const [],
+          ),
+          completedAppointmentList: const {},
         )) {
     on<HomeInitialEvent>(homeInitialEvent);
     on<GetDoctorNameEvent>(getDoctorName);
@@ -97,18 +96,33 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
       final appointment =
           pendingAppointment.getOrElse(() => AppointmentModel());
       latestPendingAppointment = appointment;
+    }
 
-      if (latestPendingAppointment.patientUid != null) {
-        final getPatientData = await doctorHomeDashboardController
-            .getPatientData(latestPendingAppointment.patientUid!);
+    // Fetch patient data based on the patientUid of the latestUpcomingAppointment
+    if (latestUpcomingAppointment?.patientUid != null) {
+      final getPatientData = await doctorHomeDashboardController
+          .getPatientData(latestUpcomingAppointment!.patientUid!);
 
-        getPatientData.fold(
-          (failure) {},
-          (patientData) {
-            latestPatientData = patientData;
-          },
-        );
-      }
+      getPatientData.fold(
+        (failure) {},
+        (patientData) {
+          latestPatientData = patientData;
+        },
+      );
+    } else if (latestPendingAppointment?.patientUid != null) {
+      // Fetch patient data based on the patientUid of the latestPendingAppointment
+      final getPatientData = await doctorHomeDashboardController
+          .getPatientData(latestPendingAppointment!.patientUid!);
+
+      getPatientData.fold(
+        (failure) {},
+        (patientData) {
+          latestPatientData = patientData;
+        },
+      );
+    } else {
+      // Handle the case where patientUid is null
+      latestPatientData = null;
     }
 
     // Debug prints to check the values of patientData

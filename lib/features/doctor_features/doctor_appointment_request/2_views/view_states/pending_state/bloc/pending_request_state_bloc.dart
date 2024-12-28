@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/1_controllers/doctor_appointment_request_controller.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 
 part 'pending_request_state_event.dart';
@@ -86,7 +87,7 @@ class PendingRequestStateBloc
     //! Uncomment this after implementing the doctor consultation bloc
     // selectedPatientUid = storedPatientData!.uid;
     // selectedPatientAppointment = storedAppointment!.appointmentUid;
-    // selectedPatientName = storedPatientData!.name;
+    selectedPatientName = storedPatientData!.name;
 
     result.fold(
       (failure) =>
