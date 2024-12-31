@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/1_controllers/doctor_appointment_request_controller.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/1_controllers/doctor_e_consult_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_upcoming_appointments/2_views/bloc/doctor_upcoming_appointments_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
@@ -45,19 +47,30 @@ class DoctorEconsultBloc
         ));
       },
       (appointments) {
-        // selectedPatientAppointment =
+        debugPrint('Appointments received: $appointments');
+        if (appointments.isNotEmpty) {
+          selectedPatientAppointment = appointments.first.appointmentUid;
+          selectedPatientUid = appointments.first.patientUid ?? '';
+          selectedPatientName = appointments.first.patientName ?? '';
+          debugPrint(
+              'Selected patient appointment: $selectedPatientAppointment');
+          debugPrint('Selected patient UID: $selectedPatientUid');
+          debugPrint('Selected patient name: $selectedPatientName');
+        }
 
         doctorChatRooms.fold(
           (failure) {
+            debugPrint('Error getting chatrooms: $failure');
             emit(DoctorEconsultErrorState(
                 errorMessage: 'Error getting chatrooms'));
           },
-          (doctorChatRooms) {
+          (chatRooms) {
+            debugPrint('Chat rooms received: $chatRooms');
             emit(DoctorEconsultLoadedState(
               upcomingAppointments: appointments,
-              chatRooms: doctorChatRooms,
-              // chatRooms: doctorChatRooms.getOrElse(() => []),
+              chatRooms: doctorChatRooms.getOrElse(() => []),
             ));
+            debugPrint('DoctorEConsultLoadedState emitted');
           },
         );
       },
