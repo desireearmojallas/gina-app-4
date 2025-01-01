@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/1_controllers/doctor_appointment_request_controller.dart';
@@ -39,62 +40,97 @@ class DoctorConsultationBloc
   FutureOr<void> getRequestedAppointmentEvent(
       DoctorConsultationGetRequestedAppointmentEvent event,
       Emitter<DoctorConsultationState> emit) async {
+    // emit(DoctorConsultationLoadingState());
+
     if (isFromChatRoomLists) {
+      debugPrint('isFromChatRoomLists is true');
       final chatRoomId = await doctorChatMessageController.initChatRoom(
-          doctorChatMessageController.generateRoomId(event.recipientUid),
-          event.recipientUid);
+        doctorChatMessageController.generateRoomId(event.recipientUid),
+        event.recipientUid,
+      );
 
       doctorChatRoom = chatRoomId;
 
+      debugPrint(
+          'Emitting DoctorConsultationLoadedAppointmentState with chatRoomId: $chatRoomId');
       emit(DoctorConsultationLoadedAppointmentState(
           chatRoomId: chatRoomId!, recipientUid: event.recipientUid));
     } else {
+      debugPrint('isFromChatRoomLists is false');
       final checkAppointmentForOnlineConsultation =
           await appointmentChatController.chatStatusDecider(
-              appointmentId: selectedPatientAppointment!);
+        appointmentId: selectedPatientAppointment!,
+      );
+
+      debugPrint(
+          'DoctorConsultationGetRequestedAppointmentEvent selectedPatientAppointment: $selectedPatientAppointment');
+
+      debugPrint(
+          'DoctorConsultationGetRequestedAppointmentEvent checkAppointmentForOnlineConsultation: $checkAppointmentForOnlineConsultation');
 
       if (checkAppointmentForOnlineConsultation == 'canChat') {
+        debugPrint('checkAppointmentForOnlineConsultation == canChat');
         isAppointmentFinished = false;
         isChatWaiting = false;
-
         final chatRoomId = await doctorChatMessageController.initChatRoom(
-            doctorChatMessageController.generateRoomId(event.recipientUid),
-            event.recipientUid);
+          doctorChatMessageController.generateRoomId(event.recipientUid),
+          event.recipientUid,
+        );
 
         chatRoom = chatRoomId;
+        debugPrint(
+            'Emitting DoctorConsultationLoadedAppointmentState with chatRoomId: $chatRoomId');
         emit(DoctorConsultationLoadedAppointmentState(
             chatRoomId: chatRoomId!, recipientUid: event.recipientUid));
       } else if (checkAppointmentForOnlineConsultation ==
           'appointmentNotStartedYet') {
+        debugPrint(
+            'checkAppointmentForOnlineConsultation == appointmentIsNotStartedYet');
         emit(DoctorConsultationWaitingForAppointmentState());
       } else if (checkAppointmentForOnlineConsultation ==
           'waitingForTheAppointment') {
+        debugPrint(
+            'checkAppointmentForOnlineConsultation == waitingForTheAppointment');
         isChatWaiting = true;
         isAppointmentFinished = false;
         final chatRoomId = await doctorChatMessageController.initChatRoom(
-            doctorChatMessageController.generateRoomId(event.recipientUid),
-            event.recipientUid);
+          doctorChatMessageController.generateRoomId(event.recipientUid),
+          event.recipientUid,
+        );
 
         chatRoom = chatRoomId;
+        debugPrint(
+            'Emitting DoctorConsultationLoadedAppointmentState with chatRoomId: $chatRoomId');
         emit(DoctorConsultationLoadedAppointmentState(
             chatRoomId: chatRoomId!, recipientUid: event.recipientUid));
       } else if (checkAppointmentForOnlineConsultation == 'chatIsFinished') {
+        debugPrint('checkAppointmentForOnlineConsultation == chatIsFinished');
         isAppointmentFinished = true;
         isChatWaiting = false;
 
         final chatRoomId = await doctorChatMessageController.initChatRoom(
-            doctorChatMessageController.generateRoomId(event.recipientUid),
-            event.recipientUid);
+          doctorChatMessageController.generateRoomId(event.recipientUid),
+          event.recipientUid,
+        );
 
         chatRoom = chatRoomId;
-
+        debugPrint(
+            'Emitting DoctorConsultationLoadedAppointmentState with chatRoomId: $chatRoomId');
         emit(DoctorConsultationLoadedAppointmentState(
             chatRoomId: chatRoomId!, recipientUid: event.recipientUid));
+      } else if (checkAppointmentForOnlineConsultation ==
+          'faceToFaceAppointment') {
+        debugPrint(
+            'checkAppointmentForOnlineConsultation == faceToFaceAppointment');
+        emit(DoctorConsultationFaceToFaceAppointmentState());
       } else if (checkAppointmentForOnlineConsultation == 'invalid') {
+        debugPrint('checkAppointmentForOnlineConsultation == invalid');
         isAppointmentFinished = false;
         isChatWaiting = false;
-
         emit(DoctorConsultationNoAppointmentState());
+      } else {
+        debugPrint(
+            'Unexpected value for checkAppointmentForOnlineConsultation: $checkAppointmentForOnlineConsultation');
       }
     }
   }
@@ -142,10 +178,11 @@ class DoctorConsultationBloc
       },
       (patientData) {
         emit(NavigateToPatientDataState(
-            patientData: event.patientData,
-            appointment: event.appointment,
-            patientPeriods: patientData.patientPeriods,
-            patientAppointments: patientData.patientAppointments));
+          patientData: event.patientData,
+          appointment: event.appointment,
+          patientPeriods: patientData.patientPeriods,
+          patientAppointments: patientData.patientAppointments,
+        ));
       },
     );
   }

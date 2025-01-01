@@ -28,6 +28,9 @@ class DoctorConsultationLoadedAppointmentState extends DoctorConsultationState {
 
 class DoctorConsultationNoAppointmentState extends DoctorConsultationState {}
 
+class DoctorConsultationFaceToFaceAppointmentState
+    extends DoctorConsultationState {}
+
 class DoctorConsultationWaitingForAppointmentState
     extends DoctorConsultationState {}
 

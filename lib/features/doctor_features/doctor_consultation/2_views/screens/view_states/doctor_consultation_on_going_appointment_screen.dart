@@ -20,9 +20,12 @@ class _DoctorConsultationOnGoingAppointmentScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       resizeToAvoidBottomInset: true,
       // body: DoctorChatConsultationBody(),
+      body: Center(
+        child: Text('DoctorConsultationOnGoingAppointmentScreen'),
+      ),
     );
   }
 }

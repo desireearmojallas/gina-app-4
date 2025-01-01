@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_upcoming_appointments/2_views/bloc/doctor_upcoming_appointments_bloc.dart';
+import 'package:gina_app_4/main.dart';
+import 'package:haptic_feedback/haptic_feedback.dart';
 
 class DoctorConsultationMenu extends StatelessWidget {
   final String appointmentId;
@@ -8,7 +13,9 @@ class DoctorConsultationMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final doctorConsultationBloc = context.read<DoctorConsultationBloc>();
     final ginaTheme = Theme.of(context).textTheme;
+
     return SubmenuButton(
       style: const ButtonStyle(
         padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(
@@ -43,6 +50,18 @@ class DoctorConsultationMenu extends StatelessWidget {
       ),
       menuChildren: [
         MenuItemButton(
+          onPressed: () async {
+            if (canVibrate == true) {
+              await Haptics.vibrate(HapticsType.selection);
+            }
+
+            if (context.mounted) {
+              doctorConsultationBloc.add(NavigateToPatientDataEvent(
+                patientData: patientDataFromDoctorUpcomingAppointmentsBloc!,
+                appointment: appointmentDataFromDoctorUpcomingAppointmentsBloc!,
+              ));
+            }
+          },
           child: Row(
             children: [
               const Gap(15),

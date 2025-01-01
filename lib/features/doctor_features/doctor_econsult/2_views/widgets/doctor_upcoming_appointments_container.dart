@@ -46,13 +46,24 @@ class DoctorUpcomingAppointmentsContainer extends StatelessWidget {
         // ));
 
         selectedPatientUid = appointment.patientUid!;
+        debugPrint(
+            'doctor_upcoming_appointments_container selectedPatientUid: $selectedPatientUid');
+
+        debugPrint(
+            'doctor_upcoming_appointments_container appointment: ${appointment.appointmentUid}');
 
         doctorEConsultBloc
             .add(GetPatientDataEvent(patientUid: appointment.patientUid!));
 
         isFromChatRoomLists = false;
 
+        selectedPatientAppointment = appointment.appointmentUid;
+        selectedPatientUid = appointment.patientUid ?? '';
+        selectedPatientName = appointment.patientName ?? '';
+
         appointmentDataFromDoctorUpcomingAppointmentsBloc = appointment;
+        debugPrint(
+            'doctor_upcoming_appointments_container appointmentDataFromDoctorUpcomingAppointmentsBloc: $appointmentDataFromDoctorUpcomingAppointmentsBloc');
 
         Navigator.pushNamed(context, '/doctorOnlineConsultChat').then((value) =>
             context

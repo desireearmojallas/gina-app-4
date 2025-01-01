@@ -34,73 +34,77 @@ class DoctorEconsultBloc
       Emitter<DoctorEconsultState> emit) async {
     emit(DoctorEconsultLoadingState());
 
-    final upcomingAppointments =
+    final upcomingAppointment =
         await doctorEConsultController.getUpcomingDoctorAppointmentsList();
 
     final doctorChatRooms =
         await doctorEConsultController.getDoctorChatroomsAndMessages();
 
-    upcomingAppointments.fold(
+    upcomingAppointment.fold(
       (failure) {
-        emit(DoctorEconsultErrorState(
-          errorMessage: failure.toString(),
-        ));
+        emit(DoctorEconsultErrorState(errorMessage: failure.toString()));
       },
-      (appointments) {
-        debugPrint('Appointments received: $appointments');
-        if (appointments.isNotEmpty) {
-          selectedPatientAppointment = appointments.first.appointmentUid;
-          selectedPatientUid = appointments.first.patientUid ?? '';
-          selectedPatientName = appointments.first.patientName ?? '';
-          debugPrint(
-              'Selected patient appointment: $selectedPatientAppointment');
-          debugPrint('Selected patient UID: $selectedPatientUid');
-          debugPrint('Selected patient name: $selectedPatientName');
-        }
+      (appointment) {
+        // selectedPatientAppointment = appointment.appointmentUid;
+        // selectedPatientUid = appointment.patientUid ?? '';
+        // selectedPatientName = appointment.patientName ?? '';
 
-        doctorChatRooms.fold(
-          (failure) {
-            debugPrint('Error getting chatrooms: $failure');
-            emit(DoctorEconsultErrorState(
-                errorMessage: 'Error getting chatrooms'));
-          },
-          (chatRooms) {
-            debugPrint('Chat rooms received: $chatRooms');
-            emit(DoctorEconsultLoadedState(
-              upcomingAppointments: appointments,
-              chatRooms: doctorChatRooms.getOrElse(() => []),
-            ));
-            debugPrint('DoctorEConsultLoadedState emitted');
-          },
-        );
+        if (doctorChatRooms.isRight()) {
+          emit(DoctorEconsultLoadedState(
+              upcomingAppointments: appointment,
+              chatRooms: doctorChatRooms.getOrElse(() => [])));
+        } else {
+          emit(DoctorEconsultErrorState(
+              errorMessage: 'Error getting chatrooms'));
+        }
       },
     );
   }
 
   FutureOr<void> getPatientDataEvent(
       GetPatientDataEvent event, Emitter<DoctorEconsultState> emit) async {
+    debugPrint(
+        'getPatientDataEvent called with patientUid: ${event.patientUid}');
+
     final patientData = await doctorAppointmentRequestController.getPatientData(
         patientUid: event.patientUid);
+    debugPrint('patientData result: $patientData');
 
     final appointmentData = await doctorAppointmentRequestController
         .getDoctorPatients(patientUid: event.patientUid);
+    debugPrint('appointmentData result: $appointmentData');
 
     appointmentData.fold(
-      (failure) {},
+      (failure) {
+        debugPrint('Error getting appointment data: $failure');
+      },
       (appointmentData) {
-        appointmentDataFromDoctorUpcomingAppointmentsBloc =
-            appointmentData.patientAppointments.first;
+        debugPrint('Appointment data received: $appointmentData');
+        if (appointmentData.patientAppointments.isNotEmpty) {
+          appointmentDataFromDoctorUpcomingAppointmentsBloc =
+              appointmentData.patientAppointments.first;
 
-        selectedPatientAppointment = appointmentData.patientAppointments
-            .where((element) => element.modeOfAppointment == 0)
-            .where((element) => element.appointmentStatus == 1)
-            .first
-            .appointmentUid;
+          selectedPatientAppointment = appointmentData.patientAppointments
+              .where((element) => element.modeOfAppointment == 0)
+              .where((element) => element.appointmentStatus == 1)
+              .first
+              .appointmentUid;
+          debugPrint(
+              'DoctorEconsultBloc Selected patient appointment: $selectedPatientAppointment');
+        } else {
+          debugPrint('No patient appointments found.');
+        }
       },
     );
 
-    patientData.fold((failure) {}, (patientData) {
-      patientDataFromDoctorUpcomingAppointmentsBloc = patientData;
-    });
+    patientData.fold(
+      (failure) {
+        debugPrint('Error getting patient data: $failure');
+      },
+      (patientData) {
+        debugPrint('Patient data received: $patientData');
+        patientDataFromDoctorUpcomingAppointmentsBloc = patientData;
+      },
+    );
   }
 }

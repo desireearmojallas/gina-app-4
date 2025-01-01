@@ -60,6 +60,8 @@ class DoctorChatMessageController with ChangeNotifier {
   }
 
   Future<String?> initChatRoom(String room, String currentRecipient) {
+    debugPrint(
+        'initChatRoom called with room: $room, recipient: $currentRecipient');
     DoctorModel.fromUid(uid: FirebaseAuth.instance.currentUser!.uid)
         .then((value) {
       recipient = currentRecipient;
@@ -71,6 +73,7 @@ class DoctorChatMessageController with ChangeNotifier {
       }
 
       chatroom = room;
+      debugPrint('Chatroom initialized: $chatroom');
       return chatroom;
     });
     return Future.value(chatroom);
@@ -99,15 +102,25 @@ class DoctorChatMessageController with ChangeNotifier {
 
   generateRoomId(String recipientUid) {
     String currentDoctorUid = FirebaseAuth.instance.currentUser!.uid;
+    debugPrint(
+        'Generating room ID for currentDoctorUid: $currentDoctorUid and recipientUid: $recipientUid');
 
     if (currentDoctorUid.codeUnits[0] >= recipientUid.codeUnits[0]) {
       if (currentDoctorUid.codeUnits[1] == recipientUid.codeUnits[1]) {
-        return chatroom = recipientUid + currentDoctorUid;
+        chatroom = recipientUid + currentDoctorUid;
+        debugPrint('Room ID generated (case 1): $chatroom');
+        return chatroom;
       }
-      return chatroom = currentDoctorUid + recipientUid;
+      chatroom = currentDoctorUid + recipientUid;
+      debugPrint('Room ID generated (case 2): $chatroom');
+      return chatroom;
     }
-    return chatroom = recipientUid + currentDoctorUid;
+    chatroom = recipientUid + currentDoctorUid;
+    debugPrint('Room ID generated (case 3): $chatroom');
+    return chatroom;
   }
+
+  // //----------------- GENERATE ROOM ID ----------------
 
   // String generateRoomId(String recipientUid) {
   //   String currentDoctorUid = auth.currentUser!.uid;
@@ -116,6 +129,8 @@ class DoctorChatMessageController with ChangeNotifier {
 
   //   return sortedUids.join();
   // }
+
+  //----------------- CHAT UPDATE HANDLER ----------------
 
   chatUpdateHandler(List<ChatMessageModel> update) {
     for (ChatMessageModel message in update) {
@@ -246,6 +261,47 @@ class DoctorChatMessageController with ChangeNotifier {
     } catch (e) {
       debugPrint('Error sending message: $e');
       rethrow;
+    }
+  }
+
+  //----------------- GET START AND END DATE AND TIME ----------------
+
+  Future<Timestamp?> getFirstMessageTime() async {
+    debugPrint('Getting first message time for chatroom $chatroom');
+
+    QuerySnapshot<Map<String, dynamic>> querySnapshot = await firestore
+        .collection('consultation-chatrooms')
+        .doc(chatroom)
+        .collection('messages')
+        .orderBy('createdAt')
+        .limit(1)
+        .get();
+
+    debugPrint('Got ${querySnapshot.docs.length} documents');
+
+    if (querySnapshot.docs.isNotEmpty) {
+      Timestamp? timestamp = querySnapshot.docs.first.data()['createdAt'];
+      debugPrint('First message time: $timestamp');
+      return timestamp;
+    } else {
+      debugPrint('No documents found');
+      return null;
+    }
+  }
+
+  Future<Timestamp?> getLastMessageTime() async {
+    QuerySnapshot<Map<String, dynamic>> querySnapshot = await firestore
+        .collection('consultation-chatrooms')
+        .doc(chatroom)
+        .collection('messages')
+        .orderBy('createdAt', descending: true)
+        .limit(1)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      return querySnapshot.docs.first.data()['createdAt'];
+    } else {
+      return null;
     }
   }
 }

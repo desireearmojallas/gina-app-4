@@ -6,6 +6,8 @@ import 'package:gina_app_4/features/patient_features/find/2_views/screens/find_s
 import 'package:gina_app_4/features/patient_features/forums/2_views/screens/forum_screen.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/screens/home_screen.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/screens/profile_screen.dart';
+import 'package:gina_app_4/main.dart';
+import 'package:haptic_feedback/haptic_feedback.dart';
 
 part 'bottom_navigation_event.dart';
 part 'bottom_navigation_state.dart';
@@ -20,11 +22,15 @@ class BottomNavigationBloc
             navigationHistory: [0],
           ),
         ) {
-    on<TabChangedEvent>((event, emit) {
+    on<TabChangedEvent>((event, emit) async {
       final newHistory = List<int>.from(state.navigationHistory);
 
       if (newHistory.last != event.tab) {
         newHistory.add(event.tab);
+      }
+
+      if (canVibrate == true) {
+        await Haptics.vibrate(HapticsType.selection);
       }
 
       emit(BottomNavigationInitial(
