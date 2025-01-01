@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
@@ -13,7 +14,10 @@ class DoctorForumsNavigationWidget extends StatelessWidget {
     final ginaTheme = Theme.of(context);
 
     return InkWell(
-      onTap: () => Navigator.pushNamed(context, '/doctorForumsPost'),
+      onTap: () {
+        HapticFeedback.selectionClick();
+        Navigator.pushNamed(context, '/doctorForumsPost');
+      },
       child: Container(
         height: size.height * 0.16,
         width: size.width / 2.9,

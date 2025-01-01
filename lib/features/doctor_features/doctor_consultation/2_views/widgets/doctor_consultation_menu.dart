@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
@@ -17,6 +18,12 @@ class DoctorConsultationMenu extends StatelessWidget {
     final ginaTheme = Theme.of(context).textTheme;
 
     return SubmenuButton(
+      onOpen: () {
+        HapticFeedback.lightImpact();
+      },
+      onClose: () {
+        HapticFeedback.lightImpact();
+      },
       style: const ButtonStyle(
         padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(
           EdgeInsets.all(10.0),
@@ -113,6 +120,13 @@ class DoctorConsultationMenu extends StatelessWidget {
               ),
             ),
           ),
+          onPressed: () {
+            if (canVibrate == true) {
+              Haptics.vibrate(HapticsType.success);
+            }
+            doctorConsultationBloc.add(CompleteDoctorConsultationButtonEvent(
+                appointmentId: appointmentId));
+          },
         ),
         const Gap(10),
       ],

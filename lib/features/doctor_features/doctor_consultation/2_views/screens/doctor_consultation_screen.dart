@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
@@ -14,6 +15,8 @@ import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc
 import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/view_states/consultation_face_to_face_appointment_screen.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/view_states/consultation_no_appointment.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/view_states/consultation_waiting_appointment.dart';
+import 'package:gina_app_4/main.dart';
+import 'package:haptic_feedback/haptic_feedback.dart';
 
 class DoctorConsultationScreenProvider extends StatelessWidget {
   const DoctorConsultationScreenProvider({super.key});
@@ -118,21 +121,21 @@ class DoctorConsultationScreen extends StatelessWidget {
                         size: 80,
                       ),
                       content: SizedBox(
-                        height: 120,
+                        height: 100,
                         width: 250,
                         child: Column(
                           children: [
                             Text(
-                              'Consultation has been Completed',
+                              'Consultation has ended',
                               textAlign: TextAlign.center,
                               style: Theme.of(context)
                                   .textTheme
                                   .titleMedium
                                   ?.copyWith(
-                                    fontWeight: FontWeight.w700,
+                                    fontWeight: FontWeight.w600,
                                   ),
                             ),
-                            const Gap(20),
+                            const Gap(30),
                             SizedBox(
                               height: 40,
                               width: MediaQuery.of(context).size.width * 0.5,
@@ -146,6 +149,9 @@ class DoctorConsultationScreen extends StatelessWidget {
                                     ),
                                   ),
                                   onPressed: () {
+                                    if (canVibrate == true) {
+                                      Haptics.vibrate(HapticsType.success);
+                                    }
                                     Navigator.of(context).pop();
                                   },
                                   child: const Text('Okay')),
@@ -190,10 +196,12 @@ class DoctorConsultationScreen extends StatelessWidget {
                     patientAppointments: state.patientAppointments,
                   );
                 }
+                // return const Center(
+                //   child: Text('initial'),
+                // );
                 return const Center(
-                  child: Text('initial'),
+                  child: CustomLoadingIndicator(),
                 );
-                // return CustomLoadingIndicator();
               },
             ),
           ),
