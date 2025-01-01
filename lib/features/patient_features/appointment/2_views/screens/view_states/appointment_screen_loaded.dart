@@ -53,7 +53,7 @@ class AppointmentScreenLoaded extends StatelessWidget {
                   upcomingAppointments: upcomingAppointments,
                 ),
                 // const Gap(30),
-                const GinaDivider(),
+                GinaDivider(),
                 _title(context, 'Consultation history'),
                 const Gap(17),
                 ListView.builder(

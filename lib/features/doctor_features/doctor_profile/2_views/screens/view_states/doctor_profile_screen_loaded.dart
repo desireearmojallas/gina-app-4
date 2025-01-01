@@ -252,7 +252,7 @@ class DoctorProfileScreenLoaded extends StatelessWidget {
                 ),
               ),
 
-              const GinaDivider(),
+              GinaDivider(),
 
               //! -- License Number --
               // Gap(size.height * 0.015),

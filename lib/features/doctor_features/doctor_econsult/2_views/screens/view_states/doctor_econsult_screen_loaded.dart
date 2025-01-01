@@ -39,7 +39,7 @@ class DoctorEConsultScreenLoaded extends StatelessWidget {
               upcomingAppointments: upcomingAppointments,
               isDoctor: true,
             ),
-            const GinaDivider(),
+            GinaDivider(),
             Align(
               alignment: Alignment.centerLeft,
               child: Text(

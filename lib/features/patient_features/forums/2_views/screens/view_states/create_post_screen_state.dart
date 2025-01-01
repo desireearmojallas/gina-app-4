@@ -40,7 +40,7 @@ class CreatePostScreenState extends StatelessWidget {
                 maxLines: 3,
                 isTitle: true,
               ),
-              const GinaDivider(),
+              GinaDivider(),
               CreatePostTextFields(
                 textFieldController: contentController,
                 contentTitle: 'Content',

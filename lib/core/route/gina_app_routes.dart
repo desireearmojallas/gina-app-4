@@ -8,7 +8,6 @@ import 'package:gina_app_4/features/auth/2_views/screens/forgot_password/2_views
 import 'package:gina_app_4/features/auth/2_views/screens/login/login_screen.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_office_address/doctor_add_office_address.dart';
 import 'package:gina_app_4/features/doctor_features/create_doctor_schedule/2_views/screens/doctor_create_schedule_screen.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/widgets/view_patient_data/view_patient_data.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_bottom_navigation/screens/doctor_bottom_navigation_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/screens/doctor_consultation_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/doctor_consultation_fee_screen.dart';

@@ -212,7 +212,7 @@ class DoctorEmergencyAnnouncementsLoadedDetailsScreen extends StatelessWidget {
               ),
             ),
           ),
-          const GinaDivider(),
+          GinaDivider(),
           IntrinsicHeight(
             child: Container(
               decoration: BoxDecoration(

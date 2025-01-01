@@ -47,7 +47,7 @@ class CreateDoctorPostScreenState extends StatelessWidget {
                           maxLines: 3,
                           isTitle: true,
                         ),
-                        const GinaDivider(),
+                        GinaDivider(),
                         DoctorCreatePostTextFields(
                           textFieldController: contentController,
                           contentTitle: 'Content',

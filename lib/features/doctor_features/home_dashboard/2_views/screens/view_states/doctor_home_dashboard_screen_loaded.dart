@@ -20,6 +20,8 @@ import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widge
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/schedule_management_navigation_widget.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/upcoming_appointments_navigation_widget.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/main.dart';
+import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
@@ -49,7 +51,27 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
 
     return RefreshIndicator(
       onRefresh: () async {
-        homeDashboardBloc.add(HomeInitialEvent());
+        try {
+          homeDashboardBloc.add(HomeInitialEvent());
+
+          await Future.delayed(
+              const Duration(milliseconds: 800)); // Simulating delay
+
+          if (canVibrate == true) {
+            await Haptics.vibrate(HapticsType.success);
+          }
+        } catch (e) {
+          if (canVibrate == true) {
+            await Haptics.vibrate(HapticsType.error);
+          }
+
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text('Failed to refresh. Please try again.')),
+            );
+          }
+        }
       },
       child: ScrollbarCustom(
         child: SingleChildScrollView(
@@ -66,7 +88,11 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                 ),
                 const Gap(20),
                 const HomeDashboardCalendarWidget(),
-                const Gap(30),
+                const Gap(5),
+                GinaDivider(
+                  space: 0.0,
+                ),
+                const Gap(5),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -95,9 +121,15 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                         return WidgetNavigationCards(
                           widgetText: 'Edit Consultation\nFees',
                           icon: Icons.paid,
-                          onPressed: () {
-                            context.read<DoctorConsultationFeeBloc>().add(
-                                NavigateToEditDoctorConsultationFeeEvent());
+                          onPressed: () async {
+                            if (canVibrate == true) {
+                              await Haptics.vibrate(HapticsType.selection);
+                            }
+
+                            if (context.mounted) {
+                              context.read<DoctorConsultationFeeBloc>().add(
+                                  NavigateToEditDoctorConsultationFeeEvent());
+                            }
                           },
                         );
                       },
@@ -105,21 +137,30 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                     WidgetNavigationCards(
                       widgetText: 'Create Emergency\nAnnouncement',
                       icon: MingCute.report_fill,
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const DoctorEmergencyAnnouncementScreenProvider(
-                                    navigateToCreate: true),
-                          ),
-                        );
+                      onPressed: () async {
+                        // Trigger haptic feedback
+                        // final canVibrate = await Haptics.canVibrate();
+                        if (canVibrate == true) {
+                          await Haptics.vibrate(HapticsType.selection);
+                        }
+
+                        // Navigate to the next screen
+                        if (context.mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const DoctorEmergencyAnnouncementScreenProvider(
+                                navigateToCreate: true,
+                              ),
+                            ),
+                          );
+                        }
                       },
                     ),
                   ],
                 ),
                 const Gap(10),
-                const GinaDivider(),
                 Row(
                   children: [
                     Text(

@@ -1,12 +1,18 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/widgets/dashed_line_painter_horizontal.dart';
 
 class GinaDivider extends StatelessWidget {
-  const GinaDivider({super.key});
+  double? space;
+  GinaDivider({
+    super.key,
+    this.space = 8.0,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +31,7 @@ class GinaDivider extends StatelessWidget {
                 ),
               ),
             ),
-            const Gap(8),
+            Gap(space!),
             SvgPicture.asset(
               Images.appLogo,
               height: size.height * 0.03,
@@ -34,7 +40,7 @@ class GinaDivider extends StatelessWidget {
                 BlendMode.srcIn,
               ),
             ),
-            const Gap(8),
+            Gap(space!),
             Expanded(
               child: CustomPaint(
                 size: const Size(double.infinity, 1),
