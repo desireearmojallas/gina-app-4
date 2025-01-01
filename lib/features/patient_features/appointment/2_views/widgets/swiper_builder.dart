@@ -18,10 +18,33 @@ class SwiperBuilderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // List<List<Color>> gradientBGColors = [
+    //   [const Color(0xffeea0b6), GinaAppTheme.lightTertiaryContainer],
+    //   [const Color(0xffd3c5f7), const Color(0xffa491d3)],
+    //   [const Color(0xffffdab5), const Color(0xfff08b60)],
+    // ];
+
     List<List<Color>> gradientBGColors = [
       [const Color(0xffeea0b6), GinaAppTheme.lightTertiaryContainer],
       [const Color(0xffd3c5f7), const Color(0xffa491d3)],
       [const Color(0xffffdab5), const Color(0xfff08b60)],
+      [const Color(0xffb2dfdb), const Color(0xff80cbc4)],
+      [const Color(0xffc8e6c9), const Color(0xffa5d6a7)],
+      [const Color(0xffd1c4e9), const Color(0xffb39ddb)],
+      [const Color(0xffffccbc), const Color(0xffffab91)],
+      [const Color(0xffbbdefb), const Color(0xff90caf9)],
+      [const Color(0xfffff9c4), const Color(0xfffff59d)],
+      [const Color(0xfff8bbd0), const Color(0xfff48fb1)],
+      [const Color(0xffd7ccc8), const Color(0xffbcaaa4)],
+      [const Color(0xffcfd8dc), const Color(0xffb0bec5)],
+      [const Color(0xffe1bee7), const Color(0xffce93d8)],
+      [const Color(0xfff0f4c3), const Color(0xffe6ee9c)],
+      [const Color(0xffc8e6c9), const Color(0xffa5d6a7)],
+      [const Color(0xffb3e5fc), const Color(0xff81d4fa)],
+      [const Color(0xffd1c4e9), const Color(0xffb39ddb)],
+      [const Color(0xfff8bbd0), const Color(0xfff48fb1)],
+      [const Color(0xffc5cae9), const Color(0xff9fa8da)],
+      [const Color(0xffffe0b2), const Color(0xffffcc80)],
     ];
 
     final width = MediaQuery.of(context).size.width;

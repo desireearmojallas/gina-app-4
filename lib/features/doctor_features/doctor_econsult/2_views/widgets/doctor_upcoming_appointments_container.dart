@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
@@ -44,6 +45,8 @@ class DoctorUpcomingAppointmentsContainer extends StatelessWidget {
         //   doctorUid: appointment.doctorUid!,
         //   appointmentUid: appointment.appointmentUid!,
         // ));
+
+        HapticFeedback.mediumImpact();
 
         selectedPatientUid = appointment.patientUid!;
         debugPrint(
