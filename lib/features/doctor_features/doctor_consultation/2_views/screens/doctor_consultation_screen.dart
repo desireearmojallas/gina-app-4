@@ -62,6 +62,7 @@ class DoctorConsultationScreen extends StatelessWidget {
             return true;
           },
           child: Scaffold(
+            // backgroundColor: Colors.white,
             appBar: state is NavigateToPatientDataState
                 // ? AppBar(
                 //     leading: IconButton(

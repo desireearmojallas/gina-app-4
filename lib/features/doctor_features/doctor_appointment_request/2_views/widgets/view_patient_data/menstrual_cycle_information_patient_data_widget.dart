@@ -12,10 +12,13 @@ class MenstrualCycleInformationPatientData extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
       child: Container(
-        width: size.width / 1.05,
+        width: size.width / 1.08,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            GinaAppTheme.defaultBoxShadow,
+          ],
         ),
         child: Column(
           children: [

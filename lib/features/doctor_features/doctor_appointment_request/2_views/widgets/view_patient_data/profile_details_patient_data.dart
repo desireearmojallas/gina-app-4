@@ -34,13 +34,16 @@ class ProfileDetailsPatientData extends StatelessWidget {
       ],
     );
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 20, 0, 10),
+      padding: const EdgeInsets.fromLTRB(0, 15, 0, 10),
       child: Container(
         height: size.height * 0.42,
-        width: size.width / 1.05,
+        width: size.width / 1.08,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            GinaAppTheme.defaultBoxShadow,
+          ],
         ),
         child: Column(
           children: [
@@ -68,6 +71,7 @@ class ProfileDetailsPatientData extends StatelessWidget {
                       padding: const EdgeInsets.all(3.0),
                       child: CircleAvatar(
                         radius: 60,
+                        backgroundColor: Colors.transparent,
                         foregroundImage: AssetImage(Images.patientProfileIcon),
                       ),
                     ),
