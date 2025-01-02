@@ -20,6 +20,8 @@ class DoctorChatMessageController with ChangeNotifier {
   late String recipient;
   List<ChatMessageModel> messages = [];
 
+  bool _isDisposed = false;
+
   DoctorChatMessageController() {
     chatSub = const Stream.empty().listen((_) {});
     if (chatroom != null) {
@@ -30,23 +32,31 @@ class DoctorChatMessageController with ChangeNotifier {
 
     authStream = auth.authStateChanges().listen((User? user) {
       currentUser = user;
-      notifyListeners();
+      if (!_isDisposed) {
+        notifyListeners();
+      }
     });
   }
 
   @override
   void dispose() {
+    debugPrint('DoctorChatMessageController dispose called');
+    _isDisposed = true;
     chatSub.cancel();
+    authStream.cancel();
+    controller.close();
     super.dispose();
   }
 
   subscribe() {
+    if (_isDisposed) return;
     chatSub = ChatMessageModel.individualCurrentChats(chatroom!)
         .listen(chatUpdateHandler);
     controller.add('success');
   }
 
   getChatRoom(String room, String currentRecipient) {
+    if (_isDisposed) return;
     DoctorModel.fromUid(uid: auth.currentUser!.uid).then((value) {
       recipient = currentRecipient;
       doctor = value;
@@ -60,6 +70,7 @@ class DoctorChatMessageController with ChangeNotifier {
   }
 
   Future<String?> initChatRoom(String room, String currentRecipient) {
+    if (_isDisposed) return Future.value(null);
     debugPrint(
         'initChatRoom called with room: $room, recipient: $currentRecipient');
     DoctorModel.fromUid(uid: FirebaseAuth.instance.currentUser!.uid)
@@ -78,27 +89,6 @@ class DoctorChatMessageController with ChangeNotifier {
     });
     return Future.value(chatroom);
   }
-
-  // Future<String?> initChatRoom(String room, String currentRecipient) async {
-  //   try {
-  //     DoctorModel doctor =
-  //         await DoctorModel.fromUid(uid: auth.currentUser!.uid);
-
-  //     recipient = currentRecipient;
-
-  //     if (doctor.chatrooms.contains(room)) {
-  //       subscribe();
-  //     } else {
-  //       controller.add('empty');
-  //     }
-
-  //     chatroom = room;
-  //     return chatroom; // Return the resolved chatroom.
-  //   } catch (e) {
-  //     controller.add('error');
-  //     return null; // Handle any errors gracefully.
-  //   }
-  // }
 
   generateRoomId(String recipientUid) {
     String currentDoctorUid = FirebaseAuth.instance.currentUser!.uid;
@@ -120,36 +110,24 @@ class DoctorChatMessageController with ChangeNotifier {
     return chatroom;
   }
 
-  // //----------------- GENERATE ROOM ID ----------------
-
-  // String generateRoomId(String recipientUid) {
-  //   String currentDoctorUid = auth.currentUser!.uid;
-
-  //   List<String> sortedUids = [currentDoctorUid, recipientUid]..sort();
-
-  //   return sortedUids.join();
-  // }
-
-  //----------------- CHAT UPDATE HANDLER ----------------
-
   chatUpdateHandler(List<ChatMessageModel> update) {
+    if (_isDisposed) return;
     for (ChatMessageModel message in update) {
       if (chatroom == generateRoomId(recipient) &&
           message.hasNotSeenMessage(auth.currentUser!.uid)) {
         message.individualUpdateSeen(auth.currentUser!.uid, chatroom!);
-      } else {}
+      }
     }
 
     messages = update;
     notifyListeners();
   }
 
-  //----------------- SEND FIRST MESSAGE ----------------
-
   sendFirstMessage({
     required String message,
     required String recipient,
   }) async {
+    if (_isDisposed) return;
     final currentUserModel = await firestore
         .collection('doctors')
         .doc(currentUser!.uid)
@@ -184,10 +162,9 @@ class DoctorChatMessageController with ChangeNotifier {
     }
   }
 
-  //----------------- FIRST MESSAGE TEXT ----------------
-
   Future<void> firstMessageText(String chatroom, String recipient,
       String thisUser, Map<String, dynamic> newMessage) async {
+    if (_isDisposed) return;
     await firestore.collection('consultation-chatrooms').doc(chatroom).set({
       'chatroom': chatroom,
       'members': FieldValue.arrayUnion([recipient, thisUser])
@@ -221,19 +198,18 @@ class DoctorChatMessageController with ChangeNotifier {
     );
   }
 
-  //----------------- SEND MESSAGE ----------------
   Future sendMessage({
     String message = '',
     required String recipient,
   }) async {
+    if (_isDisposed) return;
     var thisUser = auth.currentUser!.uid;
     return await sendMessageText(recipient, message, thisUser);
   }
 
-  //----------------- SEND MESSAGE TEXT ----------------
-
   Future<DocumentReference<Map<String, dynamic>>> sendMessageText(
       String recipient, String message, String thisUser) async {
+    if (_isDisposed) return Future.error('Controller is disposed');
     try {
       DocumentSnapshot<Map<String, dynamic>> docSnapshot =
           await firestore.collection('patients').doc(recipient).get();
@@ -264,9 +240,8 @@ class DoctorChatMessageController with ChangeNotifier {
     }
   }
 
-  //----------------- GET START AND END DATE AND TIME ----------------
-
   Future<Timestamp?> getFirstMessageTime() async {
+    if (_isDisposed) return null;
     debugPrint('Getting first message time for chatroom $chatroom');
 
     QuerySnapshot<Map<String, dynamic>> querySnapshot = await firestore
@@ -290,6 +265,7 @@ class DoctorChatMessageController with ChangeNotifier {
   }
 
   Future<Timestamp?> getLastMessageTime() async {
+    if (_isDisposed) return null;
     QuerySnapshot<Map<String, dynamic>> querySnapshot = await firestore
         .collection('consultation-chatrooms')
         .doc(chatroom)

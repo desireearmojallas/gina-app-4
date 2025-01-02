@@ -34,22 +34,27 @@ class _DoctorConsultationOnGoingAppointmentScreenState
   String get chatroom => widget.chatroom;
   UserModel? user;
 
+  bool _isDisposed = false;
+
   @override
   void initState() {
+    super.initState();
+    debugPrint("Initializing DoctorConsultationOnGoingAppointmentScreen...");
     chatController.getChatRoom(
         chatController.generateRoomId(selectedPatientUid), selectedPatientUid);
     chatController.addListener(scrollToBottom);
     messageFN.addListener(scrollToBottom);
-    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("Building DoctorConsultationOnGoingAppointmentScreen...");
     return FutureBuilder<UserModel>(
       future: UserModel.fromUid(uid: selectedPatientUid),
       builder:
           (BuildContext context, AsyncSnapshot<UserModel> selectedPatient) {
         if (!selectedPatient.hasData) {
+          debugPrint("No patient data available...");
           return const Center(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -64,6 +69,7 @@ class _DoctorConsultationOnGoingAppointmentScreenState
             ),
           );
         }
+        debugPrint("Patient data loaded successfully.");
         return Scaffold(
           resizeToAvoidBottomInset: true,
           backgroundColor: Colors.white,
@@ -77,7 +83,6 @@ class _DoctorConsultationOnGoingAppointmentScreenState
             child: StreamBuilder(
               stream: chatController.stream,
               builder: (BuildContext context, AsyncSnapshot snapshot) {
-                // Add debug prints to inspect the snapshot
                 debugPrint(
                     'Snapshot Connection State: ${snapshot.connectionState}');
                 debugPrint('Snapshot Data: ${snapshot.data}');
@@ -85,8 +90,10 @@ class _DoctorConsultationOnGoingAppointmentScreenState
 
                 if (snapshot.hasData) {
                   if (snapshot.data == 'null') {
+                    debugPrint("No appointment available.");
                     return const ConsultationNoAppointmentScreen();
                   } else if (snapshot.data == 'success') {
+                    debugPrint("Consultation data loaded successfully.");
                     return DoctorChatConsultationBody(
                       messageFN: messageFN,
                       messageController: messageController,
@@ -99,15 +106,19 @@ class _DoctorConsultationOnGoingAppointmentScreenState
                       send: send,
                     );
                   } else if (snapshot.data == 'empty') {
+                    debugPrint(
+                        "Chat room is empty. Showing first message body.");
                     return DoctorChatConsultationBody(
                       messageFN: messageFN,
                       messageController: messageController,
                       context: context,
                       messages: const DoctorChatFirstMessageBody(),
-                      send: firstSend(),
+                      send: firstSend,
                     );
                   }
                 } else if (snapshot.hasError) {
+                  debugPrint(
+                      "Error loading consultation data: ${snapshot.error}");
                   return Center(
                     child: Text(
                       snapshot.error.toString(),
@@ -115,6 +126,7 @@ class _DoctorConsultationOnGoingAppointmentScreenState
                   );
                 }
 
+                debugPrint("Loading consultation data...");
                 return const ConsultationLoadingAppointmentState();
               },
             ),
@@ -126,14 +138,18 @@ class _DoctorConsultationOnGoingAppointmentScreenState
 
   //------------------------------StateFul Widget Methods-------------------------------------
   scrollToBottom() async {
+    debugPrint("Scrolling to bottom...");
     await Future.delayed(const Duration(milliseconds: 150));
     if (scrollController.hasClients) {
       scrollController.animateTo(scrollController.position.maxScrollExtent,
           duration: const Duration(milliseconds: 250), curve: Curves.easeIn);
+    } else {
+      debugPrint("ScrollController has no clients.");
     }
   }
 
   send() {
+    debugPrint("Sending message...");
     messageFN.unfocus();
     final doctorConsultationBloc = context.read<DoctorConsultationBloc>();
     if (messageController.text.isNotEmpty) {
@@ -141,19 +157,22 @@ class _DoctorConsultationOnGoingAppointmentScreenState
         message: messageController.text.trim(),
         recipient: selectedPatientUid,
       ));
+      debugPrint("Message sent: ${messageController.text.trim()}");
       messageController.clear();
+    } else {
+      debugPrint("Message controller is empty. Nothing to send.");
     }
   }
 
   firstSend() async {
-    // since this ties to the stateful set state, it's better to leave this as it is,
-    // to avoid any potential bugs when using the bloc pattern
+    debugPrint("Sending first message...");
     messageFN.unfocus();
     if (messageController.text.isNotEmpty) {
       var chatroom = chatController.sendFirstMessage(
         message: messageController.text.trim(),
         recipient: selectedPatientUid,
       );
+      debugPrint("First message sent. Chatroom ID: $chatroom");
       messageController.text = '';
       try {
         setState(() {
@@ -167,11 +186,13 @@ class _DoctorConsultationOnGoingAppointmentScreenState
 
   @override
   void dispose() {
+    print('dispose called');
+    _isDisposed = true;
+    messageFN.removeListener(scrollToBottom);
+    chatController.removeListener(scrollToBottom);
     messageFN.dispose();
     messageController.dispose();
-    if (chatController.messages.isNotEmpty) {
-      chatController.dispose();
-    }
+    chatController.dispose();
     super.dispose();
   }
 }
