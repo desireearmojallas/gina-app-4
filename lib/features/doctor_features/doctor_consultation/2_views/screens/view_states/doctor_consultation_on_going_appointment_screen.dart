@@ -8,6 +8,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/widgets/doctor_chat_consultation_body.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/widgets/doctor_chat_first_message_body.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/widgets/doctor_chat_message_body.dart';
+import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/view_states/consultation_loading_appointment.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/view_states/consultation_no_appointment.dart';
 
@@ -100,8 +101,14 @@ class _DoctorConsultationOnGoingAppointmentScreenState
                         chatController: chatController,
                         scrollController: scrollController,
                         selectedDoctorUID: selectedPatientUid,
+                        isChatWaiting: isChatWaiting,
                       ),
                       send: send,
+                      onChatWaitingChanged: (bool value) {
+                        setState(() {
+                          isChatWaiting = value;
+                        });
+                      },
                     );
                   } else if (snapshot.data == 'empty') {
                     debugPrint(
@@ -112,6 +119,11 @@ class _DoctorConsultationOnGoingAppointmentScreenState
                       context: context,
                       messages: const DoctorChatFirstMessageBody(),
                       send: firstSend,
+                      onChatWaitingChanged: (bool value) {
+                        setState(() {
+                          isChatWaiting = value;
+                        });
+                      },
                     );
                   }
                 } else if (snapshot.hasError) {

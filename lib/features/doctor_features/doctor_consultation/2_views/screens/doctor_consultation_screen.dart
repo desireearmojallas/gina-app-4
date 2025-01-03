@@ -183,6 +183,7 @@ class DoctorConsultationScreen extends StatelessWidget {
                     is DoctorConsultationWaitingForAppointmentState) {
                   return ConsultationWaitingAppointmentScreen(
                     appointment: state.appointment,
+                    isDoctor: true,
                   );
                 } else if (state is DoctorConsultationLoadedAppointmentState) {
                   final chatRoom = state.chatRoomId;

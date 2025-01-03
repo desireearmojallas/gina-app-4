@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_swiper_view/flutter_swiper_view.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/widgets/doctor_upcoming_appointments_container.dart';
@@ -79,6 +80,9 @@ class SwiperBuilderWidget extends StatelessWidget {
               duration: 100,
               scrollDirection: Axis.horizontal,
               axisDirection: AxisDirection.left,
+              onIndexChanged: (index) {
+                HapticFeedback.mediumImpact();
+              },
               itemBuilder: (context, index) {
                 final appointment = upcomingAppointments[index];
                 final colors =

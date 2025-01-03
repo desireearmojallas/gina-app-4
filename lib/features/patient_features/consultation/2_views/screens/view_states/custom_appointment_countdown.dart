@@ -23,6 +23,7 @@ class AppointmentCountdown extends StatefulWidget {
 class _AppointmentCountdownState extends State<AppointmentCountdown> {
   late Timer timer;
   late StreamController<Map<String, int>> _countdownStreamController;
+  bool _countdownCompleteCalled = false;
 
   Duration remainingTime = Duration.zero;
   Duration totalTime = Duration.zero;
@@ -50,8 +51,15 @@ class _AppointmentCountdownState extends State<AppointmentCountdown> {
 
     if (remainingTime.isNegative) {
       timer.cancel();
-      widget.onCountdownComplete();
+      if (!_countdownCompleteCalled) {
+        _countdownCompleteCalled = true;
+        widget.onCountdownComplete();
+      }
       remainingTime = Duration.zero;
+    } else if (remainingTime <= const Duration(minutes: 15) &&
+        !_countdownCompleteCalled) {
+      _countdownCompleteCalled = true;
+      widget.onCountdownComplete();
     }
 
     _countdownStreamController.add({
@@ -187,7 +195,7 @@ class CountdownUnitDisplay extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            fontSize: 14.0,
+            fontSize: 12.0,
             fontWeight: FontWeight.w600,
             color: GinaAppTheme.lightOutline,
           ),

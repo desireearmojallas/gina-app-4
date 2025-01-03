@@ -99,8 +99,9 @@ class _DoctorChatCardState extends State<DoctorChatCard> {
         alignment: Alignment.center,
         width: double.infinity,
         child: Text(
-          // DateFormat('MMMM d, y hh:mm a')
-          DateFormat('hh:mm a').format(chat[index].createdAt!.toDate()),
+          DateFormat('MMM d, y hh:mm a')
+              // DateFormat('hh:mm a')
+              .format(chat[index].createdAt!.toDate()),
           style: const TextStyle(color: Colors.white, fontSize: 12),
         ),
       ),

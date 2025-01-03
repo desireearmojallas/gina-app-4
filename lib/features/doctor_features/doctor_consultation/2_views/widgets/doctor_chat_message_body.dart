@@ -12,11 +12,13 @@ class DoctorChatMessageBody extends StatelessWidget {
   final DoctorChatMessageController chatController;
   final ScrollController scrollController;
   final String selectedDoctorUID;
+  final bool isChatWaiting;
   const DoctorChatMessageBody({
     super.key,
     required this.chatController,
     required this.scrollController,
     required this.selectedDoctorUID,
+    required this.isChatWaiting,
   });
 
   @override

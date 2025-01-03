@@ -69,7 +69,7 @@ class DoctorChatInputMessageField extends StatelessWidget {
             height: 50,
             decoration: BoxDecoration(
                 color: isChatWaiting
-                    ? GinaAppTheme.lightOutline
+                    ? GinaAppTheme.lightOutline.withOpacity(0.4)
                     : GinaAppTheme.lightTertiaryContainer,
                 borderRadius: BorderRadius.circular(20)),
             child: IconButton(
@@ -80,9 +80,11 @@ class DoctorChatInputMessageField extends StatelessWidget {
                 //   fit: BoxFit.contain,
                 //   filterQuality: FilterQuality.high,
                 // ),
-                icon: const Icon(
+                icon: Icon(
                   MingCute.send_plane_fill,
-                  color: Colors.white,
+                  color: isChatWaiting
+                      ? Colors.white.withOpacity(0.5)
+                      : Colors.white,
                   size: 25,
                 ),
                 onPressed: () {
