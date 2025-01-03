@@ -63,6 +63,7 @@ class DoctorUpcomingAppointmentsContainer extends StatelessWidget {
         selectedPatientAppointment = appointment.appointmentUid;
         selectedPatientUid = appointment.patientUid ?? '';
         selectedPatientName = appointment.patientName ?? '';
+        selectedPatientAppointmentModel = appointment;
 
         appointmentDataFromDoctorUpcomingAppointmentsBloc = appointment;
         debugPrint(

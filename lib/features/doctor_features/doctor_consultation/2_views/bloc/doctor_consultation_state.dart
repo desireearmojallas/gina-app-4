@@ -32,7 +32,15 @@ class DoctorConsultationFaceToFaceAppointmentState
     extends DoctorConsultationState {}
 
 class DoctorConsultationWaitingForAppointmentState
-    extends DoctorConsultationState {}
+    extends DoctorConsultationState {
+  final AppointmentModel appointment;
+
+  const DoctorConsultationWaitingForAppointmentState(
+      {required this.appointment});
+
+  @override
+  List<Object> get props => [appointment];
+}
 
 class DoctorConsultationFailedAppointmentState extends DoctorConsultationState {
   final String message;

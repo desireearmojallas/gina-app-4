@@ -181,7 +181,9 @@ class DoctorConsultationScreen extends StatelessWidget {
                   );
                 } else if (state
                     is DoctorConsultationWaitingForAppointmentState) {
-                  return const ConsultationWaitingAppointmentScreen();
+                  return ConsultationWaitingAppointmentScreen(
+                    appointment: state.appointment,
+                  );
                 } else if (state is DoctorConsultationLoadedAppointmentState) {
                   final chatRoom = state.chatRoomId;
                   final patientUid = state.recipientUid;

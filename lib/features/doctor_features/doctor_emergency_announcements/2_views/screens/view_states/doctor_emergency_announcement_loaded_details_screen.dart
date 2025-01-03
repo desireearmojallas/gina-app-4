@@ -113,7 +113,7 @@ class DoctorEmergencyAnnouncementsLoadedDetailsScreen extends StatelessWidget {
                                     'Patient name',
                                     style: TextStyle(
                                       color: GinaAppTheme.lightOutline,
-                                      fontSize: 12.0,
+                                      fontSize: 10.0,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -144,7 +144,7 @@ class DoctorEmergencyAnnouncementsLoadedDetailsScreen extends StatelessWidget {
                                     'Doctor name',
                                     style: TextStyle(
                                       color: GinaAppTheme.lightOutline,
-                                      fontSize: 12.0,
+                                      fontSize: 10.0,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),

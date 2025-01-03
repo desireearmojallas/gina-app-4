@@ -4,7 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_upcoming_appointments/2_views/bloc/doctor_upcoming_appointments_bloc.dart';
+import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
 import 'package:gina_app_4/main.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
 
@@ -73,7 +75,7 @@ class DoctorConsultationMenu extends StatelessWidget {
             children: [
               const Gap(15),
               const Icon(
-                Icons.account_circle_outlined,
+                Icons.account_circle_rounded,
                 color: GinaAppTheme.lightOnPrimaryColor,
               ),
               const Gap(15),
@@ -93,9 +95,20 @@ class DoctorConsultationMenu extends StatelessWidget {
         ),
         const Gap(10),
         MenuItemButton(
+          onPressed: isFromChatRoomLists || isAppointmentFinished
+              ? null
+              : () {
+                  debugPrint('End consultation');
+
+                  doctorConsultationBloc.add(
+                      CompleteDoctorConsultationButtonEvent(
+                          appointmentId: appointmentId));
+                },
           child: Container(
             decoration: BoxDecoration(
-              color: GinaAppTheme.declinedTextColor,
+              color: isFromChatRoomLists || isAppointmentFinished
+                  ? Colors.grey[200]?.withOpacity(0.8)
+                  : GinaAppTheme.declinedTextColor,
               borderRadius: BorderRadius.circular(30.0),
             ),
             child: Padding(
@@ -103,15 +116,19 @@ class DoctorConsultationMenu extends StatelessWidget {
               child: Row(
                 children: [
                   const Gap(15),
-                  const Icon(
+                  Icon(
                     Icons.call_end_rounded,
-                    color: Colors.white,
+                    color: isFromChatRoomLists || isAppointmentFinished
+                        ? Colors.white.withOpacity(0.9)
+                        : Colors.white,
                   ),
                   const Gap(15),
                   Text(
                     'End consultation',
                     style: ginaTheme.bodyMedium?.copyWith(
-                      color: Colors.white,
+                      color: isFromChatRoomLists || isAppointmentFinished
+                          ? Colors.white.withOpacity(0.9)
+                          : Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -120,13 +137,6 @@ class DoctorConsultationMenu extends StatelessWidget {
               ),
             ),
           ),
-          onPressed: () {
-            if (canVibrate == true) {
-              Haptics.vibrate(HapticsType.success);
-            }
-            doctorConsultationBloc.add(CompleteDoctorConsultationButtonEvent(
-                appointmentId: appointmentId));
-          },
         ),
         const Gap(10),
       ],

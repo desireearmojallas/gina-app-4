@@ -18,6 +18,7 @@ part 'doctor_consultation_state.dart';
 String? doctorChatRoom;
 String? selectedPatientUid;
 String? selectedPatientName;
+AppointmentModel? selectedPatientAppointmentModel;
 
 class DoctorConsultationBloc
     extends Bloc<DoctorConsultationEvent, DoctorConsultationState> {
@@ -86,7 +87,9 @@ class DoctorConsultationBloc
           'appointmentNotStartedYet') {
         debugPrint(
             'checkAppointmentForOnlineConsultation == appointmentIsNotStartedYet');
-        emit(DoctorConsultationWaitingForAppointmentState());
+        emit(DoctorConsultationWaitingForAppointmentState(
+          appointment: selectedPatientAppointmentModel!,
+        ));
       } else if (checkAppointmentForOnlineConsultation ==
           'waitingForTheAppointment') {
         debugPrint(

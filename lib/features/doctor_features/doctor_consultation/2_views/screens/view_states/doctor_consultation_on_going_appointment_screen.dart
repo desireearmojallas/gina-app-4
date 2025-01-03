@@ -34,8 +34,6 @@ class _DoctorConsultationOnGoingAppointmentScreenState
   String get chatroom => widget.chatroom;
   UserModel? user;
 
-  bool _isDisposed = false;
-
   @override
   void initState() {
     super.initState();
@@ -186,8 +184,7 @@ class _DoctorConsultationOnGoingAppointmentScreenState
 
   @override
   void dispose() {
-    print('dispose called');
-    _isDisposed = true;
+    debugPrint('dispose called');
     messageFN.removeListener(scrollToBottom);
     chatController.removeListener(scrollToBottom);
     messageFN.dispose();
