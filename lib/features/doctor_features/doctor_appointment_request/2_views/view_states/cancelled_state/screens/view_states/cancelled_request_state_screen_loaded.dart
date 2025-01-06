@@ -146,7 +146,7 @@ class CancelledRequestStateScreenLoaded extends StatelessWidget {
                                     children: [
                                       AppointmentStatusContainer(
                                         appointmentStatus:
-                                            request.appointmentStatus,
+                                            request.appointmentStatus!,
                                       ),
                                     ],
                                   ),

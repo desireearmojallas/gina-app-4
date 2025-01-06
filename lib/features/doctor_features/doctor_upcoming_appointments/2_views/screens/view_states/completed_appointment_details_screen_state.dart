@@ -210,7 +210,7 @@ class CompletedAppointmentDetailScreenState extends StatelessWidget {
                                               children: [
                                                 AppointmentStatusContainer(
                                                   appointmentStatus: appointment
-                                                      .appointmentStatus,
+                                                      .appointmentStatus!,
                                                 ),
                                               ],
                                             ),

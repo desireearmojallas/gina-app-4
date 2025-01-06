@@ -152,3 +152,12 @@ class CancelAppointmentError extends AppointmentActionState {
 }
 
 class CancelAppointmentLoading extends AppointmentActionState {}
+
+class AppointmentTabViewState extends AppointmentState {
+  final int activeTabIndex;
+
+  const AppointmentTabViewState({required this.activeTabIndex});
+
+  @override
+  List<Object> get props => [activeTabIndex];
+}

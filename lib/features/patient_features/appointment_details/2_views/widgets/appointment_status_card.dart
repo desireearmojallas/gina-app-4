@@ -46,6 +46,10 @@ class AppointmentStatusCard extends StatelessWidget {
         buttonColor = const Color(0xffD14633);
         statusText = 'Your appointment has been declined.';
         break;
+      case AppointmentStatus.missed:
+        buttonText = 'Missed';
+        buttonColor = GinaAppTheme.missedTextColor;
+        statusText = 'You missed your appointment.';
     }
 
     return Container(

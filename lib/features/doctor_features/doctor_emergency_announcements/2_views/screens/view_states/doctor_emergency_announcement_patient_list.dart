@@ -174,7 +174,7 @@ class DoctorEmergencyAnnouncementPatientList extends StatelessWidget {
                                       const Spacer(),
                                       AppointmentStatusContainer(
                                         appointmentStatus:
-                                            appointment.appointmentStatus,
+                                            appointment.appointmentStatus!,
                                       ),
                                     ],
                                   ),

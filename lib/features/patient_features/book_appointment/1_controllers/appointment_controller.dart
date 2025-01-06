@@ -6,6 +6,7 @@ import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
@@ -115,10 +116,12 @@ class AppointmentController with ChangeNotifier {
         appointments.add(AppointmentModel.fromDocumentSnap(element));
       }
 
+      await updateMissedAppointments(appointments);
+
       appointments.sort((a, b) {
         final aDate = DateFormat('MMMM d, yyyy').parse(a.appointmentDate!);
         final bDate = DateFormat('MMMM d, yyyy').parse(b.appointmentDate!);
-        return bDate.compareTo(aDate);
+        return aDate.compareTo(bDate);
       });
 
       return Right(appointments);
@@ -131,8 +134,42 @@ class AppointmentController with ChangeNotifier {
     }
   }
 
-//-------GET RECENT PATIENT APPOINTMENTS-------
-//GET Recent Patient Pending/Cancelled/Completed/Declined Appointment For the Appointment Details in Doctor Details Screen
+  //-------UPDATE MISSED APPOINTMENTS-------
+  Future<void> updateMissedAppointments(
+      List<AppointmentModel> appointments) async {
+    final now = DateTime.now();
+
+    for (var appointment in appointments) {
+      final appointmentDate =
+          DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
+      final appointmentTimes = appointment.appointmentTime!.split(' - ');
+      final appointmentStartTime =
+          DateFormat('hh:mm a').parse(appointmentTimes[0]);
+
+      final appointmentDateTime = DateTime(
+        appointmentDate.year,
+        appointmentDate.month,
+        appointmentDate.day,
+        appointmentStartTime.hour,
+        appointmentStartTime.minute,
+      );
+
+      if (appointmentDateTime.isBefore(now) &&
+          appointment.appointmentStatus == AppointmentStatus.confirmed.index) {
+        await firestore
+            .collection('appointments')
+            .doc(appointment.appointmentUid)
+            .update({
+          'appointmentStatus': AppointmentStatus.missed.index,
+        });
+
+        appointment.appointmentStatus = 5;
+      }
+    }
+  }
+
+  //-------GET RECENT PATIENT APPOINTMENTS-------
+  //GET Recent Patient Pending/Cancelled/Completed/Declined Appointment For the Appointment Details in Doctor Details Screen
   Future<Either<Exception, AppointmentModel>> getRecentPatientAppointment({
     required String doctorUid,
   }) async {

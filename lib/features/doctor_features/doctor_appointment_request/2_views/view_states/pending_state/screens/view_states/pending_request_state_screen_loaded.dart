@@ -163,7 +163,7 @@ class PendingRequestStateScreenLoaded extends StatelessWidget {
                                       children: [
                                         AppointmentStatusContainer(
                                           appointmentStatus:
-                                              request.appointmentStatus,
+                                              request.appointmentStatus!,
                                         ),
                                       ],
                                     ),

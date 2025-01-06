@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
@@ -53,218 +54,269 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
 
     debugPrint('Inside Appointment Details Status Screen');
 
-    return ScrollbarCustom(
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            doctorNameWidget(size, ginaTheme, doctorDetails),
-            // const Gap(20),
-            AppointmentStatusCard(
-              appointmentStatus: appointment.appointmentStatus,
-            ),
-
-            [2].contains(appointment.appointmentStatus)
-                ? const SizedBox()
-                : Column(
-                    children: [
-                      const Gap(15),
-                      RescheduleFilledButton(
-                        appointmentUid:
-                            appointment.appointmentUid ?? storedAppointmentUid!,
-                        doctor: doctorDetails,
+    return Stack(
+      children: [
+        ScrollbarCustom(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                doctorNameWidget(size, ginaTheme, doctorDetails),
+                AppointmentStatusCard(
+                  appointmentStatus: appointment.appointmentStatus!,
+                ),
+                [2].contains(appointment.appointmentStatus)
+                    ? const SizedBox()
+                    : Column(
+                        children: [
+                          const Gap(15),
+                          RescheduleFilledButton(
+                            appointmentUid: appointment.appointmentUid ??
+                                storedAppointmentUid!,
+                            doctor: doctorDetails,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
-              child: IntrinsicHeight(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 15.0,
-                      horizontal: 20.0,
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              'Appointment ID:',
-                              style: labelStyle,
-                            ),
-                            const Gap(10),
-                            Text(
-                              '${appointment.appointmentUid}',
-                              style: valueStyle,
-                            ),
-                          ],
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
+                  child: IntrinsicHeight(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 15.0,
+                          horizontal: 20.0,
                         ),
-                        divider,
-                        headerWidget(
-                          Icons.medical_services_outlined,
-                          'Appointment Detail',
-                        ),
-                        Column(
+                        child: Column(
                           children: [
-                            const Gap(20),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'Clinic location',
+                                  'Appointment ID:',
                                   style: labelStyle,
                                 ),
+                                const Gap(10),
                                 Text(
-                                  '${appointment.doctorClinicAddress}',
+                                  '${appointment.appointmentUid}',
                                   style: valueStyle,
                                 ),
                               ],
                             ),
-                            const Gap(15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Mode of appointment',
-                                  style: labelStyle,
-                                ),
-                                Text(
-                                  appointment.modeOfAppointment == 0
-                                      ? 'Online Consultation'
-                                      : 'Face-to-Face Consultation',
-                                  style: valueStyle,
-                                ),
-                              ],
+                            divider,
+                            headerWidget(
+                              Icons.medical_services_outlined,
+                              'Appointment Detail',
                             ),
-                            const Gap(15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Column(
                               children: [
-                                Text(
-                                  'Date & time',
-                                  style: labelStyle,
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                const Gap(20),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      '${appointment.appointmentDate}',
-                                      style: valueStyle,
+                                      'Clinic location',
+                                      style: labelStyle,
                                     ),
                                     Text(
-                                      '${appointment.appointmentTime}',
+                                      '${appointment.doctorClinicAddress}',
                                       style: valueStyle,
+                                    ),
+                                  ],
+                                ),
+                                const Gap(15),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Mode of appointment',
+                                      style: labelStyle,
+                                    ),
+                                    Text(
+                                      appointment.modeOfAppointment == 0
+                                          ? 'Online Consultation'
+                                          : 'Face-to-Face Consultation',
+                                      style: valueStyle,
+                                    ),
+                                  ],
+                                ),
+                                const Gap(15),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Date & time',
+                                      style: labelStyle,
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          '${appointment.appointmentDate}',
+                                          style: valueStyle,
+                                        ),
+                                        Text(
+                                          '${appointment.appointmentTime}',
+                                          style: valueStyle,
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
                               ],
                             ),
+                            divider,
+                            headerWidget(
+                              Icons.person_3,
+                              'Patient Personal Information',
+                            ),
+                            Column(
+                              children: [
+                                const Gap(20),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Name',
+                                      style: labelStyle,
+                                    ),
+                                    Text(
+                                      currentPatient.name,
+                                      style: valueStyle,
+                                    ),
+                                  ],
+                                ),
+                                const Gap(15),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Age',
+                                      style: labelStyle,
+                                    ),
+                                    Text(
+                                      '${bookAppointmentBloc.calculateAge(currentPatient.dateOfBirth)} years old',
+                                      style: valueStyle,
+                                    ),
+                                  ],
+                                ),
+                                const Gap(15),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Location',
+                                      style: labelStyle,
+                                    ),
+                                    Text(
+                                      currentPatient.address,
+                                      style: valueStyle,
+                                    ),
+                                  ],
+                                ),
+                                const Gap(15),
+                              ],
+                            ),
                           ],
                         ),
-                        divider,
-                        headerWidget(
-                          Icons.person_3,
-                          'Patient Personal Information',
-                        ),
-                        Column(
-                          children: [
-                            const Gap(20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Name',
-                                  style: labelStyle,
-                                ),
-                                Text(
-                                  currentPatient.name,
-                                  style: valueStyle,
-                                ),
-                              ],
-                            ),
-                            const Gap(15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Age',
-                                  style: labelStyle,
-                                ),
-                                Text(
-                                  '${bookAppointmentBloc.calculateAge(currentPatient.dateOfBirth)} years old',
-                                  style: valueStyle,
-                                ),
-                              ],
-                            ),
-                            const Gap(15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Location',
-                                  style: labelStyle,
-                                ),
-                                Text(
-                                  currentPatient.address,
-                                  style: valueStyle,
-                                ),
-                              ],
-                            ),
-                            const Gap(15),
-                          ],
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-            [2, 3, 4].contains(appointment.appointmentStatus)
-                ? const SizedBox()
-                : Text(
-                    'To ensure a smooth online appointment, please be prepared 15 \nminutes before the scheduled time.',
-                    textAlign: TextAlign.center,
-                    style: ginaTheme.bodySmall?.copyWith(
-                      color: GinaAppTheme.lightOutline,
-                    ),
-                  ),
-            const Gap(15),
-            [2, 3, 4].contains(appointment.appointmentStatus)
-                ? const SizedBox()
-                : SizedBox(
-                    width: size.width * 0.93,
-                    height: size.height / 17,
-                    child: OutlinedButton(
-                      style: ButtonStyle(
-                        shape: MaterialStateProperty.all(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                [2, 3, 4].contains(appointment.appointmentStatus)
+                    ? const SizedBox()
+                    : Text(
+                        'To ensure a smooth online appointment, please be prepared 15 \nminutes before the scheduled time.',
+                        textAlign: TextAlign.center,
+                        style: ginaTheme.bodySmall?.copyWith(
+                          color: GinaAppTheme.lightOutline,
+                        ),
+                      ),
+                const Gap(15),
+                [2, 3, 4].contains(appointment.appointmentStatus)
+                    ? const SizedBox()
+                    : SizedBox(
+                        width: size.width * 0.93,
+                        height: size.height / 17,
+                        child: OutlinedButton(
+                          style: ButtonStyle(
+                            shape: MaterialStateProperty.all(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                          onPressed: () {
+                            HapticFeedback.mediumImpact();
+                            showCancelModalDialog(context,
+                                appointmentId: appointment.appointmentUid!);
+                          },
+                          child: Text(
+                            'Cancel Appointment',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
                           ),
                         ),
                       ),
-                      onPressed: () {
-                        showCancelModalDialog(context,
-                            appointmentId: appointment.appointmentUid!);
-                      },
-                      child: Text(
-                        'Cancel Appointment',
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
+                const Gap(160),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 105.0,
+          right: 70.0,
+          child: Material(
+            color: Colors.transparent,
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: GinaAppTheme.lightTertiaryContainer.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(30.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: GinaAppTheme.appbarColorLight.withOpacity(0.3),
+                        blurRadius: 8.0, // Controls the glow size
+                        spreadRadius: 1.0, // Controls how much the glow spreads
+                        offset: const Offset(0, 0), // Keeps the glow centered
                       ),
+                    ],
+                  ),
+                  child: const Text(
+                    'Check out consultation room',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
                     ),
                   ),
-            const Gap(100),
-          ],
+                ),
+                // const Gap(3),
+                const Icon(
+                  Icons.arrow_right_rounded,
+                  size: 30,
+                  color: GinaAppTheme.lightTertiaryContainer,
+                ),
+              ],
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 

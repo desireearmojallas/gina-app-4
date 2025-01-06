@@ -40,7 +40,9 @@ class ForumScreenLoaded extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 20.0),
                       child: ListView.builder(
                         shrinkWrap: true,
-                        physics: const BouncingScrollPhysics(),
+                        physics: const BouncingScrollPhysics(
+                          decelerationRate: ScrollDecelerationRate.fast,
+                        ),
                         itemCount: forumsPosts.length,
                         itemBuilder: (context, index) {
                           final forumPost = forumsPosts[index];

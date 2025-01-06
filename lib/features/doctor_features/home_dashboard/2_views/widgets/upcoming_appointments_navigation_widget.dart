@@ -164,7 +164,7 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
                         padding: const EdgeInsets.only(right: 30.0),
                         child: AppointmentStatusContainer(
                           appointmentStatus:
-                              upcomingAppointment!.appointmentStatus,
+                              upcomingAppointment!.appointmentStatus!,
                           colorOverride: Colors.white,
                         ),
                       ),

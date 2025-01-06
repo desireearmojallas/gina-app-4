@@ -13,7 +13,7 @@ class AppointmentModel extends Equatable {
   String? appointmentDate;
   final String? appointmentTime;
   final int? modeOfAppointment;
-  final int appointmentStatus;
+  int? appointmentStatus;
   final List<String>? prescriptionImages;
 
   AppointmentModel({

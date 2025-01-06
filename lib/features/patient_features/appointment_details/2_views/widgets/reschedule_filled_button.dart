@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/bloc/appointment_details_bloc.dart';
@@ -30,6 +31,7 @@ class RescheduleFilledButton extends StatelessWidget {
             ),
           ),
           onPressed: () {
+            HapticFeedback.mediumImpact();
             isRescheduleMode = true;
             if (isFromAppointmentTabs) {
               Navigator.pushNamed(

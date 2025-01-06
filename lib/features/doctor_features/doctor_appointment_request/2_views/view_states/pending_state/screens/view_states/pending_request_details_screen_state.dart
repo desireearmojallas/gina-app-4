@@ -116,7 +116,7 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                             children: [
                               AppointmentStatusContainer(
                                 appointmentStatus:
-                                    appointment.appointmentStatus,
+                                    appointment.appointmentStatus!,
                               ),
                             ],
                           ),

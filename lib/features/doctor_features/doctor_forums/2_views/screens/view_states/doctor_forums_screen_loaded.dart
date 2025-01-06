@@ -40,7 +40,9 @@ class DoctorForumsScreenLoaded extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 20.0),
                       child: ListView.builder(
                         shrinkWrap: true,
-                        physics: const BouncingScrollPhysics(),
+                        physics: const BouncingScrollPhysics(
+                          decelerationRate: ScrollDecelerationRate.fast,
+                        ),
                         itemCount: docForumsPosts.length,
                         itemBuilder: (context, index) {
                           final forumPost = docForumsPosts[index];

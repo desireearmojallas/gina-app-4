@@ -34,6 +34,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     required this.profileController,
     required this.findController,
   }) : super(AppointmentInitial()) {
+    // }) : super(const AppointmentTabViewState(activeTabIndex: 0)) {
     on<GetAppointmentsEvent>(getAppointmentsEvent);
     on<NavigateToAppointmentDetailsEvent>(navigateToAppointmentDetailsEvent);
     on<NavigateToConsultationHistoryEvent>(navigateToConsultationHistoryEvent);
@@ -41,6 +42,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     on<RemoveImageEvent>(removeImageEvent);
     on<UploadPrescriptionEvent>(uploadPrescriptionEvent);
     on<CancelAppointmentInAppointmentTabsEvent>(cancelAppointmentEvent);
+    on<AppointmentTabChangedEvent>(appointmentTabChangedEvent);
   }
 
   List<File> prescriptionImages = [];
@@ -237,5 +239,10 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
         emit(GetAppointmentsLoaded(appointments: storedAppointments));
       },
     );
+  }
+
+  FutureOr<void> appointmentTabChangedEvent(
+      AppointmentTabChangedEvent event, Emitter<AppointmentState> emit) {
+    emit(AppointmentTabViewState(activeTabIndex: event.index));
   }
 }

@@ -17,6 +17,7 @@ enum AppointmentStatus {
   completed, // 2
   cancelled, // 3
   declined, // 4
+  missed, // 5
 }
 
 enum ModeOfAppointmentId {

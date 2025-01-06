@@ -86,7 +86,7 @@ class DoctorEmergencyAnnouncementsLoadedDetailsScreen extends StatelessWidget {
                         ),
                         const Spacer(),
                         AppointmentStatusContainer(
-                          appointmentStatus: appointment.appointmentStatus,
+                          appointmentStatus: appointment.appointmentStatus!,
                         ),
                       ],
                     ),

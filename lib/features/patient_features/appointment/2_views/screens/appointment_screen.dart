@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
@@ -10,6 +11,7 @@ import 'package:gina_app_4/features/patient_features/appointment/2_views/screens
 import 'package:gina_app_4/features/patient_features/appointment/2_views/screens/view_states/consultation_history_details.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/screens/view_states/appointment_details_status_screen.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/cancel_appointment_widgets/cancellation_success_modal.dart';
+import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 
@@ -84,6 +86,7 @@ class AppointmentScreen extends StatelessWidget {
                     children: [
                       FloatingActionButton(
                         onPressed: () {
+                          HapticFeedback.mediumImpact();
                           isFromConsultationHistory = true;
                           Navigator.pushNamed(context, '/consultation');
                         },
@@ -93,6 +96,7 @@ class AppointmentScreen extends StatelessWidget {
                       FloatingActionButton(
                         heroTag: 'uploadPrescription',
                         onPressed: () {
+                          HapticFeedback.mediumImpact();
                           Navigator.pushNamed(context, '/uploadPrescription');
                         },
                         child: const Icon(Icons.upload_file),
@@ -102,8 +106,16 @@ class AppointmentScreen extends StatelessWidget {
                 : state is AppointmentDetailsState
                     ? FloatingActionButton(
                         onPressed: () {
+                          HapticFeedback.mediumImpact();
                           isFromConsultationHistory = false;
-                          Navigator.pushNamed(context, '/consultation');
+                          selectedDoctorAppointmentModel = state.appointment;
+                          Navigator.pushNamed(context, '/consultation').then(
+                              (value) => appointmentBloc
+                                      .add(NavigateToAppointmentDetailsEvent(
+                                    doctorUid: doctorDetails!.uid,
+                                    appointmentUid:
+                                        state.appointment.appointmentUid!,
+                                  )));
                         },
                         child: const Icon(MingCute.message_3_fill),
                       )

@@ -109,7 +109,7 @@ class SwiperBuilderWidget extends StatelessWidget {
                           appointmentType: appointment.modeOfAppointment == 0
                               ? 'Online'
                               : 'Face-to-Face',
-                          appointmentStatus: appointment.appointmentStatus,
+                          appointmentStatus: appointment.appointmentStatus!,
                         )
                       : UpcomingAppointmentsContainer(
                           appointment: appointment,
@@ -120,7 +120,7 @@ class SwiperBuilderWidget extends StatelessWidget {
                           appointmentType: appointment.modeOfAppointment == 0
                               ? 'Online'
                               : 'Face-to-Face',
-                          appointmentStatus: appointment.appointmentStatus,
+                          appointmentStatus: appointment.appointmentStatus!,
                         ),
                 );
               },

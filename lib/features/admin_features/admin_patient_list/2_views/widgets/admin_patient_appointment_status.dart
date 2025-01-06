@@ -41,6 +41,11 @@ class AdminPatientAppointmentStatusChip extends StatelessWidget {
         buttonText = 'Declined';
         buttonColor = GinaAppTheme.declinedTextColor;
         break;
+
+      case AppointmentStatus.missed:
+        buttonText = 'Missed';
+        buttonColor = GinaAppTheme.missedTextColor;
+        break;
     }
 
     return Container(

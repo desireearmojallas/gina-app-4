@@ -1,10 +1,13 @@
+import 'package:dynamic_tabbar/dynamic_tabbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/core/reusable_widgets/gina_divider.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
+import 'package:gina_app_4/features/patient_features/appointment/2_views/screens/view_states/appointments_tab_view.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_consultation_history_container.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/swiper_builder.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
@@ -54,15 +57,20 @@ class AppointmentScreenLoaded extends StatelessWidget {
                 ),
                 // const Gap(30),
                 GinaDivider(),
-                _title(context, 'Consultation history'),
-                const Gap(17),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: 10,
-                  itemBuilder: (context, index) {
-                    return const AppointmentConsultationHistoryContainer();
-                  },
+                // _title(context, 'Consultation history'),
+                // const Gap(17),
+                // ListView.builder(
+                //   shrinkWrap: true,
+                //   physics: const NeverScrollableScrollPhysics(),
+                //   itemCount: 10,
+                //   itemBuilder: (context, index) {
+                //     return const AppointmentConsultationHistoryContainer();
+                //   },
+                // ),
+                Container(
+                  height: 500,
+                  // color: Colors.blue,
+                  child: AppointmentsTabView(),
                 ),
               ],
             ),
