@@ -2,15 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:intl/intl.dart';
 
-class AppointmentConsultationHistoryContainer extends StatelessWidget {
-  const AppointmentConsultationHistoryContainer({super.key});
+class MissedAppointmentsContainer extends StatelessWidget {
+  final AppointmentModel appointment;
+  const MissedAppointmentsContainer({
+    super.key,
+    required this.appointment,
+  });
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
     final ginaTheme = Theme.of(context);
+
+    final date = DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
+    final month = DateFormat('MMM').format(date);
+    final day = DateFormat('d').format(date);
+
     return GestureDetector(
       onTap: () {
         debugPrint('test');
@@ -19,7 +29,6 @@ class AppointmentConsultationHistoryContainer extends StatelessWidget {
         children: [
           Container(
             width: width / 1.05,
-            height: height * 0.09,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               color: Colors.white,
@@ -28,21 +37,22 @@ class AppointmentConsultationHistoryContainer extends StatelessWidget {
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 30, vertical: 15.0),
               child: Row(
                 children: [
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Oct',
+                        month,
                         style: ginaTheme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w700,
                           fontSize: 20,
                         ),
                       ),
                       Text(
-                        '20',
+                        day,
                         style: ginaTheme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w700,
                           fontSize: 20,
@@ -53,31 +63,58 @@ class AppointmentConsultationHistoryContainer extends StatelessWidget {
                   const Gap(35),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Dr. Maria Santos',
-                        style: ginaTheme.textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
+                      SizedBox(
+                        width: width * 0.4,
+                        child: Flexible(
+                          child: Text(
+                            'Appt ID: ${appointment.appointmentUid}',
+                            style: ginaTheme.textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 9.5,
+                              color: GinaAppTheme.lightOutline,
+                            ),
+                            softWrap: true,
+                            overflow: TextOverflow.visible,
+                          ),
                         ),
-                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const Gap(5),
+                      SizedBox(
+                        width: width * 0.4,
+                        child: Flexible(
+                          child: Text(
+                            'Dr. ${appointment.doctorName}',
+                            style: ginaTheme.textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                            softWrap: true,
+                            overflow: TextOverflow.visible,
+                          ),
+                        ),
                       ),
                       Row(
                         children: [
                           Text(
                             '10:00 AM',
-                            style: ginaTheme.textTheme.bodyMedium?.copyWith(
+                            style: ginaTheme.textTheme.bodySmall?.copyWith(
                               fontWeight: FontWeight.w600,
                               color: GinaAppTheme.lightOutline,
+                              fontSize: 10,
                             ),
                           ),
                           const Gap(5),
-                          Text('•', style: ginaTheme.textTheme.titleMedium),
+                          Text('•', style: ginaTheme.textTheme.titleSmall),
                           const Gap(5),
                           Text(
-                            'Online',
-                            style: ginaTheme.textTheme.bodyMedium?.copyWith(
+                            appointment.modeOfAppointment == 0
+                                ? 'Online'
+                                : 'Face-to-face',
+                            style: ginaTheme.textTheme.bodySmall?.copyWith(
                               fontWeight: FontWeight.w600,
                               color: GinaAppTheme.lightTertiaryContainer,
+                              fontSize: 10,
                             ),
                           ),
                         ],
@@ -86,7 +123,7 @@ class AppointmentConsultationHistoryContainer extends StatelessWidget {
                   ),
                   const Spacer(),
                   AppointmentStatusContainer(
-                    appointmentStatus: 2,
+                    appointmentStatus: appointment.appointmentStatus!,
                   ),
                 ],
               ),

@@ -106,310 +106,328 @@ class DoctorDetailsScreenLoaded extends StatelessWidget {
             }
           }
 
-          return ScrollbarCustom(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: [
-                  doctorNameWidget(size, ginaTheme, doctor),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        OfficeAddressContainer(
-                          doctor: doctor,
-                        ),
-                        //const Gap(10),
-                        divider(size.width * 0.9),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          return Stack(
+            children: [
+              ScrollbarCustom(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    children: [
+                      doctorNameWidget(size, ginaTheme, doctor),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            DetailsContainerNavigation(
-                              icon: Icons.monetization_on,
-                              containerLabel: 'Consultation Fee\nDetails',
-                              onTap: () {
-                                Navigator.pushNamed(
-                                    context, '/consultationFeeDetails',
-                                    arguments: doctor);
-                              },
+                            OfficeAddressContainer(
+                              doctor: doctor,
                             ),
-                            DetailsContainerNavigation(
-                              icon: Icons.date_range,
-                              containerLabel: 'Appointment\nDetails',
-                              onTap: () {},
+                            divider(size.width * 0.9),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                DetailsContainerNavigation(
+                                  icon: Icons.monetization_on,
+                                  containerLabel: 'Consultation Fee\nDetails',
+                                  onTap: () {
+                                    Navigator.pushNamed(
+                                        context, '/consultationFeeDetails',
+                                        arguments: doctor);
+                                  },
+                                ),
+                                DetailsContainerNavigation(
+                                  icon: Icons.date_range,
+                                  containerLabel: 'Appointment\nDetails',
+                                  onTap: () {},
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        const Gap(18),
-                        Text(
-                          'Availability'.toUpperCase(),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Gap(10),
-                        if (state is DoctorAvailabilityLoading) ...[
-                          const Center(
-                            child: CustomLoadingIndicator(),
-                          ),
-                        ] else if (state is DoctorAvailabilityLoaded) ...[
-                          IntrinsicHeight(
-                            child: Container(
-                              width: size.width,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
+                            const Gap(18),
+                            Text(
+                              'Availability'.toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 15.0),
-                                      child: Row(
-                                        children: [
-                                          const DetailedViewIcon(
-                                            icon: Icon(
-                                              Icons.calendar_today_rounded,
-                                              color: GinaAppTheme.lightOutline,
-                                              size: 20,
-                                            ),
-                                          ),
-                                          const Gap(20),
-                                          SizedBox(
-                                            width: size.width * 0.21,
-                                            child: const Text(
-                                              'OFFICE DAYS',
-                                              style: labelStyle,
-                                            ),
-                                          ),
-                                          const Gap(35),
-                                          SizedBox(
-                                            width: size.width * 0.3,
-                                            child: Text(
-                                              scheduleText,
-                                              style: valueStyle,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    divider(size.width * 0.9),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 15.0),
-                                      child: Row(
-                                        children: [
-                                          const DetailedViewIcon(
-                                            icon: Icon(
-                                              MingCute.time_fill,
-                                              color: GinaAppTheme.lightOutline,
-                                              size: 20,
-                                            ),
-                                          ),
-                                          const Gap(20),
-                                          SizedBox(
-                                            width: size.width * 0.21,
-                                            child: const Text(
-                                              'OFFICE HOURS',
-                                              style: labelStyle,
-                                            ),
-                                          ),
-                                          const Gap(35),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                            ),
+                            const Gap(10),
+                            if (state is DoctorAvailabilityLoading) ...[
+                              const Center(
+                                child: CustomLoadingIndicator(),
+                              ),
+                            ] else if (state is DoctorAvailabilityLoaded) ...[
+                              IntrinsicHeight(
+                                child: Container(
+                                  width: size.width,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(20),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 15.0),
+                                          child: Row(
                                             children: [
-                                              // Morning Section
-                                              Text(
-                                                'MORNING',
-                                                style: valueStyle.copyWith(
-                                                  fontWeight: FontWeight.bold,
+                                              const DetailedViewIcon(
+                                                icon: Icon(
+                                                  Icons.calendar_today_rounded,
+                                                  color:
+                                                      GinaAppTheme.lightOutline,
+                                                  size: 20,
                                                 ),
                                               ),
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: List.generate(
-                                                  state.doctorAvailabilityModel
-                                                      .startTimes.length,
-                                                  (index) {
-                                                    String timeStart = state
-                                                        .doctorAvailabilityModel
-                                                        .startTimes[index];
-                                                    String timeEnd = state
-                                                        .doctorAvailabilityModel
-                                                        .endTimes[index];
-
-                                                    // Check if the time is in the morning (AM)
-                                                    if (timeStart
-                                                        .contains('AM')) {
-                                                      return Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          const Gap(2),
-                                                          Text(
-                                                            '$timeStart - $timeEnd',
-                                                            style: valueStyle,
-                                                          ),
-                                                        ],
-                                                      );
-                                                    }
-
-                                                    return const SizedBox
-                                                        .shrink();
-                                                  },
+                                              const Gap(20),
+                                              SizedBox(
+                                                width: size.width * 0.21,
+                                                child: const Text(
+                                                  'OFFICE DAYS',
+                                                  style: labelStyle,
                                                 ),
                                               ),
-                                              const Gap(15),
-
-                                              // Afternoon Section
-                                              Text(
-                                                'AFTERNOON',
-                                                style: valueStyle.copyWith(
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: List.generate(
-                                                  state.doctorAvailabilityModel
-                                                      .startTimes.length,
-                                                  (index) {
-                                                    String timeStart = state
-                                                        .doctorAvailabilityModel
-                                                        .startTimes[index];
-                                                    String timeEnd = state
-                                                        .doctorAvailabilityModel
-                                                        .endTimes[index];
-
-                                                    // Check if the time is in the afternoon (PM)
-                                                    if (timeStart
-                                                        .contains('PM')) {
-                                                      return Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          const Gap(2),
-                                                          Text(
-                                                            '$timeStart - $timeEnd',
-                                                            style: valueStyle,
-                                                          ),
-                                                        ],
-                                                      );
-                                                    }
-
-                                                    return const SizedBox
-                                                        .shrink();
-                                                  },
+                                              const Gap(35),
+                                              SizedBox(
+                                                width: size.width * 0.3,
+                                                child: Text(
+                                                  scheduleText,
+                                                  style: valueStyle,
                                                 ),
                                               ),
                                             ],
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                        divider(size.width * 0.9),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 15.0),
+                                          child: Row(
+                                            children: [
+                                              const DetailedViewIcon(
+                                                icon: Icon(
+                                                  MingCute.time_fill,
+                                                  color:
+                                                      GinaAppTheme.lightOutline,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                              const Gap(20),
+                                              SizedBox(
+                                                width: size.width * 0.21,
+                                                child: const Text(
+                                                  'OFFICE HOURS',
+                                                  style: labelStyle,
+                                                ),
+                                              ),
+                                              const Gap(35),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  // Morning Section
+                                                  Text(
+                                                    'MORNING',
+                                                    style: valueStyle.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: List.generate(
+                                                      state
+                                                          .doctorAvailabilityModel
+                                                          .startTimes
+                                                          .length,
+                                                      (index) {
+                                                        String timeStart = state
+                                                            .doctorAvailabilityModel
+                                                            .startTimes[index];
+                                                        String timeEnd = state
+                                                            .doctorAvailabilityModel
+                                                            .endTimes[index];
+
+                                                        // Check if the time is in the morning (AM)
+                                                        if (timeStart
+                                                            .contains('AM')) {
+                                                          return Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              const Gap(2),
+                                                              Text(
+                                                                '$timeStart - $timeEnd',
+                                                                style:
+                                                                    valueStyle,
+                                                              ),
+                                                            ],
+                                                          );
+                                                        }
+
+                                                        return const SizedBox
+                                                            .shrink();
+                                                      },
+                                                    ),
+                                                  ),
+                                                  const Gap(15),
+
+                                                  // Afternoon Section
+                                                  Text(
+                                                    'AFTERNOON',
+                                                    style: valueStyle.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: List.generate(
+                                                      state
+                                                          .doctorAvailabilityModel
+                                                          .startTimes
+                                                          .length,
+                                                      (index) {
+                                                        String timeStart = state
+                                                            .doctorAvailabilityModel
+                                                            .startTimes[index];
+                                                        String timeEnd = state
+                                                            .doctorAvailabilityModel
+                                                            .endTimes[index];
+
+                                                        // Check if the time is in the afternoon (PM)
+                                                        if (timeStart
+                                                            .contains('PM')) {
+                                                          return Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              const Gap(2),
+                                                              Text(
+                                                                '$timeStart - $timeEnd',
+                                                                style:
+                                                                    valueStyle,
+                                                              ),
+                                                            ],
+                                                          );
+                                                        }
+
+                                                        return const SizedBox
+                                                            .shrink();
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        divider(size.width * 0.9),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 15.0),
+                                          child: Row(
+                                            children: [
+                                              const DetailedViewIcon(
+                                                icon: Icon(
+                                                  Icons.assignment_ind,
+                                                  color:
+                                                      GinaAppTheme.lightOutline,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                              const Gap(20),
+                                              SizedBox(
+                                                width: size.width * 0.21,
+                                                child: const Text(
+                                                  'MODE OF APPOINTMENT',
+                                                  style: labelStyle,
+                                                ),
+                                              ),
+                                              const Gap(35),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: doctorAvailabilityBloc
+                                                    .getModeOfAppointment(state
+                                                        .doctorAvailabilityModel)
+                                                    .map((mode) => Text(
+                                                          mode,
+                                                          style: valueStyle,
+                                                        ))
+                                                    .toList(),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    divider(size.width * 0.9),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 15.0),
-                                      child: Row(
-                                        children: [
-                                          const DetailedViewIcon(
-                                            icon: Icon(
-                                              Icons.assignment_ind,
-                                              color: GinaAppTheme.lightOutline,
-                                              size: 20,
-                                            ),
-                                          ),
-                                          const Gap(20),
-                                          SizedBox(
-                                            width: size.width * 0.21,
-                                            child: const Text(
-                                              'MODE OF APPOINTMENT',
-                                              style: labelStyle,
-                                            ),
-                                          ),
-                                          const Gap(35),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: doctorAvailabilityBloc
-                                                .getModeOfAppointment(state
-                                                    .doctorAvailabilityModel)
-                                                .map((mode) => Text(
-                                                      mode,
-                                                      style: valueStyle,
-                                                    ))
-                                                .toList(),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ] else if (state is DoctorAvailabilityError) ...[
-                          const Center(
-                            child: Text(
-                              'Failed to load availability.',
-                              style: TextStyle(color: Colors.red),
-                            ),
-                          ),
-                        ] else ...[
-                          const Center(
-                            child: Text('Unknown state'),
-                          ),
-                        ],
-                        const Gap(20),
-                        SizedBox(
-                          width: size.width * 0.93,
-                          height: size.height / 17,
-                          child: FilledButton(
-                            style: ButtonStyle(
-                              shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                            ),
-                            onPressed: () {
-                              //isRescheduleMode = false;
-                              Navigator.pushNamed(
-                                context,
-                                '/bookAppointment',
-                                arguments: doctor,
-                              );
-                            },
-                            child: Text(
-                              'Book Appointment',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
                                   ),
-                            ),
-                          ),
+                                ),
+                              ),
+                            ] else if (state is DoctorAvailabilityError) ...[
+                              const Center(
+                                child: Text(
+                                  'Failed to load availability.',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                            ] else ...[
+                              const Center(
+                                child: Text('Unknown state'),
+                              ),
+                            ],
+                            const Gap(80),
+                          ],
                         ),
-                        const Gap(20),
-                      ],
+                      ),
+                      // const Gap(30),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 10,
+                left: 15,
+                right: 15,
+                child: SizedBox(
+                  width: size.width * 0.93,
+                  height: size.height / 17,
+                  child: FilledButton(
+                    style: ButtonStyle(
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/bookAppointment',
+                        arguments: doctor,
+                      );
+                    },
+                    child: Text(
+                      'Book Appointment',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           );
         },
       ),

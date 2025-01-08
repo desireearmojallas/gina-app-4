@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
@@ -277,45 +278,90 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
             ),
           ),
         ),
-        Positioned(
-          bottom: 105.0,
-          right: 70.0,
-          child: Material(
-            color: Colors.transparent,
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    color: GinaAppTheme.lightTertiaryContainer.withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(30.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: GinaAppTheme.appbarColorLight.withOpacity(0.3),
-                        blurRadius: 8.0, // Controls the glow size
-                        spreadRadius: 1.0, // Controls how much the glow spreads
-                        offset: const Offset(0, 0), // Keeps the glow centered
+        appointment.modeOfAppointment == 1
+            ? Positioned(
+                bottom: 95.0,
+                right: 90.0,
+                child: Material(
+                  color: Colors.transparent,
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20.0,
+                          vertical: 10.0,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(30.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: GinaAppTheme.appbarColorLight
+                                  .withOpacity(0.3),
+                              blurRadius: 8.0,
+                              spreadRadius: 1.0,
+                              offset: const Offset(0, 0),
+                            ),
+                          ],
+                        ),
+                        child: const Text(
+                          'Please be at the clinic 15 minutes before\nthe appointment.',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ],
                   ),
-                  child: const Text(
-                    'Check out consultation room',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
+                ),
+              )
+            : appointment.modeOfAppointment == 0 &&
+                    appointment.appointmentStatus ==
+                        AppointmentStatus.confirmed.index
+                ? Positioned(
+                    bottom: 105.0,
+                    right: 70.0,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8.0),
+                            decoration: BoxDecoration(
+                              color: GinaAppTheme.lightTertiaryContainer
+                                  .withOpacity(0.9),
+                              borderRadius: BorderRadius.circular(30.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: GinaAppTheme.appbarColorLight
+                                      .withOpacity(0.3),
+                                  blurRadius: 8.0,
+                                  spreadRadius: 1.0,
+                                  offset: const Offset(0, 0),
+                                ),
+                              ],
+                            ),
+                            child: const Text(
+                              'Check out consultation room',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                          // const Gap(3),
+                          const Icon(
+                            Icons.arrow_right_rounded,
+                            size: 30,
+                            color: GinaAppTheme.lightTertiaryContainer,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ),
-                // const Gap(3),
-                const Icon(
-                  Icons.arrow_right_rounded,
-                  size: 30,
-                  color: GinaAppTheme.lightTertiaryContainer,
-                ),
-              ],
-            ),
-          ),
-        ),
+                  )
+                : const SizedBox.shrink(),
       ],
     );
   }

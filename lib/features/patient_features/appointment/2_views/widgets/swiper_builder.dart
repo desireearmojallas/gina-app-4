@@ -19,12 +19,6 @@ class SwiperBuilderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // List<List<Color>> gradientBGColors = [
-    //   [const Color(0xffeea0b6), GinaAppTheme.lightTertiaryContainer],
-    //   [const Color(0xffd3c5f7), const Color(0xffa491d3)],
-    //   [const Color(0xffffdab5), const Color(0xfff08b60)],
-    // ];
-
     List<List<Color>> gradientBGColors = [
       [const Color(0xffeea0b6), GinaAppTheme.lightTertiaryContainer],
       [const Color(0xffd3c5f7), const Color(0xffa491d3)],
@@ -99,29 +93,46 @@ class SwiperBuilderWidget extends StatelessWidget {
                       GinaAppTheme.defaultBoxShadow,
                     ],
                   ),
-                  child: isDoctor == true
-                      ? DoctorUpcomingAppointmentsContainer(
-                          appointment: appointment,
-                          patientName: appointment.patientName!,
-                          appointmentId: appointment.appointmentUid!,
-                          date: appointment.appointmentDate!,
-                          time: appointment.appointmentTime!,
-                          appointmentType: appointment.modeOfAppointment == 0
-                              ? 'Online'
-                              : 'Face-to-Face',
-                          appointmentStatus: appointment.appointmentStatus!,
-                        )
-                      : UpcomingAppointmentsContainer(
-                          appointment: appointment,
-                          doctorName: appointment.doctorName!,
-                          appointmentId: appointment.appointmentUid!,
-                          date: appointment.appointmentDate!,
-                          time: appointment.appointmentTime!,
-                          appointmentType: appointment.modeOfAppointment == 0
-                              ? 'Online'
-                              : 'Face-to-Face',
-                          appointmentStatus: appointment.appointmentStatus!,
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: Text(
+                          '${index + 1}',
+                          style: ginaTheme.titleLarge?.copyWith(
+                            color: Colors.white.withOpacity(0.15),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 100,
+                          ),
                         ),
+                      ),
+                      isDoctor == true
+                          ? DoctorUpcomingAppointmentsContainer(
+                              appointment: appointment,
+                              patientName: appointment.patientName!,
+                              appointmentId: appointment.appointmentUid!,
+                              date: appointment.appointmentDate!,
+                              time: appointment.appointmentTime!,
+                              appointmentType:
+                                  appointment.modeOfAppointment == 0
+                                      ? 'Online'
+                                      : 'Face-to-Face',
+                              appointmentStatus: appointment.appointmentStatus!,
+                            )
+                          : UpcomingAppointmentsContainer(
+                              appointment: appointment,
+                              doctorName: appointment.doctorName!,
+                              appointmentId: appointment.appointmentUid!,
+                              date: appointment.appointmentDate!,
+                              time: appointment.appointmentTime!,
+                              appointmentType:
+                                  appointment.modeOfAppointment == 0
+                                      ? 'Online'
+                                      : 'Face-to-Face',
+                              appointmentStatus: appointment.appointmentStatus!,
+                            ),
+                    ],
+                  ),
                 );
               },
               itemCount: upcomingAppointments.length,
