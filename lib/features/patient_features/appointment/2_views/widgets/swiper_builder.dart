@@ -48,20 +48,23 @@ class SwiperBuilderWidget extends StatelessWidget {
 
     return upcomingAppointments.isEmpty
         ? Center(
-            child: Column(
-              children: [
-                const Icon(
-                  MingCute.unhappy_line,
-                  color: GinaAppTheme.lightOutline,
-                ),
-                const Gap(10),
-                Text(
-                  'No upcoming appointments',
-                  style: ginaTheme.bodyLarge?.copyWith(
-                    color: GinaAppTheme.lightOutline,
+            child: Padding(
+              padding: const EdgeInsets.all(40.0),
+              child: Column(
+                children: [
+                  Icon(
+                    Bootstrap.calendar_x,
+                    color: GinaAppTheme.lightOutline.withOpacity(0.4),
                   ),
-                ),
-              ],
+                  const Gap(20),
+                  Text(
+                    'No upcoming appointments',
+                    style: ginaTheme.bodyMedium?.copyWith(
+                      color: GinaAppTheme.lightOutline.withOpacity(0.4),
+                    ),
+                  ),
+                ],
+              ),
             ),
           )
         : SizedBox(

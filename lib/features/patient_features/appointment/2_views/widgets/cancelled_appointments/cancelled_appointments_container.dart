@@ -8,12 +8,9 @@ import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:intl/intl.dart';
 
-class MissedAppointmentsContainer extends StatelessWidget {
+class CancelledAppointmentsContainer extends StatelessWidget {
   final AppointmentModel appointment;
-  const MissedAppointmentsContainer({
-    super.key,
-    required this.appointment,
-  });
+  const CancelledAppointmentsContainer({super.key, required this.appointment});
 
   @override
   Widget build(BuildContext context) {

@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/completed_appointments/appointment_consultation_history_container.dart';
+import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/pending_appointments/pending_appointments_container.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:intl/intl.dart';
 
-class ConsultationHistoryList extends StatelessWidget {
+class PendingAppointmentsList extends StatelessWidget {
   final List<AppointmentModel> appointments;
-  const ConsultationHistoryList({
-    super.key,
-    required this.appointments,
-  });
+  const PendingAppointmentsList({super.key, required this.appointments});
 
   @override
   Widget build(BuildContext context) {
@@ -47,14 +44,14 @@ class ConsultationHistoryList extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(10, 20, 10, 10),
-            child: _title(context, 'Consultation History'),
+            child: _title(context, 'Pending Appointments'),
           ),
           if (appointments.isEmpty)
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Text(
-                  'No completed appointments',
+                  'No pending appointments',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: GinaAppTheme.lightOutline.withOpacity(0.4),
                       ),
@@ -86,7 +83,7 @@ class ConsultationHistoryList extends StatelessWidget {
                       itemCount: yearAppointments.length,
                       itemBuilder: (context, index) {
                         final appointment = yearAppointments[index];
-                        return AppointmentConsultationHistoryContainer(
+                        return PendingAppointmentsContainer(
                           appointment: appointment,
                         );
                       },

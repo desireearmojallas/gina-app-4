@@ -15,6 +15,7 @@ class AppointmentModel extends Equatable {
   final int? modeOfAppointment;
   int? appointmentStatus;
   final List<String>? prescriptionImages;
+  final bool hasVisitedConsultationRoom;
 
   AppointmentModel({
     this.appointmentUid,
@@ -28,6 +29,7 @@ class AppointmentModel extends Equatable {
     this.modeOfAppointment,
     this.appointmentStatus = 0,
     this.prescriptionImages,
+    this.hasVisitedConsultationRoom = false,
   });
 
   static AppointmentModel fromDocumentSnap(DocumentSnapshot snap) {
@@ -46,6 +48,7 @@ class AppointmentModel extends Equatable {
       prescriptionImages: List<String>.from(
         json['prescriptionImages'] ?? [],
       ),
+      hasVisitedConsultationRoom: json['hasVisitedConsultationRoom'] ?? false,
     );
   }
 
@@ -64,6 +67,7 @@ class AppointmentModel extends Equatable {
       prescriptionImages: List<String>.from(
         json['prescriptionImages'] ?? [],
       ),
+      hasVisitedConsultationRoom: json['hasVisitedConsultationRoom'] ?? false,
     );
   }
 
@@ -80,6 +84,7 @@ class AppointmentModel extends Equatable {
       'modeOfAppointment': modeOfAppointment,
       'appointmentStatus': appointmentStatus,
       'prescriptionImages': prescriptionImages,
+      'hasVisitedConsultationRoom': hasVisitedConsultationRoom,
     };
   }
 
@@ -96,5 +101,6 @@ class AppointmentModel extends Equatable {
         modeOfAppointment,
         appointmentStatus,
         prescriptionImages,
+        hasVisitedConsultationRoom,
       ];
 }

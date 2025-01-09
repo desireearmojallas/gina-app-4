@@ -2,9 +2,12 @@ import 'package:dynamic_tabbar/dynamic_tabbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/cancelled_appointments/cancelled_appointments_list.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/completed_appointments/consultation_history_list.dart';
+import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/declined_appointments/declined_appointments_list.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/missed_appointments/missed_appointments_list.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/on_going_appointments/on_going_appointments_list.dart';
+import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/pending_appointments/pending_appointments_list.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
@@ -12,11 +15,19 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 class AppointmentsTabView extends StatelessWidget {
   final List<AppointmentModel> missedAppointments;
   final List<AppointmentModel> completedAppointments;
+  final List<AppointmentModel> cancelledAppointments;
+  final List<AppointmentModel> declinedAppointments;
+  final List<AppointmentModel> pendingAppointments;
+  final List<AppointmentModel> ongoingAppointments;
 
   const AppointmentsTabView({
     super.key,
     required this.missedAppointments,
     required this.completedAppointments,
+    required this.cancelledAppointments,
+    required this.declinedAppointments,
+    required this.pendingAppointments,
+    required this.ongoingAppointments,
   });
 
   @override
@@ -30,16 +41,60 @@ class AppointmentsTabView extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.do_not_disturb_on, size: 16.0),
+              Icon(Icons.do_not_disturb_on, size: 18.0),
               Gap(5),
               Text('CANCELLED'),
+            ],
+          ),
+        ),
+        content: CancelledAppointmentsList(appointments: cancelledAppointments),
+      ),
+      TabData(
+        index: 1,
+        title: const Tab(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.cancel, size: 18.0),
+              Gap(5),
+              Text('MISSED'),
             ],
           ),
         ),
         content: MissedAppointmentsList(appointments: missedAppointments),
       ),
       TabData(
-        index: 1,
+        index: 2,
+        title: const Tab(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.access_time_filled_rounded, size: 18.0),
+              Gap(5),
+              Text('PENDING'),
+            ],
+          ),
+        ),
+        content: PendingAppointmentsList(appointments: pendingAppointments),
+      ),
+      TabData(
+        index: 3,
+        title: const Tab(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(MingCute.chat_2_fill, size: 17.0),
+              Gap(5),
+              Text('ON-GOING'),
+            ],
+          ),
+        ),
+        content: OnGoingAppointmentsList(
+          appointments: ongoingAppointments,
+        ),
+      ),
+      TabData(
+        index: 4,
         title: const Tab(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -53,46 +108,18 @@ class AppointmentsTabView extends StatelessWidget {
         content: ConsultationHistoryList(appointments: completedAppointments),
       ),
       TabData(
-        index: 2,
+        index: 5,
         title: const Tab(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(MingCute.chat_2_fill, size: 16.0),
-              Gap(5),
-              Text('ON-GOING'),
-            ],
-          ),
-        ),
-        content: const OnGoingAppointmentsList(),
-      ),
-      TabData(
-        index: 3,
-        title: const Tab(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.cancel, size: 16.0),
-              Gap(5),
-              Text('MISSED'),
-            ],
-          ),
-        ),
-        content: MissedAppointmentsList(appointments: missedAppointments),
-      ),
-      TabData(
-        index: 4,
-        title: const Tab(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.thumb_down, size: 16.0),
+              Icon(Icons.thumb_down, size: 18.0),
               Gap(5),
               Text('DECLINED'),
             ],
           ),
         ),
-        content: MissedAppointmentsList(appointments: missedAppointments),
+        content: DeclinedAppointmentsList(appointments: declinedAppointments),
       ),
     ];
 
@@ -125,7 +152,7 @@ class AppointmentsTabView extends StatelessWidget {
         labelPadding: const EdgeInsets.symmetric(horizontal: 15.0),
         indicatorPadding: EdgeInsets.zero,
         onTabControllerUpdated: (controller) {
-          controller.index = 2;
+          controller.index = 3;
         },
         onTabChanged: (index) {
           // Handle tab change if needed

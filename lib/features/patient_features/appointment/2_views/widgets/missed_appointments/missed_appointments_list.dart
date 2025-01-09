@@ -50,39 +50,52 @@ class MissedAppointmentsList extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(10, 20, 10, 10),
             child: _title(context, 'Missed Appointments'),
           ),
-          ...sortedYears.map(
-            (year) {
-              final yearAppointments = groupedAppointmentsByYear[year]!;
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10.0, vertical: 10.0),
-                    child: Text(
-                      year.toString(),
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: GinaAppTheme.lightOutline.withOpacity(0.4),
-                          ),
+          if (appointments.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Text(
+                  'No missed appointments',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: GinaAppTheme.lightOutline.withOpacity(0.4),
+                      ),
+                ),
+              ),
+            )
+          else
+            ...sortedYears.map(
+              (year) {
+                final yearAppointments = groupedAppointmentsByYear[year]!;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10.0, vertical: 10.0),
+                      child: Text(
+                        year.toString(),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: GinaAppTheme.lightOutline.withOpacity(0.4),
+                            ),
+                      ),
                     ),
-                  ),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    padding: EdgeInsets.zero,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: yearAppointments.length,
-                    itemBuilder: (context, index) {
-                      final appointment = yearAppointments[index];
-                      return MissedAppointmentsContainer(
-                        appointment: appointment,
-                      );
-                    },
-                  ),
-                ],
-              );
-            },
-          ),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      padding: EdgeInsets.zero,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: yearAppointments.length,
+                      itemBuilder: (context, index) {
+                        final appointment = yearAppointments[index];
+                        return MissedAppointmentsContainer(
+                          appointment: appointment,
+                        );
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
           const Gap(60),
         ],
       ),

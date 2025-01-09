@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:intl/intl.dart';
@@ -14,6 +17,7 @@ class AppointmentConsultationHistoryContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appointmentBloc = context.read<AppointmentBloc>();
     final width = MediaQuery.of(context).size.width;
     final ginaTheme = Theme.of(context);
 
@@ -23,7 +27,11 @@ class AppointmentConsultationHistoryContainer extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        debugPrint('test');
+        HapticFeedback.mediumImpact();
+        appointmentBloc.add(NavigateToAppointmentDetailsEvent(
+          doctorUid: appointment.doctorUid!,
+          appointmentUid: appointment.appointmentUid!,
+        ));
       },
       child: Column(
         children: [
@@ -94,7 +102,7 @@ class AppointmentConsultationHistoryContainer extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            '10:00 AM',
+                            appointment.appointmentTime!,
                             style: ginaTheme.textTheme.bodySmall?.copyWith(
                               fontWeight: FontWeight.w600,
                               color: GinaAppTheme.lightOutline,

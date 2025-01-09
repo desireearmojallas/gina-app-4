@@ -61,6 +61,7 @@ class AppointmentController with ChangeNotifier {
         'appointmentTime': appointmentTime,
         'modeOfAppointment': modeOfAppointment,
         'appointmentStatus': 0,
+        'hasVisitedConsultationRoom': false,
       });
 
       debugPrint('Updating patient document');
@@ -117,6 +118,7 @@ class AppointmentController with ChangeNotifier {
       }
 
       await updateMissedAppointments(appointments);
+      await updateCompletedAppointments(appointments);
 
       appointments.sort((a, b) {
         final aDate = DateFormat('MMMM d, yyyy').parse(a.appointmentDate!);
@@ -134,7 +136,70 @@ class AppointmentController with ChangeNotifier {
     }
   }
 
+  //-------UPDATE COMPLETED APPOINTMENTS-------
+  Future<void> updateCompletedAppointments(
+      List<AppointmentModel> appointments) async {
+    final now = DateTime.now();
+
+    for (var appointment in appointments) {
+      final appointmentDate =
+          DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
+      final appointmentTimes = appointment.appointmentTime!.split(' - ');
+      final appointmentEndTime =
+          DateFormat('hh:mm a').parse(appointmentTimes[1]);
+
+      final appointmentEndDateTime = DateTime(
+        appointmentDate.year,
+        appointmentDate.month,
+        appointmentDate.day,
+        appointmentEndTime.hour,
+        appointmentEndTime.minute,
+      );
+
+      if (appointmentEndDateTime.isBefore(now) &&
+          appointment.hasVisitedConsultationRoom &&
+          appointment.appointmentStatus == AppointmentStatus.confirmed.index) {
+        await firestore
+            .collection('appointments')
+            .doc(appointment.appointmentUid)
+            .update({
+          'appointmentStatus': AppointmentStatus.completed.index,
+        });
+
+        appointment.appointmentStatus = AppointmentStatus.completed.index;
+      }
+    }
+  }
+
   //-------UPDATE MISSED APPOINTMENTS-------
+  Future<void> markAsVisitedConsultationRoom(String appointmentUid) async {
+    try {
+      final docRef = firestore.collection('appointments').doc(appointmentUid);
+      final docSnapshot = await docRef.get();
+
+      if (docSnapshot.exists) {
+        await docRef.update({
+          'hasVisitedConsultationRoom': true,
+        });
+        debugPrint('Document updated successfully');
+      } else {
+        debugPrint('Document does not exist');
+      }
+    } catch (e) {
+      debugPrint('Error updating document: $e');
+    }
+  }
+
+  Future<AppointmentModel?> getAppointmentDetailsNew(
+      String appointmentUid) async {
+    final doc =
+        await firestore.collection('appointments').doc(appointmentUid).get();
+    if (doc.exists) {
+      return AppointmentModel.fromDocumentSnap(doc);
+    }
+    return null;
+  }
+
   Future<void> updateMissedAppointments(
       List<AppointmentModel> appointments) async {
     final now = DateTime.now();
@@ -145,8 +210,10 @@ class AppointmentController with ChangeNotifier {
       final appointmentTimes = appointment.appointmentTime!.split(' - ');
       final appointmentStartTime =
           DateFormat('hh:mm a').parse(appointmentTimes[0]);
+      final appointmentEndTime =
+          DateFormat('hh:mm a').parse(appointmentTimes[1]);
 
-      final appointmentDateTime = DateTime(
+      final appointmentStartDateTime = DateTime(
         appointmentDate.year,
         appointmentDate.month,
         appointmentDate.day,
@@ -154,8 +221,17 @@ class AppointmentController with ChangeNotifier {
         appointmentStartTime.minute,
       );
 
-      if (appointmentDateTime.isBefore(now) &&
-          appointment.appointmentStatus == AppointmentStatus.confirmed.index) {
+      final appointmentEndDateTime = DateTime(
+        appointmentDate.year,
+        appointmentDate.month,
+        appointmentDate.day,
+        appointmentEndTime.hour,
+        appointmentEndTime.minute,
+      );
+
+      if (appointmentEndDateTime.isBefore(now) &&
+          appointment.appointmentStatus == AppointmentStatus.confirmed.index &&
+          !appointment.hasVisitedConsultationRoom) {
         await firestore
             .collection('appointments')
             .doc(appointment.appointmentUid)
@@ -163,7 +239,7 @@ class AppointmentController with ChangeNotifier {
           'appointmentStatus': AppointmentStatus.missed.index,
         });
 
-        appointment.appointmentStatus = 5;
+        appointment.appointmentStatus = AppointmentStatus.missed.index;
       }
     }
   }

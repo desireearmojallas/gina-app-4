@@ -14,6 +14,7 @@ import 'package:gina_app_4/features/patient_features/appointment_details/2_views
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/reschedule_filled_button.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
+import 'package:intl/intl.dart';
 
 class AppointmentDetailsStatusScreen extends StatelessWidget {
   final DoctorModel doctorDetails;
@@ -234,7 +235,7 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                [2, 3, 4].contains(appointment.appointmentStatus)
+                [2, 3, 4, 5].contains(appointment.appointmentStatus)
                     ? const SizedBox()
                     : Text(
                         'To ensure a smooth online appointment, please be prepared 15 \nminutes before the scheduled time.',
@@ -244,41 +245,94 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                         ),
                       ),
                 const Gap(15),
-                [2, 3, 4].contains(appointment.appointmentStatus)
+                [2, 3, 4, 5].contains(appointment.appointmentStatus)
                     ? const SizedBox()
-                    : SizedBox(
-                        width: size.width * 0.93,
-                        height: size.height / 17,
-                        child: OutlinedButton(
-                          style: ButtonStyle(
-                            shape: MaterialStateProperty.all(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                    : Builder(
+                        builder: (context) {
+                          final DateFormat dateFormat =
+                              DateFormat('MMMM d, yyyy');
+                          final DateFormat timeFormat = DateFormat('hh:mm a');
+                          final DateTime now = DateTime.now();
+
+                          final DateTime appointmentDate = dateFormat
+                              .parse(appointment.appointmentDate!.trim());
+                          final List<String> times =
+                              appointment.appointmentTime!.split(' - ');
+                          final DateTime startTime =
+                              timeFormat.parse(times[0].trim());
+                          final DateTime endTime =
+                              timeFormat.parse(times[1].trim());
+
+                          final DateTime appointmentStartDateTime = DateTime(
+                            appointmentDate.year,
+                            appointmentDate.month,
+                            appointmentDate.day,
+                            startTime.hour,
+                            startTime.minute,
+                          );
+
+                          final DateTime appointmentEndDateTime = DateTime(
+                            appointmentDate.year,
+                            appointmentDate.month,
+                            appointmentDate.day,
+                            endTime.hour,
+                            endTime.minute,
+                          );
+
+                          final bool isWithinAppointmentTime =
+                              now.isAfter(appointmentStartDateTime) &&
+                                  now.isBefore(appointmentEndDateTime);
+
+                          return SizedBox(
+                            width: size.width * 0.93,
+                            height: size.height / 17,
+                            child: OutlinedButton(
+                              style: ButtonStyle(
+                                shape: MaterialStateProperty.all(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                side: MaterialStateProperty.all(
+                                  BorderSide(
+                                    color: isWithinAppointmentTime
+                                        ? Colors.grey[300]!
+                                        : GinaAppTheme.lightOnPrimaryColor,
+                                  ),
+                                ),
+                              ),
+                              onPressed: isWithinAppointmentTime
+                                  ? null
+                                  : () {
+                                      HapticFeedback.mediumImpact();
+                                      showCancelModalDialog(context,
+                                          appointmentId:
+                                              appointment.appointmentUid!);
+                                    },
+                              child: Text(
+                                'Cancel Appointment',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: isWithinAppointmentTime
+                                          ? Colors.grey[400]!
+                                          : GinaAppTheme.lightOnPrimaryColor,
+                                    ),
                               ),
                             ),
-                          ),
-                          onPressed: () {
-                            HapticFeedback.mediumImpact();
-                            showCancelModalDialog(context,
-                                appointmentId: appointment.appointmentUid!);
-                          },
-                          child: Text(
-                            'Cancel Appointment',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
                 const Gap(160),
               ],
             ),
           ),
         ),
-        appointment.modeOfAppointment == 1
+        appointment.modeOfAppointment == 1 &&
+                appointment.appointmentStatus ==
+                    AppointmentStatus.confirmed.index
             ? Positioned(
                 bottom: 95.0,
                 right: 90.0,
@@ -344,7 +398,7 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                               ],
                             ),
                             child: const Text(
-                              'Check out consultation room',
+                              'Go to consultation room',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
