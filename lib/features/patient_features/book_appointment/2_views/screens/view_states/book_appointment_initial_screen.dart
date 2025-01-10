@@ -5,10 +5,12 @@ import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_name_widget.dart';
+import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/bloc/appointment_details_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/reschedule_appointment_success.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/reschedule_filled_button.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
+import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/0_model/doctor_availability_model.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
@@ -558,6 +560,8 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                     ),
                                   ),
                                   onPressed: () {
+                                    debugPrint(
+                                        'isRescheduleMode: $isRescheduleMode');
                                     if (bookAppointmentBloc
                                             .dateController.text.isEmpty ||
                                         bookAppointmentBloc.selectedTimeIndex ==
@@ -590,9 +594,12 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                         final selectedTime =
                                             '${doctorAvailabilityModel.startTimes[selectedIndex]} - ${doctorAvailabilityModel.endTimes[selectedIndex]}';
 
-                                        if (isRescheduleMode) {
+                                        if (isRescheduleMode == true) {
+                                          debugPrint(
+                                              'Rescheduling appointment...');
                                           appointmentDetailsBloc.add(
                                             RescheduleAppointmentEvent(
+                                              doctor: doctor,
                                               appointmentUid:
                                                   appointmentUidToReschedule!,
                                               appointmentDate:
@@ -603,25 +610,34 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                   .selectedModeofAppointmentIndex,
                                             ),
                                           );
-                                          isRescheduleMode = false;
-                                          showRescheduleAppointmentSuccessDialog(
-                                            context,
-                                            appointmentUidToReschedule!,
-                                          );
+
+                                          // Wait for the reschedule event to complete
+                                          appointmentDetailsBloc.stream
+                                              .firstWhere((state) => state
+                                                  is NavigateToReviewRescheduledAppointmentState)
+                                              .then((_) {
+                                            debugPrint(
+                                                'Reschedule completed, showing success dialog...');
+                                            showRescheduleAppointmentSuccessDialog(
+                                              context,
+                                              appointmentUidToReschedule!,
+                                              doctor,
+                                            ).then((_) {
+                                              Navigator.of(context).pop();
+                                              Navigator.pushReplacementNamed(
+                                                context,
+                                                '/bottomNavigation',
+                                                arguments: {'initialIndex': 2},
+                                              );
+                                            });
+                                          }).whenComplete(() {
+                                            isRescheduleMode = false;
+                                            debugPrint(
+                                                'isRescheduleMode set to false');
+                                          });
                                         } else {
                                           debugPrint(
-                                              'Doctor ID: ${doctor.uid}');
-                                          debugPrint(
-                                              'Doctor Name: ${doctor.name}');
-                                          debugPrint(
-                                              'Doctor Address: ${doctor.officeAddress}');
-                                          debugPrint(
-                                              'Selected Date: ${bookAppointmentBloc.dateController.text}');
-                                          debugPrint(
-                                              'Selected Time: $selectedTime');
-                                          debugPrint(
-                                              'Mode of Appointment: ${modeOfAppointmentList[bookAppointmentBloc.selectedModeofAppointmentIndex]}');
-
+                                              'Booking new appointment...');
                                           bookAppointmentBloc.add(
                                             BookForAnAppointmentEvent(
                                               doctorId: doctor.uid,
@@ -634,9 +650,6 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                               appointmentTime: selectedTime,
                                             ),
                                           );
-
-                                          debugPrint(
-                                              'BookForAnAppointmentEvent dispatched');
                                         }
                                       }
                                     }

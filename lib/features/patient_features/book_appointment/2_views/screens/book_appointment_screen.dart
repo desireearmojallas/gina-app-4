@@ -28,18 +28,21 @@ class BookAppointmentScreenProvider extends StatelessWidget {
         ));
         return bookAppointmentBloc;
       },
-      child: const BookAppointmentScreen(),
+      child: BookAppointmentScreen(
+        doctor: doctor,
+      ),
     );
   }
 }
 
 class BookAppointmentScreen extends StatelessWidget {
-  const BookAppointmentScreen({super.key});
+  final DoctorModel doctor;
+  const BookAppointmentScreen({super.key, required this.doctor});
 
   @override
   Widget build(BuildContext context) {
-    final DoctorModel doctor =
-        ModalRoute.of(context)?.settings.arguments as DoctorModel;
+    // final DoctorModel doctor =
+    //     ModalRoute.of(context)?.settings.arguments as DoctorModel;
 
     return BlocBuilder<BookAppointmentBloc, BookAppointmentState>(
       builder: (context, state) {
@@ -55,7 +58,7 @@ class BookAppointmentScreen extends StatelessWidget {
                 : null,
             title: state is ReviewAppointmentState
                 ? 'Review Appointment'
-                : isRescheduleMode
+                : isRescheduleMode == true
                     ? 'Reschedule Appointment'
                     : 'Book Appointment',
           ),

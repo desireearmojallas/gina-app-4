@@ -12,9 +12,11 @@ import 'package:intl/intl.dart';
 
 class AppointmentScreenLoaded extends StatelessWidget {
   final List<AppointmentModel> appointments;
+  final int initialIndex;
   const AppointmentScreenLoaded({
     super.key,
     required this.appointments,
+    required this.initialIndex,
   });
 
   @override
@@ -169,6 +171,7 @@ class AppointmentScreenLoaded extends StatelessWidget {
                     declinedAppointments: declinedAppointments,
                     pendingAppointments: pendingAppointments,
                     ongoingAppointments: ongoingAppointments,
+                    initialIndex: initialIndex,
                   ),
                 ),
               ],

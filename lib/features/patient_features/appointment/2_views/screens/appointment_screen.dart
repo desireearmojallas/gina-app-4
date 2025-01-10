@@ -18,7 +18,11 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 
 class AppointmentScreenProvider extends StatelessWidget {
-  const AppointmentScreenProvider({super.key});
+  final int? initialIndex;
+  const AppointmentScreenProvider({
+    super.key,
+    this.initialIndex,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,16 +40,25 @@ class AppointmentScreenProvider extends StatelessWidget {
 
         return appointmentBloc;
       },
-      child: const AppointmentScreen(),
+      child: AppointmentScreen(
+        initialIndex: initialIndex ?? 3,
+      ),
     );
   }
 }
 
 class AppointmentScreen extends StatelessWidget {
-  const AppointmentScreen({super.key});
+  final int initialIndex;
+  const AppointmentScreen({
+    super.key,
+    required this.initialIndex,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // final arguments = ModalRoute.of(context)?.settings.arguments as Map?;
+    // final int initialIndexFromArgs = arguments?['initialIndex'] ?? 3;
+
     final AppointmentController appointmentController =
         sl<AppointmentController>();
     final appointmentBloc = context.read<AppointmentBloc>();
@@ -224,6 +237,7 @@ class AppointmentScreen extends StatelessWidget {
               } else if (state is GetAppointmentsLoaded) {
                 return AppointmentScreenLoaded(
                   appointments: state.appointments,
+                  initialIndex: initialIndex,
                 );
               } else if (state is GetAppointmentsError) {
                 return Center(

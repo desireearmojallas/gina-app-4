@@ -40,7 +40,7 @@ class RescheduleFilledButton extends StatelessWidget {
                 arguments: doctor,
               );
             } else {
-              Navigator.pushReplacementNamed(
+              Navigator.pushNamed(
                 context,
                 '/bookAppointment',
                 arguments: doctor,

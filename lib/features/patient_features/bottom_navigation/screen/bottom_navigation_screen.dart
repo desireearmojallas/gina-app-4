@@ -1,8 +1,9 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:crystal_navigation_bar/crystal_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 
@@ -12,7 +13,7 @@ class BottomNavigationProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<BottomNavigationBloc>(
-      create: (context) => sl<BottomNavigationBloc>(),
+      create: (context) => BottomNavigationBloc(),
       child: const BottomNavigation(),
     );
   }
@@ -23,7 +24,6 @@ class BottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: () async {
         final currentIndex =
@@ -40,6 +40,7 @@ class BottomNavigation extends StatelessWidget {
         bottomNavigationBar:
             BlocBuilder<BottomNavigationBloc, BottomNavigationState>(
           builder: (context, state) {
+            debugPrint('Current Index in NavigationBar: ${state.currentIndex}');
             return CrystalNavigationBar(
               currentIndex: state.currentIndex,
               unselectedItemColor: state.currentIndex == 4

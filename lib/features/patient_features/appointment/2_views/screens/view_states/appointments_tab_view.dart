@@ -19,6 +19,7 @@ class AppointmentsTabView extends StatelessWidget {
   final List<AppointmentModel> declinedAppointments;
   final List<AppointmentModel> pendingAppointments;
   final List<AppointmentModel> ongoingAppointments;
+  final int initialIndex;
 
   const AppointmentsTabView({
     super.key,
@@ -28,6 +29,7 @@ class AppointmentsTabView extends StatelessWidget {
     required this.declinedAppointments,
     required this.pendingAppointments,
     required this.ongoingAppointments,
+    required this.initialIndex,
   });
 
   @override
@@ -152,7 +154,7 @@ class AppointmentsTabView extends StatelessWidget {
         labelPadding: const EdgeInsets.symmetric(horizontal: 15.0),
         indicatorPadding: EdgeInsets.zero,
         onTabControllerUpdated: (controller) {
-          controller.index = 3;
+          controller.index = initialIndex;
         },
         onTabChanged: (index) {
           // Handle tab change if needed

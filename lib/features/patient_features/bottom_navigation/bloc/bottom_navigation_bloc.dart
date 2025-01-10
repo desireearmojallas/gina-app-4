@@ -14,56 +14,81 @@ part 'bottom_navigation_state.dart';
 
 class BottomNavigationBloc
     extends Bloc<BottomNavigationEvent, BottomNavigationState> {
-  BottomNavigationBloc()
-      : super(
-          const BottomNavigationInitial(
-            currentIndex: 0,
-            selectedScreen: HomeScreenProvider(),
-            navigationHistory: [0],
+  BottomNavigationBloc({int initialIndex = 0})
+      : super(BottomNavigationInitial(
+          currentIndex: initialIndex,
+          selectedScreen: _getScreenForIndex(
+            initialIndex,
+            initialIndex: initialIndex,
           ),
-        ) {
-    on<TabChangedEvent>((event, emit) async {
-      final newHistory = List<int>.from(state.navigationHistory);
+          navigationHistory: [initialIndex],
+        )) {
+    debugPrint('Bloc initialized with index: $initialIndex');
+    // on<TabChangedEvent>((event, emit) async {
+    //   final newHistory = List<int>.from(state.navigationHistory);
 
-      if (newHistory.last != event.tab) {
-        newHistory.add(event.tab);
-      }
+    //   if (newHistory.last != event.tab) {
+    //     newHistory.add(event.tab);
+    //   }
 
-      if (canVibrate == true) {
-        await Haptics.vibrate(HapticsType.selection);
-      }
+    //   if (canVibrate == true) {
+    //     await Haptics.vibrate(HapticsType.selection);
+    //   }
 
+    //   emit(BottomNavigationInitial(
+    //     currentIndex: event.tab,
+    //     selectedScreen: _getScreenForIndex(event.tab),
+    //     navigationHistory: newHistory,
+    //   ));
+    // });
+
+    on<TabChangedEvent>((event, emit) {
       emit(BottomNavigationInitial(
         currentIndex: event.tab,
         selectedScreen: _getScreenForIndex(event.tab),
-        navigationHistory: newHistory,
+        navigationHistory: [...state.navigationHistory, event.tab],
       ));
     });
 
     on<BackPressedEvent>((event, emit) {
-      final newHistory = List<int>.from(state.navigationHistory);
-
-      if (newHistory.length > 1) {
-        newHistory.removeLast();
-        int previousIndex = newHistory.last;
-
-        emit(BottomNavigationInitial(
-          currentIndex: previousIndex,
-          selectedScreen: _getScreenForIndex(previousIndex),
-          navigationHistory: newHistory,
-        ));
-      }
+      final history = List<int>.from(state.navigationHistory);
+      history.removeLast();
+      final newIndex = history.isNotEmpty ? history.last : 0;
+      emit(BottomNavigationInitial(
+        currentIndex: newIndex,
+        selectedScreen: _getScreenForIndex(newIndex),
+        navigationHistory: history,
+      ));
     });
   }
 
-  Widget _getScreenForIndex(int index) {
+  //   on<BackPressedEvent>((event, emit) {
+  //     final newHistory = List<int>.from(state.navigationHistory);
+
+  //     if (newHistory.length > 1) {
+  //       newHistory.removeLast();
+  //       int previousIndex = newHistory.last;
+
+  //       emit(BottomNavigationInitial(
+  //         currentIndex: previousIndex,
+  //         selectedScreen: _getScreenForIndex(previousIndex),
+  //         navigationHistory: newHistory,
+  //       ));
+  //     }
+  //   });
+  // }
+
+  static Widget _getScreenForIndex(int index, {int? initialIndex}) {
+    debugPrint('initialIndex passed: $initialIndex');
     switch (index) {
       case 0:
         return const HomeScreenProvider();
       case 1:
         return const FindScreenProvider();
       case 2:
-        return const AppointmentScreenProvider();
+        return AppointmentScreenProvider(
+          initialIndex: initialIndex,
+        );
       case 3:
         return const ForumScreenProvider();
       case 4:

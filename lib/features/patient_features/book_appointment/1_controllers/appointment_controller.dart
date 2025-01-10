@@ -119,6 +119,7 @@ class AppointmentController with ChangeNotifier {
 
       await updateMissedAppointments(appointments);
       await updateCompletedAppointments(appointments);
+      await updatePendingAppointmentsToDeclined(appointments);
 
       appointments.sort((a, b) {
         final aDate = DateFormat('MMMM d, yyyy').parse(a.appointmentDate!);
@@ -133,6 +134,40 @@ class AppointmentController with ChangeNotifier {
       error = e;
       notifyListeners();
       return Left(Exception(e.message));
+    }
+  }
+
+  //-------UPDATE PENDING APPOINTMENTS TO DECLINED WHEN EXCEEDS NOW DATE-------
+  Future<void> updatePendingAppointmentsToDeclined(
+      List<AppointmentModel> appointments) async {
+    final now = DateTime.now();
+
+    for (var appointment in appointments) {
+      final appointmentDate =
+          DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
+      final appointmentTimes = appointment.appointmentTime!.split(' - ');
+      final appointmentEndTime =
+          DateFormat('hh:mm a').parse(appointmentTimes[1]);
+
+      final appointmentEndDateTime = DateTime(
+        appointmentDate.year,
+        appointmentDate.month,
+        appointmentDate.day,
+        appointmentEndTime.hour,
+        appointmentEndTime.minute,
+      );
+
+      if (appointmentEndDateTime.isBefore(now) &&
+          appointment.appointmentStatus == AppointmentStatus.pending.index) {
+        await firestore
+            .collection('appointments')
+            .doc(appointment.appointmentUid)
+            .update({
+          'appointmentStatus': AppointmentStatus.declined.index,
+        });
+
+        appointment.appointmentStatus = AppointmentStatus.declined.index;
+      }
     }
   }
 
@@ -250,6 +285,10 @@ class AppointmentController with ChangeNotifier {
     required String doctorUid,
   }) async {
     try {
+      // Debugging statements for currentPatient.uid and doctorUid
+      debugPrint('currentPatient.uid: ${currentPatient!.uid}');
+      debugPrint('doctorUid: $doctorUid');
+
       final snapshot = await firestore
           .collection('appointments')
           .where('patientUid', isEqualTo: currentPatient!.uid)
@@ -276,6 +315,9 @@ class AppointmentController with ChangeNotifier {
       error = e;
       notifyListeners();
       return Left(Exception(e.message));
+    } catch (e) {
+      debugPrint('Exception: ${e.toString()}');
+      return Left(Exception(e.toString()));
     }
   }
 
