@@ -78,3 +78,12 @@ class NavigateToReviewRescheduledAppointmentState
 }
 
 class NavigateToReviewRescheduledLoadingState extends AppointmentDetailsState {}
+
+class LatestAppointmentDetailsFetchedState extends AppointmentDetailsState {
+  final AppointmentModel appointment;
+
+  const LatestAppointmentDetailsFetchedState({required this.appointment});
+
+  @override
+  List<Object> get props => [appointment];
+}

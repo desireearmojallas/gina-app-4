@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_name_widget.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/bloc/appointment_details_bloc.dart';
+import 'package:gina_app_4/features/patient_features/appointment_details/2_views/screens/view_states/review_rescheduled_appointment.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/reschedule_appointment_success.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/reschedule_filled_button.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
@@ -611,26 +613,31 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                             ),
                                           );
 
-                                          // Wait for the reschedule event to complete
-                                          appointmentDetailsBloc.stream
-                                              .firstWhere((state) => state
-                                                  is NavigateToReviewRescheduledAppointmentState)
-                                              .then((_) {
-                                            debugPrint(
-                                                'Reschedule completed, showing success dialog...');
-                                            showRescheduleAppointmentSuccessDialog(
+                                          debugPrint(
+                                              'Reschedule completed, showing success dialog...');
+
+                                          showRescheduleAppointmentSuccessDialog(
+                                            context,
+                                            appointmentUidToReschedule!,
+                                            doctor,
+                                          ).then((_) {
+                                            // Navigate directly to ReviewRescheduledAppointmentScreen
+                                            Navigator.pushReplacement(
                                               context,
-                                              appointmentUidToReschedule!,
-                                              doctor,
-                                            ).then((_) {
-                                              Navigator.of(context).pop();
-                                              Navigator.pushReplacementNamed(
-                                                context,
-                                                '/bottomNavigation',
-                                                arguments: {'initialIndex': 2},
-                                              );
-                                            });
+                                              MaterialPageRoute(
+                                                builder: (context) {
+                                                  return ReviewRescheduledAppointmentScreen(
+                                                    doctorDetails: doctor,
+                                                    currentPatient:
+                                                        currentActivePatient!,
+                                                    appointmentModel:
+                                                        appointmentDetailsForReschedule!,
+                                                  );
+                                                },
+                                              ),
+                                            );
                                           }).whenComplete(() {
+                                            // Reset the mode after completion
                                             isRescheduleMode = false;
                                             debugPrint(
                                                 'isRescheduleMode set to false');

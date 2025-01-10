@@ -131,6 +131,22 @@ class AppointmentDetailsScreen extends StatelessWidget {
                 content: Text(state.errorMessage),
               ),
             );
+          } else if (state is NavigateToReviewRescheduledAppointmentState) {
+            debugPrint(
+                "State received, navigating to ReviewRescheduledAppointmentScreen");
+            // Navigate to the new screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return ReviewRescheduledAppointmentScreen(
+                    doctorDetails: state.doctor,
+                    currentPatient: state.patient,
+                    appointmentModel: state.appointment,
+                  );
+                },
+              ),
+            );
           } else if (state is CancelAppointmentLoading) {
             showDialog(
               context: context,
@@ -166,6 +182,7 @@ class AppointmentDetailsScreen extends StatelessWidget {
           }
         },
         builder: (context, state) {
+          debugPrint('State being built: $state');
           if (state is AppointmentDetailsStatusState) {
             final appointment = state.appointment;
             return appointment.appointmentUid == null

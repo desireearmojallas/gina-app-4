@@ -34,6 +34,7 @@ class AppointmentDetailsBloc
     on<RescheduleAppointmentEvent>(rescheduleAppointmentEvent);
     on<NavigateToReviewRescheduledAppointmentEvent>(
         navigateToReviewRescheduledAppointmentEvent);
+    on<FetchLatestAppointmentDetailsEvent>(fetchLatestAppointmentDetailsEvent);
   }
 
   FutureOr<void> navigateToAppointmentDetailsStatusEvent(
@@ -99,9 +100,9 @@ class AppointmentDetailsBloc
     DateTime parsedDate = DateFormat('EEEE, d of MMMM yyyy').parse(dateString);
     String reformattedDate = DateFormat('MMMM d, yyyy').format(parsedDate);
 
-    debugPrint('datestring2: $dateString');
-    debugPrint('parsedDate2: $parsedDate');
-    debugPrint('reformattedDate2: $reformattedDate');
+    debugPrint('datestring: $dateString');
+    debugPrint('parsedDate: $parsedDate');
+    debugPrint('reformattedDate: $reformattedDate');
 
     try {
       final result = await appointmentController.rescheduleAppointment(
@@ -111,7 +112,7 @@ class AppointmentDetailsBloc
         modeOfAppointment: event.modeOfAppointment,
       );
 
-      debugPrint('result2: $result');
+      debugPrint('rescheduleAppointment result: $result');
 
       await result.fold(
         (failure) async {
@@ -176,7 +177,7 @@ class AppointmentDetailsBloc
         },
       );
     } catch (e) {
-      debugPrint('Exception occurred: $e');
+      debugPrint('Exception occurred in rescheduleAppointmentEvent: $e');
       emit(RescheduleAppointmentError(errorMessage: e.toString()));
     }
   }
@@ -218,31 +219,62 @@ class AppointmentDetailsBloc
       NavigateToReviewRescheduledAppointmentEvent event,
       Emitter<AppointmentDetailsState> emit) async {
     debugPrint('NavigateToReviewRescheduledAppointmentEvent triggered');
-    emit(NavigateToReviewRescheduledLoadingState());
+    // emit(NavigateToReviewRescheduledLoadingState());
 
     final appointment = await appointmentController.getAppointmentDetails(
         appointmentUid: event.appointmentUid);
 
     await appointment.fold(
       (failure) async {
+        debugPrint('Failed to fetch appointment details: $failure');
         emit(RescheduleAppointmentError(errorMessage: failure.toString()));
       },
       (appointment) async {
         storedAppointment = appointment;
+        debugPrint('Fetched appointment: $appointment');
         debugPrint('Current patient: $currentActivePatient');
-        debugPrint('Emitting NavigateToReviewRescheduledAppointmentState');
-        emit(
-          NavigateToReviewRescheduledAppointmentState(
-            doctor: doctorDetails!,
-            patient: currentActivePatient!,
-            appointment: storedAppointment!,
-          ),
-        );
-        debugPrint('NavigateToReviewRescheduledAppointmentState emitted');
+        debugPrint('Doctor: $doctorDetails');
+
+        if (doctorDetails != null && currentActivePatient != null) {
+          debugPrint('Emitting NavigateToReviewRescheduledAppointmentState');
+          emit(
+            NavigateToReviewRescheduledAppointmentState(
+              doctor: doctorDetails!,
+              patient: currentActivePatient!,
+              appointment: appointment,
+            ),
+          );
+          debugPrint('NavigateToReviewRescheduledAppointmentState emitted');
+        } else {
+          debugPrint('Doctor or Patient data is missing, cannot navigate');
+          emit(RescheduleAppointmentError(
+              errorMessage: "Doctor or Patient data is missing"));
+        }
       },
     );
-    debugPrint('Doctor: $doctorDetails');
-    debugPrint('Patient: $currentActivePatient');
-    debugPrint('Appointment: $storedAppointment');
+  }
+
+  FutureOr<void> fetchLatestAppointmentDetailsEvent(
+      FetchLatestAppointmentDetailsEvent event,
+      Emitter<AppointmentDetailsState> emit) async {
+    try {
+      final appointmentDetails = await appointmentController
+          .getAppointmentDetails(appointmentUid: event.appointmentUid);
+
+      await appointmentDetails.fold(
+        (failure) async {
+          debugPrint('Failed to fetch latest appointment details: $failure');
+          emit(AppointmentDetailsError(errorMessage: failure.toString()));
+        },
+        (appointment) async {
+          debugPrint('Fetched latest appointment details: $appointment');
+          emit(LatestAppointmentDetailsFetchedState(appointment: appointment));
+        },
+      );
+    } catch (e) {
+      debugPrint(
+          'Exception occurred in fetchLatestAppointmentDetailsEvent: $e');
+      emit(AppointmentDetailsError(errorMessage: e.toString()));
+    }
   }
 }

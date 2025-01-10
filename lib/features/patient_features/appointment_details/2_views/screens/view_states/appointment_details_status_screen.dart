@@ -74,8 +74,7 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                         children: [
                           const Gap(15),
                           RescheduleFilledButton(
-                            appointmentUid: appointment.appointmentUid ??
-                                storedAppointmentUid!,
+                            appointment: appointment,
                             doctor: doctorDetails,
                           ),
                         ],
@@ -325,7 +324,8 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                           );
                         },
                       ),
-                const Gap(160),
+                const Gap(100),
+                // const Gap(160),
               ],
             ),
           ),

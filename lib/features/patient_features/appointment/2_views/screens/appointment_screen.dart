@@ -124,8 +124,10 @@ class AppointmentScreen extends StatelessWidget {
                         ],
                       )
                     : state is AppointmentDetailsState &&
-                            state.appointment.appointmentStatus ==
-                                AppointmentStatus.confirmed.index &&
+                            (state.appointment.appointmentStatus ==
+                                    AppointmentStatus.confirmed.index ||
+                                state.appointment.appointmentStatus ==
+                                    AppointmentStatus.completed.index) &&
                             state.appointment.modeOfAppointment ==
                                 ModeOfAppointmentId.onlineConsultation.index
                         ? FloatingActionButton(

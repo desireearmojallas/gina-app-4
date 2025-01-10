@@ -19,6 +19,7 @@ part 'appointment_state.dart';
 String? storedAppointmentUid;
 String? storedAppointmentTime;
 AppointmentModel? appointmentDetails;
+AppointmentModel? appointmentDetailsForReschedule;
 List<String>? storedPrescriptionImages;
 bool isUploadPrescriptionMode = false;
 bool isFromAppointmentTabs = false;

@@ -60,11 +60,21 @@ Future<dynamic> showCancelModalDialog(
                             appointmentUid: appointmentId),
                       );
                       Navigator.of(context).pop();
+                      Navigator.pushReplacementNamed(
+                        context,
+                        '/bottomNavigation',
+                        arguments: {'initialIndex': 2},
+                      );
                     } else {
                       appointmentDetailBloc.add(
                         CancelAppointmentEvent(appointmentUid: appointmentId),
                       );
                       Navigator.of(context).pop();
+                      Navigator.pushReplacementNamed(
+                        context,
+                        '/bottomNavigation',
+                        arguments: {'initialIndex': 2},
+                      );
                     }
                   },
                   child: Text(

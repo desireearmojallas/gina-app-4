@@ -53,3 +53,12 @@ class NavigateToReviewRescheduledAppointmentEvent
   @override
   List<Object> get props => [appointmentUid];
 }
+
+class FetchLatestAppointmentDetailsEvent extends AppointmentDetailsEvent {
+  final String appointmentUid;
+
+  const FetchLatestAppointmentDetailsEvent({required this.appointmentUid});
+
+  @override
+  List<Object> get props => [appointmentUid];
+}
