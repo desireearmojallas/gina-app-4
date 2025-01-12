@@ -9,9 +9,13 @@ import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcemen
 
 class GinaDivider extends StatelessWidget {
   double? space;
+  Color? color;
+  Color? ginaColor;
   GinaDivider({
     super.key,
     this.space = 8.0,
+    this.color = GinaAppTheme.lightSurfaceVariant,
+    this.ginaColor = GinaAppTheme.lightSurfaceVariant,
   });
 
   @override
@@ -27,7 +31,7 @@ class GinaDivider extends StatelessWidget {
               child: CustomPaint(
                 size: const Size(double.infinity, 1),
                 painter: DashedLinePainterHorizontal(
-                  color: GinaAppTheme.lightSurfaceVariant,
+                  color: color!,
                 ),
               ),
             ),
@@ -35,8 +39,8 @@ class GinaDivider extends StatelessWidget {
             SvgPicture.asset(
               Images.appLogo,
               height: size.height * 0.03,
-              colorFilter: const ColorFilter.mode(
-                GinaAppTheme.lightSurfaceVariant,
+              colorFilter: ColorFilter.mode(
+                ginaColor!,
                 BlendMode.srcIn,
               ),
             ),
@@ -45,7 +49,7 @@ class GinaDivider extends StatelessWidget {
               child: CustomPaint(
                 size: const Size(double.infinity, 1),
                 painter: DashedLinePainterHorizontal(
-                  color: GinaAppTheme.lightSurfaceVariant,
+                  color: color!,
                 ),
               ),
             ),

@@ -16,7 +16,7 @@ class ChatCard extends StatefulWidget {
   final List<ChatMessageModel> chat;
   final String chatroom;
   final String recipient;
-  final AppointmentModel appointment;
+  // final AppointmentModel appointment;
   const ChatCard({
     super.key,
     required this.scrollController,
@@ -25,7 +25,7 @@ class ChatCard extends StatefulWidget {
     required this.chat,
     required this.chatroom,
     required this.recipient,
-    required this.appointment,
+    // required this.appointment,
   });
 
   @override
@@ -39,7 +39,7 @@ class _ChatCardState extends State<ChatCard> {
   ScrollController get scrollController => widget.scrollController;
   int get index => widget.index;
   String get chatroom => widget.chatroom;
-  AppointmentModel get appointment => widget.appointment;
+  // AppointmentModel get appointment => widget.appointment;
   final isDoctor = FirebaseAuth.instance.currentUser?.uid;
 
   @override
@@ -102,10 +102,13 @@ class _ChatCardState extends State<ChatCard> {
         alignment: Alignment.center,
         width: double.infinity,
         child: Text(
-          DateFormat('MMM d, y hh:mm a')
+          DateFormat('hh:mm a')
               // DateFormat('hh:mm a')
-              .format(chat[index].createdAt!.toDate()),
-          style: const TextStyle(color: Colors.white, fontSize: 12),
+              .format(chat[index].createdAt!.toDate())
+              .toUpperCase(),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: GinaAppTheme.appbarColorLight.withOpacity(0.8),
+              ),
         ),
       ),
     );
@@ -146,19 +149,19 @@ class _ChatCardState extends State<ChatCard> {
                   future: DoctorModel.fromUid(uid: widget.recipient),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Text(
+                      return Text(
                         'Loading...',
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 10,
                         ),
                       );
                     } else if (snapshot.hasError) {
-                      return const Text(
+                      return Text(
                         'Error',
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 10,
                         ),
                       );
                     } else if (snapshot.hasData) {
@@ -167,17 +170,17 @@ class _ChatCardState extends State<ChatCard> {
                         chat[index].seenBy.contains(widget.recipient)
                             ? 'Seen by Dr. $doctorName'
                             : 'Sent',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 10,
                         ),
                       );
                     } else {
-                      return const Text(
+                      return Text(
                         'Sent',
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 10,
                         ),
                       );
                     }
@@ -188,9 +191,9 @@ class _ChatCardState extends State<ChatCard> {
                   chat[index].seenBy.contains(currentUserUid)
                       ? 'Seen by you'
                       : 'Sent',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 10,
                   ),
                 ),
             ],

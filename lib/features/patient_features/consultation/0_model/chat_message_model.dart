@@ -111,10 +111,12 @@ class ChatMessageModel extends Equatable {
       };
 
   static Stream<List<ChatMessageModel>> individualCurrentChats(
-          String chatroom) =>
+          String chatroom, String appointmentId) =>
       FirebaseFirestore.instance
           .collection('consultation-chatrooms')
           .doc(chatroom)
+          .collection('appointments')
+          .doc(appointmentId)
           .collection('messages')
           .orderBy('createdAt')
           .snapshots()
@@ -133,10 +135,13 @@ class ChatMessageModel extends Equatable {
     return !seenBy.contains(uid);
   }
 
-  Future individualUpdateSeen(String userID, String chatroom) {
+  Future individualUpdateSeen(
+      String userID, String chatroom, String appointmentId) {
     return FirebaseFirestore.instance
         .collection('consultation-chatrooms')
         .doc(chatroom)
+        .collection('appointments')
+        .doc(appointmentId)
         .collection('messages')
         .doc(uid)
         .update({

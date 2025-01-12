@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/consultation/0_model/chat_message_model.dart';
 
 class DoctorChatMessageController with ChangeNotifier {
@@ -50,7 +51,8 @@ class DoctorChatMessageController with ChangeNotifier {
 
   subscribe() {
     if (_isDisposed) return;
-    chatSub = ChatMessageModel.individualCurrentChats(chatroom!)
+    chatSub = ChatMessageModel.individualCurrentChats(
+            chatroom!, selectedPatientAppointmentModel!.appointmentUid!)
         .listen(chatUpdateHandler);
     controller.add('success');
   }
@@ -115,7 +117,8 @@ class DoctorChatMessageController with ChangeNotifier {
     for (ChatMessageModel message in update) {
       if (chatroom == generateRoomId(recipient) &&
           message.hasNotSeenMessage(auth.currentUser!.uid)) {
-        message.individualUpdateSeen(auth.currentUser!.uid, chatroom!);
+        message.individualUpdateSeen(auth.currentUser!.uid, chatroom!,
+            selectedPatientAppointmentModel!.appointmentUid!);
       }
     }
 

@@ -36,8 +36,11 @@ class ConsultationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: GinaPatientAppBar(
-        title: 'Dr. ${doctorDetails!.name}',
+      // appBar: GinaPatientAppBar(
+      //   title: 'Dr. ${doctorDetails!.name}',
+      // ),
+      appBar: AppBar(
+        title: Text('Dr. ${doctorDetails!.name}'),
       ),
       body: BlocConsumer<ConsultationBloc, ConsultationState>(
         listenWhen: (previous, current) => current is ConsultationActionState,
@@ -61,6 +64,7 @@ class ConsultationScreen extends StatelessWidget {
             return ConsultationOnGoingAppointmentScreen(
               doctorUid: doctorDetails,
               chatroom: chatRoom,
+              appointment: selectedDoctorAppointmentModel!,
             );
           }
           return const Center(

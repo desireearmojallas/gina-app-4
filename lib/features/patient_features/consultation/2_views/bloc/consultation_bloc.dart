@@ -139,6 +139,7 @@ class ConsultationBloc extends Bloc<ConsultationEvent, ConsultationState> {
     await chatMessageController.sendMessage(
       recipient: event.recipient,
       message: event.message,
+      appointment: selectedDoctorAppointmentModel!,
     );
   }
 }

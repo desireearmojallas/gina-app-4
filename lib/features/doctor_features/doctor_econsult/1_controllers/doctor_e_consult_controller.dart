@@ -99,6 +99,8 @@ class DoctorEConsultController with ChangeNotifier {
 
   //------------- GET DOCTOR CHATROOMS AND MESSAGES ----------------
 
+  //TODO: to edit this when firestore is updated with new consultation chatrooms structure
+
   Future<Either<Exception, List<ChatMessageModel>>>
       getDoctorChatroomsAndMessages() async {
     try {
