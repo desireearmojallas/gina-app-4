@@ -192,6 +192,7 @@ class DoctorConsultationScreen extends StatelessWidget {
                   return DoctorConsultationOnGoingAppointmentScreen(
                     patientUid: patientUid,
                     chatroom: chatRoom,
+                    appointment: selectedPatientAppointmentModel!,
                   );
                 } else if (state is NavigateToPatientDataState) {
                   return ViewPatientDataScreen(

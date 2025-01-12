@@ -26,6 +26,8 @@ class ChatMessageController with ChangeNotifier {
   Map<String, List<ChatMessageModel>> appointmentMessages = {};
   Map<String, Map<String, dynamic>> appointmentTimes = {};
 
+  bool _isDisposed = false;
+
   ChatMessageController() {
     debugPrint('ChatMessageController initialized');
     chatSub = const Stream.empty().listen((_) {});
@@ -38,28 +40,34 @@ class ChatMessageController with ChangeNotifier {
     authStream = auth.authStateChanges().listen((User? user) {
       currentUser = user;
       debugPrint('Auth state changed: $user');
-      notifyListeners();
+      if (!_isDisposed) {
+        notifyListeners();
+      }
     });
   }
 
   @override
   void dispose() {
     debugPrint('Disposing ChatMessageController');
+    _isDisposed = true;
+    authStream.cancel();
+    controller.close();
     chatSub.cancel();
     super.dispose();
   }
 
   subscribe() {
+    if (_isDisposed) return;
     debugPrint('Subscribing to chat updates');
     chatSub = ChatMessageModel.individualCurrentChats(
             chatroom!, selectedDoctorAppointmentModel!.appointmentUid!)
         .listen(chatUpdateHandler);
     controller.add('success');
-    monitorAppointmentStatus(
-        selectedDoctorAppointmentModel!.appointmentUid!); // Add this line
+    monitorAppointmentStatus(selectedDoctorAppointmentModel!.appointmentUid!);
   }
 
   getChatRoom(String room, String currentRecipient) {
+    if (_isDisposed) return;
     debugPrint('Getting chat room: $room for recipient: $currentRecipient');
     UserModel.fromUid(uid: auth.currentUser!.uid).then((value) {
       recipient = currentRecipient;
@@ -74,19 +82,36 @@ class ChatMessageController with ChangeNotifier {
   }
 
   Future<String?> initChatRoom(String room, String currentRecipient) async {
+    if (_isDisposed) return Future.value(null);
     debugPrint(
         'Initializing chat room: $room for recipient: $currentRecipient');
-    recipient = currentRecipient;
-    patient = await UserModel.fromUid(uid: auth.currentUser!.uid);
-    if (patient != null && patient!.chatrooms.contains(room)) {
+    // recipient = currentRecipient;
+    // patient = await UserModel.fromUid(uid: auth.currentUser!.uid);
+    // if (patient != null && patient!.chatrooms.contains(room)) {
+    //   chatroom = room;
+    //   subscribe();
+    //   monitorAppointmentStatus(
+    //       selectedDoctorAppointmentModel!.appointmentUid!); // Add this line
+    // } else {
+    //   controller.add('empty');
+    // }
+    // return chatroom;
+
+    UserModel.fromUid(uid: FirebaseAuth.instance.currentUser!.uid)
+        .then((value) {
+      recipient = currentRecipient;
+      patient = value;
+      if (patient != null && patient!.chatrooms.contains(room)) {
+        subscribe();
+      } else {
+        controller.add('empty');
+      }
+
       chatroom = room;
-      subscribe();
-      monitorAppointmentStatus(
-          selectedDoctorAppointmentModel!.appointmentUid!); // Add this line
-    } else {
-      controller.add('empty');
-    }
-    return chatroom;
+      debugPrint('Chatroom initialized: $chatroom');
+      return chatroom;
+    });
+    return Future.value(chatroom);
   }
 
   generateRoomId(String recipientUid) {
@@ -117,6 +142,7 @@ class ChatMessageController with ChangeNotifier {
   // }
 
   chatUpdateHandler(List<ChatMessageModel> update) async {
+    if (_isDisposed) return;
     debugPrint('Handling chat update');
     Map<String, List<ChatMessageModel>> allMessages = {};
     Map<String, Map<String, dynamic>> allTimes = {};
@@ -142,9 +168,34 @@ class ChatMessageController with ChangeNotifier {
           .orderBy('createdAt')
           .get();
 
-      List<ChatMessageModel> messages = messagesSnapshot.docs
-          .map((doc) => ChatMessageModel.fromJson(doc.data()))
-          .toList();
+      List<ChatMessageModel> messages = messagesSnapshot.docs.map((doc) {
+        ChatMessageModel message = ChatMessageModel.fromJson(doc.data());
+
+        return message;
+      }).toList();
+
+      // Update seen status for messages
+      for (ChatMessageModel message in messages) {
+        if (chatroom == generateRoomId(recipient) &&
+            message.hasNotSeenMessage(auth.currentUser!.uid)) {
+          DocumentReference<Map<String, dynamic>> messageRef = firestore
+              .collection('consultation-chatrooms')
+              .doc(chatroom)
+              .collection('appointments')
+              .doc(appointmentId)
+              .collection('messages')
+              .doc(message.uid);
+
+          DocumentSnapshot<Map<String, dynamic>> messageDoc =
+              await messageRef.get();
+          if (messageDoc.exists) {
+            message.individualUpdateSeen(auth.currentUser!.uid, chatroom!,
+                selectedDoctorAppointmentModel!.appointmentUid!);
+          } else {
+            debugPrint('Message document does not exist: ${message.uid}');
+          }
+        }
+      }
 
       // Fetch the appointment status from the top-level collection
       DocumentSnapshot<Map<String, dynamic>> appointmentStatusSnapshot =
@@ -192,6 +243,7 @@ class ChatMessageController with ChangeNotifier {
     required String message,
     required String recipient,
   }) async {
+    if (_isDisposed) return;
     debugPrint('Sending first message to recipient: $recipient');
     final currentUserModel = await firestore
         .collection('patients')
@@ -229,6 +281,7 @@ class ChatMessageController with ChangeNotifier {
 
   Future<void> firstMessageText(String chatroom, String recipient,
       String thisUser, Map<String, dynamic> newMessage) async {
+    if (_isDisposed) return;
     debugPrint('Sending first message text to chatroom: $chatroom');
     await firestore.collection('consultation-chatrooms').doc(chatroom).set({
       'chatroom': chatroom,
@@ -272,6 +325,7 @@ class ChatMessageController with ChangeNotifier {
     required String recipient,
     required AppointmentModel appointment,
   }) async {
+    if (_isDisposed) return;
     debugPrint('Sending message to recipient: $recipient');
     var thisUser = auth.currentUser!.uid;
     await sendMessageText(recipient, message, thisUser, appointment);
@@ -284,6 +338,7 @@ class ChatMessageController with ChangeNotifier {
     String thisUser,
     AppointmentModel appointment,
   ) async {
+    if (_isDisposed) return Future.error('Controller is disposed');
     debugPrint('Sending message text to recipient: $recipient');
     // Fetch the doctor's details
     DocumentSnapshot<Map<String, dynamic>> docSnapshot =

@@ -40,11 +40,11 @@ class _ChatCardState extends State<ChatCard> {
   int get index => widget.index;
   String get chatroom => widget.chatroom;
   // AppointmentModel get appointment => widget.appointment;
-  final isDoctor = FirebaseAuth.instance.currentUser?.uid;
+  final isPatient = FirebaseAuth.instance.currentUser?.uid;
 
   @override
   Widget build(BuildContext context) {
-    bool isCurrentUser = chat[index].authorUid == isDoctor;
+    bool isCurrentUser = chat[index].authorUid == isPatient;
     bool isNextSameAuthor = index < chat.length - 1 &&
         chat[index + 1].authorUid == chat[index].authorUid;
 
@@ -117,7 +117,7 @@ class _ChatCardState extends State<ChatCard> {
   //-------------Message Bubble----------------
   Row messageBubble(BuildContext context) {
     return Row(
-      mainAxisAlignment: chat[index].authorUid == isDoctor
+      mainAxisAlignment: chat[index].authorUid == isPatient
           ? MainAxisAlignment.end
           : MainAxisAlignment.start,
       children: [
@@ -209,7 +209,7 @@ class _ChatCardState extends State<ChatCard> {
       visible: chat[index].isEdited
           ? chat[index].isDeleted
               ? false
-              : chat[index].authorUid == isDoctor
+              : chat[index].authorUid == isPatient
           : false,
       child: Padding(
         padding: const EdgeInsets.all(5),
@@ -236,16 +236,16 @@ class _ChatCardState extends State<ChatCard> {
           HapticFeedback.vibrate();
           chat[index].isDeleted
               ? null
-              : chat[index].authorUid == isDoctor
+              : chat[index].authorUid == isPatient
                   ? null
                   : null;
         },
         child: Column(
-          crossAxisAlignment: chat[index].authorUid == isDoctor
+          crossAxisAlignment: chat[index].authorUid == isPatient
               ? CrossAxisAlignment.end
               : CrossAxisAlignment.start,
           children: [
-            if ((chat[index].authorUid != isDoctor) &&
+            if ((chat[index].authorUid != isPatient) &&
                 (index == 0 ||
                     chat[index - 1].authorUid != chat[index].authorUid))
               FutureBuilder(
@@ -288,7 +288,7 @@ class _ChatCardState extends State<ChatCard> {
       visible: chat[index].isEdited
           ? chat[index].isDeleted
               ? false
-              : chat[index].authorUid == isDoctor
+              : chat[index].authorUid == isPatient
                   ? false
                   : true
           : false,
@@ -317,7 +317,7 @@ class _ChatCardState extends State<ChatCard> {
           fontSize: 14.0,
           color: chat[index].isDeleted
               ? Colors.white
-              : chat[index].authorUid == isDoctor
+              : chat[index].authorUid == isPatient
                   ? GinaAppTheme.appbarColorLight
                   : GinaAppTheme.lightOnPrimaryColor,
         ),
@@ -346,7 +346,7 @@ class _ChatCardState extends State<ChatCard> {
 
   //-------------Background Color----------------
   BoxDecoration backgroundColor(BuildContext context) {
-    final currentUserUid = isDoctor;
+    final currentUserUid = isPatient;
     final isCurrentUser = chat[index].authorUid == currentUserUid;
 
     bool isPreviousSameAuthor =
@@ -423,7 +423,7 @@ class _ChatCardState extends State<ChatCard> {
                 })(),
       color: chat[index].isDeleted
           ? Colors.transparent
-          : chat[index].authorUid == isDoctor
+          : chat[index].authorUid == isPatient
               ? GinaAppTheme.lightTertiaryContainer
               : GinaAppTheme.appbarColorLight,
     );

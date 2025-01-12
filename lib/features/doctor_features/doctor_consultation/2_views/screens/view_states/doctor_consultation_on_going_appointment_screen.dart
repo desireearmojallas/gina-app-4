@@ -8,6 +8,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/widgets/doctor_chat_consultation_body.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/widgets/doctor_chat_first_message_body.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/widgets/doctor_chat_message_body.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/view_states/consultation_loading_appointment.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/view_states/consultation_no_appointment.dart';
@@ -15,8 +16,13 @@ import 'package:gina_app_4/features/patient_features/consultation/2_views/screen
 class DoctorConsultationOnGoingAppointmentScreen extends StatefulWidget {
   final String patientUid;
   final String chatroom;
-  const DoctorConsultationOnGoingAppointmentScreen(
-      {super.key, required this.patientUid, required this.chatroom});
+  final AppointmentModel appointment;
+  const DoctorConsultationOnGoingAppointmentScreen({
+    super.key,
+    required this.patientUid,
+    required this.chatroom,
+    required this.appointment,
+  });
 
   @override
   State<DoctorConsultationOnGoingAppointmentScreen> createState() =>
@@ -33,6 +39,7 @@ class _DoctorConsultationOnGoingAppointmentScreenState
 
   String get selectedPatientUid => widget.patientUid;
   String get chatroom => widget.chatroom;
+  AppointmentModel get appointment => widget.appointment;
   UserModel? user;
 
   @override
@@ -109,6 +116,7 @@ class _DoctorConsultationOnGoingAppointmentScreenState
                           isChatWaiting = value;
                         });
                       },
+                      appointment: appointment,
                     );
                   } else if (snapshot.data == 'empty') {
                     debugPrint(
@@ -124,6 +132,7 @@ class _DoctorConsultationOnGoingAppointmentScreenState
                           isChatWaiting = value;
                         });
                       },
+                      appointment: appointment,
                     );
                   }
                 } else if (snapshot.hasError) {

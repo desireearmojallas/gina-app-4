@@ -7,6 +7,7 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/widgets/doctor_chat_input_message_field.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
@@ -18,6 +19,7 @@ class DoctorChatConsultationBody extends StatefulWidget {
   final Widget messages;
   final Function send;
   final Function(bool) onChatWaitingChanged;
+  final AppointmentModel appointment;
   const DoctorChatConsultationBody({
     super.key,
     required this.messageFN,
@@ -26,6 +28,7 @@ class DoctorChatConsultationBody extends StatefulWidget {
     required this.messages,
     required this.send,
     required this.onChatWaitingChanged,
+    required this.appointment,
   });
 
   @override
@@ -37,6 +40,8 @@ class _DoctorChatConsultationBodyState
     extends State<DoctorChatConsultationBody> {
   late Timer _timer;
   bool _isLoading = false;
+
+  AppointmentModel get appointment => widget.appointment;
 
   @override
   void initState() {
@@ -143,6 +148,7 @@ class _DoctorChatConsultationBodyState
                     messageController: widget.messageController,
                     context: widget.context,
                     send: widget.send,
+                    appointment: appointment,
                   ),
                 ],
               ),
@@ -153,6 +159,7 @@ class _DoctorChatConsultationBodyState
               messageController: widget.messageController,
               context: widget.context,
               send: widget.send,
+              appointment: appointment,
             ),
         ],
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 
@@ -9,12 +10,14 @@ class DoctorChatInputMessageField extends StatelessWidget {
   final TextEditingController messageController;
   final BuildContext context;
   final Function send;
+  final AppointmentModel appointment;
   const DoctorChatInputMessageField({
     super.key,
     required this.messageFN,
     required this.messageController,
     required this.context,
     required this.send,
+    required this.appointment,
   });
 
   @override

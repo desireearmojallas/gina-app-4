@@ -99,10 +99,13 @@ class _DoctorChatCardState extends State<DoctorChatCard> {
         alignment: Alignment.center,
         width: double.infinity,
         child: Text(
-          DateFormat('MMM d, y hh:mm a')
+          DateFormat('hh:mm a')
               // DateFormat('hh:mm a')
-              .format(chat[index].createdAt!.toDate()),
-          style: const TextStyle(color: Colors.white, fontSize: 12),
+              .format(chat[index].createdAt!.toDate())
+              .toUpperCase(),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: GinaAppTheme.appbarColorLight.withOpacity(0.8),
+              ),
         ),
       ),
     );
@@ -124,6 +127,9 @@ class _DoctorChatCardState extends State<DoctorChatCard> {
 
   //-------------Message Seen----------------
   Visibility messageSeen(BuildContext context) {
+    final currentUserUid = FirebaseAuth.instance.currentUser?.uid;
+    final isCurrentUser = chat[index].authorUid == currentUserUid;
+
     return Visibility(
       visible: isVisible,
       child: Container(
@@ -132,32 +138,61 @@ class _DoctorChatCardState extends State<DoctorChatCard> {
         child: Container(
           padding: const EdgeInsets.only(right: 10, left: 10),
           child: Row(
-            mainAxisAlignment: chat[index].authorUid == isDoctor
-                ? MainAxisAlignment.end
-                : MainAxisAlignment.start,
+            mainAxisAlignment:
+                isCurrentUser ? MainAxisAlignment.end : MainAxisAlignment.start,
             children: [
-              Text(
-                chat[index].seenBy.length > 1 ? 'Seen by' : 'Sent',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                ),
-              ),
-              for (String uid in chat[index].seenBy)
-                FutureBuilder(
-                  future: UserModel.fromUid(uid: uid),
-                  builder: (context, AsyncSnapshot snap) {
-                    if (snap.hasData &&
-                        chat[index].seenBy.length > 1 &&
-                        snap.data?.uid != isDoctor) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 2),
-                        width: 22,
+              if (isCurrentUser)
+                FutureBuilder<UserModel>(
+                  future: UserModel.fromUid(uid: widget.recipient),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Text(
+                        'Loading...',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 10,
+                        ),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text(
+                        'Error',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 10,
+                        ),
+                      );
+                    } else if (snapshot.hasData) {
+                      final patientName = snapshot.data?.name ?? 'Patient';
+                      return Text(
+                        chat[index].seenBy.contains(widget.recipient)
+                            ? 'Seen by $patientName'
+                            : 'Sent',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 10,
+                        ),
+                      );
+                    } else {
+                      return Text(
+                        'Sent',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 10,
+                        ),
                       );
                     }
-                    return Text(chat[index].authorName ?? '');
                   },
                 )
+              else
+                Text(
+                  chat[index].seenBy.contains(currentUserUid)
+                      ? 'Seen by you'
+                      : 'Sent',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 10,
+                  ),
+                ),
             ],
           ),
         ),
