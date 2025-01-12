@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/screens/appointment_screen.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/screens/find_screen.dart';
@@ -43,6 +44,7 @@ class BottomNavigationBloc
     // });
 
     on<TabChangedEvent>((event, emit) {
+      HapticFeedback.heavyImpact();
       emit(BottomNavigationInitial(
         currentIndex: event.tab,
         selectedScreen: _getScreenForIndex(event.tab),

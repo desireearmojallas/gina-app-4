@@ -384,16 +384,14 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(8.0),
                             decoration: BoxDecoration(
-                              color: GinaAppTheme.lightTertiaryContainer
-                                  .withOpacity(0.9),
+                              color: GinaAppTheme.lightTertiaryContainer,
                               borderRadius: BorderRadius.circular(30.0),
                               boxShadow: [
                                 BoxShadow(
-                                  color: GinaAppTheme.appbarColorLight
-                                      .withOpacity(0.3),
-                                  blurRadius: 8.0,
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 6.0,
                                   spreadRadius: 1.0,
-                                  offset: const Offset(0, 0),
+                                  offset: const Offset(0, 2),
                                 ),
                               ],
                             ),

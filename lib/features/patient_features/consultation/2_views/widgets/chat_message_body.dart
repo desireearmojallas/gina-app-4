@@ -85,7 +85,7 @@ class MessageBody extends StatelessWidget {
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 25.0),
                                         child: Text(
-                                          'APPOINTMENT ID: $appointmentId',
+                                          'Appointment ID: $appointmentId',
                                           style: Theme.of(context)
                                               .textTheme
                                               .labelMedium

@@ -277,4 +277,37 @@ class AppointmentDetailsBloc
       emit(AppointmentDetailsError(errorMessage: e.toString()));
     }
   }
+
+  bool isAppointmentInPast(
+    AppointmentModel appointment,
+  ) {
+    final DateFormat dateFormat = DateFormat('MMMM d, yyyy');
+    final DateFormat timeFormat = DateFormat('hh:mm a');
+    final DateTime now = DateTime.now();
+
+    // Parse appointment date
+    final DateTime appointmentDate =
+        dateFormat.parse(appointment.appointmentDate!);
+
+    // Parse appointment start time
+    final String startTimeString =
+        appointment.appointmentTime?.split(' - ')[0] ?? '';
+    final DateTime startTime = timeFormat.parse(startTimeString);
+
+    // Combine date and time
+    final DateTime appointmentDateTime = DateTime(
+      appointmentDate.year,
+      appointmentDate.month,
+      appointmentDate.day,
+      startTime.hour,
+      startTime.minute,
+    );
+
+    // Allow rescheduling up to 30 minutes before the start time
+    final DateTime rescheduleDeadline =
+        appointmentDateTime.subtract(const Duration(minutes: 30));
+
+    // Compare with current date and time
+    return now.isAfter(rescheduleDeadline);
+  }
 }
