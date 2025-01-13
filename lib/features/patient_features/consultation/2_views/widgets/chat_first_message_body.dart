@@ -21,6 +21,17 @@ class FirstMessageBody extends StatelessWidget {
                   ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0, bottom: 0.0),
+            child: Text(
+              'Consultation starts as soon as the doctor sends their first message.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: GinaAppTheme.appbarColorLight,
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
+          ),
         ],
       ),
     );

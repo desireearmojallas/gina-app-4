@@ -118,20 +118,6 @@ class DoctorChatMessageController with ChangeNotifier {
     return chatroom;
   }
 
-  // chatUpdateHandler(List<ChatMessageModel> update) {
-  //   if (_isDisposed) return;
-  //   for (ChatMessageModel message in update) {
-  //     if (chatroom == generateRoomId(recipient) &&
-  //         message.hasNotSeenMessage(auth.currentUser!.uid)) {
-  //       message.individualUpdateSeen(auth.currentUser!.uid, chatroom!,
-  //           selectedPatientAppointmentModel!.appointmentUid!);
-  //     }
-  //   }
-
-  //   messages = update;
-  //   notifyListeners();
-  // }
-
   chatUpdateHandler(List<ChatMessageModel> update) async {
     if (_isDisposed) return;
     debugPrint('Handling chat update');
@@ -232,6 +218,7 @@ class DoctorChatMessageController with ChangeNotifier {
   sendFirstMessage({
     required String message,
     required String recipient,
+    required AppointmentModel appointment,
   }) async {
     if (_isDisposed) return;
     debugPrint('Sending first message to recipient: $recipient');
@@ -262,15 +249,20 @@ class DoctorChatMessageController with ChangeNotifier {
       var thisUser = auth.currentUser!.uid;
       String chatroom = generateRoomId(recipient);
 
-      firstMessageText(chatroom, recipient, thisUser, newMessage);
+      await firstMessageText(
+          chatroom, recipient, thisUser, newMessage, appointment);
       debugPrint('First message sent');
     } catch (e) {
       debugPrint('Error sending first message: $e');
     }
   }
 
-  Future<void> firstMessageText(String chatroom, String recipient,
-      String thisUser, Map<String, dynamic> newMessage) async {
+  Future<void> firstMessageText(
+      String chatroom,
+      String recipient,
+      String thisUser,
+      Map<String, dynamic> newMessage,
+      AppointmentModel appointment) async {
     if (_isDisposed) return;
     debugPrint('Sending first message text to chatroom: $chatroom');
     await firestore.collection('consultation-chatrooms').doc(chatroom).set({
@@ -280,31 +272,54 @@ class DoctorChatMessageController with ChangeNotifier {
         thisUser,
       ])
     }).then(
-      (snap) => {
-        firestore
+      (snap) async {
+        // Ensure the appointment document exists
+        String appointmentId = appointment.appointmentUid!;
+        DocumentReference<Map<String, dynamic>> appointmentDocRef = firestore
             .collection('consultation-chatrooms')
             .doc(chatroom)
+            .collection('appointments')
+            .doc(appointmentId);
+
+        // Handle appointment timing logic
+        await _handleAppointmentTiming(appointmentId, appointment);
+
+        DocumentSnapshot<Map<String, dynamic>> appointmentDoc =
+            await appointmentDocRef.get();
+        if (!appointmentDoc.exists) {
+          // Create appointment document if it doesn't exist
+          debugPrint('Creating appointment document');
+          await appointmentDocRef.set({'createdAt': Timestamp.now()});
+        }
+
+        // Add the message
+        debugPrint('Adding message to Firestore');
+        await firestore
+            .collection('consultation-chatrooms')
+            .doc(chatroom)
+            .collection('appointments')
+            .doc(appointmentId)
             .collection('messages')
             .add(newMessage)
             .then(
-              (value) => {
-                firestore
-                    .collection('doctors')
-                    .doc(auth.currentUser!.uid)
-                    .update({
-                  'chatrooms': FieldValue.arrayUnion([chatroom])
-                }).then(
-                  (value) => {
-                    firestore.collection('patients').doc(recipient).update(
-                      {
-                        'chatrooms': FieldValue.arrayUnion([chatroom])
-                      },
-                    ),
-                    subscribe(),
+          (value) async {
+            await firestore
+                .collection('doctors')
+                .doc(auth.currentUser!.uid)
+                .update({
+              'chatrooms': FieldValue.arrayUnion([chatroom])
+            }).then(
+              (value) async {
+                await firestore.collection('patients').doc(recipient).update(
+                  {
+                    'chatrooms': FieldValue.arrayUnion([chatroom])
                   },
-                ),
+                );
+                subscribe();
               },
-            ),
+            );
+          },
+        );
       },
     );
   }
@@ -415,6 +430,8 @@ class DoctorChatMessageController with ChangeNotifier {
     DocumentSnapshot<Map<String, dynamic>> appointmentDoc =
         await appointmentDocRef.get();
 
+    if (_isDisposed) return;
+
     Map<String, dynamic>? appointmentData = appointmentDoc.data();
     Timestamp currentTimestamp = Timestamp.now();
     bool isCompleted =
@@ -440,49 +457,9 @@ class DoctorChatMessageController with ChangeNotifier {
     }
   }
 
-  Future<Timestamp?> getFirstMessageTime() async {
-    if (_isDisposed) return null;
-    debugPrint('Getting first message time for chatroom $chatroom');
-
-    QuerySnapshot<Map<String, dynamic>> querySnapshot = await firestore
-        .collection('consultation-chatrooms')
-        .doc(chatroom)
-        .collection('messages')
-        .orderBy('createdAt')
-        .limit(1)
-        .get();
-
-    debugPrint('Got ${querySnapshot.docs.length} documents');
-
-    if (querySnapshot.docs.isNotEmpty) {
-      Timestamp? timestamp = querySnapshot.docs.first.data()['createdAt'];
-      debugPrint('First message time: $timestamp');
-      return timestamp;
-    } else {
-      debugPrint('No documents found');
-      return null;
-    }
-  }
-
-  Future<Timestamp?> getLastMessageTime() async {
-    if (_isDisposed) return null;
-    QuerySnapshot<Map<String, dynamic>> querySnapshot = await firestore
-        .collection('consultation-chatrooms')
-        .doc(chatroom)
-        .collection('messages')
-        .orderBy('createdAt', descending: true)
-        .limit(1)
-        .get();
-
-    if (querySnapshot.docs.isNotEmpty) {
-      return querySnapshot.docs.first.data()['createdAt'];
-    } else {
-      return null;
-    }
-  }
-
   //------------------------Monitor Appointment Status------------------------
   void monitorAppointmentStatus(String appointmentId) {
+    if (_isDisposed) return;
     debugPrint(
         'Monitoring appointment status for appointment ID: $appointmentId');
     firestore
@@ -507,6 +484,7 @@ class DoctorChatMessageController with ChangeNotifier {
 
   Future<void> _updateEndTime(String appointmentId, String appointmentDate,
       String appointmentTime) async {
+    if (_isDisposed) return;
     debugPrint('Updating endTime for appointment: $appointmentId');
 
     DocumentReference<Map<String, dynamic>> appointmentDocRef = firestore

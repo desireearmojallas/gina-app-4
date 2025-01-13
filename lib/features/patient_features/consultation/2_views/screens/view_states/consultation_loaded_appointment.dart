@@ -130,6 +130,7 @@ class _ConsultationOnGoingAppointmentScreenState
                         });
                       },
                       appointment: appointment,
+                      disabled: true,
                     );
                   }
                 } else if (snapshot.hasError) {
@@ -182,7 +183,9 @@ class _ConsultationOnGoingAppointmentScreenState
     messageFN.unfocus();
     if (messageController.text.isNotEmpty) {
       var chatroom = chatController.sendFirstMessage(
-          message: messageController.text.trim(), recipient: selectedDoctorUid);
+          message: messageController.text.trim(),
+          recipient: selectedDoctorUid,
+          appointment: appointment);
       messageController.text = '';
       try {
         setState(() {

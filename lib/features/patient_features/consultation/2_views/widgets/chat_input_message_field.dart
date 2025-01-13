@@ -11,6 +11,7 @@ class ChatInputMessageField extends StatelessWidget {
   final BuildContext context;
   final Function send;
   final AppointmentModel appointment;
+  final bool disabled;
   const ChatInputMessageField({
     super.key,
     required this.messageFN,
@@ -18,6 +19,7 @@ class ChatInputMessageField extends StatelessWidget {
     required this.context,
     required this.send,
     required this.appointment,
+    required this.disabled,
   });
 
   @override
@@ -32,14 +34,16 @@ class ChatInputMessageField extends StatelessWidget {
               width: 285,
               height: 70,
               decoration: BoxDecoration(
-                color: GinaAppTheme.appbarColorLight.withOpacity(0.8),
+                color: disabled
+                    ? GinaAppTheme.lightOutline.withOpacity(0.2)
+                    : GinaAppTheme.appbarColorLight.withOpacity(0.8),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Center(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 20.0),
                   child: TextFormField(
-                    readOnly: isChatWaiting,
+                    readOnly: disabled,
                     focusNode: messageFN,
                     controller: messageController,
                     style: const TextStyle(
@@ -49,7 +53,9 @@ class ChatInputMessageField extends StatelessWidget {
                       hintText: 'Message',
                       hintStyle:
                           Theme.of(context).textTheme.titleSmall?.copyWith(
-                                color: GinaAppTheme.lightOutline,
+                                color: disabled
+                                    ? Colors.white.withOpacity(0.4)
+                                    : GinaAppTheme.lightOutline,
                                 fontSize: 14,
                               ),
                       isDense: true,
@@ -71,20 +77,21 @@ class ChatInputMessageField extends StatelessWidget {
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-                color: isChatWaiting
-                    ? GinaAppTheme.lightOutline.withOpacity(0.4)
+                color: disabled
+                    ? GinaAppTheme.lightOutline.withOpacity(0.2)
                     : GinaAppTheme.lightTertiaryContainer,
                 borderRadius: BorderRadius.circular(20)),
             child: IconButton(
                 icon: Icon(
                   MingCute.send_plane_fill,
-                  color: isChatWaiting
-                      ? Colors.white.withOpacity(0.5)
-                      : Colors.white,
+                  color:
+                      disabled ? Colors.white.withOpacity(0.4) : Colors.white,
                   size: 25,
                 ),
                 onPressed: () {
-                  isChatWaiting ? null : send();
+                  if (!disabled) {
+                    send();
+                  }
                 }),
           )
         ],

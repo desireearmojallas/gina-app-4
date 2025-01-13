@@ -142,7 +142,10 @@ class DoctorConsultationBloc
       DoctorConsultationSendFirstMessageEvent event,
       Emitter<DoctorConsultationState> emit) async {
     await doctorChatMessageController.sendFirstMessage(
-        message: event.message, recipient: event.recipient);
+      message: event.message,
+      recipient: event.recipient,
+      appointment: selectedPatientAppointmentModel!,
+    );
   }
 
   FutureOr<void> sendChatMessageEvent(

@@ -36,7 +36,7 @@ class ProfileDetailsPatientData extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 15, 0, 10),
       child: Container(
-        height: size.height * 0.42,
+        height: size.height * 0.43,
         width: size.width / 1.08,
         decoration: BoxDecoration(
           color: Colors.white,
@@ -125,9 +125,14 @@ class ProfileDetailsPatientData extends StatelessWidget {
                         style: labelStyle,
                       ),
                       const Gap(10),
-                      Text(
-                        patientData.gender,
-                        style: textStyle,
+                      SizedBox(
+                        width: size.width * 0.22,
+                        child: Flexible(
+                          child: Text(
+                            patientData.gender,
+                            style: textStyle,
+                          ),
+                        ),
                       ),
                     ],
                   ),

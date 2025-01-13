@@ -190,6 +190,7 @@ class _DoctorConsultationOnGoingAppointmentScreenState
       var chatroom = chatController.sendFirstMessage(
         message: messageController.text.trim(),
         recipient: selectedPatientUid,
+        appointment: selectedPatientAppointmentModel!,
       );
       debugPrint("First message sent. Chatroom ID: $chatroom");
       messageController.text = '';

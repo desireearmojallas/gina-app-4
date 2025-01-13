@@ -88,6 +88,26 @@ class DoctorEConsultController with ChangeNotifier {
               .compareTo(bDate.difference(DateTime.now()).abs());
         });
 
+      // Filter out appointments that have already ended
+      final DateTime now = DateTime.now();
+      patientAppointments = patientAppointments.where((appointment) {
+        final DateTime appointmentDate =
+            DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
+        final String endTimeString =
+            appointment.appointmentTime!.split(' - ')[1];
+        final DateTime endTime = DateFormat('hh:mm a').parse(endTimeString);
+
+        final DateTime appointmentEndDateTime = DateTime(
+          appointmentDate.year,
+          appointmentDate.month,
+          appointmentDate.day,
+          endTime.hour,
+          endTime.minute,
+        );
+
+        return appointmentEndDateTime.isAfter(now);
+      }).toList();
+
       return Right(patientAppointments);
     } on FirebaseAuthException catch (e) {
       debugPrint('FirebaseAuthException: ${e.message}');

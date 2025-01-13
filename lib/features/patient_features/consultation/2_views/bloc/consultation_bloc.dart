@@ -131,6 +131,7 @@ class ConsultationBloc extends Bloc<ConsultationEvent, ConsultationState> {
     await chatMessageController.sendFirstMessage(
       message: event.message,
       recipient: event.recipient,
+      appointment: selectedDoctorAppointmentModel!,
     );
   }
 

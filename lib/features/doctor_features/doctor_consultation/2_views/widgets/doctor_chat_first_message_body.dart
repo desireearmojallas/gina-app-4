@@ -21,6 +21,17 @@ class DoctorChatFirstMessageBody extends StatelessWidget {
                   ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0, bottom: 0.0),
+            child: Text(
+              'Feel free to start the conversation by sending a message.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: GinaAppTheme.appbarColorLight,
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
+          ),
         ],
       ),
     );
