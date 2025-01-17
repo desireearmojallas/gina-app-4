@@ -67,7 +67,9 @@ class DoctorConsultationMenu extends StatelessWidget {
             if (context.mounted) {
               doctorConsultationBloc.add(NavigateToPatientDataEvent(
                 patientData: patientDataFromDoctorUpcomingAppointmentsBloc!,
-                appointment: appointmentDataFromDoctorUpcomingAppointmentsBloc!,
+                appointment: isFromChatRoomLists
+                    ? selectedPatientAppointmentModel!
+                    : appointmentDataFromDoctorUpcomingAppointmentsBloc!,
               ));
             }
           },
@@ -95,22 +97,20 @@ class DoctorConsultationMenu extends StatelessWidget {
         ),
         const Gap(10),
         MenuItemButton(
-          onPressed:
-              isFromChatRoomLists || isAppointmentFinished || isChatWaiting
-                  ? null
-                  : () {
-                      debugPrint('End consultation');
+          onPressed: isAppointmentFinished || isChatWaiting
+              ? null
+              : () {
+                  debugPrint('End consultation');
 
-                      doctorConsultationBloc.add(
-                          CompleteDoctorConsultationButtonEvent(
-                              appointmentId: appointmentId));
-                    },
+                  doctorConsultationBloc.add(
+                      CompleteDoctorConsultationButtonEvent(
+                          appointmentId: appointmentId));
+                },
           child: Container(
             decoration: BoxDecoration(
-              color:
-                  isFromChatRoomLists || isAppointmentFinished || isChatWaiting
-                      ? Colors.grey[200]?.withOpacity(0.8)
-                      : GinaAppTheme.declinedTextColor,
+              color: isAppointmentFinished || isChatWaiting
+                  ? Colors.grey[200]?.withOpacity(0.8)
+                  : GinaAppTheme.declinedTextColor,
               borderRadius: BorderRadius.circular(30.0),
             ),
             child: Padding(
@@ -120,9 +120,7 @@ class DoctorConsultationMenu extends StatelessWidget {
                   const Gap(15),
                   Icon(
                     Icons.call_end_rounded,
-                    color: isFromChatRoomLists ||
-                            isAppointmentFinished ||
-                            isChatWaiting
+                    color: isAppointmentFinished || isChatWaiting
                         ? Colors.white.withOpacity(0.9)
                         : Colors.white,
                   ),
@@ -130,9 +128,7 @@ class DoctorConsultationMenu extends StatelessWidget {
                   Text(
                     'End consultation',
                     style: ginaTheme.bodyMedium?.copyWith(
-                      color: isFromChatRoomLists ||
-                              isAppointmentFinished ||
-                              isChatWaiting
+                      color: isAppointmentFinished || isChatWaiting
                           ? Colors.white.withOpacity(0.9)
                           : Colors.white,
                       fontWeight: FontWeight.bold,

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_swiper_view/flutter_swiper_view.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/widgets/doctor_upcoming_appointments_container.dart';
+import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/upcoming_appointments_container.dart';
@@ -47,24 +49,164 @@ class SwiperBuilderWidget extends StatelessWidget {
     final ginaTheme = Theme.of(context).textTheme;
 
     return upcomingAppointments.isEmpty
-        ? Center(
-            child: Padding(
-              padding: const EdgeInsets.all(40.0),
-              child: Column(
-                children: [
-                  Icon(
-                    Bootstrap.calendar_x,
-                    color: GinaAppTheme.lightOutline.withOpacity(0.4),
-                  ),
-                  const Gap(20),
-                  Text(
-                    'No upcoming appointments',
-                    style: ginaTheme.bodyMedium?.copyWith(
-                      color: GinaAppTheme.lightOutline.withOpacity(0.4),
-                    ),
-                  ),
+        ? Container(
+            height: height * 0.2,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  GinaAppTheme.lightOutline.withOpacity(0.4),
+                  GinaAppTheme.lightSurfaceVariant
                 ],
               ),
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                GinaAppTheme.defaultBoxShadow,
+              ],
+            ),
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Text(
+                    '0',
+                    style: ginaTheme.titleLarge?.copyWith(
+                      color: Colors.white.withOpacity(0.15),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 100,
+                    ),
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Gap(height * 0.029),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 25,
+                            backgroundImage: AssetImage(
+                              Images.placeholderProfileIcon,
+                            ),
+                            backgroundColor: Colors.white,
+                          ),
+                          const Gap(15),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: width * 0.4,
+                                child: Row(
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        'No appointments',
+                                        style: ginaTheme.bodyLarge?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                        overflow: TextOverflow.visible,
+                                        softWrap: true,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                width: width * 0.35,
+                                child: Text(
+                                  'ID: ',
+                                  style: ginaTheme.bodyMedium?.copyWith(
+                                    color: Colors.white.withOpacity(0.7),
+                                    fontSize: 11,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Gap(40),
+                    Center(
+                      child: Container(
+                        width: width * 0.8,
+                        height: height * 0.03,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.white.withOpacity(0.3),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(
+                                    MingCute.calendar_2_line,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                  const Gap(5),
+                                  Text(
+                                    'No date',
+                                    style: ginaTheme.bodySmall?.copyWith(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    MingCute.time_line,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                  const Gap(5),
+                                  Text(
+                                    'No time',
+                                    style: ginaTheme.bodySmall?.copyWith(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    MingCute.message_3_line,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                  const Gap(5),
+                                  Text(
+                                    'No appointment',
+                                    style: ginaTheme.bodySmall?.copyWith(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           )
         : SizedBox(

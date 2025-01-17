@@ -254,6 +254,7 @@ class ChatMessageController with ChangeNotifier {
         doctorName: currentDoctorModel.name,
         doctorUid: recipient,
         createdAt: Timestamp.now(),
+        appointmentId: appointment.appointmentUid,
       ).json;
 
       var thisUser = auth.currentUser!.uid;
@@ -416,6 +417,7 @@ class ChatMessageController with ChangeNotifier {
           doctorUid: recipient,
           message: message,
           createdAt: Timestamp.now(),
+          appointmentId: appointmentId,
         ).json);
 
     return messageRef;

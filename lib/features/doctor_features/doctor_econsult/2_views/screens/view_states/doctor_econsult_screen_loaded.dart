@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/reusable_widgets/gina_divider.dart';
+import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/widgets/chat_econsult_card_list.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/swiper_builder.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
@@ -17,6 +20,8 @@ class DoctorEConsultScreenLoaded extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final doctorEconsultBloc = context.read<DoctorEconsultBloc>();
+    final ginaTheme = Theme.of(context).textTheme;
     // final size = MediaQuery.of(context).size;
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
@@ -51,9 +56,24 @@ class DoctorEConsultScreenLoaded extends StatelessWidget {
               ),
             ),
             const Gap(10),
-            ChatEConsultCardList(
-              chatRooms: chatRooms,
-            ),
+            chatRooms.isEmpty
+                ? Column(
+                    children: [
+                      const Gap(50),
+                      Center(
+                        child: Text(
+                          "You have no online consultation messages yet ",
+                          style: ginaTheme.labelLarge?.copyWith(
+                            color: GinaAppTheme.lightOutline,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : ChatEConsultCardList(
+                    chatRooms: chatRooms,
+                    doctorEconsultBloc: doctorEconsultBloc,
+                  ),
           ],
         ),
       ),

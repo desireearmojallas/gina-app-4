@@ -34,3 +34,12 @@ class DoctorEconsultErrorState extends DoctorEconsultActionState {
   @override
   List<Object> get props => [errorMessage];
 }
+
+class AppointmentDetailsLoadedState extends DoctorEconsultState {
+  final AppointmentModel appointment;
+
+  const AppointmentDetailsLoadedState({required this.appointment});
+
+  @override
+  List<Object> get props => [appointment];
+}

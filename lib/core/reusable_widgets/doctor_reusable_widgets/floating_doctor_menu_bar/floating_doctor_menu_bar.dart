@@ -262,7 +262,7 @@ class FloatingDoctorMenuWidget extends StatelessWidget {
         position: badges.BadgePosition.topEnd(top: -8, end: -7),
         child: CircleAvatar(
           foregroundImage: AssetImage(Images.doctorProfileIcon1),
-          backgroundColor: GinaAppTheme.lightPrimaryColor,
+          backgroundColor: Colors.transparent,
         ),
       ),
     );

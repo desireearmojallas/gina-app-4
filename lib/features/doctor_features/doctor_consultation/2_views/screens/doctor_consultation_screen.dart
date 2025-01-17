@@ -12,6 +12,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/screens/view_states/doctor_consultation_on_going_appointment_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/widgets/doctor_consultation_menu.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/view_states/consultation_face_to_face_appointment_screen.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/view_states/consultation_no_appointment.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/view_states/consultation_waiting_appointment.dart';
@@ -141,30 +142,36 @@ class DoctorConsultationScreen extends StatelessWidget {
                               height: 40,
                               width: MediaQuery.of(context).size.width * 0.5,
                               child: FilledButton(
-                                  style: ButtonStyle(
-                                    shape: MaterialStateProperty.all<
-                                        RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
+                                style: ButtonStyle(
+                                  shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
                                   ),
-                                  onPressed: () {
-                                    if (canVibrate == true) {
-                                      Haptics.vibrate(HapticsType.success);
-                                    }
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text('Okay')),
+                                ),
+                                onPressed: () {
+                                  if (canVibrate == true) {
+                                    Haptics.vibrate(HapticsType.success);
+                                  }
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                },
+                                child: const Text('Okay'),
+                              ),
                             ),
                           ],
                         ),
                       ),
                     ),
                   ).then((value) {
-                    Navigator.of(context).pop();
-                    Navigator.pushReplacementNamed(
-                        context, '/doctorBottomNavigation');
+                    Future.delayed(const Duration(milliseconds: 100), () {
+                      doctorConsultationBloc.add(
+                        DoctorConsultationGetRequestedAppointmentEvent(
+                          recipientUid: selectedPatientUid!,
+                        ),
+                      );
+                    });
                   });
                 }
               },
@@ -192,7 +199,8 @@ class DoctorConsultationScreen extends StatelessWidget {
                   return DoctorConsultationOnGoingAppointmentScreen(
                     patientUid: patientUid,
                     chatroom: chatRoom,
-                    appointment: selectedPatientAppointmentModel!,
+                    appointment:
+                        selectedPatientAppointmentModel ?? AppointmentModel(),
                   );
                 } else if (state is NavigateToPatientDataState) {
                   return ViewPatientDataScreen(

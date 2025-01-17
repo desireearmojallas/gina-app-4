@@ -147,8 +147,7 @@ class DoctorChatMessageBody extends StatelessWidget {
                                     padding: const EdgeInsets.only(
                                         top: 20.0, bottom: 10.0),
                                     child: Text(
-                                      DateFormat('MMM dd, yyyy \'at\' hh:mm a')
-                                          .format(lastMessageTime.toDate())
+                                      'Ended ${DateFormat('MMM dd, yyyy \'at\' hh:mm a').format(lastMessageTime.toDate())}'
                                           .toUpperCase(),
                                       style: Theme.of(context)
                                           .textTheme

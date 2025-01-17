@@ -132,24 +132,48 @@ class DoctorEConsultController with ChangeNotifier {
       var chatroomDocs = chatroomSnapshot.docs;
       List<Future<ChatMessageModel?>> chatroomMessagesFutures =
           chatroomDocs.map((chatroomDoc) async {
-        QuerySnapshot<Map<String, dynamic>> messagesSnapshot = await firestore
-            .collection('consultation-chatrooms')
-            .doc(chatroomDoc.id)
-            .collection('messages')
-            .orderBy('createdAt', descending: true)
-            .get();
+        QuerySnapshot<Map<String, dynamic>> appointmentsSnapshot =
+            await firestore
+                .collection('consultation-chatrooms')
+                .doc(chatroomDoc.id)
+                .collection('appointments')
+                .get();
 
-        List<ChatMessageModel> messages = messagesSnapshot.docs
-            .map((doc) => ChatMessageModel.fromJson(doc.data()))
-            .toList();
+        var appointmentDocs = appointmentsSnapshot.docs;
+        List<Future<ChatMessageModel?>> appointmentMessagesFutures =
+            appointmentDocs.map((appointmentDoc) async {
+          QuerySnapshot<Map<String, dynamic>> messagesSnapshot = await firestore
+              .collection('consultation-chatrooms')
+              .doc(chatroomDoc.id)
+              .collection('appointments')
+              .doc(appointmentDoc.id)
+              .collection('messages')
+              .orderBy('createdAt', descending: true)
+              .get();
 
-        return messages.isNotEmpty ? messages.first : null;
+          List<ChatMessageModel> messages = messagesSnapshot.docs
+              .map((doc) => ChatMessageModel.fromJson(doc.data()))
+              .toList();
+
+          return messages.isNotEmpty ? messages.first : null;
+        }).toList();
+
+        List<ChatMessageModel> appointmentMessages =
+            (await Future.wait(appointmentMessagesFutures))
+                .whereType<ChatMessageModel>()
+                .toList();
+
+        return appointmentMessages.isNotEmpty
+            ? appointmentMessages.first
+            : null;
       }).toList();
 
       List<ChatMessageModel> chatroomMessages =
           (await Future.wait(chatroomMessagesFutures))
               .whereType<ChatMessageModel>()
               .toList();
+
+      chatroomMessages.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
 
       return Right(chatroomMessages);
     } on FirebaseAuthException catch (e) {

@@ -19,3 +19,12 @@ class GetPatientDataEvent extends DoctorEconsultEvent {
   @override
   List<Object> get props => [patientUid];
 }
+
+class GetAppointmentDetailsEvent extends DoctorEconsultEvent {
+  final String appointmentUid;
+
+  const GetAppointmentDetailsEvent({required this.appointmentUid});
+
+  @override
+  List<Object> get props => [appointmentUid];
+}

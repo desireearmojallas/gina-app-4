@@ -14,6 +14,7 @@ class ChatMessageModel extends Equatable {
   final String? doctorName;
   final String? doctorUid;
   final String? message;
+  final String? appointmentId; // New field for appointment ID
   List<String> seenBy;
   bool isDeleted;
   bool isEdited;
@@ -29,6 +30,7 @@ class ChatMessageModel extends Equatable {
     this.doctorName,
     this.doctorUid,
     this.message,
+    this.appointmentId, // Initialize the new field
     this.seenBy = const [],
     this.isDeleted = false,
     this.isEdited = false,
@@ -48,6 +50,7 @@ class ChatMessageModel extends Equatable {
           ? List<String>.from(json['seenBy'])
           : <String>[],
       message: json['message'] ?? '',
+      appointmentId: json['appointmentId'] ?? '', // Parse the new field
       isDeleted: json['isDeleted'] ?? false,
       isEdited: json['isEdited'] ?? false,
       createdAt: json['createdAt'] ?? Timestamp.now(),
@@ -66,6 +69,7 @@ class ChatMessageModel extends Equatable {
       doctorUid: json['doctorUid'] ?? '',
       createdAt: json['createdAt'] ?? Timestamp.now(),
       message: json['message'] ?? '',
+      appointmentId: json['appointmentId'] ?? '', // Parse the new field
       seenBy: json['seenBy'] != null
           ? List<String>.from(json['seenBy'])
           : <String>[],
@@ -89,6 +93,7 @@ class ChatMessageModel extends Equatable {
           ? List<String>.from(json['seenBy'])
           : <String>[],
       message: json['message'] ?? '',
+      appointmentId: json['appointmentId'] ?? '', // Parse the new field
       isDeleted: json['isDeleted'] ?? false,
       isEdited: json['isEdited'] ?? false,
       createdAt: json['createdAt'] ?? Timestamp.now(),
@@ -104,6 +109,7 @@ class ChatMessageModel extends Equatable {
         'doctorName': doctorName,
         'doctorUid': doctorUid,
         'message': message,
+        'appointmentId': appointmentId, // Include the new field
         'seenBy': seenBy,
         'isDeleted': isDeleted,
         'isEdited': isEdited,
@@ -157,6 +163,7 @@ class ChatMessageModel extends Equatable {
         authorImage,
         createdAt,
         message,
+        appointmentId, // Include the new field in props
         seenBy,
         isDeleted,
         isEdited,

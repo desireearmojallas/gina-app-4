@@ -36,6 +36,7 @@ class DoctorConsultationBloc
     on<DoctorConsultationSendChatMessageEvent>(sendChatMessageEvent);
     on<CompleteDoctorConsultationButtonEvent>(completeDoctorConsultation);
     on<NavigateToPatientDataEvent>(navigateToPatientDataEvent);
+    on<DoctorConsultationCheckStatusEvent>(checkStatusEvent);
   }
 
   FutureOr<void> getRequestedAppointmentEvent(
@@ -106,7 +107,8 @@ class DoctorConsultationBloc
             'Emitting DoctorConsultationLoadedAppointmentState with chatRoomId: $chatRoomId');
         emit(DoctorConsultationLoadedAppointmentState(
             chatRoomId: chatRoomId!, recipientUid: event.recipientUid));
-      } else if (checkAppointmentForOnlineConsultation == 'chatIsFinished') {
+      } else if (checkAppointmentForOnlineConsultation == 'chatIsFinished' ||
+          checkAppointmentForOnlineConsultation == 'missedAppointment') {
         debugPrint('checkAppointmentForOnlineConsultation == chatIsFinished');
         isAppointmentFinished = true;
         isChatWaiting = false;
@@ -194,5 +196,27 @@ class DoctorConsultationBloc
         ));
       },
     );
+  }
+
+  FutureOr<void> checkStatusEvent(DoctorConsultationCheckStatusEvent event,
+      Emitter<DoctorConsultationState> emit) async {
+    debugPrint('checkStatusEvent triggered');
+
+    final checkAppointmentForOnlineConsultation =
+        await appointmentChatController.chatStatusDecider(
+      appointmentId: event.appointmentId,
+    );
+
+    debugPrint(
+        'DoctorConsultationCheckStatusEvent checkAppointmentForOnlineConsultation: $checkAppointmentForOnlineConsultation');
+
+    if (checkAppointmentForOnlineConsultation == 'chatIsFinished' ||
+        checkAppointmentForOnlineConsultation == 'missedAppointment') {
+      debugPrint(
+          'checkAppointmentForOnlineConsultation == chatIsFinished or missedAppointment');
+      isAppointmentFinished = true;
+    } else {
+      isAppointmentFinished = false;
+    }
   }
 }

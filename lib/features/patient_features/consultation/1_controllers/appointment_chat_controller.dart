@@ -45,24 +45,43 @@ class AppointmentChatController with ChangeNotifier {
 
         final DateTime now = DateTime.now();
 
-        if (appointmentStatus == 1) {
-          if (modeOfAppointment == 0) {
+        debugPrint('Appointment status: $appointmentStatus');
+        debugPrint('Mode of appointment: $modeOfAppointment');
+        debugPrint('Current time: $now');
+        debugPrint('Start time: $startTime');
+        debugPrint('End time: $endTime');
+
+        if (modeOfAppointment == 0) {
+          if (appointmentStatus == 1) {
             if (now.isAfter(startTime) && now.isBefore(endTime)) {
+              debugPrint('Returning canChat');
               return 'canChat';
             } else if (now.isAfter(preAppointmentTime) &&
                 now.isBefore(startTime)) {
+              debugPrint('Returning waitingForTheAppointment');
               return 'waitingForTheAppointment';
             } else if (now.isBefore(startTime)) {
+              debugPrint('Returning appointmentNotStartedYet');
               return 'appointmentNotStartedYet';
             } else if (now.isAfter(endTime)) {
+              debugPrint('Returning chatIsFinished');
               return 'chatIsFinished';
             }
-          } else if (modeOfAppointment == 1) {
-            return 'faceToFaceAppointment';
+          } else if (appointmentStatus == 2) {
+            debugPrint('Returning chatIsFinished for status 2');
+            return 'chatIsFinished';
+          } else if (appointmentStatus == 5) {
+            debugPrint('Returning missedAppointment for status 5');
+            return 'missedAppointment';
           } else {
+            debugPrint('Returning invalid for other status');
             return 'invalid';
           }
+        } else if (modeOfAppointment == 1) {
+          debugPrint('Returning faceToFaceAppointment');
+          return 'faceToFaceAppointment';
         } else {
+          debugPrint('Returning invalid for other mode');
           return 'invalid';
         }
       } catch (e) {

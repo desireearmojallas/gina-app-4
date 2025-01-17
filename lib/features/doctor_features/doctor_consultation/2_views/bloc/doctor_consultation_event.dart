@@ -68,3 +68,12 @@ class NavigateToPatientDataEvent extends DoctorConsultationEvent {
   @override
   List<Object> get props => [patientData, appointment];
 }
+
+class DoctorConsultationCheckStatusEvent extends DoctorConsultationEvent {
+  final String appointmentId;
+
+  const DoctorConsultationCheckStatusEvent({required this.appointmentId});
+
+  @override
+  List<Object> get props => [appointmentId];
+}

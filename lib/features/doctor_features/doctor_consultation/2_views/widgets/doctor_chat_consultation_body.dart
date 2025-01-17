@@ -48,7 +48,7 @@ class _DoctorChatConsultationBodyState
     super.initState();
     _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
       final currentTime = DateFormat('hh:mm a').format(DateTime.now());
-      final appointmentStartTime = storedAppointmentTime!.split(' - ')[0];
+      final appointmentStartTime = storedAppointmentTime?.split(' - ')[0];
 
       debugPrint('Current time: $currentTime');
       debugPrint('Appointment start time: $appointmentStartTime');
@@ -92,6 +92,12 @@ class _DoctorChatConsultationBodyState
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('isFromChatRoomLists: $isFromChatRoomLists');
+    debugPrint('isAppointmentFinished: $isAppointmentFinished');
+    debugPrint('appointmentId: ${appointment.appointmentUid}');
+    debugPrint(
+        'appointment.appointmentStatus: ${appointment.appointmentStatus}');
+
     final size = MediaQuery.of(context).size;
     return SizedBox(
       height: size.height,
@@ -109,7 +115,8 @@ class _DoctorChatConsultationBodyState
               ],
             ),
           ],
-          if (isFromChatRoomLists || isAppointmentFinished)
+          if ((isFromChatRoomLists && isAppointmentFinished) ||
+              isAppointmentFinished)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20.0),
               child: Container(
