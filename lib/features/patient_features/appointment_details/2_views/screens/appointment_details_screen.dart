@@ -163,7 +163,7 @@ class AppointmentDetailsScreen extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const CircularProgressIndicator(),
+                        const CustomLoadingIndicator(),
                         const Gap(30),
                         Text(
                           'Cancelling Appointment...',

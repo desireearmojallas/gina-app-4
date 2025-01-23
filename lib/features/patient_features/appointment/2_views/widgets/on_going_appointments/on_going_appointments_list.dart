@@ -3,13 +3,16 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/on_going_appointments/on_going_appointments_container.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/consultation/0_model/chat_message_model.dart';
 import 'package:intl/intl.dart';
 
 class OnGoingAppointmentsList extends StatelessWidget {
   final List<AppointmentModel> appointments;
+  final List<ChatMessageModel> chatRooms;
   const OnGoingAppointmentsList({
     super.key,
     required this.appointments,
+    required this.chatRooms,
   });
 
   @override
@@ -85,8 +88,10 @@ class OnGoingAppointmentsList extends StatelessWidget {
                       itemCount: yearAppointments.length,
                       itemBuilder: (context, index) {
                         final appointment = yearAppointments[index];
+                        final chatRoom = chatRooms[index];
                         return OnGoingAppointmentsContainer(
                           appointment: appointment,
+                          chatRoom: chatRoom,
                         );
                       },
                     ),

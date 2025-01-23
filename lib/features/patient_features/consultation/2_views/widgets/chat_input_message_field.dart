@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
-import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class ChatInputMessageField extends StatelessWidget {
@@ -67,6 +68,24 @@ class ChatInputMessageField extends StatelessWidget {
                       contentPadding:
                           const EdgeInsets.only(bottom: 12, top: 10, right: 12),
                     ),
+                    onTap: () {
+                      if (disabled) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          HapticFeedback.mediumImpact();
+
+                          Fluttertoast.showToast(
+                            msg: 'Wait for the doctor to message first',
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor:
+                                GinaAppTheme.appbarColorLight.withOpacity(0.85),
+                            textColor: Colors.grey[700],
+                            fontSize: 12.0,
+                          );
+                        });
+                      }
+                    },
                   ),
                 ),
               ),
@@ -89,7 +108,22 @@ class ChatInputMessageField extends StatelessWidget {
                   size: 25,
                 ),
                 onPressed: () {
-                  if (!disabled) {
+                  if (disabled) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      HapticFeedback.mediumImpact();
+
+                      Fluttertoast.showToast(
+                        msg: 'Wait for the doctor to message first',
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor:
+                            GinaAppTheme.appbarColorLight.withOpacity(0.85),
+                        textColor: Colors.grey[700],
+                        fontSize: 12.0,
+                      );
+                    });
+                  } else {
                     send();
                   }
                 }),

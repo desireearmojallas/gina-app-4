@@ -55,7 +55,19 @@ class BookAppointmentScreen extends StatelessWidget {
                       Navigator.pop(context);
                     },
                   )
-                : null,
+                : isRescheduleMode == true
+                    ? IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/bottomNavigation',
+                            arguments: {'initialIndex': 2},
+                          );
+                          isRescheduleMode = false;
+                        },
+                      )
+                    : null,
             title: state is ReviewAppointmentState
                 ? 'Review Appointment'
                 : isRescheduleMode == true

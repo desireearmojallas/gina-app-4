@@ -161,7 +161,7 @@ class _DoctorConsultationOnGoingAppointmentScreenState
     await Future.delayed(const Duration(milliseconds: 150));
     if (scrollController.hasClients) {
       scrollController.animateTo(scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 250), curve: Curves.easeIn);
+          duration: const Duration(milliseconds: 100), curve: Curves.easeIn);
     } else {
       debugPrint("ScrollController has no clients.");
     }

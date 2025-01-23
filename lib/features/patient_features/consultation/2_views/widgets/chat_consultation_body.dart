@@ -21,7 +21,7 @@ class ChatConsultationBody extends StatefulWidget {
   final Function send;
   final Function(bool) onChatWaitingChanged;
   final AppointmentModel appointment;
-  final bool? disabled;
+  final bool disabled;
   const ChatConsultationBody({
     super.key,
     required this.messageFN,
@@ -31,7 +31,7 @@ class ChatConsultationBody extends StatefulWidget {
     required this.send,
     required this.onChatWaitingChanged,
     required this.appointment,
-    this.disabled = false,
+    required this.disabled,
   });
 
   @override
@@ -43,7 +43,7 @@ class _ChatConsultationBodyState extends State<ChatConsultationBody> {
   bool _isLoading = false;
 
   AppointmentModel get appointment => widget.appointment;
-  bool get disabled => widget.disabled!;
+  bool get disabled => widget.disabled;
 
   @override
   void initState() {
@@ -111,7 +111,8 @@ class _ChatConsultationBodyState extends State<ChatConsultationBody> {
               ],
             ),
           ],
-          if (isFromChatRoomLists || isAppointmentFinished)
+          if ((isFromChatRoomLists && isAppointmentFinished) ||
+              isAppointmentFinished)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20.0),
               child: Container(

@@ -9,6 +9,7 @@ import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/on_going_appointments/on_going_appointments_list.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/pending_appointments/pending_appointments_list.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/consultation/0_model/chat_message_model.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 
@@ -19,6 +20,7 @@ class AppointmentsTabView extends StatelessWidget {
   final List<AppointmentModel> declinedAppointments;
   final List<AppointmentModel> pendingAppointments;
   final List<AppointmentModel> ongoingAppointments;
+  final List<ChatMessageModel> chatRooms;
   final int initialIndex;
 
   const AppointmentsTabView({
@@ -30,6 +32,7 @@ class AppointmentsTabView extends StatelessWidget {
     required this.pendingAppointments,
     required this.ongoingAppointments,
     required this.initialIndex,
+    required this.chatRooms,
   });
 
   @override
@@ -93,6 +96,7 @@ class AppointmentsTabView extends StatelessWidget {
         ),
         content: OnGoingAppointmentsList(
           appointments: ongoingAppointments,
+          chatRooms: chatRooms,
         ),
       ),
       TabData(

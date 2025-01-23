@@ -101,6 +101,7 @@ class ChatMessageModel extends Equatable {
   }
 
   Map<String, dynamic> get json => {
+        'uid': uid, // Ensure uid is included
         'authorUid': authorUid,
         'authorName': authorName,
         'authorImage': authorImage,
@@ -141,18 +142,43 @@ class ChatMessageModel extends Equatable {
     return !seenBy.contains(uid);
   }
 
+  // Future individualUpdateSeen(
+  //     String userID, String chatroom, String appointmentId) {
+  //   return FirebaseFirestore.instance
+  //       .collection('consultation-chatrooms')
+  //       .doc(chatroom)
+  //       .collection('appointments')
+  //       .doc(appointmentId)
+  //       .collection('messages')
+  //       .doc(uid)
+  //       .update({
+  //     'seenBy': FieldValue.arrayUnion([userID])
+  //   });
+  // }
+
   Future individualUpdateSeen(
-      String userID, String chatroom, String appointmentId) {
-    return FirebaseFirestore.instance
-        .collection('consultation-chatrooms')
-        .doc(chatroom)
-        .collection('appointments')
-        .doc(appointmentId)
-        .collection('messages')
-        .doc(uid)
-        .update({
-      'seenBy': FieldValue.arrayUnion([userID])
-    });
+      String userID, String chatroom, String appointmentId) async {
+    try {
+      DocumentReference messageRef = FirebaseFirestore.instance
+          .collection('consultation-chatrooms')
+          .doc(chatroom)
+          .collection('appointments')
+          .doc(appointmentId)
+          .collection('messages')
+          .doc(uid);
+
+      DocumentSnapshot messageDoc = await messageRef.get();
+      if (messageDoc.exists) {
+        await messageRef.update({
+          'seenBy': FieldValue.arrayUnion([userID])
+        });
+        debugPrint('Updated seenBy for message: $uid');
+      } else {
+        debugPrint('Message document does not exist: $uid');
+      }
+    } catch (e) {
+      debugPrint('Failed to update seenBy for message: $uid, error: $e');
+    }
   }
 
   @override

@@ -11,6 +11,9 @@ import 'package:gina_app_4/features/patient_features/book_appointment/0_model/ap
 part 'home_dashboard_event.dart';
 part 'home_dashboard_state.dart';
 
+Map<DateTime, List<AppointmentModel>>? completedAppointmentsListForEconsult;
+UserModel? patientDataForEconsult;
+
 class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
   final DoctorHomeDashboardController doctorHomeDashboardController;
   final DoctorProfileController doctorProfileController;
@@ -89,6 +92,7 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
       (failure) {},
       (appointmentList) {
         completedAppointmentsList = appointmentList;
+        completedAppointmentsListForEconsult = appointmentList;
       },
     );
 
@@ -107,6 +111,7 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
         (failure) {},
         (patientData) {
           latestPatientData = patientData;
+          patientDataForEconsult = patientData;
         },
       );
     } else if (latestPendingAppointment?.patientUid != null) {

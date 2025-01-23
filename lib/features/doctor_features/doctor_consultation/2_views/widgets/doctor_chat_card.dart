@@ -62,8 +62,8 @@ class _DoctorChatCardState extends State<DoctorChatCard> {
             ),
           Expanded(
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                vertical: 1.0,
+              padding: EdgeInsets.symmetric(
+                vertical: !isNextSameAuthor ? 5.0 : 1.0,
                 horizontal: 10.0,
               ),
               child: Column(

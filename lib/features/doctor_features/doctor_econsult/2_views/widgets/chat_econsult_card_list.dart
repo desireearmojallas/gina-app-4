@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/consultation/0_model/chat_message_model.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ChatEConsultCardList extends StatelessWidget {
   final DoctorEconsultBloc doctorEconsultBloc;
@@ -24,6 +27,7 @@ class ChatEConsultCardList extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final doctorConsultationBloc = context.read<DoctorConsultationBloc>();
+    final currentUserUid = FirebaseAuth.instance.currentUser?.uid;
 
     return SizedBox(
       height: size.height * 0.6,
@@ -45,7 +49,7 @@ class ChatEConsultCardList extends StatelessWidget {
                     .fetchAppointmentDetails(chatRoom.appointmentId!),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(child: CustomLoadingIndicator());
                   } else if (snapshot.hasError) {
                     return const Center(
                         child: Text('Error fetching appointment'));
@@ -69,6 +73,9 @@ class ChatEConsultCardList extends StatelessWidget {
                         appointment.appointmentStatus == 2 ||
                             appointment.appointmentStatus == 5 ||
                             appointmentEndDateTime.isBefore(DateTime.now());
+
+                    final isRead = isAppointmentFinished ||
+                        chatRoom.seenBy.contains(currentUserUid);
 
                     DateTime now = DateTime.now();
                     DateTime createdAt = chatRoom.createdAt!.toDate();
@@ -109,10 +116,10 @@ class ChatEConsultCardList extends StatelessWidget {
                           height: 90.0,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: isAppointmentFinished
+                            color: isRead
                                 ? GinaAppTheme.appbarColorLight.withOpacity(0.4)
                                 : GinaAppTheme.appbarColorLight,
-                            boxShadow: isAppointmentFinished
+                            boxShadow: isRead
                                 ? []
                                 : [
                                     GinaAppTheme.defaultBoxShadow,
@@ -177,17 +184,17 @@ class ChatEConsultCardList extends StatelessWidget {
                                                           ),
                                                         ),
                                                       ),
-                                                      const Gap(5),
-                                                      Text(
-                                                        'Ends on ${DateFormat.jm().format(appointmentEndDateTime)}',
-                                                        style: const TextStyle(
-                                                          color: GinaAppTheme
-                                                              .lightOutline,
-                                                          fontSize: 8,
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                        ),
-                                                      ),
+                                                      // const Gap(5),
+                                                      // Text(
+                                                      //   'Ends on ${DateFormat('MMM dd yyyy').format(appointmentEndDateTime)} at ${DateFormat('hh:mm a').format(appointmentEndDateTime)}',
+                                                      //   style: const TextStyle(
+                                                      //     color: GinaAppTheme
+                                                      //         .lightOutline,
+                                                      //     fontSize: 8,
+                                                      //     fontWeight:
+                                                      //         FontWeight.w500,
+                                                      //   ),
+                                                      // ),
                                                     ],
                                                   ),
                                             const Gap(2),
@@ -198,16 +205,18 @@ class ChatEConsultCardList extends StatelessWidget {
                                                   child: Text(
                                                     chatRoom.patientName!,
                                                     style: TextStyle(
-                                                      color: isAppointmentFinished
-                                                          ? GinaAppTheme
-                                                              .cancelledTextColor
+                                                      color: isRead
+                                                          ? isAppointmentFinished
+                                                              ? GinaAppTheme
+                                                                  .cancelledTextColor
+                                                              : GinaAppTheme
+                                                                  .lightOnPrimaryColor
                                                           : GinaAppTheme
                                                               .lightOnPrimaryColor,
                                                       fontSize: 14,
-                                                      fontWeight:
-                                                          isAppointmentFinished
-                                                              ? FontWeight.w600
-                                                              : FontWeight.bold,
+                                                      fontWeight: isRead
+                                                          ? FontWeight.w600
+                                                          : FontWeight.bold,
                                                     ),
                                                     overflow:
                                                         TextOverflow.ellipsis,
@@ -227,17 +236,15 @@ class ChatEConsultCardList extends StatelessWidget {
                                                         ? 'You: ${chatRoom.message}'
                                                         : chatRoom.message!,
                                                     style: TextStyle(
-                                                      color: (chatRoom
-                                                                  .doctorName ==
-                                                              chatRoom
-                                                                  .authorName)
+                                                      color: isRead
                                                           ? GinaAppTheme
                                                               .cancelledTextColor
                                                           : GinaAppTheme
                                                               .lightOnPrimaryColor,
                                                       fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w400,
+                                                      fontWeight: isRead
+                                                          ? FontWeight.w400
+                                                          : FontWeight.w600,
                                                     ),
                                                     overflow:
                                                         TextOverflow.ellipsis,
@@ -248,37 +255,73 @@ class ChatEConsultCardList extends StatelessWidget {
                                             ),
                                           ],
                                         ),
-                                        const Gap(45),
-                                        SizedBox(
-                                          width: size.width * 0.1,
-                                          child: Text(
-                                            time,
-                                            style: TextStyle(
-                                              color: (chatRoom.doctorName ==
-                                                          chatRoom
-                                                              .authorName) ||
-                                                      isAppointmentFinished
-                                                  ? GinaAppTheme
-                                                      .cancelledTextColor
-                                                  : GinaAppTheme
-                                                      .lightOnPrimaryColor,
-                                              fontSize: 10,
-                                              fontWeight: (chatRoom
-                                                              .doctorName ==
-                                                          chatRoom
-                                                              .authorName) ||
-                                                      isAppointmentFinished
-                                                  ? FontWeight.w400
-                                                  : FontWeight.bold,
+                                        const Gap(40),
+                                        Column(
+                                          children: [
+                                            Align(
+                                              alignment: Alignment.centerRight,
+                                              child: SizedBox(
+                                                width: size.width * 0.11,
+                                                child: Text(
+                                                  time,
+                                                  style: TextStyle(
+                                                    color: (chatRoom.doctorName ==
+                                                                chatRoom
+                                                                    .authorName) ||
+                                                            isRead
+                                                        ? isAppointmentFinished
+                                                            ? GinaAppTheme
+                                                                .cancelledTextColor
+                                                            : GinaAppTheme
+                                                                .lightOnPrimaryColor
+                                                        : GinaAppTheme
+                                                            .lightOnPrimaryColor,
+                                                    fontSize: 10,
+                                                    fontWeight: (chatRoom
+                                                                    .doctorName ==
+                                                                chatRoom
+                                                                    .authorName) ||
+                                                            isRead
+                                                        ? FontWeight.w400
+                                                        : FontWeight.bold,
+                                                  ),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                ),
+                                              ),
                                             ),
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                          ),
+                                            const Gap(2),
+                                            if (!(chatRoom.doctorName ==
+                                                    chatRoom.authorName) &&
+                                                isRead)
+                                              const Row(
+                                                children: [
+                                                  Text(
+                                                    'Read',
+                                                    style: TextStyle(
+                                                      color: GinaAppTheme
+                                                          .lightOutline,
+                                                      fontSize: 10,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                    ),
+                                                  ),
+                                                  Gap(3),
+                                                  Icon(
+                                                    Bootstrap.check2_all,
+                                                    color: GinaAppTheme
+                                                        .lightOutline,
+                                                    size: 12,
+                                                  ),
+                                                ],
+                                              ),
+                                          ],
                                         ),
                                         const Gap(2),
                                         (chatRoom.doctorName ==
                                                     chatRoom.authorName) ||
-                                                isAppointmentFinished
+                                                isRead
                                             ? const SizedBox.shrink()
                                             : const CircleAvatar(
                                                 radius: 4.0,

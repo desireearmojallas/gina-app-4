@@ -55,6 +55,7 @@ import 'package:gina_app_4/features/patient_features/appointment_details/2_views
 import 'package:gina_app_4/features/patient_features/book_appointment/1_controllers/appointment_controller.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
+import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/floating_container_for_ongoing_appt/bloc/floating_container_for_ongoing_appt_bloc.dart';
 import 'package:gina_app_4/features/patient_features/consultation/1_controllers/appointment_chat_controller.dart';
 import 'package:gina_app_4/features/patient_features/consultation/1_controllers/chat_message_controllers.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
@@ -184,6 +185,13 @@ Future<void> init() async {
 //! Features - Bottom Navigation Bar
   sl.registerFactory(
     () => BottomNavigationBloc(),
+  );
+
+//! Features - Floating Container for Ongoing Appointment
+  sl.registerFactory(
+    () => FloatingContainerForOngoingApptBloc(
+      appointmentController: sl(),
+    ),
   );
 
 //------------------------------------------------------------------------------

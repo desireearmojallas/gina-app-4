@@ -127,6 +127,8 @@ class ChatMessageController with ChangeNotifier {
     return chatroom = recipientUid + currentPatientUid;
   }
 
+  //! continue here... try to fix the seenby feature
+
   chatUpdateHandler(List<ChatMessageModel> update) async {
     if (_isDisposed) return;
     debugPrint('Handling chat update');
@@ -155,30 +157,21 @@ class ChatMessageController with ChangeNotifier {
           .get();
 
       List<ChatMessageModel> messages = messagesSnapshot.docs.map((doc) {
-        ChatMessageModel message = ChatMessageModel.fromJson(doc.data());
-
+        ChatMessageModel message = ChatMessageModel.fromDocumentSnap(doc);
+        debugPrint('Fetched message with uid: ${message.uid}');
         return message;
       }).toList();
 
       // Update seen status for messages
       for (ChatMessageModel message in messages) {
-        if (chatroom == generateRoomId(recipient) &&
-            message.hasNotSeenMessage(auth.currentUser!.uid)) {
-          DocumentReference<Map<String, dynamic>> messageRef = firestore
-              .collection('consultation-chatrooms')
-              .doc(chatroom)
-              .collection('appointments')
-              .doc(appointmentId)
-              .collection('messages')
-              .doc(message.uid);
-
-          DocumentSnapshot<Map<String, dynamic>> messageDoc =
-              await messageRef.get();
-          if (messageDoc.exists) {
-            message.individualUpdateSeen(auth.currentUser!.uid, chatroom!,
-                selectedDoctorAppointmentModel!.appointmentUid!);
-          } else {
-            debugPrint('Message document does not exist: ${message.uid}');
+        if (message.hasNotSeenMessage(auth.currentUser!.uid)) {
+          try {
+            await message.individualUpdateSeen(
+                auth.currentUser!.uid, chatroom!, appointmentId);
+            debugPrint('Updated seenBy for message: ${message.uid}');
+          } catch (e) {
+            debugPrint(
+                'Failed to update seenBy for message: ${message.uid}, error: $e');
           }
         }
       }
@@ -203,8 +196,14 @@ class ChatMessageController with ChangeNotifier {
     // Sort the appointments by startTime
     var sortedEntries = allTimes.entries.toList()
       ..sort((a, b) {
-        Timestamp startTimeA = a.value['startTime'];
-        Timestamp startTimeB = b.value['startTime'];
+        Timestamp? startTimeA = a.value['startTime'];
+        Timestamp? startTimeB = b.value['startTime'];
+
+        if (startTimeA == null || startTimeB == null) {
+          // Handle the case where either startTimeA or startTimeB is null
+          return 0; // or any other logic you want to apply
+        }
+
         return startTimeA.compareTo(startTimeB);
       });
 
@@ -547,5 +546,27 @@ class ChatMessageController with ChangeNotifier {
     debugPrint('lastMessageTime updated successfully to $lastMessageTime');
     debugPrint('scheduledEndTime updated successfully to $scheduledEndTime');
     debugPrint('actualEndTime updated successfully to ${Timestamp.now()}');
+  }
+
+  Future<List<ChatMessageModel>> getMessagesForSpecificAppointment(
+      String chatroom, String appointmentUid) async {
+    if (_isDisposed) return [];
+    debugPrint(
+        'Fetching messages for appointment: $appointmentUid in chatroom: $chatroom');
+
+    QuerySnapshot<Map<String, dynamic>> messagesSnapshot = await firestore
+        .collection('consultation-chatrooms')
+        .doc(chatroom)
+        .collection('appointments')
+        .doc(appointmentUid)
+        .collection('messages')
+        .orderBy('createdAt')
+        .get();
+
+    List<ChatMessageModel> messages = messagesSnapshot.docs.map((doc) {
+      return ChatMessageModel.fromDocumentSnap(doc);
+    }).toList();
+
+    return messages;
   }
 }

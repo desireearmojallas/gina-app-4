@@ -240,6 +240,7 @@ class AppointmentScreen extends StatelessWidget {
                 return AppointmentScreenLoaded(
                   appointments: state.appointments,
                   initialIndex: initialIndex,
+                  chatRooms: state.chatRooms,
                 );
               } else if (state is GetAppointmentsError) {
                 return Center(

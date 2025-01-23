@@ -8,6 +8,7 @@ import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/1_controllers/appointment_controller.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
+import 'package:gina_app_4/features/patient_features/consultation/0_model/chat_message_model.dart';
 import 'package:gina_app_4/features/patient_features/find/1_controllers/find_controllers.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:gina_app_4/features/patient_features/profile/1_controllers/profile_controller.dart';
@@ -24,6 +25,11 @@ List<String>? storedPrescriptionImages;
 bool isUploadPrescriptionMode = false;
 bool isFromAppointmentTabs = false;
 bool isFromConsultationHistory = false;
+List<ChatMessageModel> chatMessages = [];
+
+// for floating container
+AppointmentModel? ongoingAppointmentForFloatingContainer;
+ChatMessageModel? chatRoomForFloatingContainer;
 
 class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
   final AppointmentController appointmentController;
@@ -55,14 +61,28 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     emit(GetAppointmentsLoading());
 
     final result = await appointmentController.getCurrentPatientAppointment();
+    final chatRoomsResult =
+        await appointmentController.getPatientChatroomsAndMessages();
 
     result.fold(
       (failure) {
         emit(GetAppointmentsError(errorMessage: failure.toString()));
       },
       (appointments) {
-        storedAppointments = appointments;
-        emit(GetAppointmentsLoaded(appointments: appointments));
+        chatRoomsResult.fold(
+          (chatRoomsFailure) {
+            emit(GetAppointmentsError(
+                errorMessage: chatRoomsFailure.toString()));
+          },
+          (chatRooms) {
+            storedAppointments = appointments;
+            chatMessages = chatRooms;
+            emit(GetAppointmentsLoaded(
+              appointments: appointments,
+              chatRooms: chatRoomsResult.getOrElse(() => []),
+            ));
+          },
+        );
       },
     );
   }
@@ -237,7 +257,10 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       },
       (appointment) {
         emit(CancelAppointmentState());
-        emit(GetAppointmentsLoaded(appointments: storedAppointments));
+        emit(GetAppointmentsLoaded(
+          appointments: storedAppointments,
+          chatRooms: chatMessages,
+        ));
       },
     );
   }

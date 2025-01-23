@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
+import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/floating_container_for_ongoing_appt/screens/floating_container_for_ongoing_appt.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class BottomNavigationProvider extends StatelessWidget {
@@ -88,10 +89,16 @@ class BottomNavigation extends StatelessWidget {
             );
           },
         ),
-        body: BlocBuilder<BottomNavigationBloc, BottomNavigationState>(
-          builder: (context, state) {
-            return state.selectedScreen;
-          },
+        body: Stack(
+          children: [
+            BlocBuilder<BottomNavigationBloc, BottomNavigationState>(
+              builder: (context, state) {
+                return state.selectedScreen;
+              },
+            ),
+            // const FloatingContainerForOnGoingAppointment(),
+            const FloatingContainerForOnGoingAppointmentProvider(),
+          ],
         ),
       ),
     );

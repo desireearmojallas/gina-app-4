@@ -36,6 +36,7 @@ import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/ap
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/bloc/appointment_details_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
+import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/floating_container_for_ongoing_appt/bloc/floating_container_for_ongoing_appt_bloc.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/consultation_fee_details/2_views/bloc/consultation_fee_details_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/2_views/bloc/doctor_availability_bloc.dart';
@@ -90,6 +91,9 @@ List<BlocProvider> getBlocProviders() {
     // Patient Blocs
     BlocProvider<BottomNavigationBloc>(
       create: (context) => BottomNavigationBloc(),
+    ),
+    BlocProvider<FloatingContainerForOngoingApptBloc>(
+      create: (context) => sl<FloatingContainerForOngoingApptBloc>(),
     ),
     BlocProvider<HomeBloc>(
       create: (context) => sl<HomeBloc>(),

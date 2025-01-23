@@ -25,6 +25,7 @@ import 'package:gina_app_4/features/patient_features/appointment/2_views/screens
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/screens/appointment_details_screen.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/screens/book_appointment_screen.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/screen/bottom_navigation_screen.dart';
+import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/floating_container_for_ongoing_appt/screens/floating_container_for_ongoing_appt.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/consultation_screen.dart';
 import 'package:gina_app_4/features/patient_features/consultation_fee_details/2_views/screens/consultation_fee_details_screen.dart';
 import 'package:gina_app_4/features/patient_features/doctor_details/2_views/screens/doctor_details_screen.dart';
@@ -55,6 +56,8 @@ Map<String, WidgetBuilder> ginaAppRoutes() {
     // Patient Routes
     '/doctorAddressMap': (context) => const DoctorAddOfficeAddressProvider(),
     // '/bottomNavigation': (context) => const BottomNavigationProvider(),
+    '/floatingContainerForOngoingAppointment': (context) =>
+        const FloatingContainerForOnGoingAppointmentProvider(),
     '/bookAppointment': (context) => const BookAppointmentScreenProvider(),
     '/consultation': (context) => const ConsultationScreenProvider(),
     '/consultationFeeDetails': (context) =>

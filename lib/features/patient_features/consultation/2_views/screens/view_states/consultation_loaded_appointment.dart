@@ -39,6 +39,7 @@ class _ConsultationOnGoingAppointmentScreenState
   String get chatroom => widget.chatroom;
   AppointmentModel get appointment => widget.appointment;
   UserModel? user;
+  bool isDisabled = true;
 
   @override
   void initState() {
@@ -47,10 +48,24 @@ class _ConsultationOnGoingAppointmentScreenState
         chatController.generateRoomId(selectedDoctorUid), selectedDoctorUid);
     chatController.addListener(scrollToBottom);
     messageFN.addListener(scrollToBottom);
+    checkIfDoctorMessagedFirst();
+  }
+
+  Future<void> checkIfDoctorMessagedFirst() async {
+    final messages = await chatController.getMessagesForSpecificAppointment(
+      chatroom,
+      appointment.appointmentUid!,
+    );
+    setState(() {
+      isDisabled =
+          !messages.any((message) => message.authorUid == selectedDoctorUid);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('AppointmentUID: ${appointment.appointmentUid}');
+    debugPrint('ChatRoom: $chatroom');
     debugPrint("Building DoctorConsultationOnGoingAppointmentScreen...");
     return FutureBuilder<UserModel>(
       future: UserModel.fromUid(uid: selectedDoctorUid),
@@ -114,6 +129,7 @@ class _ConsultationOnGoingAppointmentScreenState
                         });
                       },
                       appointment: appointment,
+                      disabled: isDisabled,
                     );
                   } else if (snapshot.data == 'empty') {
                     debugPrint(
@@ -130,7 +146,8 @@ class _ConsultationOnGoingAppointmentScreenState
                         });
                       },
                       appointment: appointment,
-                      disabled: true,
+                      // disabled: true,
+                      disabled: isDisabled,
                     );
                   }
                 } else if (snapshot.hasError) {
@@ -159,7 +176,7 @@ class _ConsultationOnGoingAppointmentScreenState
     await Future.delayed(const Duration(milliseconds: 150));
     if (scrollController.hasClients) {
       scrollController.animateTo(scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 250), curve: Curves.easeIn);
+          duration: const Duration(milliseconds: 100), curve: Curves.easeIn);
     } else {
       debugPrint("ScrollController has no clients...");
     }

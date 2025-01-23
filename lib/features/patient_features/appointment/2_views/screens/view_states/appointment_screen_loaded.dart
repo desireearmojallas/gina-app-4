@@ -4,25 +4,28 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/core/reusable_widgets/gina_divider.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
+import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/screens/view_states/appointments_tab_view.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/swiper_builder.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/consultation/0_model/chat_message_model.dart';
 import 'package:intl/intl.dart';
 
 class AppointmentScreenLoaded extends StatelessWidget {
   final List<AppointmentModel> appointments;
   final int initialIndex;
+  final List<ChatMessageModel> chatRooms;
   const AppointmentScreenLoaded({
     super.key,
     required this.appointments,
     required this.initialIndex,
+    required this.chatRooms,
   });
 
   @override
   Widget build(BuildContext context) {
     final appointmentBloc = context.read<AppointmentBloc>();
-    final ginaTheme = Theme.of(context).textTheme;
 
     // Reusable sorting function
     void sortAppointmentsByDate(List<AppointmentModel> appointments) {
@@ -156,7 +159,34 @@ class AppointmentScreenLoaded extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _title(context, 'Upcoming appointments'),
+                Row(
+                  children: [
+                    _title(context, 'Upcoming appointments'),
+                    const Gap(10),
+                    Container(
+                      height: 20,
+                      width: 20,
+                      decoration: BoxDecoration(
+                        color: upcomingAppointments.isEmpty
+                            ? Colors.grey[300]
+                            : GinaAppTheme.lightTertiaryContainer,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          upcomingAppointments.isEmpty
+                              ? '0'
+                              : upcomingAppointments.length.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 const Gap(17),
                 SwiperBuilderWidget(
                   upcomingAppointments: upcomingAppointments,
@@ -172,6 +202,7 @@ class AppointmentScreenLoaded extends StatelessWidget {
                     pendingAppointments: pendingAppointments,
                     ongoingAppointments: ongoingAppointments,
                     initialIndex: initialIndex,
+                    chatRooms: chatRooms,
                   ),
                 ),
               ],

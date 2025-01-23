@@ -14,12 +14,16 @@ class AppointmentInitial extends AppointmentState {}
 class GetAppointmentsLoading extends AppointmentState {}
 
 class GetAppointmentsLoaded extends AppointmentState {
+  final List<ChatMessageModel> chatRooms;
   final List<AppointmentModel> appointments;
 
-  const GetAppointmentsLoaded({required this.appointments});
+  const GetAppointmentsLoaded({
+    required this.appointments,
+    required this.chatRooms,
+  });
 
   @override
-  List<Object> get props => [appointments];
+  List<Object> get props => [appointments, chatRooms];
 }
 
 class GetAppointmentsError extends AppointmentState {

@@ -119,8 +119,6 @@ class DoctorEConsultController with ChangeNotifier {
 
   //------------- GET DOCTOR CHATROOMS AND MESSAGES ----------------
 
-  //TODO: to edit this when firestore is updated with new consultation chatrooms structure
-
   Future<Either<Exception, List<ChatMessageModel>>>
       getDoctorChatroomsAndMessages() async {
     try {
@@ -140,6 +138,12 @@ class DoctorEConsultController with ChangeNotifier {
                 .get();
 
         var appointmentDocs = appointmentsSnapshot.docs;
+
+        appointmentDocs.sort((a, b) {
+          DateTime startTimeA = a['startTime'].toDate();
+          DateTime startTimeB = b['startTime'].toDate();
+          return startTimeB.compareTo(startTimeA);
+        });
         List<Future<ChatMessageModel?>> appointmentMessagesFutures =
             appointmentDocs.map((appointmentDoc) async {
           QuerySnapshot<Map<String, dynamic>> messagesSnapshot = await firestore

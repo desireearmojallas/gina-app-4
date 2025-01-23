@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
@@ -309,5 +310,13 @@ class AppointmentDetailsBloc
 
     // Compare with current date and time
     return now.isAfter(rescheduleDeadline);
+  }
+
+  bool canReschedule(
+    AppointmentDetailsBloc appointmentDetailsBloc,
+    appointment,
+  ) {
+    return appointment.appointmentStatus == AppointmentStatus.confirmed.index &&
+        appointmentDetailsBloc.isAppointmentInPast(appointment);
   }
 }

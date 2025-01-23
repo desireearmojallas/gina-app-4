@@ -146,29 +146,21 @@ class DoctorChatMessageController with ChangeNotifier {
           .get();
 
       List<ChatMessageModel> messages = messagesSnapshot.docs.map((doc) {
-        ChatMessageModel message = ChatMessageModel.fromJson(doc.data());
-
+        ChatMessageModel message = ChatMessageModel.fromDocumentSnap(doc);
+        debugPrint('Fetched message with uid: ${message.uid}');
         return message;
       }).toList();
 
       // Update seen status for messages
       for (ChatMessageModel message in messages) {
         if (message.hasNotSeenMessage(auth.currentUser!.uid)) {
-          DocumentReference<Map<String, dynamic>> messageRef = firestore
-              .collection('consultation-chatrooms')
-              .doc(chatroom)
-              .collection('appointments')
-              .doc(appointmentId)
-              .collection('messages')
-              .doc(message.uid);
-
-          DocumentSnapshot<Map<String, dynamic>> messageDoc =
-              await messageRef.get();
-          if (messageDoc.exists) {
-            message.individualUpdateSeen(
+          try {
+            await message.individualUpdateSeen(
                 auth.currentUser!.uid, chatroom!, appointmentId);
-          } else {
-            debugPrint('Message document does not exist: ${message.uid}');
+            debugPrint('Updated seenBy for message: ${message.uid}');
+          } catch (e) {
+            debugPrint(
+                'Failed to update seenBy for message: ${message.uid}, error: $e');
           }
         }
       }

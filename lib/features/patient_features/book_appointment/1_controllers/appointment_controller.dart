@@ -10,6 +10,8 @@ import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/floating_container_for_ongoing_appt/bloc/floating_container_for_ongoing_appt_bloc.dart';
+import 'package:gina_app_4/features/patient_features/consultation/0_model/chat_message_model.dart';
 import 'package:intl/intl.dart';
 
 class AppointmentController with ChangeNotifier {
@@ -20,6 +22,11 @@ class AppointmentController with ChangeNotifier {
   User? currentPatient;
   FirebaseAuthException? error;
   bool working = false;
+
+  // Data for ongoing appointment
+  AppointmentModel? ongoingAppointment;
+  DoctorModel? associatedDoctor;
+  bool hasOngoingAppointment = false;
 
   AppointmentController() {
     authStream = auth.authStateChanges().listen((User? user) {
@@ -503,5 +510,234 @@ class AppointmentController with ChangeNotifier {
       debugPrint(e.toString());
       return Left(Exception(e.toString()));
     }
+  }
+
+  //-------GET PATIENT CHATROOMS AND MESSAGES-------
+  Future<Either<Exception, List<ChatMessageModel>>>
+      getPatientChatroomsAndMessages() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> chatroomSnapshot = await firestore
+          .collection('consultation-chatrooms')
+          .where('members', arrayContains: currentPatient!.uid)
+          .get();
+
+      var chatroomDocs = chatroomSnapshot.docs;
+      List<Future<ChatMessageModel?>> chatroomMessagesFutures =
+          chatroomDocs.map((chatroomDoc) async {
+        QuerySnapshot<Map<String, dynamic>> appointmentsSnapshot =
+            await firestore
+                .collection('consultation-chatrooms')
+                .doc(chatroomDoc.id)
+                .collection('appointments')
+                .get();
+
+        var appointmentDocs = appointmentsSnapshot.docs;
+
+        appointmentDocs.sort((a, b) {
+          DateTime startTimeA = a['startTime'].toDate();
+          DateTime startTimeB = b['startTime'].toDate();
+          return startTimeB.compareTo(startTimeA);
+        });
+
+        List<Future<ChatMessageModel?>> appointmentMessagesFutures =
+            appointmentDocs.map((appointmentDoc) async {
+          QuerySnapshot<Map<String, dynamic>> messagesSnapshot = await firestore
+              .collection('consultation-chatrooms')
+              .doc(chatroomDoc.id)
+              .collection('appointments')
+              .doc(appointmentDoc.id)
+              .collection('messages')
+              .orderBy('createdAt', descending: true)
+              .get();
+
+          List<ChatMessageModel> messages = messagesSnapshot.docs
+              .map((doc) => ChatMessageModel.fromJson(doc.data()))
+              .toList();
+
+          return messages.isNotEmpty ? messages.first : null;
+        }).toList();
+
+        List<ChatMessageModel> appointmentMessages =
+            (await Future.wait(appointmentMessagesFutures))
+                .whereType<ChatMessageModel>()
+                .toList();
+
+        return appointmentMessages.isNotEmpty
+            ? appointmentMessages.first
+            : null;
+      }).toList();
+
+      List<ChatMessageModel> chatroomMessages =
+          (await Future.wait(chatroomMessagesFutures))
+              .whereType<ChatMessageModel>()
+              .toList();
+
+      chatroomMessages.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
+
+      return Right(chatroomMessages);
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException code: ${e.code}');
+      error = e;
+      return Left(Exception(e.message));
+    }
+  }
+
+//-------CHECK ONGOING APPOINTMENT-------
+
+// This method checks ongoing appointments one time and returns the result.
+  Future<Either<Exception, AppointmentModel?>> checkOngoingAppointment() async {
+    try {
+      debugPrint(
+          'Checking ongoing appointments for patient: ${currentPatient?.uid}');
+
+      // Similar to what you had before for the one-time fetch
+      final snapshotStream = firestore
+          .collection('appointments')
+          .where('patientUid', isEqualTo: currentPatient!.uid)
+          .where('appointmentStatus',
+              isEqualTo: AppointmentStatus.confirmed.index)
+          .snapshots();
+
+      // Since we're only checking one-time, listen to the snapshot and process it
+      final snapshot = await snapshotStream
+          .first; // Use `first` to only listen to the first fetch
+
+      debugPrint('Fetched ${snapshot.docs.length} appointments for patient.');
+
+      final today = DateFormat('MMMM d, yyyy').format(DateTime.now());
+      debugPrint('Today\'s date: $today');
+
+      bool ongoingAppointmentFound = false;
+
+      // Same filtering and logic as before
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        debugPrint(
+            'Checking appointment: ${data['appointmentDate']} at ${data['appointmentTime']}');
+
+        final appointmentDate = data['appointmentDate'] as String;
+        final appointmentTime = data['appointmentTime'] as String;
+
+        if (appointmentDate != today) continue;
+
+        final times = appointmentTime.split(' - ');
+        if (times.length != 2) continue;
+
+        final startTime = DateFormat('h:mm a').parse(times[0]);
+        final endTime = DateFormat('h:mm a').parse(times[1]);
+
+        final appointmentStartDateTime = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          startTime.hour,
+          startTime.minute,
+        );
+        final appointmentEndDateTime = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          endTime.hour,
+          endTime.minute,
+        );
+
+        final now = DateTime.now();
+        if (now.isAfter(appointmentStartDateTime) &&
+            now.isBefore(appointmentEndDateTime)) {
+          ongoingAppointment = AppointmentModel.fromDocumentSnap(doc);
+          ongoingAppointmentFound = true;
+          break;
+        }
+      }
+
+      // Return the result after processing the snapshot
+      if (ongoingAppointmentFound) {
+        return Right(ongoingAppointment);
+      } else {
+        return const Right(null);
+      }
+    } catch (e) {
+      debugPrint('Error checking ongoing appointments: $e');
+      return Left(Exception('Error checking ongoing appointments'));
+    }
+  }
+
+// This method will listen for ongoing appointment updates in real-time
+  Stream<AppointmentModel?> checkOngoingAppointmentStream() {
+    // Return a stream of appointments updates
+    return firestore
+        .collection('appointments')
+        .where('patientUid', isEqualTo: currentPatient!.uid)
+        .where('appointmentStatus',
+            isEqualTo: AppointmentStatus.confirmed.index)
+        .snapshots()
+        .map((snapshot) {
+      // Process the snapshot and check for ongoing appointments
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final appointmentDate = data['appointmentDate'] as String;
+        final appointmentTime = data['appointmentTime'] as String;
+
+        final today = DateFormat('MMMM d, yyyy').format(DateTime.now());
+        if (appointmentDate != today) continue;
+
+        final times = appointmentTime.split(' - ');
+        if (times.length != 2) continue;
+
+        final startTime = DateFormat('h:mm a').parse(times[0]);
+        final endTime = DateFormat('h:mm a').parse(times[1]);
+
+        final appointmentStartDateTime = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          startTime.hour,
+          startTime.minute,
+        );
+        final appointmentEndDateTime = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          endTime.hour,
+          endTime.minute,
+        );
+
+        final now = DateTime.now();
+        if (now.isAfter(appointmentStartDateTime) &&
+            now.isBefore(appointmentEndDateTime)) {
+          return AppointmentModel.fromDocumentSnap(
+              doc); // Ongoing appointment found
+        }
+      }
+      return null; // No ongoing appointment found
+    });
+  }
+
+  void resetOnGoingAppointment({
+    bool clearDoctor = true,
+    bool clearAppointment = true,
+    bool notify = true,
+  }) {
+    debugPrint('Resetting ongoing appointment data...');
+
+    if (clearAppointment) {
+      debugPrint('Clearing ongoing appointment details...');
+      ongoingAppointment = null;
+    }
+
+    if (clearDoctor) {
+      debugPrint('Clearing associated doctor details...');
+      associatedDoctor = null;
+    }
+
+    hasOngoingAppointment = false;
+
+    if (notify) {
+      debugPrint('Notifying listeners about reset...');
+      notifyListeners();
+    }
+
+    debugPrint('Ongoing appointment data reset completed.');
   }
 }
