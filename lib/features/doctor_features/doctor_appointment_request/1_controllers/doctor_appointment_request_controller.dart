@@ -6,6 +6,7 @@ import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
+import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patients/0_models/user_appointment_period_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
@@ -19,6 +20,11 @@ class DoctorAppointmentRequestController with ChangeNotifier {
   User? currentUser;
   FirebaseAuthException? error;
   bool working = false;
+
+  // Data for ongoing appointment
+  AppointmentModel? ongoingAppointmentForDoctorOnGoingAppointment;
+  DoctorModel? associatedDoctorForDoctorOngoingAppointment;
+  bool hasOngoingAppointmentForDoctor = false;
 
   DoctorAppointmentRequestController() {
     authStream = auth.authStateChanges().listen((User? user) {
@@ -367,5 +373,146 @@ class DoctorAppointmentRequestController with ChangeNotifier {
       notifyListeners();
       return Left(Exception(e.message));
     }
+  }
+
+  //---------- CHECK ONGOING APPOINTMENT -----------
+  Future<Either<Exception, AppointmentModel?>> checkOnGoingAppointment() async {
+    try {
+      final snapshotStream = firestore
+          .collection('appointments')
+          .where('doctorUid', isEqualTo: currentUser!.uid)
+          .where('appointmentStatus',
+              isEqualTo: AppointmentStatus.confirmed.index)
+          .snapshots();
+
+      final snapshot = await snapshotStream.first;
+
+      final today = DateFormat('MMMM d, yyyy').format(DateTime.now());
+
+      bool ongoingAppointmentFound = false;
+
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+
+        final appointmentDate = data['appointmentDate'] as String;
+        final appointmentTime = data['appointmentTime'] as String;
+
+        if (appointmentDate != today) continue;
+
+        final times = appointmentTime.split(' - ');
+        if (times.length != 2) continue;
+
+        final startTime = DateFormat('hh:mm a').parse(times[0]);
+        final endTime = DateFormat('hh:mm a').parse(times[1]);
+
+        final appointmentStartDateTime = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          startTime.hour,
+          startTime.minute,
+        );
+        final appointmentEndDateTime = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          endTime.hour,
+          endTime.minute,
+        );
+
+        final now = DateTime.now();
+        if (now.isAfter(appointmentStartDateTime) &&
+            now.isBefore(appointmentEndDateTime)) {
+          ongoingAppointmentForDoctorOnGoingAppointment =
+              AppointmentModel.fromDocumentSnap(doc);
+          ongoingAppointmentFound = true;
+          break;
+        }
+      }
+
+      if (ongoingAppointmentFound) {
+        return Right(ongoingAppointmentForDoctorOnGoingAppointment);
+      } else {
+        return const Right(null);
+      }
+    } catch (e) {
+      debugPrint('Error checking ongoing appointments: $e');
+      return Left(Exception('Error checking ongoing appointments'));
+    }
+  }
+
+  Stream<AppointmentModel?> checkOnGoingAppointmentStream() {
+    return firestore
+        .collection('appointments')
+        .where('doctorUid', isEqualTo: currentUser!.uid)
+        .where('appointmentStatus',
+            isEqualTo: AppointmentStatus.confirmed.index)
+        .snapshots()
+        .map((snapshot) {
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final appointmentDate = data['appointmentDate'] as String;
+        final appointmentTime = data['appointmentTime'] as String;
+
+        final today = DateFormat('MMMM d, yyyy').format(DateTime.now());
+        if (appointmentDate != today) continue;
+
+        final times = appointmentTime.split(' - ');
+        if (times.length != 2) continue;
+
+        final startTime = DateFormat('h:mm a').parse(times[0]);
+        final endTime = DateFormat('h:mm a').parse(times[1]);
+
+        final appointmentStartDateTime = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          startTime.hour,
+          startTime.minute,
+        );
+        final appointmentEndDateTime = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          endTime.hour,
+          endTime.minute,
+        );
+
+        final now = DateTime.now();
+        if (now.isAfter(appointmentStartDateTime) &&
+            now.isBefore(appointmentEndDateTime)) {
+          return AppointmentModel.fromDocumentSnap(
+              doc); // Return the first ongoing appointment found
+        }
+      }
+      return null; // If no ongoing appointment is found
+    });
+  }
+
+  void resetOnGoingAppointment({
+    bool clearDoctor = true,
+    bool clearAppointment = true,
+    bool notify = true,
+  }) {
+    debugPrint('Resetting ongoing appointment data...');
+
+    if (clearAppointment) {
+      debugPrint('Clearing ongoing appointment details...');
+      ongoingAppointmentForDoctorOnGoingAppointment = null;
+    }
+
+    if (clearDoctor) {
+      debugPrint('Clearing associated doctor details...');
+      associatedDoctorForDoctorOngoingAppointment = null;
+    }
+
+    hasOngoingAppointmentForDoctor = false;
+
+    if (notify) {
+      debugPrint('Notifying listeners about reset...');
+      notifyListeners();
+    }
+
+    debugPrint('Ongoing appointment data reset completed.');
   }
 }

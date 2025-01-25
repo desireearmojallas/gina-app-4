@@ -15,12 +15,12 @@ part 'bottom_navigation_state.dart';
 
 class BottomNavigationBloc
     extends Bloc<BottomNavigationEvent, BottomNavigationState> {
-  BottomNavigationBloc({int initialIndex = 0})
+  BottomNavigationBloc({int initialIndex = 0, int? appointmentTabIndex})
       : super(BottomNavigationInitial(
           currentIndex: initialIndex,
           selectedScreen: _getScreenForIndex(
             initialIndex,
-            initialIndex: initialIndex,
+            appointmentTabIndex: appointmentTabIndex,
           ),
           navigationHistory: [initialIndex],
         )) {
@@ -80,8 +80,8 @@ class BottomNavigationBloc
   //   });
   // }
 
-  static Widget _getScreenForIndex(int index, {int? initialIndex}) {
-    debugPrint('initialIndex passed: $initialIndex');
+  static Widget _getScreenForIndex(int index, {int? appointmentTabIndex}) {
+    debugPrint('initialIndex passed: $appointmentTabIndex');
     switch (index) {
       case 0:
         return const HomeScreenProvider();
@@ -89,7 +89,7 @@ class BottomNavigationBloc
         return const FindScreenProvider();
       case 2:
         return AppointmentScreenProvider(
-          initialIndex: initialIndex,
+          initialIndex: appointmentTabIndex,
         );
       case 3:
         return const ForumScreenProvider();

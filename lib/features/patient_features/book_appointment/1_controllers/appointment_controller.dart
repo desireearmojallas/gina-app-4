@@ -10,7 +10,6 @@ import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
-import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/floating_container_for_ongoing_appt/bloc/floating_container_for_ongoing_appt_bloc.dart';
 import 'package:gina_app_4/features/patient_features/consultation/0_model/chat_message_model.dart';
 import 'package:intl/intl.dart';
 
@@ -665,7 +664,6 @@ class AppointmentController with ChangeNotifier {
 
 // This method will listen for ongoing appointment updates in real-time
   Stream<AppointmentModel?> checkOngoingAppointmentStream() {
-    // Return a stream of appointments updates
     return firestore
         .collection('appointments')
         .where('patientUid', isEqualTo: currentPatient!.uid)
@@ -673,7 +671,6 @@ class AppointmentController with ChangeNotifier {
             isEqualTo: AppointmentStatus.confirmed.index)
         .snapshots()
         .map((snapshot) {
-      // Process the snapshot and check for ongoing appointments
       for (var doc in snapshot.docs) {
         final data = doc.data();
         final appointmentDate = data['appointmentDate'] as String;
@@ -707,10 +704,10 @@ class AppointmentController with ChangeNotifier {
         if (now.isAfter(appointmentStartDateTime) &&
             now.isBefore(appointmentEndDateTime)) {
           return AppointmentModel.fromDocumentSnap(
-              doc); // Ongoing appointment found
+              doc); // Return the first ongoing appointment found
         }
       }
-      return null; // No ongoing appointment found
+      return null; // If no ongoing appointment is found
     });
   }
 

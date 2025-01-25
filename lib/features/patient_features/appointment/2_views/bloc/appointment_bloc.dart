@@ -27,10 +27,6 @@ bool isFromAppointmentTabs = false;
 bool isFromConsultationHistory = false;
 List<ChatMessageModel> chatMessages = [];
 
-// for floating container
-AppointmentModel? ongoingAppointmentForFloatingContainer;
-ChatMessageModel? chatRoomForFloatingContainer;
-
 class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
   final AppointmentController appointmentController;
   final ProfileController profileController;

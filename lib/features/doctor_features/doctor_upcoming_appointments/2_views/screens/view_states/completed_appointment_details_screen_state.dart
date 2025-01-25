@@ -9,8 +9,11 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_upcoming_appointments/2_views/screens/view_states/completed_appointment_detailed_screen.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
+import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/home/2_views/bloc/home_bloc.dart'
+    as doctor_home;
 import 'package:gina_app_4/features/patient_features/home/2_views/bloc/home_bloc.dart';
 import 'package:intl/intl.dart';
 
@@ -40,7 +43,7 @@ class CompletedAppointmentDetailScreenState extends StatelessWidget {
         bottom: true,
         child: RefreshIndicator(
           onRefresh: () async {
-            homeDashboardBloc.add(HomeInitialEvent());
+            homeDashboardBloc.add(doctor_home.HomeInitialEvent());
           },
           child: ScrollbarCustom(
             child: completedAppointmentsList.isEmpty
@@ -130,10 +133,12 @@ class CompletedAppointmentDetailScreenState extends StatelessWidget {
                                       );
                                     },
                                     child: Container(
-                                      height: size.height * 0.11,
+                                      // height: size.height * 0.11,
                                       width: size.width / 1.05,
                                       margin: const EdgeInsets.symmetric(
                                           vertical: 10.0, horizontal: 15.0),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 15.0),
                                       decoration: BoxDecoration(
                                         color: Colors.white,
                                         borderRadius: BorderRadius.circular(10),
@@ -165,6 +170,17 @@ class CompletedAppointmentDetailScreenState extends StatelessWidget {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
+                                                'Appt ID: ${appointment.appointmentUid}',
+                                                style: ginaTheme
+                                                    .textTheme.labelMedium
+                                                    ?.copyWith(
+                                                  color:
+                                                      GinaAppTheme.lightOutline,
+                                                  fontSize: 9,
+                                                ),
+                                              ),
+                                              const Gap(5),
+                                              Text(
                                                 appointment.patientName ?? "",
                                                 style: ginaTheme
                                                     .textTheme.titleSmall
@@ -194,13 +210,10 @@ class CompletedAppointmentDetailScreenState extends StatelessWidget {
                                               ),
                                               const Gap(5),
                                               Text(
-                                                '${appointment.appointmentDate}\n${appointment.appointmentTime}',
-                                                style: ginaTheme
-                                                    .textTheme.labelMedium
-                                                    ?.copyWith(
-                                                  color:
-                                                      GinaAppTheme.lightOutline,
-                                                  fontSize: 10,
+                                                '${appointment.appointmentTime}',
+                                                style: const TextStyle(
+                                                  fontSize: 9,
+                                                  color: Colors.grey,
                                                 ),
                                               ),
                                             ],

@@ -42,6 +42,10 @@ class AppointmentStatusContainer extends StatelessWidget {
         statusText = 'Missed';
         statusColor = GinaAppTheme.missedTextColor;
         break;
+      case 6:
+        statusText = 'Ongoing';
+        statusColor = GinaAppTheme.ongoingTextColor;
+        break;
     }
 
     return Container(

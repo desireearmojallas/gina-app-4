@@ -56,6 +56,7 @@ class GinaAppTheme {
   static const Color declinedTextColor = Color(0xFFD14633);
   static const Color cancelledTextColor = Color(0xFF989898);
   static const Color missedTextColor = Color(0xFFE5735C);
+  static const Color ongoingTextColor = Color(0xFF33D176);
   static const Color searchBarColor = Color(0xffF1F1F1);
   static const Color verifiedColor = Color(0xff29A5FF);
 // ------------------------------------------------------------------------------

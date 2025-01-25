@@ -74,8 +74,7 @@ class ChatEConsultCardList extends StatelessWidget {
                             appointment.appointmentStatus == 5 ||
                             appointmentEndDateTime.isBefore(DateTime.now());
 
-                    final isRead = isAppointmentFinished ||
-                        chatRoom.seenBy.contains(currentUserUid);
+                    final isRead = chatRoom.seenBy.contains(currentUserUid);
 
                     DateTime now = DateTime.now();
                     DateTime createdAt = chatRoom.createdAt!.toDate();

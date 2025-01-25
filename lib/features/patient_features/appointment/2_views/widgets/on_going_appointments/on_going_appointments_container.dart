@@ -25,9 +25,6 @@ class OnGoingAppointmentsContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ongoingAppointmentForFloatingContainer = appointment;
-    chatRoomForFloatingContainer = chatRoom;
-
     final AppointmentController appointmentController =
         sl<AppointmentController>();
     final appointmentBloc = context.read<AppointmentBloc>();

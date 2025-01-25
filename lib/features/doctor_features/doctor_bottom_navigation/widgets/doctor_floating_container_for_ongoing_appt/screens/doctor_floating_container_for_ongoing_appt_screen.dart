@@ -6,118 +6,56 @@ import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
-import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/1_controllers/doctor_appointment_request_controller.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_bottom_navigation/widgets/doctor_floating_container_for_ongoing_appt/bloc/doctor_floating_container_for_ongoing_appt_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_upcoming_appointments/2_views/bloc/doctor_upcoming_appointments_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
-import 'package:gina_app_4/features/patient_features/book_appointment/1_controllers/appointment_controller.dart';
-import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/floating_container_for_ongoing_appt/bloc/floating_container_for_ongoing_appt_bloc.dart';
-import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:intl/intl.dart';
 
-class FloatingContainerForOnGoingAppointmentProvider extends StatelessWidget {
-  const FloatingContainerForOnGoingAppointmentProvider({super.key});
+class DoctorFloatingContainerForOnGoingAppointmentProvider
+    extends StatelessWidget {
+  const DoctorFloatingContainerForOnGoingAppointmentProvider({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<FloatingContainerForOngoingApptBloc>(
-      create: (context) => sl<FloatingContainerForOngoingApptBloc>()
-        ..add(
-            CheckOngoingAppointments()), // Trigger the check for ongoing appointments
-      child: const FloatingContainerForOnGoingAppointment(),
+    return BlocProvider<DoctorFloatingContainerForOngoingApptBloc>(
+      create: (context) => sl<DoctorFloatingContainerForOngoingApptBloc>()
+        ..add(DoctorCheckOngoingAppointments()),
+      child: const DoctorFloatingContainerForOnGoingAppointment(),
     );
   }
 }
 
-class FloatingContainerForOnGoingAppointment extends StatelessWidget {
-  const FloatingContainerForOnGoingAppointment({super.key});
+class DoctorFloatingContainerForOnGoingAppointment extends StatelessWidget {
+  const DoctorFloatingContainerForOnGoingAppointment({super.key});
 
   Future<void> _handleAppointmentTap(
       BuildContext context,
       AppointmentModel appointment,
-      AppointmentController appointmentController,
-      AppointmentBloc appointmentsBloc) async {
+      DoctorAppointmentRequestController appointmentController,
+      DoctorEconsultBloc doctorEConsultBloc) async {
     HapticFeedback.mediumImpact();
 
-    final appointmentUid = appointment.appointmentUid;
-    final doctorUid = appointment.doctorUid;
+    selectedPatientUid = appointment.patientUid;
 
-    if (appointmentUid != null) {
-      debugPrint('Fetching appointment details for UID: $appointmentUid');
-      final appointmentDetails =
-          await appointmentController.getAppointmentDetailsNew(appointmentUid);
-      if (appointmentDetails != null) {
-        final DateFormat dateFormat = DateFormat('MMMM d, yyyy');
-        final DateFormat timeFormat = DateFormat('hh:mm a');
-        final DateTime now = DateTime.now();
+    doctorEConsultBloc
+        .add(GetPatientDataEvent(patientUid: appointment.patientUid!));
 
-        final DateTime appointmentDate =
-            dateFormat.parse(appointmentDetails.appointmentDate!.trim());
-        final List<String> times =
-            appointmentDetails.appointmentTime!.split(' - ');
-        final DateTime endTime = timeFormat.parse(times[1].trim());
+    isFromChatRoomLists = false;
 
-        final DateTime appointmentEndDateTime = DateTime(
-          appointmentDate.year,
-          appointmentDate.month,
-          appointmentDate.day,
-          endTime.hour,
-          endTime.minute,
-        );
+    selectedPatientAppointment = appointment.appointmentUid;
+    selectedPatientUid = appointment.patientUid ?? '';
+    selectedPatientName = appointment.patientName ?? '';
+    selectedPatientAppointmentModel = appointment;
 
-        debugPrint('Current time: $now');
-        debugPrint('Appointment end time: $appointmentEndDateTime');
+    appointmentDataFromDoctorUpcomingAppointmentsBloc = appointment;
 
-        if (now.isBefore(appointmentEndDateTime)) {
-          debugPrint('Marking appointment as visited for UID: $appointmentUid');
-          await appointmentController
-              .markAsVisitedConsultationRoom(appointmentUid);
-        } else {
-          debugPrint('Appointment has already ended.');
-        }
-      } else {
-        debugPrint('Appointment not found.');
-      }
-    } else {
-      debugPrint('Appointment UID is null.');
-    }
-
-    if (doctorUid != null) {
-      final getDoctorDetailsResult =
-          await appointmentController.getDoctorDetail(
-        doctorUid: doctorUid,
-      );
-
-      getDoctorDetailsResult.fold(
-        (failure) {
-          debugPrint('Failed to fetch doctor details: $failure');
-        },
-        (doctorDetailsData) {
-          doctorDetails = doctorDetailsData;
-        },
-      );
-    } else {
-      debugPrint('Doctor UID is null.');
-    }
-
-    isFromConsultationHistory = false;
-    if (context.mounted) {
-      Navigator.pushNamed(
-        context,
-        '/consultation',
-        arguments: {
-          'doctorDetails': doctorDetails,
-          'appointment': appointment,
-        },
-      ).then((_) {
-        Navigator.pushNamed(
-          context,
-          '/bottomNavigation',
-          arguments: {
-            'initialIndex': 2,
-            'appointmentTabIndex': 3,
-          },
-        );
-      });
-    }
+    Navigator.pushNamed(context, '/doctorOnlineConsultChat').then((value) =>
+        context
+            .read<DoctorEconsultBloc>()
+            .add(GetRequestedEconsultsDisplayEvent()));
   }
 
   bool isToday(String appointmentDate) {
@@ -132,17 +70,19 @@ class FloatingContainerForOnGoingAppointment extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final appointmentsBloc = context.read<AppointmentBloc>();
-    final AppointmentController appointmentController = AppointmentController();
+    // final appointmentsBloc = context.read<AppointmentBloc>();
+    final doctorEConsultBloc = context.read<DoctorEconsultBloc>();
+    final DoctorAppointmentRequestController appointmentController =
+        DoctorAppointmentRequestController();
 
-    return BlocBuilder<FloatingContainerForOngoingApptBloc,
-        FloatingContainerForOngoingApptState>(
+    return BlocBuilder<DoctorFloatingContainerForOngoingApptBloc,
+        DoctorFloatingContainerForOngoingApptState>(
       builder: (context, state) {
-        if (state is FloatingContainerForOngoingApptLoading) {
+        if (state is DoctorFloatingContainerForOngoingApptLoading) {
           return const Center(child: CustomLoadingIndicator());
-        } else if (state is NoOngoingAppointments) {
+        } else if (state is DoctorNoOngoingAppointments) {
           return const SizedBox();
-        } else if (state is OngoingAppointmentFound) {
+        } else if (state is DoctorOngoingAppointmentFound) {
           final appointment = state.ongoingAppointment;
 
           return Stack(
@@ -153,7 +93,7 @@ class FloatingContainerForOnGoingAppointment extends StatelessWidget {
                 right: 20,
                 child: GestureDetector(
                   onTap: () => _handleAppointmentTap(context, appointment,
-                      appointmentController, appointmentsBloc),
+                      appointmentController, doctorEConsultBloc),
                   child: Container(
                     width: size.width * 0.5,
                     decoration: BoxDecoration(
@@ -191,7 +131,7 @@ class FloatingContainerForOnGoingAppointment extends StatelessWidget {
                                     radius: 20,
                                     backgroundColor: Colors.transparent,
                                     foregroundImage:
-                                        AssetImage(Images.patientProfileIcon),
+                                        AssetImage(Images.doctorProfileIcon1),
                                   ),
                                 ),
                               ),
@@ -207,7 +147,7 @@ class FloatingContainerForOnGoingAppointment extends StatelessWidget {
                                   radius: 20,
                                   backgroundColor: Colors.transparent,
                                   foregroundImage:
-                                      AssetImage(Images.doctorProfileIcon1),
+                                      AssetImage(Images.patientProfileIcon),
                                 ),
                               ),
                             ],
@@ -232,7 +172,7 @@ class FloatingContainerForOnGoingAppointment extends StatelessWidget {
                                       ),
                                     ),
                                     Text(
-                                      'with Dr. ${appointment.doctorName}',
+                                      'with ${appointment.patientName}',
                                       style: const TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
@@ -262,7 +202,7 @@ class FloatingContainerForOnGoingAppointment extends StatelessWidget {
                                 context,
                                 appointment,
                                 appointmentController,
-                                appointmentsBloc),
+                                doctorEConsultBloc),
                             icon: const Icon(Icons.arrow_forward_ios),
                             iconSize: 15,
                             color: Colors.grey,
@@ -275,12 +215,7 @@ class FloatingContainerForOnGoingAppointment extends StatelessWidget {
               ),
             ],
           );
-        } else if (state is OngoingAppointmentError) {
-          return const Center(
-              child: Text('Error loading ongoing appointments'));
         }
-
-        // Default fallback
         return const SizedBox();
       },
     );

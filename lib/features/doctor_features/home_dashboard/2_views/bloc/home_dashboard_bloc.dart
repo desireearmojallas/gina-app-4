@@ -112,6 +112,8 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
         (patientData) {
           latestPatientData = patientData;
           patientDataForEconsult = patientData;
+
+          //! take note of this patientDataForEconsult. will add something like this for the past appointments
         },
       );
     } else if (latestPendingAppointment?.patientUid != null) {

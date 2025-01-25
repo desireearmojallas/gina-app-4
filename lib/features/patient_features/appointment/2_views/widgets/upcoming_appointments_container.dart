@@ -9,6 +9,7 @@ import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:intl/intl.dart';
 
 class UpcomingAppointmentsContainer extends StatelessWidget {
   final String doctorName;
@@ -29,6 +30,36 @@ class UpcomingAppointmentsContainer extends StatelessWidget {
     required this.appointment,
   });
 
+  bool isOngoing(AppointmentModel appointment) {
+    final today = DateFormat('MMMM d, yyyy').format(DateTime.now());
+    if (appointment.appointmentDate != today) return false;
+
+    final times = appointment.appointmentTime?.split(' - ');
+    if (times?.length != 2) return false;
+
+    final startTime = DateFormat('h:mm a').parse(times![0]);
+    final endTime = DateFormat('h:mm a').parse(times[1]);
+
+    final appointmentStartDateTime = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+      startTime.hour,
+      startTime.minute,
+    );
+    final appointmentEndDateTime = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+      endTime.hour,
+      endTime.minute,
+    );
+
+    final now = DateTime.now();
+    return now.isAfter(appointmentStartDateTime) &&
+        now.isBefore(appointmentEndDateTime);
+  }
+
   @override
   Widget build(BuildContext context) {
     final appointmentsBloc = context.read<AppointmentBloc>();
@@ -36,6 +67,7 @@ class UpcomingAppointmentsContainer extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     final ginaTheme = Theme.of(context);
+
     return GestureDetector(
       onTap: () {
         HapticFeedback.mediumImpact();
@@ -116,7 +148,8 @@ class UpcomingAppointmentsContainer extends StatelessWidget {
                     ),
                     const Gap(35),
                     AppointmentStatusContainer(
-                      appointmentStatus: appointmentStatus,
+                      appointmentStatus:
+                          isOngoing(appointment) ? 6 : appointmentStatus,
                       colorOverride: Colors.white,
                     ),
                   ],
