@@ -183,7 +183,7 @@ class OnGoingAppointmentsContainer extends StatelessWidget {
                               children: [
                                 Container(
                                   decoration: BoxDecoration(
-                                    color: GinaAppTheme.lightTertiaryContainer,
+                                    color: GinaAppTheme.approvedTextColor,
                                     borderRadius: BorderRadius.circular(5),
                                   ),
                                   child: Padding(

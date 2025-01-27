@@ -63,7 +63,7 @@ class DoctorChatMessageController with ChangeNotifier {
     monitorAppointmentStatus(selectedPatientAppointmentModel!.appointmentUid!);
   }
 
-  getChatRoom(String room, String currentRecipient) {
+  void getChatRoom(String room, String currentRecipient) {
     if (_isDisposed) return;
     DoctorModel.fromUid(uid: auth.currentUser!.uid).then((value) {
       recipient = currentRecipient;
@@ -74,6 +74,10 @@ class DoctorChatMessageController with ChangeNotifier {
         controller.add('empty');
       }
       chatroom = room;
+    }).catchError((error) {
+      // Handle any errors that occur during the async operation
+      debugPrint('Error getting chat room: $error');
+      controller.add('error');
     });
   }
 
@@ -81,8 +85,7 @@ class DoctorChatMessageController with ChangeNotifier {
     if (_isDisposed) return Future.value(null);
     debugPrint(
         'initChatRoom called with room: $room, recipient: $currentRecipient');
-    DoctorModel.fromUid(uid: FirebaseAuth.instance.currentUser!.uid)
-        .then((value) {
+    return DoctorModel.fromUid(uid: auth.currentUser!.uid).then((value) {
       recipient = currentRecipient;
       doctor = value;
       if (doctor != null && doctor!.chatrooms.contains(room)) {
@@ -90,12 +93,14 @@ class DoctorChatMessageController with ChangeNotifier {
       } else {
         controller.add('empty');
       }
-
       chatroom = room;
       debugPrint('Chatroom initialized: $chatroom');
       return chatroom;
+    }).catchError((error) {
+      // Handle any errors that occur during the async operation
+      debugPrint('Error initializing chat room: $error');
+      return null;
     });
-    return Future.value(chatroom);
   }
 
   generateRoomId(String recipientUid) {

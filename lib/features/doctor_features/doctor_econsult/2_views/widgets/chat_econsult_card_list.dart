@@ -154,7 +154,7 @@ class ChatEConsultCardList extends StatelessWidget {
                                                         decoration:
                                                             BoxDecoration(
                                                           color: GinaAppTheme
-                                                              .lightTertiaryContainer,
+                                                              .approvedTextColor,
                                                           borderRadius:
                                                               BorderRadius
                                                                   .circular(5),

@@ -16,11 +16,15 @@ final class DoctorNoOngoingAppointments
 class DoctorOngoingAppointmentFound
     extends DoctorFloatingContainerForOngoingApptState {
   final AppointmentModel ongoingAppointment;
+  final bool hasMessages;
 
-  const DoctorOngoingAppointmentFound({required this.ongoingAppointment});
+  const DoctorOngoingAppointmentFound({
+    required this.ongoingAppointment,
+    required this.hasMessages,
+  });
 
   @override
-  List<Object> get props => [ongoingAppointment];
+  List<Object> get props => [ongoingAppointment, hasMessages];
 }
 
 class DoctorOngoingAppointmentError

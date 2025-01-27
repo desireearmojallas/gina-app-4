@@ -515,4 +515,33 @@ class DoctorAppointmentRequestController with ChangeNotifier {
 
     debugPrint('Ongoing appointment data reset completed.');
   }
+
+  //---------- CHECK IF THERE ARE MESSAGES INSIDE CONSULTATION CHATROOM -----------
+
+  Stream<bool> hasMessagesStream(String chatroomId, String appointmentId) {
+    try {
+      return FirebaseFirestore.instance
+          .collection('consultation-chatrooms')
+          .doc(chatroomId)
+          .collection('appointments')
+          .doc(appointmentId)
+          .collection('messages')
+          .snapshots()
+          .map((messagesSnapshot) {
+        if (messagesSnapshot.docs.isEmpty) {
+          debugPrint(
+              'No messages found in chatroom $chatroomId for appointment $appointmentId');
+          return false;
+        }
+
+        debugPrint(
+            'Messages found in chatroom $chatroomId for appointment $appointmentId');
+        return true;
+      });
+    } catch (e) {
+      // Log the error or handle it as needed
+      debugPrint('Error checking messages: $e');
+      return Stream.value(false);
+    }
+  }
 }

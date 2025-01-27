@@ -356,6 +356,7 @@ Future<void> init() async {
   sl.registerFactory(
     () => DoctorFloatingContainerForOngoingApptBloc(
       doctorAppointmentRequestController: sl(),
+      chatMessageController: sl(),
     ),
   );
 

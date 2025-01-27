@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -67,6 +68,18 @@ class DoctorFloatingContainerForOnGoingAppointment extends StatelessWidget {
         date.day == today.day;
   }
 
+  Future<bool> hasMessages(String chatroomId, String appointmentId) async {
+    final messagesSnapshot = await FirebaseFirestore.instance
+        .collection('consultation-chatrooms')
+        .doc(chatroomId)
+        .collection('appointments')
+        .doc(appointmentId)
+        .collection('messages')
+        .get();
+
+    return messagesSnapshot.docs.isNotEmpty;
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -84,6 +97,7 @@ class DoctorFloatingContainerForOnGoingAppointment extends StatelessWidget {
           return const SizedBox();
         } else if (state is DoctorOngoingAppointmentFound) {
           final appointment = state.ongoingAppointment;
+          final hasMessages = state.hasMessages;
 
           return Stack(
             children: [
@@ -91,126 +105,169 @@ class DoctorFloatingContainerForOnGoingAppointment extends StatelessWidget {
                 bottom: 98,
                 left: 20,
                 right: 20,
-                child: GestureDetector(
-                  onTap: () => _handleAppointmentTap(context, appointment,
-                      appointmentController, doctorEConsultBloc),
-                  child: Container(
-                    width: size.width * 0.5,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(40),
-                      color: Colors.white.withOpacity(0.9),
-                      boxShadow: [
-                        BoxShadow(
-                          color: GinaAppTheme.lightOutline.withOpacity(0.2),
-                          blurRadius: 8,
-                          spreadRadius: 3,
+                child: Column(
+                  children: [
+                    // this container will be hidden when there are messages from firebase
+                    if (!hasMessages)
+                      Container(
+                        width: size.width * 0.58,
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(40),
+                          color: Colors.black.withOpacity(0.65),
+                          boxShadow: [
+                            BoxShadow(
+                              color: GinaAppTheme.lightOutline.withOpacity(0.2),
+                              blurRadius: 8,
+                              spreadRadius: 3,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10.0,
-                        vertical: 5.0,
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Send a message first to begin consultation',
+                              style: TextStyle(
+                                color: GinaAppTheme.appbarColorLight,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            Gap(5),
+                            Icon(
+                              Icons.arrow_downward_rounded,
+                              color: GinaAppTheme.appbarColorLight,
+                              size: 11,
+                            ),
+                          ],
+                        ),
                       ),
-                      child: Row(
-                        children: [
-                          Stack(
-                            clipBehavior: Clip.none,
+                    const Gap(8),
+                    GestureDetector(
+                      onTap: () => _handleAppointmentTap(context, appointment,
+                          appointmentController, doctorEConsultBloc),
+                      child: Container(
+                        width: size.width * 0.9,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(40),
+                          color: Colors.white.withOpacity(0.9),
+                          boxShadow: [
+                            BoxShadow(
+                              color: GinaAppTheme.lightOutline.withOpacity(0.2),
+                              blurRadius: 8,
+                              spreadRadius: 3,
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10.0,
+                            vertical: 5.0,
+                          ),
+                          child: Row(
                             children: [
-                              Positioned(
-                                left: 35,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: Colors.white.withOpacity(0.9),
-                                      width: 3.0,
+                              Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Positioned(
+                                    left: 35,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.white.withOpacity(0.9),
+                                          width: 3.0,
+                                        ),
+                                      ),
+                                      child: CircleAvatar(
+                                        radius: 20,
+                                        backgroundColor: Colors.transparent,
+                                        foregroundImage: AssetImage(
+                                            Images.doctorProfileIcon1),
+                                      ),
                                     ),
                                   ),
-                                  child: CircleAvatar(
-                                    radius: 20,
-                                    backgroundColor: Colors.transparent,
-                                    foregroundImage:
-                                        AssetImage(Images.doctorProfileIcon1),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white.withOpacity(0.9),
+                                        width: 3.0,
+                                      ),
+                                    ),
+                                    child: CircleAvatar(
+                                      radius: 20,
+                                      backgroundColor: Colors.transparent,
+                                      foregroundImage:
+                                          AssetImage(Images.patientProfileIcon),
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white.withOpacity(0.9),
-                                    width: 3.0,
+                              const Gap(45),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    width: size.width * 0.5,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          appointment.modeOfAppointment == 0
+                                              ? 'Ongoing Online Consultation'
+                                              : 'Ongoing Face-to-Face Consultation',
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          'with ${appointment.patientName}',
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                child: CircleAvatar(
-                                  radius: 20,
-                                  backgroundColor: Colors.transparent,
-                                  foregroundImage:
-                                      AssetImage(Images.patientProfileIcon),
-                                ),
+                                  const Gap(2),
+                                  SizedBox(
+                                    width: size.width * 0.5,
+                                    child: Text(
+                                      isToday(appointment.appointmentDate!)
+                                          ? 'Today • ${appointment.appointmentTime}'
+                                          : '${appointment.appointmentDate} • ${appointment.appointmentTime}',
+                                      style: const TextStyle(
+                                        fontSize: 9,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Spacer(),
+                              IconButton(
+                                onPressed: () => _handleAppointmentTap(
+                                    context,
+                                    appointment,
+                                    appointmentController,
+                                    doctorEConsultBloc),
+                                icon: const Icon(Icons.arrow_forward_ios),
+                                iconSize: 15,
+                                color: Colors.grey,
                               ),
                             ],
                           ),
-                          const Gap(45),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                width: size.width * 0.5,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      appointment.modeOfAppointment == 0
-                                          ? 'Ongoing Online Consultation'
-                                          : 'Ongoing Face-to-Face Consultation',
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      'with ${appointment.patientName}',
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const Gap(2),
-                              SizedBox(
-                                width: size.width * 0.5,
-                                child: Text(
-                                  isToday(appointment.appointmentDate!)
-                                      ? 'Today • ${appointment.appointmentTime}'
-                                      : '${appointment.appointmentDate} • ${appointment.appointmentTime}',
-                                  style: const TextStyle(
-                                    fontSize: 9,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          IconButton(
-                            onPressed: () => _handleAppointmentTap(
-                                context,
-                                appointment,
-                                appointmentController,
-                                doctorEConsultBloc),
-                            icon: const Icon(Icons.arrow_forward_ios),
-                            iconSize: 15,
-                            color: Colors.grey,
-                          ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ],
