@@ -142,6 +142,9 @@ class DoctorAppointmentRequestController with ChangeNotifier {
               .compareTo(bDate.difference(DateTime.now()).abs());
         });
 
+      // Update missed appointments
+      await updateMissedAppointments(patientAppointment);
+
       var groupedAppointments = groupBy<AppointmentModel, DateTime>(
         patientAppointment,
         (appointment) =>
@@ -155,6 +158,51 @@ class DoctorAppointmentRequestController with ChangeNotifier {
       error = e;
       notifyListeners();
       return Left(Exception(e.message));
+    }
+  }
+
+// Function to update missed appointments
+  Future<void> updateMissedAppointments(
+      List<AppointmentModel> appointments) async {
+    final now = DateTime.now();
+
+    for (var appointment in appointments) {
+      final appointmentDate =
+          DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
+      final appointmentTimes = appointment.appointmentTime!.split(' - ');
+      final appointmentStartTime =
+          DateFormat('hh:mm a').parse(appointmentTimes[0]);
+      final appointmentEndTime =
+          DateFormat('hh:mm a').parse(appointmentTimes[1]);
+
+      final appointmentStartDateTime = DateTime(
+        appointmentDate.year,
+        appointmentDate.month,
+        appointmentDate.day,
+        appointmentStartTime.hour,
+        appointmentStartTime.minute,
+      );
+
+      final appointmentEndDateTime = DateTime(
+        appointmentDate.year,
+        appointmentDate.month,
+        appointmentDate.day,
+        appointmentEndTime.hour,
+        appointmentEndTime.minute,
+      );
+
+      if (appointmentEndDateTime.isBefore(now) &&
+          appointment.appointmentStatus == AppointmentStatus.confirmed.index &&
+          !appointment.hasVisitedConsultationRoom) {
+        await firestore
+            .collection('appointments')
+            .doc(appointment.appointmentUid)
+            .update({
+          'appointmentStatus': AppointmentStatus.missed.index,
+        });
+
+        appointment.appointmentStatus = AppointmentStatus.missed.index;
+      }
     }
   }
 
@@ -207,6 +255,83 @@ class DoctorAppointmentRequestController with ChangeNotifier {
           .where('doctorUid', isEqualTo: currentUser!.uid)
           .where('appointmentStatus',
               isEqualTo: AppointmentStatus.cancelled.index)
+          .get();
+
+      var patientAppointment = appointmentSnapshot.docs
+          .map((doc) => AppointmentModel.fromJson(doc.data()))
+          .toList()
+        ..sort((a, b) {
+          final aDate = DateFormat('MMMM d, yyyy').parse(a.appointmentDate!);
+          final bDate = DateFormat('MMMM d, yyyy').parse(b.appointmentDate!);
+          return aDate
+              .difference(DateTime.now())
+              .abs()
+              .compareTo(bDate.difference(DateTime.now()).abs());
+        });
+
+      var groupedAppointments = groupBy<AppointmentModel, DateTime>(
+        patientAppointment,
+        (appointment) =>
+            DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!),
+      );
+      return Right(groupedAppointments);
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException code: ${e.code}');
+      error = e;
+      notifyListeners();
+      return Left(Exception(e.message));
+    }
+  }
+
+  //---------- Get Missed Doctor Appointment Request -----------
+
+  Future<Either<Exception, Map<DateTime, List<AppointmentModel>>>>
+      getMissedDoctorAppointmentRequest() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> appointmentSnapshot = await firestore
+          .collection('appointments')
+          .where('doctorUid', isEqualTo: currentUser!.uid)
+          .where('appointmentStatus', isEqualTo: AppointmentStatus.missed.index)
+          .get();
+
+      var patientAppointment = appointmentSnapshot.docs
+          .map((doc) => AppointmentModel.fromJson(doc.data()))
+          .toList()
+        ..sort((a, b) {
+          final aDate = DateFormat('MMMM d, yyyy').parse(a.appointmentDate!);
+          final bDate = DateFormat('MMMM d, yyyy').parse(b.appointmentDate!);
+          return aDate
+              .difference(DateTime.now())
+              .abs()
+              .compareTo(bDate.difference(DateTime.now()).abs());
+        });
+
+      var groupedAppointments = groupBy<AppointmentModel, DateTime>(
+        patientAppointment,
+        (appointment) =>
+            DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!),
+      );
+      return Right(groupedAppointments);
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException code: ${e.code}');
+      error = e;
+      notifyListeners();
+      return Left(Exception(e.message));
+    }
+  }
+
+  //---------- Get Completed Doctor Appointment Request -----------
+
+  Future<Either<Exception, Map<DateTime, List<AppointmentModel>>>>
+      getCompletedDoctorAppointmentRequest() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> appointmentSnapshot = await firestore
+          .collection('appointments')
+          .where('doctorUid', isEqualTo: currentUser!.uid)
+          .where('appointmentStatus',
+              isEqualTo: AppointmentStatus.completed.index)
           .get();
 
       var patientAppointment = appointmentSnapshot.docs

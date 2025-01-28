@@ -50,8 +50,11 @@ class ApprovedRequestStateScreen extends StatelessWidget {
         },
         builder: (context, state) {
           if (state is GetApprovedRequestSuccessState) {
-            return ApprovedRequestStateScreenLoaded(
-              approvedRequests: state.approvedRequests,
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 15.0),
+              child: ApprovedRequestStateScreenLoaded(
+                approvedRequests: state.approvedRequests,
+              ),
             );
           } else if (state is GetApprovedRequestFailedState) {
             return Center(

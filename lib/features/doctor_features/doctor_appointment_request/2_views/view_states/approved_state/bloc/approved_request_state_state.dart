@@ -37,7 +37,7 @@ class NavigateToApprovedRequestDetailState extends ApprovedRequestActionState {
   final AppointmentModel appointment;
   final UserModel patientData;
 
-  NavigateToApprovedRequestDetailState({
+  const NavigateToApprovedRequestDetailState({
     required this.appointment,
     required this.patientData,
   });
@@ -52,7 +52,7 @@ class NavigateToPatientDataState extends ApprovedRequestActionState {
   final List<PeriodTrackerModel> patientPeriods;
   final List<AppointmentModel> patientAppointments;
 
-  NavigateToPatientDataState({
+  const NavigateToPatientDataState({
     required this.patientData,
     required this.appointment,
     required this.patientPeriods,

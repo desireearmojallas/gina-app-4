@@ -100,7 +100,11 @@ class DoctorEConsultScreenLoaded extends StatelessWidget {
                               CompletedAppointmentDetailScreenState(
                             completedAppointmentsList:
                                 completedAppointmentsListForEconsult!,
-                            patientData: patientDataForEconsult!,
+
+                            // TODO: THIS CAUSES AN ERROR
+
+                            patientData:
+                                patientDataForEconsult!, //! this causes an error
                           ),
                         ),
                       );

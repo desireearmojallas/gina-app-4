@@ -1,43 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/cancelled_state/bloc/cancelled_request_state_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/completed_state/bloc/completed_request_state_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:intl/intl.dart';
 
-class CancelledRequestStateScreenLoaded extends StatelessWidget {
-  final Map<DateTime, List<AppointmentModel>> cancelledRequests;
-  const CancelledRequestStateScreenLoaded(
-      {super.key, required this.cancelledRequests});
+class CompletedRequestStateScreenLoaded extends StatelessWidget {
+  final Map<DateTime, List<AppointmentModel>> completedRequests;
+  const CompletedRequestStateScreenLoaded({
+    super.key,
+    required this.completedRequests,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final cancelledRequestBloc = context.read<CancelledRequestStateBloc>();
-    var dates = cancelledRequests.keys.toList();
-
+    final completedRequestBloc = context.read<CompletedRequestStateBloc>();
+    var dates = completedRequests.keys.toList();
     final size = MediaQuery.of(context).size;
     final ginaTheme = Theme.of(context);
 
     return RefreshIndicator(
       onRefresh: () {
-        cancelledRequestBloc.add(
-          CancelledRequestStateInitialEvent(),
+        completedRequestBloc.add(
+          CompletedRequestStateInitialEvent(),
         );
         return Future.value();
       },
       child: ScrollbarCustom(
-        child: cancelledRequests.isEmpty
+        child: completedRequests.isEmpty
             ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'No cancelled requests',
+                      'No approved requests',
                       style: ginaTheme.textTheme.titleSmall?.copyWith(
                         color: GinaAppTheme.lightOutline,
                       ),
@@ -48,10 +50,11 @@ class CancelledRequestStateScreenLoaded extends StatelessWidget {
               )
             : ListView.builder(
                 physics: const BouncingScrollPhysics(),
-                itemCount: cancelledRequests.length,
+                itemCount: completedRequests.length,
                 itemBuilder: (context, index) {
                   final date = dates[index];
-                  final requestsOnDate = cancelledRequests[date]!;
+                  final requestsOnDate = completedRequests[date]!;
+
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -70,8 +73,8 @@ class CancelledRequestStateScreenLoaded extends StatelessWidget {
                       ...requestsOnDate.map(
                         (request) => GestureDetector(
                           onTap: () {
-                            cancelledRequestBloc.add(
-                                NavigateToCancelledRequestDetailEvent(
+                            completedRequestBloc.add(
+                                NavigateToCompletedRequestDetailEvent(
                                     appointment: request));
                           },
                           child: Container(

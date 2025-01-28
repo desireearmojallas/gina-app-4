@@ -104,6 +104,15 @@ class DeclinedRequestStateScreenLoaded extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
+                                      'Appt. ID: ${request.appointmentUid!}',
+                                      style: ginaTheme.textTheme.labelMedium
+                                          ?.copyWith(
+                                        color: GinaAppTheme.lightOutline,
+                                        fontSize: 8,
+                                      ),
+                                    ),
+                                    const Gap(3),
+                                    Text(
                                       request.patientName ?? "",
                                       style: ginaTheme.textTheme.titleSmall
                                           ?.copyWith(
@@ -111,7 +120,7 @@ class DeclinedRequestStateScreenLoaded extends StatelessWidget {
                                       ),
                                       overflow: TextOverflow.ellipsis,
                                     ),
-                                    const Gap(5),
+                                    const Gap(3),
                                     Text(
                                       request.modeOfAppointment ==
                                               ModeOfAppointmentId
@@ -129,11 +138,11 @@ class DeclinedRequestStateScreenLoaded extends StatelessWidget {
                                     ),
                                     const Gap(5),
                                     Text(
-                                      '${request.appointmentDate}\n${request.appointmentTime}',
+                                      '${request.appointmentDate} | ${request.appointmentTime}',
                                       style: ginaTheme.textTheme.labelMedium
                                           ?.copyWith(
                                         color: GinaAppTheme.lightOutline,
-                                        fontSize: 10,
+                                        fontSize: 8,
                                       ),
                                     ),
                                   ],

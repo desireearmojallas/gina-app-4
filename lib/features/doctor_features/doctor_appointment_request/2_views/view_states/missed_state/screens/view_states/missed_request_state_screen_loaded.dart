@@ -5,39 +5,39 @@ import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/cancelled_state/bloc/cancelled_request_state_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/missed_state/bloc/missed_request_state_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:intl/intl.dart';
 
-class CancelledRequestStateScreenLoaded extends StatelessWidget {
-  final Map<DateTime, List<AppointmentModel>> cancelledRequests;
-  const CancelledRequestStateScreenLoaded(
-      {super.key, required this.cancelledRequests});
+class MissedRequestStateScreenLoaded extends StatelessWidget {
+  final Map<DateTime, List<AppointmentModel>> missedRequests;
+  const MissedRequestStateScreenLoaded({
+    super.key,
+    required this.missedRequests,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final cancelledRequestBloc = context.read<CancelledRequestStateBloc>();
-    var dates = cancelledRequests.keys.toList();
-
+    final missedRequestBloc = context.read<MissedRequestStateBloc>();
+    var dates = missedRequests.keys.toList();
     final size = MediaQuery.of(context).size;
     final ginaTheme = Theme.of(context);
-
     return RefreshIndicator(
       onRefresh: () {
-        cancelledRequestBloc.add(
-          CancelledRequestStateInitialEvent(),
+        missedRequestBloc.add(
+          MissedRequestStateInitialEvent(),
         );
         return Future.value();
       },
       child: ScrollbarCustom(
-        child: cancelledRequests.isEmpty
+        child: missedRequests.isEmpty
             ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'No cancelled requests',
+                      'No approved requests',
                       style: ginaTheme.textTheme.titleSmall?.copyWith(
                         color: GinaAppTheme.lightOutline,
                       ),
@@ -48,10 +48,11 @@ class CancelledRequestStateScreenLoaded extends StatelessWidget {
               )
             : ListView.builder(
                 physics: const BouncingScrollPhysics(),
-                itemCount: cancelledRequests.length,
+                itemCount: missedRequests.length,
                 itemBuilder: (context, index) {
                   final date = dates[index];
-                  final requestsOnDate = cancelledRequests[date]!;
+                  final requestsOnDate = missedRequests[date]!;
+
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -70,8 +71,8 @@ class CancelledRequestStateScreenLoaded extends StatelessWidget {
                       ...requestsOnDate.map(
                         (request) => GestureDetector(
                           onTap: () {
-                            cancelledRequestBloc.add(
-                                NavigateToCancelledRequestDetailEvent(
+                            missedRequestBloc.add(
+                                NavigateToMissedRequestDetailEvent(
                                     appointment: request));
                           },
                           child: Container(

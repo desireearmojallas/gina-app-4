@@ -9,12 +9,17 @@ part 'doctor_appointment_request_state.dart';
 class DoctorAppointmentRequestBloc
     extends Bloc<DoctorAppointmentRequestEvent, DoctorAppointmentRequestState> {
   DoctorAppointmentRequestBloc() : super(DoctorAppointmentRequestInitial()) {
-    on<DoctorAppointmentRequestEvent>((event, emit) {});
     on<DoctorAppointmentRequestInitialEvent>(requestInitialEvent);
+    on<TabChangedEvent>(tabChangedEvent);
   }
 
   FutureOr<void> requestInitialEvent(DoctorAppointmentRequestInitialEvent event,
       Emitter<DoctorAppointmentRequestState> emit) {
     emit(DoctorAppointmentRequestInitial());
+  }
+
+  FutureOr<void> tabChangedEvent(
+      TabChangedEvent event, Emitter<DoctorAppointmentRequestState> emit) {
+    emit(TabChangedState(event.tab));
   }
 }
