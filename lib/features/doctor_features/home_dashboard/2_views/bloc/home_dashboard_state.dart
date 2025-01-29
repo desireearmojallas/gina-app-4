@@ -31,6 +31,7 @@ class HomeDashboardInitial extends HomeDashboardState {
   final String doctorName;
   final AppointmentModel? upcomingAppointment;
   final AppointmentModel? pendingAppointmentLatest;
+  final AppointmentModel? selectedAppointment;
   final UserModel? patientData;
   final Map<DateTime, List<AppointmentModel>>? completedAppointmentList;
 
@@ -42,6 +43,7 @@ class HomeDashboardInitial extends HomeDashboardState {
     this.pendingAppointmentLatest,
     this.patientData,
     this.completedAppointmentList,
+    this.selectedAppointment,
   });
 
   @override
@@ -53,6 +55,7 @@ class HomeDashboardInitial extends HomeDashboardState {
         pendingAppointmentLatest ?? Object(),
         patientData ?? Object(),
         completedAppointmentList ?? Object(),
+        selectedAppointment ?? Object(),
       ];
 }
 

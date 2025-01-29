@@ -30,7 +30,7 @@ class MyPastAppointmentsNavigationWidget extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => CompletedAppointmentDetailScreenState(
               completedAppointmentsList: completedAppointmentsList,
-              patientData: patientData,
+              // patientData: patientData,
             ),
           ),
         );

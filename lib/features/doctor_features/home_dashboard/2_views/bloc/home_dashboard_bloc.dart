@@ -12,7 +12,10 @@ part 'home_dashboard_event.dart';
 part 'home_dashboard_state.dart';
 
 Map<DateTime, List<AppointmentModel>>? completedAppointmentsListForEconsult;
-UserModel? patientDataForEconsult;
+UserModel? patientDataForUpcomingAppointment;
+UserModel? patientDataForPendingAppointment;
+UserModel? patientDataForPastAppointment;
+String? patientIdForPastAppointmentDetails;
 
 class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
   final DoctorHomeDashboardController doctorHomeDashboardController;
@@ -26,6 +29,7 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
           doctorName: '',
           upcomingAppointment: AppointmentModel(),
           pendingAppointmentLatest: AppointmentModel(),
+          selectedAppointment: AppointmentModel(),
           patientData: UserModel(
             name: '',
             email: '',
@@ -51,7 +55,6 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
     int? confirmedAppointmentsCount;
     AppointmentModel? latestUpcomingAppointment;
     AppointmentModel? latestPendingAppointment;
-    UserModel? latestPatientData;
     Map<DateTime, List<AppointmentModel>> completedAppointmentsList = {};
 
     final getTheNumberOfConfirmedAppointments =
@@ -110,37 +113,54 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
       getPatientData.fold(
         (failure) {},
         (patientData) {
-          latestPatientData = patientData;
-          patientDataForEconsult = patientData;
-
-          //! take note of this patientDataForEconsult. will add something like this for the past appointments
+          patientDataForUpcomingAppointment = patientData;
         },
       );
-    } else if (latestPendingAppointment?.patientUid != null) {
-      // Fetch patient data based on the patientUid of the latestPendingAppointment
+    }
+
+    // Fetch patient data based on the patientUid of the latestPendingAppointment
+    if (latestPendingAppointment?.patientUid != null) {
       final getPatientData = await doctorHomeDashboardController
           .getPatientData(latestPendingAppointment!.patientUid!);
 
       getPatientData.fold(
         (failure) {},
         (patientData) {
-          latestPatientData = patientData;
+          patientDataForPendingAppointment = patientData;
         },
       );
-    } else {
-      // Handle the case where patientUid is null
-      latestPatientData = null;
     }
 
-    // Debug prints to check the values of patientData
-    debugPrint('HomeDashboardBloc Patient Name: ${latestPatientData?.name}');
-    debugPrint(
-        'HomeDashboardBloc Patient Date of Birth: ${latestPatientData?.dateOfBirth}');
-    debugPrint(
-        'HomeDashboardBloc Patient Gender: ${latestPatientData?.gender}');
-    debugPrint(
-        'HomeDashboardBloc Patient Address: ${latestPatientData?.address}');
-    debugPrint('HomeDashboardBloc Patient Email: ${latestPatientData?.email}');
+    // Fetch patient data based on the patientIdForPastAppointmentDetails
+    if (patientIdForPastAppointmentDetails != null) {
+      debugPrint(
+          'Fetching patient data for past appointment: $patientIdForPastAppointmentDetails');
+      final getPatientData = await doctorHomeDashboardController
+          .getPatientData(patientIdForPastAppointmentDetails!);
+
+      getPatientData.fold(
+        (failure) {
+          debugPrint('Failed to fetch patient data: $failure');
+        },
+        (patientData) {
+          patientDataForPastAppointment = patientData;
+          debugPrint(
+              'patientDataForPastAppointment from home dashboard bloc: $patientDataForPastAppointment');
+          debugPrint('Fetched patient data: ${patientData.name}');
+        },
+      );
+    }
+
+    // Determine which patient data to pass based on the selected appointment
+    UserModel? selectedPatientData;
+    if (event.selectedAppointment == latestUpcomingAppointment) {
+      selectedPatientData = patientDataForUpcomingAppointment;
+    } else if (event.selectedAppointment == latestPendingAppointment) {
+      selectedPatientData = patientDataForPendingAppointment;
+    } else if (event.selectedAppointment?.patientUid ==
+        patientIdForPastAppointmentDetails) {
+      selectedPatientData = patientDataForPastAppointment;
+    }
 
     emit(HomeDashboardInitial(
       pendingAppointments: pendingAppointmentsCount ?? 0,
@@ -148,7 +168,7 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
       doctorName: currentDoctorName,
       upcomingAppointment: latestUpcomingAppointment ?? AppointmentModel(),
       pendingAppointmentLatest: latestPendingAppointment ?? AppointmentModel(),
-      patientData: latestPatientData ??
+      patientData: selectedPatientData ??
           UserModel(
             name: '',
             email: '',
@@ -163,6 +183,7 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
             appointmentsBooked: const [],
           ),
       completedAppointmentList: completedAppointmentsList,
+      selectedAppointment: event.selectedAppointment,
     ));
   }
 

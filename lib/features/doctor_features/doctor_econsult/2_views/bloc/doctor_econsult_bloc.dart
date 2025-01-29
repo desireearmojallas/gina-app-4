@@ -159,16 +159,16 @@ class DoctorEconsultBloc
     }
   }
 
-  Future<AppointmentModel?> fetchAppointmentDetails(
-      String appointmentId) async {
-    // Replace this with your actual method to fetch the AppointmentModel
-    final doc = await FirebaseFirestore.instance
+  Stream<AppointmentModel?> fetchAppointmentDetails(String appointmentId) {
+    return FirebaseFirestore.instance
         .collection('appointments')
         .doc(appointmentId)
-        .get();
-    if (doc.exists) {
-      return AppointmentModel.fromJson(doc.data()!);
-    }
-    return null;
+        .snapshots()
+        .map((doc) {
+      if (doc.exists) {
+        return AppointmentModel.fromJson(doc.data()!);
+      }
+      return null;
+    });
   }
 }

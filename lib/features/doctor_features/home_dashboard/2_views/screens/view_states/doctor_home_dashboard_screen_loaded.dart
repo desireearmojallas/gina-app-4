@@ -218,13 +218,39 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                 ),
                 UpcomingAppointmentsNavigationWidget(
                   upcomingAppointment: upcomingAppointment,
-                  patientData: patientData,
+                  patientData: patientDataForUpcomingAppointment ??
+                      UserModel(
+                        name: '',
+                        email: '',
+                        uid: '',
+                        gender: '',
+                        dateOfBirth: '',
+                        profileImage: '',
+                        headerImage: '',
+                        accountType: '',
+                        address: '',
+                        chatrooms: const [],
+                        appointmentsBooked: const [],
+                      ),
                 ),
                 const Gap(20),
                 PendingRequestsNavigationWidget(
                   pendingRequests: pendingRequests,
                   pendingAppointment: pendingAppointment,
-                  patientData: patientData,
+                  patientData: patientDataForPendingAppointment ??
+                      UserModel(
+                        name: '',
+                        email: '',
+                        uid: '',
+                        gender: '',
+                        dateOfBirth: '',
+                        profileImage: '',
+                        headerImage: '',
+                        accountType: '',
+                        address: '',
+                        chatrooms: const [],
+                        appointmentsBooked: const [],
+                      ),
                 ),
                 const Gap(30),
                 Align(
@@ -246,7 +272,20 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                     children: [
                       MyPastAppointmentsNavigationWidget(
                         completedAppointmentsList: completedAppointmentsList,
-                        patientData: patientData,
+                        patientData: patientDataForPastAppointment ??
+                            UserModel(
+                              name: '',
+                              email: '',
+                              uid: '',
+                              gender: '',
+                              dateOfBirth: '',
+                              profileImage: '',
+                              headerImage: '',
+                              accountType: '',
+                              address: '',
+                              chatrooms: const [],
+                              appointmentsBooked: const [],
+                            ),
                       ),
                       const Gap(15),
                       const EmergencyAnnouncementNavigationWidget(),

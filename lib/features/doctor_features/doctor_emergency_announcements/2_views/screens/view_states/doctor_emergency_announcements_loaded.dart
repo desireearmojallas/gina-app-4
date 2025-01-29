@@ -51,13 +51,14 @@ class DoctorEmergencyAnnouncementsLoadedScreen extends StatelessWidget {
                   ),
                 ),
                 const Gap(5),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 90.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 90.0),
                   child: Text(
                     'Notify affected patients promptly about changes to their scheduled appointments.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
+                      color: GinaAppTheme.lightOnPrimaryColor.withOpacity(0.5),
                     ),
                   ),
                 ),
@@ -163,6 +164,7 @@ class DoctorEmergencyAnnouncementsLoadedScreen extends StatelessWidget {
                                           backgroundImage: AssetImage(
                                             Images.patientProfileIcon,
                                           ),
+                                          backgroundColor: Colors.transparent,
                                         ),
                                         const Gap(15),
                                         SizedBox(
@@ -205,9 +207,9 @@ class DoctorEmergencyAnnouncementsLoadedScreen extends StatelessWidget {
                                             ],
                                           ),
                                         ),
-                                        const Gap(20),
+                                        const Gap(5),
                                         SizedBox(
-                                          width: size.width * 0.1,
+                                          width: size.width * 0.14,
                                           child: Align(
                                             alignment: Alignment.centerRight,
                                             child: Text(

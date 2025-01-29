@@ -44,8 +44,8 @@ class ChatEConsultCardList extends StatelessWidget {
             itemBuilder: (context, index) {
               final chatRoom = chatRooms[index];
 
-              return FutureBuilder<AppointmentModel?>(
-                future: doctorEconsultBloc
+              return StreamBuilder<AppointmentModel?>(
+                stream: doctorEconsultBloc
                     .fetchAppointmentDetails(chatRoom.appointmentId!),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {

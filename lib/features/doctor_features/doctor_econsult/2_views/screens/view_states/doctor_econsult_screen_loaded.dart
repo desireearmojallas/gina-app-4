@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/reusable_widgets/gina_divider.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/widgets/chat_econsult_card_list.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_upcoming_appointments/2_views/screens/view_states/completed_appointment_details_screen_state.dart';
@@ -100,11 +101,6 @@ class DoctorEConsultScreenLoaded extends StatelessWidget {
                               CompletedAppointmentDetailScreenState(
                             completedAppointmentsList:
                                 completedAppointmentsListForEconsult!,
-
-                            // TODO: THIS CAUSES AN ERROR
-
-                            patientData:
-                                patientDataForEconsult!, //! this causes an error
                           ),
                         ),
                       );

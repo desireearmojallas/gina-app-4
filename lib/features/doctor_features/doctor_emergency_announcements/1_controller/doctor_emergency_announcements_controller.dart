@@ -161,9 +161,12 @@ class DoctorEmergencyAnnouncementsController with ChangeNotifier {
       DocumentSnapshot<Map<String, dynamic>> snapshot =
           await firestore.collection('appointments').doc(appointmentUid).get();
 
-      final appointment = AppointmentModel.fromJson(snapshot.data()!);
-
-      return Right(appointment);
+      if (snapshot.exists && snapshot.data() != null) {
+        final appointment = AppointmentModel.fromJson(snapshot.data()!);
+        return Right(appointment);
+      } else {
+        return Left(Exception('Appointment not found'));
+      }
     } on FirebaseAuthException catch (e) {
       debugPrint('FirebaseAuthException: ${e.message}');
       debugPrint('FirebaseAuthException: ${e.code}');
