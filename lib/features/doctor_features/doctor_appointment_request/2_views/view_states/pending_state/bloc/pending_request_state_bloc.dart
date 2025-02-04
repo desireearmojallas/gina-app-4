@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/1_controllers/doctor_appointment_request_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 
 part 'pending_request_state_event.dart';
@@ -76,32 +77,31 @@ class PendingRequestStateBloc
 
   FutureOr<void> approveAppointment(ApproveAppointmentEvent event,
       Emitter<PendingRequestStateState> emit) async {
+    debugPrint('Stored Patient Data: $storedPatientData');
+    debugPrint('Stored Appointment: $storedAppointment');
     emit(ApproveAppointmentLoadingState());
+
+    if (storedPatientData == null || storedAppointment == null) {
+      emit(const ApproveAppointmentFailedState(
+          errorMessage: 'Stored appointment or patient data is null'));
+      return;
+    }
 
     final result =
         await doctorAppointmentRequestController.approvePendingPatientRequest(
       appointmentId: event.appointmentId,
     );
 
-    //TODO: Uncomment this after implementing the doctor consultation bloc
-    //! Uncomment this after implementing the doctor consultation bloc
-    // selectedPatientUid = storedPatientData!.uid;
-    // selectedPatientAppointment = storedAppointment!.appointmentUid;
-    selectedPatientName = storedPatientData!.name;
-
     result.fold(
       (failure) =>
           emit(ApproveAppointmentFailedState(errorMessage: failure.toString())),
       (appointment) {
-        // Ensure storedAppointment and storedPatientData are not null
-        if (storedAppointment != null && storedPatientData != null) {
-          emit(NavigateToApprovedRequestDetailedState(
-              appointment: storedAppointment!,
-              patientData: storedPatientData!));
-        } else {
-          emit(const ApproveAppointmentFailedState(
-              errorMessage: 'Stored appointment or patient data is null'));
-        }
+        selectedPatientUid = storedPatientData!.uid;
+        selectedPatientAppointment = storedAppointment!.appointmentUid;
+        selectedPatientName = storedPatientData!.name;
+
+        emit(NavigateToApprovedRequestDetailedState(
+            appointment: storedAppointment!, patientData: storedPatientData!));
       },
     );
   }
@@ -109,6 +109,12 @@ class PendingRequestStateBloc
   FutureOr<void> declineAppointment(DeclineAppointmentEvent event,
       Emitter<PendingRequestStateState> emit) async {
     emit(DeclineAppointmentLoadingState());
+
+    if (storedAppointment == null) {
+      emit(const DeclineAppointmentFailedState(
+          errorMessage: 'Stored appointment is null'));
+      return;
+    }
 
     final result = await doctorAppointmentRequestController
         .declinePendingPatientRequest(appointmentId: event.appointmentId);
@@ -118,14 +124,8 @@ class PendingRequestStateBloc
         emit(DeclineAppointmentFailedState(errorMessage: failure.toString()));
       },
       (success) {
-        // Ensure storedAppointment is not null
-        if (storedAppointment != null) {
-          emit(NavigateToDeclinedRequestDetailedState(
-              appointment: storedAppointment!));
-        } else {
-          emit(const DeclineAppointmentFailedState(
-              errorMessage: 'Stored appointment is null'));
-        }
+        emit(NavigateToDeclinedRequestDetailedState(
+            appointment: storedAppointment!));
       },
     );
   }

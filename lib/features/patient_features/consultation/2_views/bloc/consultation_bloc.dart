@@ -113,7 +113,9 @@ class ConsultationBloc extends Bloc<ConsultationEvent, ConsultationState> {
           'faceToFaceAppointment') {
         debugPrint(
             'checkAppointmentForOnlineConsultation == faceToFaceAppointment');
-        emit(ConsultationFaceToFaceAppointmentState());
+        emit(ConsultationFaceToFaceAppointmentState(
+          appointment: selectedDoctorAppointmentModel!,
+        ));
       } else if (checkAppointmentForOnlineConsultation == 'invalid') {
         debugPrint('checkAppointmentForOnlineConsultation == invalid');
         isAppointmentFinished = false;

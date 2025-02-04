@@ -58,19 +58,6 @@ class MissedRequestDetailsScreenState extends StatelessWidget {
       appBar: GinaDoctorAppBar(
         title: patientData.name,
       ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 20.0),
-        child: FloatingActionButton(
-          onPressed: () {
-            // TODO: CONSULTATION BUTTON
-          },
-          backgroundColor: GinaAppTheme.lightTertiaryContainer,
-          child: const Icon(
-            MingCute.message_3_fill,
-            color: GinaAppTheme.lightBackground,
-          ),
-        ),
-      ),
       body: Stack(
         children: [
           const GradientBackground(),
@@ -264,24 +251,7 @@ class MissedRequestDetailsScreenState extends StatelessWidget {
                     ),
                     const Gap(50),
                     TextButton(
-                      onPressed: () {
-                        // Navigator.pushNamed(context, '/viewPatientData');
-
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ViewPatientDataScreen(
-                                      patient: patientData,
-                                      patientAppointment: appointment,
-                                      patientAppointments: patientData
-                                          .appointmentsBooked
-                                          .map((appointmentId) =>
-                                              AppointmentModel(
-                                                  appointmentUid:
-                                                      appointmentId))
-                                          .toList(),
-                                    )));
-                      },
+                      onPressed: null,
                       style: ButtonStyle(
                         shape: MaterialStateProperty.all(
                           RoundedRectangleBorder(
@@ -296,14 +266,23 @@ class MissedRequestDetailsScreenState extends StatelessWidget {
                             'View Patient Data',
                             style: TextStyle(
                               fontSize: 14,
+                              color: GinaAppTheme.lightSurfaceVariant,
                             ),
                           ),
                           Gap(10),
                           Icon(
                             Icons.arrow_forward_ios,
                             size: 14,
+                            color: GinaAppTheme.lightSurfaceVariant,
                           ),
                         ],
+                      ),
+                    ),
+                    const Text(
+                      'This appointment was missed by the patient.',
+                      style: TextStyle(
+                        color: GinaAppTheme.lightOutline,
+                        fontSize: 11,
                       ),
                     ),
                     Padding(
@@ -313,11 +292,11 @@ class MissedRequestDetailsScreenState extends StatelessWidget {
                         width: size.width / 1.15,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          color: GinaAppTheme.approvedTextColor,
+                          color: GinaAppTheme.missedTextColor,
                         ),
                         child: Center(
                           child: Text(
-                            'Approved',
+                            'Missed',
                             style: ginaTheme.textTheme.labelLarge?.copyWith(
                               color: GinaAppTheme.lightBackground,
                             ),

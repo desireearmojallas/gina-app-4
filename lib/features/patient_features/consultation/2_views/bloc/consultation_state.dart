@@ -28,7 +28,14 @@ class ConsultationLoadedAppointmentState extends ConsultationState {
 
 class ConsultationNoAppointmentState extends ConsultationState {}
 
-class ConsultationFaceToFaceAppointmentState extends ConsultationState {}
+class ConsultationFaceToFaceAppointmentState extends ConsultationState {
+  final AppointmentModel appointment;
+
+  const ConsultationFaceToFaceAppointmentState({required this.appointment});
+
+  @override
+  List<Object> get props => [appointment];
+}
 
 class ConsultationWaitingForAppointmentState extends ConsultationState {
   final AppointmentModel appointment;

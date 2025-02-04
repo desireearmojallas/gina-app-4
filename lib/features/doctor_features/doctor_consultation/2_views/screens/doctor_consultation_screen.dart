@@ -7,9 +7,11 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
+import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/widgets/view_patient_data/view_patient_data.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/screens/view_states/doctor_consultation_on_going_appointment_screen.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/widgets/doctor_consultation_face_to_face_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/widgets/doctor_consultation_menu.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
@@ -181,7 +183,14 @@ class DoctorConsultationScreen extends StatelessWidget {
                   return const ConsultationNoAppointmentScreen();
                 } else if (state
                     is DoctorConsultationFaceToFaceAppointmentState) {
-                  return const FaceToFaceAppointmentScreen();
+                  // return FaceToFaceAppointmentScreen(
+                  //   //! will add the correct appointment data here
+                  //   doctor: DoctorModel(), // Replace with actual DoctorModel instance
+                  //   appointment: AppointmentModel(),
+                  // );
+                  return DoctorConsultationFaceToFaceScreen(
+                    patientAppointment: selectedPatientAppointmentModel!,
+                  );
                 } else if (state is DoctorConsultationLoadingState) {
                   return const Center(
                     child: CustomLoadingIndicator(),

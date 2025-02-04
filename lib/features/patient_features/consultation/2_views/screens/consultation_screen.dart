@@ -6,6 +6,7 @@ import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
+import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/view_states/consultation_face_to_face_appointment_screen.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/view_states/consultation_loaded_appointment.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/view_states/consultation_no_appointment.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/view_states/consultation_waiting_appointment.dart';
@@ -90,6 +91,11 @@ class ConsultationScreen extends StatelessWidget {
               doctorUid: doctorDetails,
               chatroom: chatRoom,
               appointment: selectedDoctorAppointmentModel!,
+            );
+          } else if (state is ConsultationFaceToFaceAppointmentState) {
+            return FaceToFaceAppointmentScreen(
+              appointment: selectedDoctorAppointmentModel!,
+              doctor: doctorDetails,
             );
           }
           return const Center(

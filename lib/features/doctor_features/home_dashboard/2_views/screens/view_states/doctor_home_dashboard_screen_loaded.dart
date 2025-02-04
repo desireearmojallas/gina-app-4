@@ -52,7 +52,7 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
     return RefreshIndicator(
       onRefresh: () async {
         try {
-          homeDashboardBloc.add(HomeInitialEvent());
+          homeDashboardBloc.add(const HomeInitialEvent());
 
           await Future.delayed(
               const Duration(milliseconds: 800)); // Simulating delay

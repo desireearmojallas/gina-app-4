@@ -366,11 +366,13 @@ class DoctorAppointmentRequestController with ChangeNotifier {
   Future<Either<Exception, bool>> approvePendingPatientRequest({
     required String appointmentId,
   }) async {
+    debugPrint('Approving appointment with ID: $appointmentId');
     try {
       await firestore
           .collection('appointments')
           .doc(appointmentId)
           .update({'appointmentStatus': AppointmentStatus.confirmed.index});
+      debugPrint('Appointment approved successfully');
 
       return const Right(true);
     } on FirebaseAuthException catch (e) {
@@ -378,6 +380,7 @@ class DoctorAppointmentRequestController with ChangeNotifier {
       debugPrint('FirebaseAuthException code: ${e.code}');
       error = e;
       notifyListeners();
+      debugPrint('Error approving appointment: $e');
       return Left(Exception(e.message));
     }
   }
@@ -387,11 +390,13 @@ class DoctorAppointmentRequestController with ChangeNotifier {
   Future<Either<Exception, bool>> declinePendingPatientRequest({
     required String appointmentId,
   }) async {
+    debugPrint('Declining appointment with ID: $appointmentId');
     try {
       await firestore
           .collection('appointments')
           .doc(appointmentId)
           .update({'appointmentStatus': AppointmentStatus.declined.index});
+      debugPrint('Appointment declined successfully');
 
       return const Right(true);
     } on FirebaseAuthException catch (e) {
@@ -399,6 +404,7 @@ class DoctorAppointmentRequestController with ChangeNotifier {
       debugPrint('FirebaseAuthException code: ${e.code}');
       error = e;
       notifyListeners();
+      debugPrint('Error declining appointment: $e');
       return Left(Exception(e.message));
     }
   }

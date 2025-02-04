@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
@@ -6,6 +8,9 @@ import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/widgets/view_patient_data/view_patient_data.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_upcoming_appointments/2_views/bloc/doctor_upcoming_appointments_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -23,6 +28,7 @@ class CompletedRequestDetailsScreenState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final doctorEConsultBloc = context.read<DoctorEconsultBloc>();
     final size = MediaQuery.of(context).size;
     final ginaTheme = Theme.of(context);
 
@@ -61,7 +67,33 @@ class CompletedRequestDetailsScreenState extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 20.0),
         child: FloatingActionButton(
           onPressed: () {
-            // TODO: CONSULTATION BUTTON
+            HapticFeedback.mediumImpact();
+
+            selectedPatientUid = appointment.patientUid!;
+            debugPrint(
+                'doctor_upcoming_appointments_container selectedPatientUid: $selectedPatientUid');
+
+            debugPrint(
+                'doctor_upcoming_appointments_container appointment: ${appointment.appointmentUid}');
+
+            doctorEConsultBloc
+                .add(GetPatientDataEvent(patientUid: appointment.patientUid!));
+
+            isFromChatRoomLists = false;
+
+            selectedPatientAppointment = appointment.appointmentUid;
+            selectedPatientUid = appointment.patientUid ?? '';
+            selectedPatientName = appointment.patientName ?? '';
+            selectedPatientAppointmentModel = appointment;
+
+            appointmentDataFromDoctorUpcomingAppointmentsBloc = appointment;
+            debugPrint(
+                'doctor_upcoming_appointments_container appointmentDataFromDoctorUpcomingAppointmentsBloc: $appointmentDataFromDoctorUpcomingAppointmentsBloc');
+
+            Navigator.pushNamed(context, '/doctorOnlineConsultChat').then(
+                (value) => context
+                    .read<DoctorEconsultBloc>()
+                    .add(GetRequestedEconsultsDisplayEvent()));
           },
           backgroundColor: GinaAppTheme.lightTertiaryContainer,
           child: const Icon(
@@ -133,7 +165,7 @@ class CompletedRequestDetailsScreenState extends StatelessWidget {
                         ),
                         //const Spacer(),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(5, 0, 20, 0),
+                          padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -312,11 +344,11 @@ class CompletedRequestDetailsScreenState extends StatelessWidget {
                         width: size.width / 1.15,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          color: GinaAppTheme.approvedTextColor,
+                          color: GinaAppTheme.lightTertiaryContainer,
                         ),
                         child: Center(
                           child: Text(
-                            'Approved',
+                            'Completed',
                             style: ginaTheme.textTheme.labelLarge?.copyWith(
                               color: GinaAppTheme.lightBackground,
                             ),

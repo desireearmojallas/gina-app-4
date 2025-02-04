@@ -12,9 +12,11 @@ import 'package:intl/intl.dart';
 
 class ApprovedRequestStateScreenLoaded extends StatelessWidget {
   final Map<DateTime, List<AppointmentModel>> approvedRequests;
+  final bool? isFromHomeScreen;
   const ApprovedRequestStateScreenLoaded({
     super.key,
     required this.approvedRequests,
+    this.isFromHomeScreen,
   });
 
   @override

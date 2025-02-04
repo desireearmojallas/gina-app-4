@@ -26,8 +26,9 @@ class DoctorFloatingContainerForOngoingApptBloc extends Bloc<
   }
 
   FutureOr<void> doctorCheckOngoingAppointments(
-      DoctorCheckOngoingAppointments event,
-      Emitter<DoctorFloatingContainerForOngoingApptState> emit) async {
+    DoctorCheckOngoingAppointments event,
+    Emitter<DoctorFloatingContainerForOngoingApptState> emit,
+  ) async {
     try {
       emit(DoctorFloatingContainerForOngoingApptLoading());
 
@@ -38,20 +39,32 @@ class DoctorFloatingContainerForOngoingApptBloc extends Bloc<
         final ongoingAppointment = snapshot;
 
         if (ongoingAppointment != null) {
-          final chatroomId = chatMessageController
-              .generateRoomId(ongoingAppointment.patientUid!);
-          chatMessageController.getChatRoom(
-              chatroomId, ongoingAppointment.patientUid!);
+          final modeOfAppointment = ongoingAppointment.modeOfAppointment;
 
-          _hasMessagesSubscription?.cancel();
-          _hasMessagesSubscription = doctorAppointmentRequestController
-              .hasMessagesStream(chatroomId, ongoingAppointment.appointmentUid!)
-              .listen((hasMessages) {
+          if (modeOfAppointment == 1) {
+            // Face-to-face consultation
             emit(DoctorOngoingAppointmentFound(
               ongoingAppointment: ongoingAppointment,
-              hasMessages: hasMessages,
+              hasMessages: true, // No messages for face-to-face consultation
             ));
-          });
+          } else {
+            // Online consultation
+            final chatroomId = chatMessageController
+                .generateRoomId(ongoingAppointment.patientUid!);
+            chatMessageController.getChatRoom(
+                chatroomId, ongoingAppointment.patientUid!);
+
+            _hasMessagesSubscription?.cancel();
+            _hasMessagesSubscription = doctorAppointmentRequestController
+                .hasMessagesStream(
+                    chatroomId, ongoingAppointment.appointmentUid!)
+                .listen((hasMessages) {
+              emit(DoctorOngoingAppointmentFound(
+                ongoingAppointment: ongoingAppointment,
+                hasMessages: hasMessages,
+              ));
+            });
+          }
         } else {
           emit(DoctorNoOngoingAppointments());
         }

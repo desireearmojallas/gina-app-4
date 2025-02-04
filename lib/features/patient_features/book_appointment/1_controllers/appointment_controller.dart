@@ -662,7 +662,6 @@ class AppointmentController with ChangeNotifier {
     }
   }
 
-// This method will listen for ongoing appointment updates in real-time
   Stream<AppointmentModel?> checkOngoingAppointmentStream() {
     return firestore
         .collection('appointments')
@@ -675,6 +674,7 @@ class AppointmentController with ChangeNotifier {
         final data = doc.data();
         final appointmentDate = data['appointmentDate'] as String;
         final appointmentTime = data['appointmentTime'] as String;
+        final modeOfAppointment = data['modeOfAppointment'] as int;
 
         final today = DateFormat('MMMM d, yyyy').format(DateTime.now());
         if (appointmentDate != today) continue;
@@ -701,10 +701,18 @@ class AppointmentController with ChangeNotifier {
         );
 
         final now = DateTime.now();
-        if (now.isAfter(appointmentStartDateTime) &&
-            now.isBefore(appointmentEndDateTime)) {
-          return AppointmentModel.fromDocumentSnap(
-              doc); // Return the first ongoing appointment found
+
+        if (modeOfAppointment == 1) {
+          // Face-to-face consultation
+          if (now.isBefore(appointmentEndDateTime)) {
+            return AppointmentModel.fromDocumentSnap(doc);
+          }
+        } else {
+          // Online consultation
+          if (now.isAfter(appointmentStartDateTime) &&
+              now.isBefore(appointmentEndDateTime)) {
+            return AppointmentModel.fromDocumentSnap(doc);
+          }
         }
       }
       return null; // If no ongoing appointment is found

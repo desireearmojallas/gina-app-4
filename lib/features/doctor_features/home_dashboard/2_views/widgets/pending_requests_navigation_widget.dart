@@ -210,19 +210,24 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                   child: Row(
                     children: [
                       IconButton(
-                        onPressed: pendingRequests == 0
-                            ? null
-                            : () {
-                                showConfirmingPendingRequestDialog(
-                                  context,
-                                  appointmentId:
-                                      pendingAppointment!.appointmentUid!,
-                                  appointment: pendingAppointment!,
-                                  patientData: patientData,
-                                ).then((value) {
-                                  homeDashboardBloc.add(HomeInitialEvent());
-                                });
-                              },
+                        onPressed:
+                            pendingRequests == 0 || pendingAppointment == null
+                                ? null
+                                : () {
+                                    debugPrint(
+                                        'Pending Requests: $pendingRequests');
+                                    debugPrint(
+                                        'Appointment ID: ${pendingAppointment!.appointmentUid}');
+
+                                    showConfirmingPendingRequestDialog(
+                                      context,
+                                      appointmentId:
+                                          pendingAppointment!.appointmentUid!,
+                                      appointment: pendingAppointment!,
+                                      patientData: patientData,
+                                      isFromHomePendingRequest: true,
+                                    );
+                                  },
                         icon: Icon(
                           MingCute.close_circle_fill,
                           color: pendingRequests == 0
@@ -232,19 +237,24 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                         ),
                       ),
                       IconButton(
-                        onPressed: pendingRequests == 0
-                            ? null
-                            : () {
-                                showConfirmingPendingRequestDialog(
-                                  context,
-                                  appointmentId:
-                                      pendingAppointment!.appointmentUid!,
-                                  appointment: pendingAppointment!,
-                                  patientData: patientData,
-                                ).then((value) {
-                                  homeDashboardBloc.add(HomeInitialEvent());
-                                });
-                              },
+                        onPressed:
+                            pendingRequests == 0 || pendingAppointment == null
+                                ? null
+                                : () {
+                                    debugPrint(
+                                        'Pending Requests: $pendingRequests');
+                                    debugPrint(
+                                        'Appointment ID: ${pendingAppointment!.appointmentUid}');
+
+                                    showConfirmingPendingRequestDialog(
+                                      context,
+                                      appointmentId:
+                                          pendingAppointment!.appointmentUid!,
+                                      appointment: pendingAppointment!,
+                                      patientData: patientData,
+                                      isFromHomePendingRequest: true,
+                                    );
+                                  },
                         icon: Icon(
                           MingCute.check_circle_fill,
                           color: pendingRequests == 0

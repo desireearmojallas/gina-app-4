@@ -29,9 +29,7 @@ class PendingAppointmentsList extends StatelessWidget {
       groupedAppointmentsByYear[year]!.sort((a, b) {
         final dateA = DateFormat('MMMM d, yyyy').parse(a.appointmentDate!);
         final dateB = DateFormat('MMMM d, yyyy').parse(b.appointmentDate!);
-        final monthA = dateA.month == 12 ? 0 : dateA.month;
-        final monthB = dateB.month == 12 ? 0 : dateB.month;
-        return monthA.compareTo(monthB);
+        return dateB.compareTo(dateA);
       });
     }
 
