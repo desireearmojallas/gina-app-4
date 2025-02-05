@@ -127,7 +127,19 @@ class DoctorConsultationBloc
           'faceToFaceAppointment') {
         debugPrint(
             'checkAppointmentForOnlineConsultation == faceToFaceAppointment');
-        emit(DoctorConsultationFaceToFaceAppointmentState());
+        final patientDetailsResult = await doctorAppointmentRequestController
+            .getPatientData(patientUid: event.recipientUid);
+        patientDetailsResult.fold(
+          (failure) {
+            emit(DoctorConsultationErrorAppointmentState(
+                message: failure.toString()));
+          },
+          (patientDetails) {
+            emit(DoctorConsultationFaceToFaceAppointmentState(
+              patientDetails: patientDetails,
+            ));
+          },
+        );
       } else if (checkAppointmentForOnlineConsultation == 'invalid') {
         debugPrint('checkAppointmentForOnlineConsultation == invalid');
         isAppointmentFinished = false;

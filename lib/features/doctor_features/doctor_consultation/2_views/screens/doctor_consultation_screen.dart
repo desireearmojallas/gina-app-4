@@ -183,13 +183,9 @@ class DoctorConsultationScreen extends StatelessWidget {
                   return const ConsultationNoAppointmentScreen();
                 } else if (state
                     is DoctorConsultationFaceToFaceAppointmentState) {
-                  // return FaceToFaceAppointmentScreen(
-                  //   //! will add the correct appointment data here
-                  //   doctor: DoctorModel(), // Replace with actual DoctorModel instance
-                  //   appointment: AppointmentModel(),
-                  // );
                   return DoctorConsultationFaceToFaceScreen(
                     patientAppointment: selectedPatientAppointmentModel!,
+                    patientDetails: state.patientDetails,
                   );
                 } else if (state is DoctorConsultationLoadingState) {
                   return const Center(

@@ -29,7 +29,15 @@ class DoctorConsultationLoadedAppointmentState extends DoctorConsultationState {
 class DoctorConsultationNoAppointmentState extends DoctorConsultationState {}
 
 class DoctorConsultationFaceToFaceAppointmentState
-    extends DoctorConsultationState {}
+    extends DoctorConsultationState {
+  final UserModel patientDetails;
+
+  const DoctorConsultationFaceToFaceAppointmentState(
+      {required this.patientDetails});
+
+  @override
+  List<Object> get props => [patientDetails];
+}
 
 class DoctorConsultationWaitingForAppointmentState
     extends DoctorConsultationState {
