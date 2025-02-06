@@ -140,10 +140,15 @@ class DoctorEConsultController with ChangeNotifier {
         var appointmentDocs = appointmentsSnapshot.docs;
 
         appointmentDocs.sort((a, b) {
+          if (!a.data().containsKey('startTime') ||
+              !b.data().containsKey('startTime')) {
+            return 0;
+          }
           DateTime startTimeA = a['startTime'].toDate();
           DateTime startTimeB = b['startTime'].toDate();
           return startTimeB.compareTo(startTimeA);
         });
+
         List<Future<ChatMessageModel?>> appointmentMessagesFutures =
             appointmentDocs.map((appointmentDoc) async {
           QuerySnapshot<Map<String, dynamic>> messagesSnapshot = await firestore

@@ -409,16 +409,66 @@ class DoctorAppointmentRequestController with ChangeNotifier {
     }
   }
 
+  //---------- Begin F2F Patient Appointment -----------
+
+  Future<Either<Exception, bool>> beginF2FPatientAppointment({
+    required String appointmentId,
+  }) async {
+    try {
+      await firestore.collection('appointments').doc(appointmentId).update({
+        'f2fAppointmentStarted': true,
+        'f2fAppointmentStartedTime': Timestamp.now(),
+      });
+
+      return const Right(true);
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException code: ${e.code}');
+      error = e;
+      notifyListeners();
+      return Left(Exception(e.message));
+    } catch (e) {
+      debugPrint('Exception: ${e.toString()}');
+      notifyListeners();
+      return Left(Exception(e.toString()));
+    }
+  }
+
+  //---------- Conclude/Complete F2F Patient Appointment -----------
+
+  Future<Either<Exception, bool>> concludeF2FPatientAppointment({
+    required String appointmentId,
+  }) async {
+    try {
+      await firestore.collection('appointments').doc(appointmentId).update({
+        'f2fAppointmentConcluded': true,
+        'f2fAppointmentConcludedTime': Timestamp.now(),
+      });
+
+      return const Right(true);
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException code: ${e.code}');
+      error = e;
+      notifyListeners();
+      return Left(Exception(e.message));
+    } catch (e) {
+      debugPrint('Exception: ${e.toString()}');
+      notifyListeners();
+      return Left(Exception(e.toString()));
+    }
+  }
+
   //---------- Completed Patient Appointment -----------
 
   Future<Either<Exception, bool>> completePatientAppointment({
     required String appointmentId,
   }) async {
     try {
-      await firestore
-          .collection('appointments')
-          .doc(appointmentId)
-          .update({'appointmentStatus': AppointmentStatus.completed.index});
+      await firestore.collection('appointments').doc(appointmentId).update({
+        'appointmentStatus': AppointmentStatus.completed.index,
+        'onlineAppointmentCompletedTime': Timestamp.now(),
+      });
 
       return const Right(true);
     } on FirebaseAuthException catch (e) {
@@ -584,6 +634,7 @@ class DoctorAppointmentRequestController with ChangeNotifier {
         final data = doc.data();
         final appointmentDate = data['appointmentDate'] as String;
         final appointmentTime = data['appointmentTime'] as String;
+        final modeOfAppointment = data['modeOfAppointment'] as int;
 
         final today = DateFormat('MMMM d, yyyy').format(DateTime.now());
         if (appointmentDate != today) continue;
@@ -610,10 +661,18 @@ class DoctorAppointmentRequestController with ChangeNotifier {
         );
 
         final now = DateTime.now();
-        if (now.isAfter(appointmentStartDateTime) &&
-            now.isBefore(appointmentEndDateTime)) {
-          return AppointmentModel.fromDocumentSnap(
-              doc); // Return the first ongoing appointment found
+
+        if (modeOfAppointment == 1) {
+          // Whole day appointment
+          if (now.isBefore(appointmentEndDateTime)) {
+            return AppointmentModel.fromDocumentSnap(doc);
+          }
+        } else {
+          // Regular appointment
+          if (now.isAfter(appointmentStartDateTime) &&
+              now.isBefore(appointmentEndDateTime)) {
+            return AppointmentModel.fromDocumentSnap(doc);
+          }
         }
       }
       return null; // If no ongoing appointment is found

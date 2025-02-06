@@ -175,6 +175,8 @@ class DoctorConsultationScreen extends StatelessWidget {
                       );
                     });
                   });
+                } else if (state is DoctorConsultationF2FLoadingState) {
+                  const SizedBox.shrink();
                 }
               },
               builder: (context, state) {
@@ -183,6 +185,7 @@ class DoctorConsultationScreen extends StatelessWidget {
                   return const ConsultationNoAppointmentScreen();
                 } else if (state
                     is DoctorConsultationFaceToFaceAppointmentState) {
+                  selectedPatientDetails = state.patientDetails;
                   return DoctorConsultationFaceToFaceScreen(
                     patientAppointment: selectedPatientAppointmentModel!,
                     patientDetails: state.patientDetails,
@@ -212,6 +215,12 @@ class DoctorConsultationScreen extends StatelessWidget {
                     patient: state.patientData,
                     patientAppointment: state.appointment,
                     patientAppointments: state.patientAppointments,
+                  );
+                } else if (state is DoctorConsultationF2FSessionStartedState ||
+                    state is DoctorConsultationF2FSessionEndedState) {
+                  return DoctorConsultationFaceToFaceScreen(
+                    patientAppointment: selectedPatientAppointmentModel!,
+                    patientDetails: selectedPatientDetails!,
                   );
                 }
                 // return const Center(

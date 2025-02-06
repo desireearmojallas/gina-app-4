@@ -77,3 +77,21 @@ class DoctorConsultationCheckStatusEvent extends DoctorConsultationEvent {
   @override
   List<Object> get props => [appointmentId];
 }
+
+class BeginF2FSessionEvent extends DoctorConsultationEvent {
+  final String appointmentId;
+
+  const BeginF2FSessionEvent({required this.appointmentId});
+
+  @override
+  List<Object> get props => [appointmentId];
+}
+
+class ConcludeF2FSessionEvent extends DoctorConsultationEvent {
+  final String appointmentId;
+
+  const ConcludeF2FSessionEvent({required this.appointmentId});
+
+  @override
+  List<Object> get props => [appointmentId];
+}

@@ -19,6 +19,10 @@ class DoctorConsultationMenu extends StatelessWidget {
     final doctorConsultationBloc = context.read<DoctorConsultationBloc>();
     final ginaTheme = Theme.of(context).textTheme;
 
+    debugPrint('isAppointmentFinished: $isAppointmentFinished');
+    debugPrint('isChatWaiting: $isChatWaiting');
+    debugPrint('isF2FSession: $isF2FSession');
+
     return SubmenuButton(
       onOpen: () {
         HapticFeedback.lightImpact();
@@ -97,7 +101,7 @@ class DoctorConsultationMenu extends StatelessWidget {
         ),
         const Gap(10),
         MenuItemButton(
-          onPressed: isAppointmentFinished || isChatWaiting
+          onPressed: isAppointmentFinished || isChatWaiting || isF2FSession
               ? null
               : () {
                   debugPrint('End consultation');
@@ -108,7 +112,7 @@ class DoctorConsultationMenu extends StatelessWidget {
                 },
           child: Container(
             decoration: BoxDecoration(
-              color: isAppointmentFinished || isChatWaiting
+              color: isAppointmentFinished || isChatWaiting || isF2FSession
                   ? Colors.grey[200]?.withOpacity(0.8)
                   : GinaAppTheme.declinedTextColor,
               borderRadius: BorderRadius.circular(30.0),
@@ -120,17 +124,19 @@ class DoctorConsultationMenu extends StatelessWidget {
                   const Gap(15),
                   Icon(
                     Icons.call_end_rounded,
-                    color: isAppointmentFinished || isChatWaiting
-                        ? Colors.white.withOpacity(0.9)
-                        : Colors.white,
+                    color:
+                        isAppointmentFinished || isChatWaiting || isF2FSession
+                            ? Colors.white.withOpacity(0.9)
+                            : Colors.white,
                   ),
                   const Gap(15),
                   Text(
                     'End consultation',
                     style: ginaTheme.bodyMedium?.copyWith(
-                      color: isAppointmentFinished || isChatWaiting
-                          ? Colors.white.withOpacity(0.9)
-                          : Colors.white,
+                      color:
+                          isAppointmentFinished || isChatWaiting || isF2FSession
+                              ? Colors.white.withOpacity(0.9)
+                              : Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

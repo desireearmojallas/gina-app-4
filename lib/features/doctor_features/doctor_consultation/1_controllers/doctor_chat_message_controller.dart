@@ -190,8 +190,11 @@ class DoctorChatMessageController with ChangeNotifier {
     // Sort the appointments by startTime
     var sortedEntries = allTimes.entries.toList()
       ..sort((a, b) {
-        Timestamp startTimeA = a.value['startTime'];
-        Timestamp startTimeB = b.value['startTime'];
+        Timestamp? startTimeA = a.value['startTime'] as Timestamp?;
+        Timestamp? startTimeB = b.value['startTime'] as Timestamp?;
+        if (startTimeA == null && startTimeB == null) return 0;
+        if (startTimeA == null) return 1;
+        if (startTimeB == null) return -1;
         return startTimeA.compareTo(startTimeB);
       });
 
@@ -209,7 +212,6 @@ class DoctorChatMessageController with ChangeNotifier {
     appointmentTimes = sortedTimes;
     notifyListeners();
   }
-
   //------------------------Send First Message------------------------
 
   sendFirstMessage({

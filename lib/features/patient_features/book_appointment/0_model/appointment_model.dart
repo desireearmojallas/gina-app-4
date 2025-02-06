@@ -16,6 +16,11 @@ class AppointmentModel extends Equatable {
   int? appointmentStatus;
   final List<String>? prescriptionImages;
   final bool hasVisitedConsultationRoom;
+  final bool f2fAppointmentStarted;
+  final bool f2fAppointmentConcluded;
+  final Timestamp? f2fAppointmentStartedTime;
+  final Timestamp? f2fAppointmentConcludedTime;
+  final Timestamp? onlineAppointmentCompletedTime;
 
   AppointmentModel({
     this.appointmentUid,
@@ -30,6 +35,11 @@ class AppointmentModel extends Equatable {
     this.appointmentStatus = 0,
     this.prescriptionImages,
     this.hasVisitedConsultationRoom = false,
+    this.f2fAppointmentStarted = false,
+    this.f2fAppointmentConcluded = false,
+    this.f2fAppointmentStartedTime,
+    this.f2fAppointmentConcludedTime,
+    this.onlineAppointmentCompletedTime,
   });
 
   static AppointmentModel fromDocumentSnap(DocumentSnapshot snap) {
@@ -49,6 +59,11 @@ class AppointmentModel extends Equatable {
         json['prescriptionImages'] ?? [],
       ),
       hasVisitedConsultationRoom: json['hasVisitedConsultationRoom'] ?? false,
+      f2fAppointmentStarted: json['f2fAppointmentStarted'] ?? false,
+      f2fAppointmentConcluded: json['f2fAppointmentConcluded'] ?? false,
+      f2fAppointmentStartedTime: json['f2fAppointmentStartedTime'],
+      f2fAppointmentConcludedTime: json['f2fAppointmentConcludedTime'],
+      onlineAppointmentCompletedTime: json['onlineAppointmentCompletedTime'],
     );
   }
 
@@ -68,6 +83,11 @@ class AppointmentModel extends Equatable {
         json['prescriptionImages'] ?? [],
       ),
       hasVisitedConsultationRoom: json['hasVisitedConsultationRoom'] ?? false,
+      f2fAppointmentStarted: json['f2fAppointmentStarted'] ?? false,
+      f2fAppointmentConcluded: json['f2fAppointmentConcluded'] ?? false,
+      f2fAppointmentStartedTime: json['f2fAppointmentStartedTime'],
+      f2fAppointmentConcludedTime: json['f2fAppointmentConcludedTime'],
+      onlineAppointmentCompletedTime: json['onlineAppointmentCompletedTime'],
     );
   }
 
@@ -85,6 +105,11 @@ class AppointmentModel extends Equatable {
       'appointmentStatus': appointmentStatus,
       'prescriptionImages': prescriptionImages,
       'hasVisitedConsultationRoom': hasVisitedConsultationRoom,
+      'f2fAppointmentStarted': f2fAppointmentStarted,
+      'f2fAppointmentConcluded': f2fAppointmentConcluded,
+      'f2fAppointmentStartedTime': f2fAppointmentStartedTime,
+      'f2fAppointmentConcludedTime': f2fAppointmentConcludedTime,
+      'onlineAppointmentCompletedTime': onlineAppointmentCompletedTime,
     };
   }
 
@@ -102,5 +127,10 @@ class AppointmentModel extends Equatable {
         appointmentStatus,
         prescriptionImages,
         hasVisitedConsultationRoom,
+        f2fAppointmentStarted,
+        f2fAppointmentConcluded,
+        f2fAppointmentStartedTime,
+        f2fAppointmentConcludedTime,
+        onlineAppointmentCompletedTime,
       ];
 }

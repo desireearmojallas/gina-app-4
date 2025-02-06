@@ -19,6 +19,8 @@ String? doctorChatRoom;
 String? selectedPatientUid;
 String? selectedPatientName;
 AppointmentModel? selectedPatientAppointmentModel;
+UserModel? selectedPatientDetails;
+bool isF2FSession = false;
 
 class DoctorConsultationBloc
     extends Bloc<DoctorConsultationEvent, DoctorConsultationState> {
@@ -37,6 +39,8 @@ class DoctorConsultationBloc
     on<CompleteDoctorConsultationButtonEvent>(completeDoctorConsultation);
     on<NavigateToPatientDataEvent>(navigateToPatientDataEvent);
     on<DoctorConsultationCheckStatusEvent>(checkStatusEvent);
+    on<BeginF2FSessionEvent>(beginF2FSessionEvent);
+    on<ConcludeF2FSessionEvent>(concludeF2FSessionEvent);
   }
 
   FutureOr<void> getRequestedAppointmentEvent(
@@ -135,6 +139,7 @@ class DoctorConsultationBloc
                 message: failure.toString()));
           },
           (patientDetails) {
+            isF2FSession = true;
             emit(DoctorConsultationFaceToFaceAppointmentState(
               patientDetails: patientDetails,
             ));
@@ -230,5 +235,41 @@ class DoctorConsultationBloc
     } else {
       isAppointmentFinished = false;
     }
+  }
+
+  FutureOr<void> beginF2FSessionEvent(
+    BeginF2FSessionEvent event,
+    Emitter<DoctorConsultationState> emit,
+  ) async {
+    // emit(DoctorConsultationF2FLoadingState());
+    final result = await doctorAppointmentRequestController
+        .beginF2FPatientAppointment(appointmentId: event.appointmentId);
+
+    result.fold(
+      (exception) {
+        emit(DoctorConsultationErrorAppointmentState(
+            message: exception.toString()));
+      },
+      (success) {
+        emit(DoctorConsultationF2FSessionStartedState());
+      },
+    );
+  }
+
+  FutureOr<void> concludeF2FSessionEvent(ConcludeF2FSessionEvent event,
+      Emitter<DoctorConsultationState> emit) async {
+    // emit(DoctorConsultationF2FLoadingState());
+    final result = await doctorAppointmentRequestController
+        .concludeF2FPatientAppointment(appointmentId: event.appointmentId);
+
+    result.fold(
+      (exception) {
+        emit(DoctorConsultationErrorAppointmentState(
+            message: exception.toString()));
+      },
+      (success) {
+        emit(DoctorConsultationF2FSessionEndedState());
+      },
+    );
   }
 }

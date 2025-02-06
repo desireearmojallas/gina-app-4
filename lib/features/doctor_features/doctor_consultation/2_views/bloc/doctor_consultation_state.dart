@@ -92,3 +92,10 @@ class NavigateToPatientDataState extends DoctorConsultationState {
         patientAppointments,
       ];
 }
+
+class DoctorConsultationF2FSessionStartedState
+    extends DoctorConsultationState {}
+
+class DoctorConsultationF2FSessionEndedState extends DoctorConsultationState {}
+
+class DoctorConsultationF2FLoadingState extends DoctorConsultationActionState {}
