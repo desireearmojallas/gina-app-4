@@ -31,12 +31,29 @@ class DoctorConsultationNoAppointmentState extends DoctorConsultationState {}
 class DoctorConsultationFaceToFaceAppointmentState
     extends DoctorConsultationState {
   final UserModel patientDetails;
+  final bool isSessionStarted;
+  final bool isSessionEnded;
 
-  const DoctorConsultationFaceToFaceAppointmentState(
-      {required this.patientDetails});
+  const DoctorConsultationFaceToFaceAppointmentState({
+    required this.patientDetails,
+    this.isSessionStarted = false,
+    this.isSessionEnded = false,
+  });
+
+  DoctorConsultationFaceToFaceAppointmentState copyWith({
+    UserModel? patientDetails,
+    bool? isSessionStarted,
+    bool? isSessionEnded,
+  }) {
+    return DoctorConsultationFaceToFaceAppointmentState(
+      patientDetails: patientDetails ?? this.patientDetails,
+      isSessionStarted: isSessionStarted ?? this.isSessionStarted,
+      isSessionEnded: isSessionEnded ?? this.isSessionEnded,
+    );
+  }
 
   @override
-  List<Object> get props => [patientDetails];
+  List<Object> get props => [patientDetails, isSessionStarted, isSessionEnded];
 }
 
 class DoctorConsultationWaitingForAppointmentState

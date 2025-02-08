@@ -21,6 +21,8 @@ String? selectedPatientName;
 AppointmentModel? selectedPatientAppointmentModel;
 UserModel? selectedPatientDetails;
 bool isF2FSession = false;
+bool f2fAppointmentStarted = false;
+bool f2fAppointmentEnded = false;
 
 class DoctorConsultationBloc
     extends Bloc<DoctorConsultationEvent, DoctorConsultationState> {
@@ -140,9 +142,13 @@ class DoctorConsultationBloc
           },
           (patientDetails) {
             isF2FSession = true;
-            emit(DoctorConsultationFaceToFaceAppointmentState(
-              patientDetails: patientDetails,
-            ));
+            f2fAppointmentStarted == true
+                ? emit(DoctorConsultationF2FSessionStartedState())
+                : f2fAppointmentEnded == true
+                    ? emit(DoctorConsultationF2FSessionEndedState())
+                    : emit(DoctorConsultationFaceToFaceAppointmentState(
+                        patientDetails: patientDetails,
+                      ));
           },
         );
       } else if (checkAppointmentForOnlineConsultation == 'invalid') {
@@ -251,6 +257,7 @@ class DoctorConsultationBloc
             message: exception.toString()));
       },
       (success) {
+        f2fAppointmentStarted = true;
         emit(DoctorConsultationF2FSessionStartedState());
       },
     );
@@ -268,6 +275,7 @@ class DoctorConsultationBloc
             message: exception.toString()));
       },
       (success) {
+        f2fAppointmentEnded = true;
         emit(DoctorConsultationF2FSessionEndedState());
       },
     );

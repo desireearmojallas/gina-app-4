@@ -441,6 +441,7 @@ class DoctorAppointmentRequestController with ChangeNotifier {
   }) async {
     try {
       await firestore.collection('appointments').doc(appointmentId).update({
+        'appointmentStatus': AppointmentStatus.completed.index,
         'f2fAppointmentConcluded': true,
         'f2fAppointmentConcludedTime': Timestamp.now(),
       });

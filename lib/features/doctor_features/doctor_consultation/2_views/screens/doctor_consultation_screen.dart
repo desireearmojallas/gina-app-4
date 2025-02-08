@@ -11,7 +11,7 @@ import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/widgets/view_patient_data/view_patient_data.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/screens/view_states/doctor_consultation_on_going_appointment_screen.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/widgets/doctor_consultation_face_to_face_screen.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/widgets/face_to_face_widgets/doctor_consultation_face_to_face_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/widgets/doctor_consultation_menu.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
@@ -180,15 +180,28 @@ class DoctorConsultationScreen extends StatelessWidget {
                 }
               },
               builder: (context, state) {
-                debugPrint('Current state: $state');
+                debugPrint('Builder state: $state');
                 if (state is DoctorConsultationNoAppointmentState) {
                   return const ConsultationNoAppointmentScreen();
                 } else if (state
-                    is DoctorConsultationFaceToFaceAppointmentState) {
-                  selectedPatientDetails = state.patientDetails;
+                        is DoctorConsultationFaceToFaceAppointmentState ||
+                    state is DoctorConsultationF2FSessionStartedState ||
+                    state is DoctorConsultationF2FSessionEndedState) {
+                  if (state is DoctorConsultationFaceToFaceAppointmentState) {
+                    selectedPatientDetails = state.patientDetails;
+                  }
+                  final patientDetails = selectedPatientDetails;
+                  final patientAppointment = selectedPatientAppointmentModel;
+
+                  if (patientDetails == null || patientAppointment == null) {
+                    return const Center(
+                      child: Text('No patient details or appointment found'),
+                    );
+                  }
+
                   return DoctorConsultationFaceToFaceScreen(
-                    patientAppointment: selectedPatientAppointmentModel!,
-                    patientDetails: state.patientDetails,
+                    patientAppointment: patientAppointment,
+                    patientDetails: patientDetails,
                   );
                 } else if (state is DoctorConsultationLoadingState) {
                   return const Center(
@@ -216,16 +229,13 @@ class DoctorConsultationScreen extends StatelessWidget {
                     patientAppointment: state.appointment,
                     patientAppointments: state.patientAppointments,
                   );
-                } else if (state is DoctorConsultationF2FSessionStartedState ||
-                    state is DoctorConsultationF2FSessionEndedState) {
-                  return DoctorConsultationFaceToFaceScreen(
-                    patientAppointment: selectedPatientAppointmentModel!,
-                    patientDetails: selectedPatientDetails!,
-                  );
+                  // } else if (state is DoctorConsultationF2FSessionStartedState ||
+                  //     state is DoctorConsultationF2FSessionEndedState) {
+                  //   return DoctorConsultationFaceToFaceScreen(
+                  //     patientAppointment: selectedPatientAppointmentModel!,
+                  //     patientDetails: selectedPatientDetails!,
+                  //   );
                 }
-                // return const Center(
-                //   child: Text('initial'),
-                // );
                 return const Center(
                   child: CustomLoadingIndicator(),
                 );
