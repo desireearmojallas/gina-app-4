@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/2_views/bloc/doctor_availability_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/2_views/screens/view_states/doctor_availability_initial_screen.dart';
 import 'package:gina_app_4/features/patient_features/doctor_details/2_views/screens/view_states/doctor_details_screen_loaded.dart';
@@ -53,6 +54,8 @@ class DoctorAvailabilityScreen extends StatelessWidget {
           final doctorAvailabilityModel = state.doctorAvailabilityModel;
           return DoctorDetailsScreenLoaded(
             doctor: doctorDetails!,
+            appointment:
+                appointmentForNearbyDocLatestAppointment ?? AppointmentModel(),
           );
         }
         return Container();

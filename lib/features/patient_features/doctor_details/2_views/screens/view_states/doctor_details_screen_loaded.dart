@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
@@ -8,6 +9,8 @@ import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/detailed_view_icon.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_name_widget.dart';
+import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/2_views/bloc/doctor_availability_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_details/2_views/widgets/details_container_navigation.dart';
 import 'package:gina_app_4/features/patient_features/doctor_details/2_views/widgets/office_address_container.dart';
@@ -15,11 +18,17 @@ import 'package:icons_plus/icons_plus.dart';
 
 class DoctorDetailsScreenLoaded extends StatelessWidget {
   final DoctorModel doctor;
-  const DoctorDetailsScreenLoaded({super.key, required this.doctor});
+  final AppointmentModel appointment;
+  const DoctorDetailsScreenLoaded({
+    super.key,
+    required this.doctor,
+    required this.appointment,
+  });
 
   @override
   Widget build(BuildContext context) {
     final doctorAvailabilityBloc = context.read<DoctorAvailabilityBloc>();
+    final appointmentsBloc = context.read<AppointmentBloc>();
 
     return BlocProvider(
       create: (context) => sl<DoctorAvailabilityBloc>()
@@ -138,7 +147,26 @@ class DoctorDetailsScreenLoaded extends StatelessWidget {
                                 DetailsContainerNavigation(
                                   icon: Icons.date_range,
                                   containerLabel: 'Appointment\nDetails',
-                                  onTap: () {},
+                                  onTap: () {
+                                    HapticFeedback.mediumImpact;
+
+                                    // selectedDoctorAppointmentModel =
+
+                                    debugPrint('Doctor: $doctor');
+                                    debugPrint('Appointment: $appointment');
+                                    debugPrint(
+                                        'AppointmentUid: ${appointment.appointmentUid}');
+
+                                    if (appointment.appointmentUid != null) {
+                                      appointmentsBloc.add(
+                                        NavigateToAppointmentDetailsEvent(
+                                          doctorUid: doctor.uid,
+                                          appointmentUid:
+                                              appointment.appointmentUid ?? '',
+                                        ),
+                                      );
+                                    }
+                                  },
                                 ),
                               ],
                             ),

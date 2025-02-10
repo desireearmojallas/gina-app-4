@@ -102,7 +102,7 @@ List<BlocProvider> getBlocProviders() {
       create: (context) => sl<HomeBloc>(),
     ),
     BlocProvider<DoctorDetailsBloc>(
-      create: (context) => DoctorDetailsBloc(),
+      create: (context) => sl<DoctorDetailsBloc>(),
     ),
     BlocProvider<FloatingMenuBloc>(
       create: (context) => sl<FloatingMenuBloc>(),

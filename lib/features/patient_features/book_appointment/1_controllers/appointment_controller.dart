@@ -143,6 +143,8 @@ class AppointmentController with ChangeNotifier {
     }
   }
 
+  //-------GET LATEST UPCOMING APPOINTMENTS FROM SPECIFIC DOCTOR-------
+
   //-------UPDATE PENDING APPOINTMENTS TO DECLINED WHEN EXCEEDS NOW DATE-------
   Future<void> updatePendingAppointmentsToDeclined(
       List<AppointmentModel> appointments) async {
@@ -533,8 +535,20 @@ class AppointmentController with ChangeNotifier {
         var appointmentDocs = appointmentsSnapshot.docs;
 
         appointmentDocs.sort((a, b) {
-          DateTime startTimeA = a['startTime'].toDate();
-          DateTime startTimeB = b['startTime'].toDate();
+          DateTime startTimeA;
+          DateTime startTimeB;
+
+          if (a.data().containsKey('startTime') &&
+              b.data().containsKey('startTime')) {
+            startTimeA = a['startTime'].toDate();
+            startTimeB = b['startTime'].toDate();
+          } else {
+            // Handle the case where 'startTime' does not exist
+            debugPrint(
+                'Field "startTime" does not exist in one of the documents');
+            return 0; // Keep the original order if 'startTime' is missing
+          }
+
           return startTimeB.compareTo(startTimeA);
         });
 

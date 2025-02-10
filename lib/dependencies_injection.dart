@@ -282,7 +282,9 @@ Future<void> init() async {
 
   //! Features - Find / Doctor Details
   sl.registerFactory(
-    () => DoctorDetailsBloc(),
+    () => DoctorDetailsBloc(
+      appointmentController: sl(),
+    ),
   );
 
   //------------------------------------------------------------------------------

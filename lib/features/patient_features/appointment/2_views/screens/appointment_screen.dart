@@ -127,94 +127,119 @@ class AppointmentScreen extends StatelessWidget {
                             (state.appointment.appointmentStatus ==
                                     AppointmentStatus.confirmed.index ||
                                 state.appointment.appointmentStatus ==
-                                    AppointmentStatus.completed.index) &&
-                            state.appointment.modeOfAppointment ==
-                                ModeOfAppointmentId.onlineConsultation.index
-                        ? FloatingActionButton(
-                            onPressed: () async {
-                              HapticFeedback.mediumImpact();
-                              isFromConsultationHistory = false;
-                              selectedDoctorAppointmentModel =
-                                  state.appointment;
-                              final appointmentUid =
-                                  state.appointment.appointmentUid;
-                              if (appointmentUid != null) {
-                                debugPrint(
-                                    'Fetching appointment details for UID: $appointmentUid');
-                                final appointment = await appointmentController
-                                    .getAppointmentDetailsNew(appointmentUid);
-                                if (appointment != null) {
-                                  final DateFormat dateFormat =
-                                      DateFormat('MMMM d, yyyy');
-                                  final DateFormat timeFormat =
-                                      DateFormat('hh:mm a');
-                                  final DateTime now = DateTime.now();
-
-                                  final DateTime appointmentDate =
-                                      dateFormat.parse(
-                                          appointment.appointmentDate!.trim());
-                                  final List<String> times =
-                                      appointment.appointmentTime!.split(' - ');
-                                  final DateTime startTime =
-                                      timeFormat.parse(times[0].trim());
-                                  final DateTime endTime =
-                                      timeFormat.parse(times[1].trim());
-
-                                  final DateTime appointmentStartDateTime =
-                                      DateTime(
-                                    appointmentDate.year,
-                                    appointmentDate.month,
-                                    appointmentDate.day,
-                                    startTime.hour,
-                                    startTime.minute,
-                                  );
-
-                                  final DateTime appointmentEndDateTime =
-                                      DateTime(
-                                    appointmentDate.year,
-                                    appointmentDate.month,
-                                    appointmentDate.day,
-                                    endTime.hour,
-                                    endTime.minute,
-                                  );
-
-                                  debugPrint('Current time: $now');
-                                  debugPrint(
-                                      'Appointment start time: $appointmentStartDateTime');
-                                  debugPrint(
-                                      'Appointment end time: $appointmentEndDateTime');
-
-                                  if (now.isAfter(appointmentStartDateTime) &&
-                                      now.isBefore(appointmentEndDateTime) &&
-                                      state.appointment.appointmentStatus ==
-                                          AppointmentStatus.confirmed.index) {
+                                    AppointmentStatus.completed.index)
+                        //         &&
+                        // state.appointment.modeOfAppointment ==
+                        //     ModeOfAppointmentId.onlineConsultation.index
+                        ? Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              FloatingActionButton(
+                                heroTag: 'consultation',
+                                onPressed: () async {
+                                  HapticFeedback.mediumImpact();
+                                  isFromConsultationHistory = false;
+                                  selectedDoctorAppointmentModel =
+                                      state.appointment;
+                                  final appointmentUid =
+                                      state.appointment.appointmentUid;
+                                  if (appointmentUid != null) {
                                     debugPrint(
-                                        'Marking appointment as visited for UID: $appointmentUid');
-                                    await appointmentController
-                                        .markAsVisitedConsultationRoom(
-                                            appointmentUid);
+                                        'Fetching appointment details for UID: $appointmentUid');
+                                    final appointment =
+                                        await appointmentController
+                                            .getAppointmentDetailsNew(
+                                                appointmentUid);
+                                    if (appointment != null) {
+                                      final DateFormat dateFormat =
+                                          DateFormat('MMMM d, yyyy');
+                                      final DateFormat timeFormat =
+                                          DateFormat('hh:mm a');
+                                      final DateTime now = DateTime.now();
+
+                                      final DateTime appointmentDate =
+                                          dateFormat.parse(appointment
+                                              .appointmentDate!
+                                              .trim());
+                                      final List<String> times = appointment
+                                          .appointmentTime!
+                                          .split(' - ');
+                                      final DateTime startTime =
+                                          timeFormat.parse(times[0].trim());
+                                      final DateTime endTime =
+                                          timeFormat.parse(times[1].trim());
+
+                                      final DateTime appointmentStartDateTime =
+                                          DateTime(
+                                        appointmentDate.year,
+                                        appointmentDate.month,
+                                        appointmentDate.day,
+                                        startTime.hour,
+                                        startTime.minute,
+                                      );
+
+                                      final DateTime appointmentEndDateTime =
+                                          DateTime(
+                                        appointmentDate.year,
+                                        appointmentDate.month,
+                                        appointmentDate.day,
+                                        endTime.hour,
+                                        endTime.minute,
+                                      );
+
+                                      debugPrint('Current time: $now');
+                                      debugPrint(
+                                          'Appointment start time: $appointmentStartDateTime');
+                                      debugPrint(
+                                          'Appointment end time: $appointmentEndDateTime');
+
+                                      if (now.isAfter(
+                                              appointmentStartDateTime) &&
+                                          now.isBefore(
+                                              appointmentEndDateTime) &&
+                                          state.appointment.appointmentStatus ==
+                                              AppointmentStatus
+                                                  .confirmed.index) {
+                                        debugPrint(
+                                            'Marking appointment as visited for UID: $appointmentUid');
+                                        await appointmentController
+                                            .markAsVisitedConsultationRoom(
+                                                appointmentUid);
+                                      } else {
+                                        debugPrint(
+                                            'Appointment is not within the valid time range or status is not confirmed.');
+                                      }
+                                    } else {
+                                      debugPrint('Appointment not found.');
+                                    }
                                   } else {
-                                    debugPrint(
-                                        'Appointment is not within the valid time range or status is not confirmed.');
+                                    debugPrint('Appointment UID is null.');
                                   }
-                                } else {
-                                  debugPrint('Appointment not found.');
-                                }
-                              } else {
-                                debugPrint('Appointment UID is null.');
-                              }
 
-                              if (context.mounted) {
-                                Navigator.pushNamed(context, '/consultation')
-                                    .then((value) => appointmentBloc.add(
-                                            NavigateToAppointmentDetailsEvent(
-                                          doctorUid: doctorDetails!.uid,
-                                          appointmentUid:
-                                              state.appointment.appointmentUid!,
-                                        )));
-                              }
-                            },
-                            child: const Icon(MingCute.message_3_fill),
+                                  if (context.mounted) {
+                                    Navigator.pushNamed(
+                                            context, '/consultation')
+                                        .then((value) => appointmentBloc.add(
+                                                NavigateToAppointmentDetailsEvent(
+                                              doctorUid: doctorDetails!.uid,
+                                              appointmentUid: state
+                                                  .appointment.appointmentUid!,
+                                            )));
+                                  }
+                                },
+                                child: const Icon(MingCute.message_3_fill),
+                              ),
+                              const Gap(10),
+                              FloatingActionButton(
+                                heroTag: 'uploadPrescription',
+                                onPressed: () {
+                                  HapticFeedback.mediumImpact();
+                                  Navigator.pushNamed(
+                                      context, '/uploadPrescription');
+                                },
+                                child: const Icon(MingCute.upload_line),
+                              ),
+                            ],
                           )
                         : const SizedBox(),
           ),

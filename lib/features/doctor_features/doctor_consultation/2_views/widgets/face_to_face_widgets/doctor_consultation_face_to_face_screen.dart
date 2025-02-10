@@ -48,6 +48,29 @@ class DoctorConsultationFaceToFaceScreen extends StatelessWidget {
     return now.isAfter(startDateTime) && now.isBefore(endDateTime);
   }
 
+  bool fifteenMinutesBeforeTheStartTime(String appointmentTime) {
+    final now = DateTime.now();
+    final dateFormat = DateFormat('hh:mm a');
+
+    final times = appointmentTime.split(' - ');
+    final startTime = dateFormat.parse(times[0]);
+
+    final startDateTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      startTime.hour,
+      startTime.minute,
+    );
+
+    final fifteenMinutesBeforeStartTime = startDateTime.subtract(
+      const Duration(minutes: 15),
+    );
+
+    return now.isAfter(fifteenMinutesBeforeStartTime) &&
+        now.isBefore(startDateTime);
+  }
+
   @override
   Widget build(BuildContext context) {
     final doctorConsultationBloc = context.read<DoctorConsultationBloc>();
@@ -59,6 +82,8 @@ class DoctorConsultationFaceToFaceScreen extends StatelessWidget {
 
     final isWithinTimeRange =
         isCurrentTimeWithinRange(patientAppointment.appointmentTime!);
+    final is15MinutesBeforeTheStartTime =
+        fifteenMinutesBeforeTheStartTime(patientAppointment.appointmentTime!);
 
     return Scaffold(
       body: Container(
@@ -96,24 +121,41 @@ class DoctorConsultationFaceToFaceScreen extends StatelessWidget {
                     isSessionStarted: isSessionStarted,
                     isSessionEnded: isSessionEnded,
                     isWithinTimeRange: isWithinTimeRange,
+                    is15MinutesBeforeTheStartTime:
+                        is15MinutesBeforeTheStartTime,
                     size: size,
-                    onStartSession: () {
-                      doctorConsultationBloc.add(
-                        BeginF2FSessionEvent(
-                          appointmentId: patientAppointment.appointmentUid!,
-                        ),
-                      );
-                      Fluttertoast.showToast(
-                        msg: 'Session started',
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                        timeInSecForIosWeb: 12,
-                        backgroundColor:
-                            GinaAppTheme.appbarColorLight.withOpacity(0.85),
-                        textColor: Colors.grey[700],
-                        fontSize: 12.0,
-                      );
-                    },
+                    onStartSession: is15MinutesBeforeTheStartTime
+                        ? () {
+                            Fluttertoast.showToast(
+                              msg:
+                                  'Session buttons will be available 15 minutes before the appointment time.',
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 12,
+                              backgroundColor: GinaAppTheme.appbarColorLight
+                                  .withOpacity(0.85),
+                              textColor: Colors.grey[700],
+                              fontSize: 12.0,
+                            );
+                          }
+                        : () {
+                            doctorConsultationBloc.add(
+                              BeginF2FSessionEvent(
+                                appointmentId:
+                                    patientAppointment.appointmentUid!,
+                              ),
+                            );
+                            Fluttertoast.showToast(
+                              msg: 'Session started',
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 12,
+                              backgroundColor: GinaAppTheme.appbarColorLight
+                                  .withOpacity(0.85),
+                              textColor: Colors.grey[700],
+                              fontSize: 12.0,
+                            );
+                          },
                     onEndSession: () {
                       doctorConsultationBloc.add(
                         ConcludeF2FSessionEvent(

@@ -217,7 +217,13 @@ class ConsultationFeeDetailsInitialScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pushNamed(
+                          context,
+                          '/bookAppointment',
+                          arguments: doctor,
+                        );
+                      },
                       child: Text(
                         'Book Appointment',
                         style:

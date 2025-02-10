@@ -4,6 +4,7 @@ class SessionControlButtons extends StatelessWidget {
   final bool isSessionStarted;
   final bool isSessionEnded;
   final bool isWithinTimeRange;
+  final bool is15MinutesBeforeTheStartTime;
   final Size size;
   final VoidCallback onStartSession;
   final VoidCallback onEndSession;
@@ -13,6 +14,7 @@ class SessionControlButtons extends StatelessWidget {
     required this.isSessionStarted,
     required this.isSessionEnded,
     required this.isWithinTimeRange,
+    required this.is15MinutesBeforeTheStartTime,
     required this.size,
     required this.onStartSession,
     required this.onEndSession,
@@ -53,8 +55,13 @@ class SessionControlButtons extends StatelessWidget {
         height: size.height * 0.12,
         decoration: BoxDecoration(
           gradient: isEnabled
-              ? const LinearGradient(
-                  colors: [Color(0xFFFB6C85), Color(0xFFFF3D68)],
+              ? LinearGradient(
+                  colors: [
+                    const Color(0xFFFB6C85)
+                        .withOpacity(is15MinutesBeforeTheStartTime ? 0.6 : 1.0),
+                    const Color(0xFFFF3D68)
+                        .withOpacity(is15MinutesBeforeTheStartTime ? 0.6 : 1.0),
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 )
@@ -84,13 +91,21 @@ class SessionControlButtons extends StatelessWidget {
             Icon(
               icon,
               size: 50,
-              color: Colors.white.withOpacity(isEnabled ? 1.0 : 0.2),
+              color: Colors.white.withOpacity(is15MinutesBeforeTheStartTime
+                  ? 0.6
+                  : isEnabled
+                      ? 1.0
+                      : 0.2),
             ),
             const SizedBox(height: 5),
             Text(
               label,
               style: TextStyle(
-                color: Colors.white.withOpacity(isEnabled ? 1.0 : 0.2),
+                color: Colors.white.withOpacity(is15MinutesBeforeTheStartTime
+                    ? 0.6
+                    : isEnabled
+                        ? 1.0
+                        : 0.2),
                 fontWeight: FontWeight.w700,
               ),
             ),
