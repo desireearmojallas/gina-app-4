@@ -78,160 +78,11 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
-                  child: IntrinsicHeight(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 15.0,
-                          horizontal: 20.0,
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  'Appointment ID:',
-                                  style: labelStyle,
-                                ),
-                                const Gap(10),
-                                Text(
-                                  '${appointment.appointmentUid}',
-                                  style: valueStyle,
-                                ),
-                              ],
-                            ),
-                            divider,
-                            headerWidget(
-                              Icons.medical_services_outlined,
-                              'Appointment Detail',
-                            ),
-                            Column(
-                              children: [
-                                const Gap(20),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Clinic location',
-                                      style: labelStyle,
-                                    ),
-                                    Text(
-                                      '${appointment.doctorClinicAddress}',
-                                      style: valueStyle,
-                                    ),
-                                  ],
-                                ),
-                                const Gap(15),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Mode of appointment',
-                                      style: labelStyle,
-                                    ),
-                                    Text(
-                                      appointment.modeOfAppointment == 0
-                                          ? 'Online Consultation'
-                                          : 'Face-to-Face Consultation',
-                                      style: valueStyle,
-                                    ),
-                                  ],
-                                ),
-                                const Gap(15),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Date & time',
-                                      style: labelStyle,
-                                    ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          '${appointment.appointmentDate}',
-                                          style: valueStyle,
-                                        ),
-                                        Text(
-                                          '${appointment.appointmentTime}',
-                                          style: valueStyle,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            divider,
-                            headerWidget(
-                              Icons.person_3,
-                              'Patient Personal Information',
-                            ),
-                            Column(
-                              children: [
-                                const Gap(20),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Name',
-                                      style: labelStyle,
-                                    ),
-                                    Text(
-                                      currentPatient.name,
-                                      style: valueStyle,
-                                    ),
-                                  ],
-                                ),
-                                const Gap(15),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Age',
-                                      style: labelStyle,
-                                    ),
-                                    Text(
-                                      '${bookAppointmentBloc.calculateAge(currentPatient.dateOfBirth)} years old',
-                                      style: valueStyle,
-                                    ),
-                                  ],
-                                ),
-                                const Gap(15),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Location',
-                                      style: labelStyle,
-                                    ),
-                                    Text(
-                                      currentPatient.address,
-                                      style: valueStyle,
-                                    ),
-                                  ],
-                                ),
-                                const Gap(15),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+                appointmentDetailsContent(
+                  labelStyle,
+                  valueStyle,
+                  divider,
+                  bookAppointmentBloc,
                 ),
                 [2, 3, 4, 5].contains(appointment.appointmentStatus)
                     ? const SizedBox()
@@ -414,6 +265,161 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                   )
                 : const SizedBox.shrink(),
       ],
+    );
+  }
+
+  Padding appointmentDetailsContent(
+      TextStyle? labelStyle,
+      TextStyle? valueStyle,
+      Padding divider,
+      BookAppointmentBloc bookAppointmentBloc) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
+      child: IntrinsicHeight(
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 15.0,
+              horizontal: 20.0,
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      'Appointment ID:',
+                      style: labelStyle,
+                    ),
+                    const Gap(10),
+                    Text(
+                      '${appointment.appointmentUid}',
+                      style: valueStyle,
+                    ),
+                  ],
+                ),
+                divider,
+                headerWidget(
+                  Icons.medical_services_outlined,
+                  'Appointment Detail',
+                ),
+                Column(
+                  children: [
+                    const Gap(20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Clinic location',
+                          style: labelStyle,
+                        ),
+                        Text(
+                          '${appointment.doctorClinicAddress}',
+                          style: valueStyle,
+                        ),
+                      ],
+                    ),
+                    const Gap(15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Mode of appointment',
+                          style: labelStyle,
+                        ),
+                        Text(
+                          appointment.modeOfAppointment == 0
+                              ? 'Online Consultation'
+                              : 'Face-to-Face Consultation',
+                          style: valueStyle,
+                        ),
+                      ],
+                    ),
+                    const Gap(15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Date & time',
+                          style: labelStyle,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              '${appointment.appointmentDate}',
+                              style: valueStyle,
+                            ),
+                            Text(
+                              '${appointment.appointmentTime}',
+                              style: valueStyle,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                divider,
+                headerWidget(
+                  Icons.person_3,
+                  'Patient Personal Information',
+                ),
+                Column(
+                  children: [
+                    const Gap(20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Name',
+                          style: labelStyle,
+                        ),
+                        Text(
+                          currentPatient.name,
+                          style: valueStyle,
+                        ),
+                      ],
+                    ),
+                    const Gap(15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Age',
+                          style: labelStyle,
+                        ),
+                        Text(
+                          '${bookAppointmentBloc.calculateAge(currentPatient.dateOfBirth)} years old',
+                          style: valueStyle,
+                        ),
+                      ],
+                    ),
+                    const Gap(15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Location',
+                          style: labelStyle,
+                        ),
+                        Text(
+                          currentPatient.address,
+                          style: valueStyle,
+                        ),
+                      ],
+                    ),
+                    const Gap(15),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 

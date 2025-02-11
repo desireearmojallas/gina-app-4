@@ -56,6 +56,7 @@ class _FaceToFaceAppointmentScreenState
 
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
+    if (!mounted) return;
     setState(() {
       _patientLocation = LatLng(position.latitude, position.longitude);
       _addMarkers();
@@ -89,6 +90,7 @@ class _FaceToFaceAppointmentScreenState
       Colors.white,
     );
 
+    if (!mounted) return;
     setState(() {
       _markers.add(Marker(
         markerId: const MarkerId('patientLocation'),
@@ -161,6 +163,7 @@ class _FaceToFaceAppointmentScreenState
     debugPrint(
         'Polyline Coordinates: $polylineCoordinates'); // Debugging statement
 
+    if (!mounted) return;
     setState(() {
       _polylines.add(Polyline(
         polylineId: const PolylineId('route'),

@@ -59,7 +59,7 @@ class FloatingDoctorMenuWidget extends StatelessWidget {
               CircleAvatar(
                 radius: 20,
                 foregroundImage: AssetImage(Images.doctorProfileIcon1),
-                backgroundColor: GinaAppTheme.lightPrimaryColor,
+                backgroundColor: Colors.transparent,
               ),
               const Gap(10),
               BlocBuilder<FloatingDoctorMenuBarBloc,
@@ -76,7 +76,7 @@ class FloatingDoctorMenuWidget extends StatelessWidget {
                   return const Text('Loading...');
                 },
               ),
-              const SizedBox(width: 8),
+              const Gap(8),
               const Icon(
                 Icons.verified,
                 color: Colors.blue,

@@ -2,17 +2,22 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/1_controllers/appointment_controller.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/consultation/0_model/chat_message_model.dart';
+import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/find/1_controllers/find_controllers.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:gina_app_4/features/patient_features/profile/1_controllers/profile_controller.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 part 'appointment_event.dart';
 part 'appointment_state.dart';
@@ -83,7 +88,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     );
   }
 
-  FutureOr<void> navigateToAppointmentDetailsEvent(
+  Future<void> navigateToAppointmentDetailsEvent(
       NavigateToAppointmentDetailsEvent event,
       Emitter<AppointmentState> emit) async {
     emit(AppointmentDetailsLoading());
@@ -115,16 +120,39 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     final result = await appointmentController.getAppointmentDetails(
         appointmentUid: event.appointmentUid);
 
-    result.fold(
-      (failure) {
+    await result.fold(
+      (failure) async {
         emit(AppointmentDetailsError(errorMessage: failure.toString()));
       },
-      (appointment) {
-        emit(AppointmentDetailsState(
-          appointment: appointment,
-          doctorDetails: doctorInformation!,
-          currentPatient: currentActivePatient!,
-        ));
+      (appointment) async {
+        if (appointment.appointmentStatus ==
+                AppointmentStatus.completed.index ||
+            appointment.appointmentStatus == 2) {
+          final images = await appointmentController.getPrescriptionImages(
+              appointmentUid: event.appointmentUid);
+
+          await images.fold(
+            (failure) async {
+              emit(
+                  GetPrescriptionImagesError(errorMessage: failure.toString()));
+            },
+            (images) async {
+              storedPrescriptionImages = images;
+              emit(ConsultationHistoryState(
+                appointment: appointment,
+                doctorDetails: doctorInformation!,
+                currentPatient: currentActivePatient!,
+                prescriptionImages: images,
+              ));
+            },
+          );
+        } else {
+          emit(AppointmentDetailsState(
+            appointment: appointment,
+            doctorDetails: doctorInformation!,
+            currentPatient: currentActivePatient!,
+          ));
+        }
       },
     );
   }
@@ -264,5 +292,82 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
   FutureOr<void> appointmentTabChangedEvent(
       AppointmentTabChangedEvent event, Emitter<AppointmentState> emit) {
     emit(AppointmentTabViewState(activeTabIndex: event.index));
+  }
+
+  Future<void> handleConsultationNavigation(state, BuildContext context) async {
+    HapticFeedback.mediumImpact();
+    isFromConsultationHistory = false;
+    selectedDoctorAppointmentModel = state.appointment;
+    final appointmentUid = state.appointment.appointmentUid;
+
+    if (appointmentUid != null) {
+      debugPrint('Fetching appointment details for UID: $appointmentUid');
+      final appointment =
+          await appointmentController.getAppointmentDetailsNew(appointmentUid);
+
+      if (appointment != null) {
+        final bool isValidTime = _isWithinAppointmentTime(appointment);
+        if (isValidTime &&
+            state.appointment.appointmentStatus ==
+                AppointmentStatus.confirmed.index) {
+          debugPrint('Marking appointment as visited for UID: $appointmentUid');
+          await appointmentController
+              .markAsVisitedConsultationRoom(appointmentUid);
+        } else {
+          debugPrint(
+              'Appointment is not within the valid time range or status is not confirmed.');
+        }
+      } else {
+        debugPrint('Appointment not found.');
+      }
+    } else {
+      debugPrint('Appointment UID is null.');
+    }
+
+    if (context.mounted) {
+      Navigator.pushNamed(context, '/consultation').then(
+        (value) => context.read<AppointmentBloc>().add(
+              NavigateToAppointmentDetailsEvent(
+                doctorUid: doctorDetails!.uid,
+                appointmentUid: state.appointment.appointmentUid!,
+              ),
+            ),
+      );
+    }
+  }
+
+  bool _isWithinAppointmentTime(AppointmentModel appointment) {
+    final DateFormat dateFormat = DateFormat('MMMM d, yyyy');
+    final DateFormat timeFormat = DateFormat('hh:mm a');
+    final DateTime now = DateTime.now();
+
+    final DateTime appointmentDate =
+        dateFormat.parse(appointment.appointmentDate!.trim());
+    final List<String> times = appointment.appointmentTime!.split(' - ');
+    final DateTime startTime = timeFormat.parse(times[0].trim());
+    final DateTime endTime = timeFormat.parse(times[1].trim());
+
+    final DateTime appointmentStartDateTime = DateTime(
+      appointmentDate.year,
+      appointmentDate.month,
+      appointmentDate.day,
+      startTime.hour,
+      startTime.minute,
+    );
+
+    final DateTime appointmentEndDateTime = DateTime(
+      appointmentDate.year,
+      appointmentDate.month,
+      appointmentDate.day,
+      endTime.hour,
+      endTime.minute,
+    );
+
+    debugPrint('Current time: $now');
+    debugPrint('Appointment start time: $appointmentStartDateTime');
+    debugPrint('Appointment end time: $appointmentEndDateTime');
+
+    return now.isAfter(appointmentStartDateTime) &&
+        now.isBefore(appointmentEndDateTime);
   }
 }
