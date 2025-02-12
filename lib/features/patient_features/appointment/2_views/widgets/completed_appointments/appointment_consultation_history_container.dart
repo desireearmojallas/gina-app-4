@@ -21,6 +21,28 @@ class AppointmentConsultationHistoryContainer extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
     final ginaTheme = Theme.of(context);
 
+    // Add debug prints to check for null values
+    debugPrint('Appointment Date: ${appointment.appointmentDate}');
+    debugPrint('Doctor UID: ${appointment.doctorUid}');
+    debugPrint('Appointment UID: ${appointment.appointmentUid}');
+    debugPrint('Doctor Name: ${appointment.doctorName}');
+    debugPrint('Appointment Time: ${appointment.appointmentTime}');
+    debugPrint('Mode of Appointment: ${appointment.modeOfAppointment}');
+    debugPrint('Appointment Status: ${appointment.appointmentStatus}');
+
+    // Add null checks
+    if (appointment.appointmentDate == null ||
+        appointment.doctorUid == null ||
+        appointment.appointmentUid == null ||
+        appointment.doctorName == null ||
+        appointment.appointmentTime == null ||
+        appointment.modeOfAppointment == null ||
+        appointment.appointmentStatus == null) {
+      return const Center(
+        child: Text('Invalid appointment data'),
+      );
+    }
+
     final date = DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
     final month = DateFormat('MMM').format(date);
     final day = DateFormat('d').format(date);

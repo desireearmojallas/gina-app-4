@@ -4,9 +4,14 @@ import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/widgets/view_patient_data/consultation_history_patient_data.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/widgets/view_patient_data/menstrual_cycle_information_patient_data_widget.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/widgets/view_patient_data/profile_details_patient_data.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 
 class DoctorViewPatientDetailsScreenLoaded extends StatelessWidget {
-  const DoctorViewPatientDetailsScreenLoaded({super.key});
+  final List<AppointmentModel> completedAppointments;
+  const DoctorViewPatientDetailsScreenLoaded({
+    super.key,
+    required this.completedAppointments,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +57,9 @@ class DoctorViewPatientDetailsScreenLoaded extends StatelessWidget {
                   ),
 
                   //! The only consultation history will show here would be the doctor & patient's consultation history together.
-                  const ConsultationHistoryPatientData(),
+                  ConsultationHistoryPatientData(
+                    completedAppointments: completedAppointments,
+                  ),
                 ],
               ),
             ),

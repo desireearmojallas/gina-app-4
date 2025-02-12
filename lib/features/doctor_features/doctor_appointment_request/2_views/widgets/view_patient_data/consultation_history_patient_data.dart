@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/completed_appointments/appointment_consultation_history_container.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 
 class ConsultationHistoryPatientData extends StatelessWidget {
-  const ConsultationHistoryPatientData({super.key});
+  final List<AppointmentModel> completedAppointments;
+  const ConsultationHistoryPatientData({
+    super.key,
+    required this.completedAppointments,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +29,12 @@ class ConsultationHistoryPatientData extends StatelessWidget {
           child: ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: 3,
+            itemCount: completedAppointments.length,
             itemBuilder: (context, index) {
-              // return const AppointmentConsultationHistoryContainer();
+              final appointment = completedAppointments[index];
+              return AppointmentConsultationHistoryContainer(
+                appointment: appointment,
+              );
             },
           ),
         ),

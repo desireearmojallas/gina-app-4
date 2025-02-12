@@ -1,10 +1,17 @@
 part of 'doctor_view_patient_details_bloc.dart';
 
-sealed class DoctorViewPatientDetailsState extends Equatable {
+abstract class DoctorViewPatientDetailsState extends Equatable {
   const DoctorViewPatientDetailsState();
-  
+
   @override
   List<Object> get props => [];
 }
 
-final class DoctorViewPatientDetailsInitial extends DoctorViewPatientDetailsState {}
+abstract class DoctorViewPatientDetailsActionState
+    extends DoctorViewPatientDetailsState {}
+
+class DoctorViewPatientDetailsInitial extends DoctorViewPatientDetailsState {}
+
+class DoctorViewPatientDetailsLoading extends DoctorViewPatientDetailsState {}
+
+class DoctorViewPatientDetailsLoaded extends DoctorViewPatientDetailsState {}

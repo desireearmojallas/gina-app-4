@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/bloc/home_bloc.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/widgets/book_appointment_container.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/widgets/consultation_history_container.dart';
@@ -10,7 +11,11 @@ import 'package:gina_app_4/features/patient_features/home/2_views/widgets/home_c
 import 'package:gina_app_4/features/patient_features/home/2_views/widgets/patient_greeting_widget.dart';
 
 class HomeScreenLoaded extends StatelessWidget {
-  const HomeScreenLoaded({super.key});
+  final List<AppointmentModel> completedAppointments;
+  const HomeScreenLoaded({
+    super.key,
+    required this.completedAppointments,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +57,10 @@ class HomeScreenLoaded extends StatelessWidget {
                   ],
                 ),
                 const Gap(20),
-                const ConsultationHistoryContainer(),
+                ConsultationHistoryContainer(
+                  completedAppointments: completedAppointments,
+                ),
+                const Gap(80),
               ],
             ),
           ),

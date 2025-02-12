@@ -16,7 +16,8 @@ class HomeScreenProvider extends StatelessWidget {
       create: (context) {
         final homeBloc = sl<HomeBloc>();
         homeBloc.add(GetPatientCurrentLocationEvent());
-        homeBloc.add(GetPatientNameEvent());
+        // homeBloc.add(GetPatientNameEvent());
+        homeBloc.add(HomeInitialEvent());
         return homeBloc;
       },
       child: const HomeScreen(),
@@ -51,9 +52,13 @@ class HomeScreen extends StatelessWidget {
         },
         builder: (context, state) {
           if (state is HomeInitial) {
-            return const HomeScreenLoaded();
+            return HomeScreenLoaded(
+              completedAppointments: state.completedAppointments,
+            );
           }
-          return const HomeScreenLoaded();
+          return HomeScreenLoaded(
+            completedAppointments: storedCompletedAppointments,
+          );
         },
       ),
     );

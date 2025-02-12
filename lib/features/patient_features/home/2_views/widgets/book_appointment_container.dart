@@ -61,8 +61,9 @@ class BookAppointmentContainer extends StatelessWidget {
                     onPressed: () {
                       // TODO: ONPRESS BOOK APPT CONTAINER
                       // homeBloc.add();
-                      //TODO: TO CHANGE?
+                      //TODO: TO CHANGE? add this after implementing the period tracker
                       Navigator.pushNamed(context, '/bookAppointment');
+                      //  homeBloc.add(HomeNavigateToFindDoctorEvent());
                     },
                     child: Row(
                       children: [

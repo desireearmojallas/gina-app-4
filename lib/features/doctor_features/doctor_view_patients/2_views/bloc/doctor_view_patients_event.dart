@@ -6,3 +6,18 @@ sealed class DoctorViewPatientsEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+class DoctorViewPatientsInitialEvent extends DoctorViewPatientsEvent {}
+
+class FindNavigateToPatientDetailsEvent extends DoctorViewPatientsEvent {
+  final UserModel patient;
+
+  const FindNavigateToPatientDetailsEvent({
+    required this.patient,
+  });
+
+  @override
+  List<Object> get props => [
+        patient,
+      ];
+}

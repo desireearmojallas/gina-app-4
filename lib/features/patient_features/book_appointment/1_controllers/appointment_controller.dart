@@ -369,6 +369,39 @@ class AppointmentController with ChangeNotifier {
     }
   }
 
+  //-------GET ALL COMPLETED APPOINTMENTS-------
+  Future<Either<Exception, List<AppointmentModel>>>
+      getAllCompletedAppointments() async {
+    try {
+      final snapshot = await firestore
+          .collection('appointments')
+          .where('patientUid', isEqualTo: currentPatient!.uid)
+          .where('appointmentStatus',
+              isEqualTo: AppointmentStatus.completed.index)
+          .get();
+
+      List<AppointmentModel> appointments = [];
+
+      for (var element in snapshot.docs) {
+        appointments.add(AppointmentModel.fromDocumentSnap(element));
+      }
+
+      appointments.sort((a, b) {
+        final aDate = DateFormat('MMMM d, yyyy').parse(a.appointmentDate!);
+        final bDate = DateFormat('MMMM d, yyyy').parse(b.appointmentDate!);
+        return bDate.compareTo(aDate);
+      });
+
+      return Right(appointments);
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException code: ${e.code}');
+      error = e;
+      notifyListeners();
+      return Left(Exception(e.message));
+    }
+  }
+
 //-------CANCEL APPOINTMENT-------
   Future<Either<Exception, bool>> cancelAppointment({
     required String appointmentUid,

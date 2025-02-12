@@ -26,10 +26,16 @@ class GinaApp extends StatelessWidget {
             debugPrint('Route arguments: $args');
             final initialIndex = args?['initialIndex'] ?? 0;
             debugPrint('Initial Index: $initialIndex');
+            final appointmentTabIndex = args?['appointmentTabIndex'] ?? 3;
+
+            debugPrint(
+                'onGenerateRoute: initialIndex: $initialIndex, appointmentTabIndex: $appointmentTabIndex');
+
             return MaterialPageRoute(
               builder: (context) => BlocProvider(
-                create: (context) =>
-                    BottomNavigationBloc(initialIndex: initialIndex),
+                create: (context) => BottomNavigationBloc(
+                    initialIndex: initialIndex,
+                    appointmentTabIndex: appointmentTabIndex),
                 child: const BottomNavigation(),
               ),
             );

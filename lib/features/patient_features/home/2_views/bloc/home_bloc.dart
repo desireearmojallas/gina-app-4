@@ -5,27 +5,54 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geodesy/geodesy.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/1_controllers/appointment_controller.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/1_controllers/period_tracker_controller.dart';
 import 'package:gina_app_4/features/patient_features/profile/1_controllers/profile_controller.dart';
 import 'package:geodesy/geodesy.dart' as geo;
 
 part 'home_event.dart';
 part 'home_state.dart';
 
+List<PeriodTrackerModel>? periodTrackerModelList;
 LatLng? storePatientCurrentLatLng;
 geo.LatLng? storePatientCurrentGeoLatLng;
+List<AppointmentModel> storedCompletedAppointments = [];
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final ProfileController profileController;
+  final AppointmentController appointmentController;
+  final PeriodTrackerController periodTrackerController;
   HomeBloc({
     required this.profileController,
-  }) : super(HomeInitial()) {
+    required this.appointmentController,
+    required this.periodTrackerController,
+  }) : super(HomeInitial(
+          completedAppointments: storedCompletedAppointments,
+        )) {
     on<HomeInitialEvent>(homeInitialEvent);
     on<GetPatientNameEvent>(getPatientName);
     on<GetPatientCurrentLocationEvent>(getPatientCurrentLocationEvent);
+    on<HomeNavigateToFindDoctorEvent>(homeNavigateToFindDoctorEvent);
+    on<HomeNavigateToForumEvent>(homeNavigateToForumEvent);
+    // on<HomeGetPeriodTrackerDataAndConsultationHistoryEvent>(
+    //     homeGetPeriodTrackerDataAndConsultationHistoryEvent);
   }
   FutureOr<void> homeInitialEvent(
       HomeInitialEvent event, Emitter<HomeState> emit) async {
-    emit(HomeInitial());
+    final result = await appointmentController.getAllCompletedAppointments();
+
+    result.fold(
+      (failure) {},
+      (completedAppointments) {
+        storedCompletedAppointments = completedAppointments;
+        emit(HomeInitial(
+          completedAppointments: completedAppointments,
+        ));
+        add(GetPatientNameEvent());
+      },
+    );
   }
 
   FutureOr<void> getPatientName(
@@ -76,4 +103,59 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       debugPrint('Error: $e');
     }
   }
+
+  FutureOr<void> homeNavigateToFindDoctorEvent(
+      HomeNavigateToFindDoctorEvent event, Emitter<HomeState> emit) {
+    emit(HomeNavigateToFindDoctorActionState());
+  }
+
+  FutureOr<void> homeNavigateToForumEvent(
+      HomeNavigateToForumEvent event, Emitter<HomeState> emit) {
+    emit(HomeNavigateToForumActionState());
+  }
+
+  //TODO: HOME GET PERIOD TRACKER DATA AND CONSULTATION HISTORY EVENT
+
+  // FutureOr<void> homeGetPeriodTrackerDataAndConsultationHistoryEvent(
+  //     HomeGetPeriodTrackerDataAndConsultationHistoryEvent event,
+  //     Emitter<HomeState> emit) async {
+  //   emit(HomeGetPeriodTrackerDataAndConsultationHistoryLoadingState());
+  //   List<AppointmentModel> completedAppointments = [];
+  //   final consultationHistory =
+  //       await appointmentController.getAllCompletedAppointments();
+
+  //   consultationHistory.fold(
+  //     (failure) {
+  //       emit(HomeInitialError(errorMessage: failure.toString()));
+  //     },
+  //     (consultationHistory) {
+  //       completedAppointments = consultationHistory;
+  //       storedCompletedAppointments = consultationHistory;
+  //     },
+  //   );
+
+  //   try {
+  //     final periodTrackerData = await periodTrackerController.getAllPeriods();
+
+  //     periodTrackerData.fold(
+  //       (error) {
+  //         emit(HomeGetPeriodTrackerDataAndConsultationHistoryDataError(
+  //             errorMessage: error.toString()));
+  //       },
+  //       (data) {
+  //         periodTrackerModelList = data;
+
+  //         List<DateTime> dateRange = [];
+
+  //         for (var period in periodTrackerModelList!) {
+  //           DateTime startDate = period.startDate;
+  //           int periodLength
+  //         }
+  //       },
+  //     );
+  //   } catch (e) {
+  //     emit(HomeGetPeriodTrackerDataAndConsultationHistoryDataError(
+  //         errorMessage: e.toString()));
+  //   }
+  // }
 }

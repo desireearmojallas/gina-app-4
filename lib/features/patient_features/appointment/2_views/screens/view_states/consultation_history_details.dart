@@ -33,6 +33,9 @@ class ConsultationHistoryDetailScreen extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     final ginaTheme = Theme.of(context).textTheme;
 
+    // Reverse the prescriptionImages list
+    final reversedPrescriptionImages = prescriptionImages.reversed.toList();
+
     return RefreshIndicator(
       onRefresh: () async {
         appointmentBloc.add(NavigateToConsultationHistoryEvent(
@@ -54,7 +57,7 @@ class ConsultationHistoryDetailScreen extends StatelessWidget {
                 appointment: appointment,
                 currentPatient: currentPatient,
               ),
-              prescriptionImages.isEmpty
+              reversedPrescriptionImages.isEmpty
                   ? Align(
                       alignment: Alignment.center,
                       child: Text(
@@ -71,7 +74,7 @@ class ConsultationHistoryDetailScreen extends StatelessWidget {
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              '${prescriptionImages.length} Attachment/s',
+                              '${reversedPrescriptionImages.length} Attachment/s',
                               style: ginaTheme.bodySmall?.copyWith(
                                 color: GinaAppTheme.lightOutline,
                               ),
@@ -93,9 +96,11 @@ class ConsultationHistoryDetailScreen extends StatelessWidget {
                                 child: ScrollbarCustom(
                                   child: ListView.builder(
                                     physics: const BouncingScrollPhysics(),
-                                    itemCount: prescriptionImages.length,
+                                    itemCount:
+                                        reversedPrescriptionImages.length,
                                     itemBuilder: (context, index) {
-                                      final image = prescriptionImages[index];
+                                      final image =
+                                          reversedPrescriptionImages[index];
                                       return Padding(
                                         padding: const EdgeInsets.symmetric(
                                           vertical: 10.0,
