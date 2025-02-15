@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/1_controllers/doctor_appointment_request_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/1_controllers/doctor_profile_controller.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
@@ -19,10 +20,12 @@ String? patientIdForPastAppointmentDetails;
 
 class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
   final DoctorHomeDashboardController doctorHomeDashboardController;
+  final DoctorAppointmentRequestController doctorAppointmentRequestController;
   final DoctorProfileController doctorProfileController;
   HomeDashboardBloc({
     required this.doctorHomeDashboardController,
     required this.doctorProfileController,
+    required this.doctorAppointmentRequestController,
   }) : super(HomeDashboardInitial(
           pendingAppointments: 0,
           confirmedAppointments: 0,
@@ -44,6 +47,7 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
             appointmentsBooked: const [],
           ),
           completedAppointmentList: const {},
+          completedAppointmentsForPatientData: const [],
         )) {
     on<HomeInitialEvent>(homeInitialEvent);
     on<GetDoctorNameEvent>(getDoctorName);
@@ -56,6 +60,8 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
     AppointmentModel? latestUpcomingAppointment;
     AppointmentModel? latestPendingAppointment;
     Map<DateTime, List<AppointmentModel>> completedAppointmentsList = {};
+    UserModel? selectedPatientData;
+    List<AppointmentModel> completedAppointmentsForPatientData = [];
 
     final getTheNumberOfConfirmedAppointments =
         await doctorHomeDashboardController.getConfirmedAppointments();
@@ -152,7 +158,6 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
     }
 
     // Determine which patient data to pass based on the selected appointment
-    UserModel? selectedPatientData;
     if (event.selectedAppointment == latestUpcomingAppointment) {
       selectedPatientData = patientDataForUpcomingAppointment;
     } else if (event.selectedAppointment == latestPendingAppointment) {
@@ -160,6 +165,24 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
     } else if (event.selectedAppointment?.patientUid ==
         patientIdForPastAppointmentDetails) {
       selectedPatientData = patientDataForPastAppointment;
+    }
+
+    // Fetch completed appointments for the selected patient
+    if (selectedPatientData != null) {
+      final completedAppointmentsResult =
+          await doctorAppointmentRequestController
+              .getPatientCompletedAppointmentsWithCurrentDoctor(
+        patientUid: selectedPatientData.uid,
+      );
+
+      completedAppointmentsResult.fold(
+        (failure) {
+          debugPrint('Failed to fetch completed appointments: $failure');
+        },
+        (appointments) {
+          completedAppointmentsForPatientData = appointments;
+        },
+      );
     }
 
     emit(HomeDashboardInitial(
@@ -184,6 +207,7 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
           ),
       completedAppointmentList: completedAppointmentsList,
       selectedAppointment: event.selectedAppointment,
+      completedAppointmentsForPatientData: completedAppointmentsForPatientData,
     ));
   }
 

@@ -102,7 +102,7 @@ class MissedAppointmentsList extends StatelessWidget {
 
   Widget _title(BuildContext context, String text) {
     return Text(
-      text.toUpperCase(),
+      '$text (${appointments.length})'.toUpperCase(),
       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             fontWeight: FontWeight.bold,
             fontSize: 14,

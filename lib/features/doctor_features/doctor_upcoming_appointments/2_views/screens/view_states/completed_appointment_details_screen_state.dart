@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
@@ -31,6 +32,9 @@ class CompletedAppointmentDetailScreenState extends StatelessWidget {
     var dates = completedAppointmentsList.keys.toList();
     final homeDashboardBloc = context.read<HomeDashboardBloc>();
 
+    UserModel? patientDataToUse;
+    List<AppointmentModel>? completedAppointmentsForPatientData;
+
     return Scaffold(
       appBar: GinaDoctorAppBar(
         title: 'My Past Appointments',
@@ -41,6 +45,9 @@ class CompletedAppointmentDetailScreenState extends StatelessWidget {
           listener: (context, state) {
             if (state is HomeDashboardInitial) {
               if (patientDataForPastAppointment != null) {
+                patientDataToUse = state.patientData;
+                completedAppointmentsForPatientData =
+                    state.completedAppointmentsForPatientData;
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -48,6 +55,8 @@ class CompletedAppointmentDetailScreenState extends StatelessWidget {
                         CompletedAppointmentDetailedScreenState(
                       appointment: state.selectedAppointment!,
                       patientData: state.patientData!,
+                      completedAppointments:
+                          state.completedAppointmentsForPatientData,
                     ),
                   ),
                 );
@@ -134,6 +143,10 @@ class CompletedAppointmentDetailScreenState extends StatelessWidget {
                                   ...appointments.map((appointment) {
                                     return GestureDetector(
                                       onTap: () {
+                                        bool eventTriggered = false;
+
+                                        HapticFeedback.mediumImpact();
+
                                         // Store the patientUid in patientIdForPastAppointmentDetails
                                         patientIdForPastAppointmentDetails =
                                             appointment.patientUid;
@@ -143,6 +156,42 @@ class CompletedAppointmentDetailScreenState extends StatelessWidget {
                                         // Trigger the HomeInitialEvent to fetch patient data
                                         homeDashboardBloc.add(HomeInitialEvent(
                                             selectedAppointment: appointment));
+                                        eventTriggered = true;
+
+                                        // Delay to allow event to be processed
+                                        Future.delayed(
+                                            const Duration(seconds: 2), () {
+                                          if (!eventTriggered) {
+                                            // Fallback navigation in case the event triggering doesn't work
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    CompletedAppointmentDetailedScreenState(
+                                                  appointment: appointment,
+                                                  patientData:
+                                                      patientDataToUse ??
+                                                          UserModel(
+                                                            name: '',
+                                                            email: '',
+                                                            uid: '',
+                                                            gender: '',
+                                                            dateOfBirth: '',
+                                                            profileImage: '',
+                                                            headerImage: '',
+                                                            accountType: '',
+                                                            address: '',
+                                                            chatrooms: const [],
+                                                            appointmentsBooked: const [],
+                                                          ),
+                                                  completedAppointments:
+                                                      completedAppointmentsForPatientData ??
+                                                          [],
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                        });
                                       },
                                       child: Container(
                                         width: size.width / 1.05,

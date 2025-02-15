@@ -16,6 +16,7 @@ Future<dynamic> showConfirmingPendingRequestDialog(
   required AppointmentModel appointment,
   required UserModel patientData,
   bool? isFromHomePendingRequest = false,
+  required List<AppointmentModel> completedAppointments,
 }) {
   final pendingRequestStateBloc = context.read<PendingRequestStateBloc>();
   final homeDashboardBloc = context.read<HomeDashboardBloc>();
@@ -88,7 +89,7 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                     ),
                   ),
                 ),
-                onPressed: () {
+                onPressed: () async {
                   storedAppointment = appointment;
                   storedPatientData = patientData;
 
@@ -96,27 +97,55 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                       ApproveAppointmentEvent(appointmentId: appointmentId));
 
                   if (isFromHomePendingRequest == true) {
-                    Navigator.pushReplacement(context, MaterialPageRoute(
-                      builder: (context) {
-                        return ApprovedRequestDetailsScreenState(
-                          appointment: appointment,
-                          patientData: patientData,
-                          appointmentStatus: 1,
-                        );
+                    final completedAppointmentsResult = await homeDashboardBloc
+                        .doctorHomeDashboardController
+                        .getCompletedAppointments();
+
+                    completedAppointmentsResult.fold(
+                      (failure) {
+                        debugPrint(
+                            'Failed to fetch completed appointments: $failure');
                       },
-                    )).then((value) =>
-                        homeDashboardBloc.add(const HomeInitialEvent()));
+                      (completedAppointments) {
+                        Navigator.pushReplacement(context,
+                            MaterialPageRoute(builder: (context) {
+                          return ApprovedRequestDetailsScreenState(
+                            appointment: appointment,
+                            patientData: patientData,
+                            appointmentStatus: 1,
+                            completedAppointments: completedAppointments.values
+                                .expand((appointments) => appointments)
+                                .toList(),
+                          );
+                        })).then((value) =>
+                            homeDashboardBloc.add(const HomeInitialEvent()));
+                      },
+                    );
                   } else {
                     Navigator.pop(context);
-                    Navigator.pushReplacement(context, MaterialPageRoute(
-                      builder: (context) {
-                        return ApprovedRequestDetailsScreenState(
-                          appointment: appointment,
-                          patientData: patientData,
-                          appointmentStatus: 1,
-                        );
+                    final completedAppointmentsResult = await homeDashboardBloc
+                        .doctorHomeDashboardController
+                        .getCompletedAppointments();
+
+                    completedAppointmentsResult.fold(
+                      (failure) {
+                        debugPrint(
+                            'Failed to fetch completed appointments: $failure');
                       },
-                    ));
+                      (completedAppointments) {
+                        Navigator.pushReplacement(context,
+                            MaterialPageRoute(builder: (context) {
+                          return ApprovedRequestDetailsScreenState(
+                            appointment: appointment,
+                            patientData: patientData,
+                            appointmentStatus: 1,
+                            completedAppointments: completedAppointments.values
+                                .expand((appointments) => appointments)
+                                .toList(),
+                          );
+                        }));
+                      },
+                    );
                   }
                 },
                 child: Text(

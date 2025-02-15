@@ -42,6 +42,7 @@ class PendingRequestStateScreen extends StatelessWidget {
                 builder: (context) => PendingRequestDetailsScreenState(
                   appointment: state.appointment,
                   patientData: state.patientData,
+                  completedAppointments: state.completedAppointments,
                 ),
               ),
             ).then((value) => context

@@ -136,6 +136,8 @@ class DoctorChatMessageController with ChangeNotifier {
         .collection('appointments')
         .get();
 
+    if (_isDisposed) return;
+
     for (var appointmentDoc in appointmentsSnapshot.docs) {
       String appointmentId = appointmentDoc.id;
       Map<String, dynamic> appointmentData = appointmentDoc.data();
@@ -149,6 +151,8 @@ class DoctorChatMessageController with ChangeNotifier {
           .collection('messages')
           .orderBy('createdAt')
           .get();
+
+      if (_isDisposed) return;
 
       List<ChatMessageModel> messages = messagesSnapshot.docs.map((doc) {
         ChatMessageModel message = ChatMessageModel.fromDocumentSnap(doc);
@@ -173,6 +177,8 @@ class DoctorChatMessageController with ChangeNotifier {
       // Fetch the appointment status from the top-level collection
       DocumentSnapshot<Map<String, dynamic>> appointmentStatusSnapshot =
           await firestore.collection('appointments').doc(appointmentId).get();
+
+      if (_isDisposed) return;
 
       bool isCompleted = appointmentStatusSnapshot.exists &&
           appointmentStatusSnapshot.data()?['appointmentStatus'] ==
@@ -207,6 +213,8 @@ class DoctorChatMessageController with ChangeNotifier {
       sortedMessages[appointmentId] = allMessages[appointmentId]!;
       sortedTimes[appointmentId] = allTimes[appointmentId]!;
     }
+
+    if (_isDisposed) return;
 
     appointmentMessages = sortedMessages;
     appointmentTimes = sortedTimes;

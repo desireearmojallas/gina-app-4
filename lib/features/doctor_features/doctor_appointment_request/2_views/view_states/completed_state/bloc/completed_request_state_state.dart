@@ -37,14 +37,16 @@ class NavigateToCompletedRequestDetailState
     extends CompletedRequestActionState {
   final AppointmentModel appointment;
   final UserModel patientData;
+  final List<AppointmentModel> completedAppointments;
 
   const NavigateToCompletedRequestDetailState({
     required this.appointment,
     required this.patientData,
+    required this.completedAppointments,
   });
 
   @override
-  List<Object> get props => [appointment, patientData];
+  List<Object> get props => [appointment, patientData, completedAppointments];
 }
 
 class NavigateToPatientDataState extends CompletedRequestActionState {

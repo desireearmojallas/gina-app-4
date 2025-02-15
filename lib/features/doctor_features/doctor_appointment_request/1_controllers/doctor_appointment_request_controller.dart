@@ -361,6 +361,50 @@ class DoctorAppointmentRequestController with ChangeNotifier {
     }
   }
 
+  //---------- Get Patient Completed Appointments with Current Doctor -----------
+
+  Future<Either<Exception, List<AppointmentModel>>>
+      getPatientCompletedAppointmentsWithCurrentDoctor({
+    required String patientUid,
+  }) async {
+    try {
+      debugPrint(
+          'Fetching completed appointments for patient: $patientUid with current doctor: ${currentUser!.uid}');
+
+      QuerySnapshot<Map<String, dynamic>> appointmentSnapshot = await firestore
+          .collection('appointments')
+          .where('patientUid', isEqualTo: patientUid)
+          .where('doctorUid', isEqualTo: currentUser!.uid)
+          .where('appointmentStatus',
+              isEqualTo: AppointmentStatus.completed.index)
+          .get();
+
+      debugPrint(
+          'Fetched ${appointmentSnapshot.docs.length} completed appointments');
+
+      var patientAppointments = appointmentSnapshot.docs.map((doc) {
+        debugPrint('Appointment data: ${doc.data()}');
+        return AppointmentModel.fromJson(doc.data());
+      }).toList()
+        ..sort((a, b) {
+          final aDate = DateFormat('MMMM d, yyyy').parse(a.appointmentDate!);
+          final bDate = DateFormat('MMMM d, yyyy').parse(b.appointmentDate!);
+          return bDate.compareTo(aDate);
+        });
+
+      return Right(patientAppointments);
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException code: ${e.code}');
+      error = e;
+      notifyListeners();
+      return Left(Exception(e.message));
+    } catch (e) {
+      debugPrint('Exception: ${e.toString()}');
+      return Left(Exception(e.toString()));
+    }
+  }
+
   //---------- Approve Doctor Appointment Request -----------
 
   Future<Either<Exception, bool>> approvePendingPatientRequest({

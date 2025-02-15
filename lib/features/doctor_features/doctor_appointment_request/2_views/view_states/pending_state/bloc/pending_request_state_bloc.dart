@@ -56,20 +56,35 @@ class PendingRequestStateBloc
     final patientData = await doctorAppointmentRequestController.getPatientData(
         patientUid: event.appointment.patientUid!);
 
+    final completedAppointmentsResult = await doctorAppointmentRequestController
+        .getPatientCompletedAppointmentsWithCurrentDoctor(
+      patientUid: event.appointment.patientUid!,
+    );
+
     patientData.fold(
       (failure) {
         debugPrint('Failed to fetch patient data: $failure');
         emit(GetPendingRequestFailedState(errorMessage: failure.toString()));
       },
       (patientData) {
-        debugPrint('Fetched patient data: $patientData');
-        storedAppointment = event.appointment;
-        storedPatientData = patientData;
-        emit(
-          NavigateToPendingRequestDetailedState(
-            appointment: event.appointment,
-            patientData: patientData,
-          ),
+        completedAppointmentsResult.fold(
+          (failure) {
+            debugPrint('Failed to fetch completed appointments: $failure');
+            emit(
+                GetPendingRequestFailedState(errorMessage: failure.toString()));
+          },
+          (completedAppointments) {
+            debugPrint('Fetched patient data: $patientData');
+            storedAppointment = event.appointment;
+            storedPatientData = patientData;
+            emit(
+              NavigateToPendingRequestDetailedState(
+                appointment: event.appointment,
+                patientData: patientData,
+                completedAppointments: completedAppointments,
+              ),
+            );
+          },
         );
       },
     );
@@ -92,16 +107,29 @@ class PendingRequestStateBloc
       appointmentId: event.appointmentId,
     );
 
+    final completedAppointmentsResult = await doctorAppointmentRequestController
+        .getPatientCompletedAppointmentsWithCurrentDoctor(
+      patientUid: storedAppointment!.patientUid!,
+    );
+
     result.fold(
       (failure) =>
           emit(ApproveAppointmentFailedState(errorMessage: failure.toString())),
       (appointment) {
-        selectedPatientUid = storedPatientData!.uid;
-        selectedPatientAppointment = storedAppointment!.appointmentUid;
-        selectedPatientName = storedPatientData!.name;
+        completedAppointmentsResult.fold((failure) {
+          debugPrint('Failed to fetch completed appointments: $failure');
+          emit(GetPendingRequestFailedState(errorMessage: failure.toString()));
+        }, (completedAppointments) {
+          selectedPatientUid = storedPatientData!.uid;
+          selectedPatientAppointment = storedAppointment!.appointmentUid;
+          selectedPatientName = storedPatientData!.name;
 
-        emit(NavigateToApprovedRequestDetailedState(
-            appointment: storedAppointment!, patientData: storedPatientData!));
+          emit(NavigateToApprovedRequestDetailedState(
+            appointment: storedAppointment!,
+            patientData: storedPatientData!,
+            completedAppointments: completedAppointments,
+          ));
+        });
       },
     );
   }

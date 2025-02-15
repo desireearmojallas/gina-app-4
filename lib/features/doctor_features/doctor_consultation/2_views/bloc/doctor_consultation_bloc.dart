@@ -23,6 +23,7 @@ UserModel? selectedPatientDetails;
 bool isF2FSession = false;
 bool f2fAppointmentStarted = false;
 bool f2fAppointmentEnded = false;
+List<AppointmentModel>? completedAppointmentsForPatientDataMenu;
 
 class DoctorConsultationBloc
     extends Bloc<DoctorConsultationEvent, DoctorConsultationState> {
@@ -205,18 +206,28 @@ class DoctorConsultationBloc
     final patientData = await doctorAppointmentRequestController
         .getDoctorPatients(patientUid: event.appointment.patientUid!);
 
+    final completedAppointmentsResults =
+        await doctorAppointmentRequestController
+            .getPatientCompletedAppointmentsWithCurrentDoctor(
+                patientUid: event.appointment.patientUid!);
+
     patientData.fold(
       (failure) {
         emit(DoctorConsultationErrorAppointmentState(
             message: failure.toString()));
       },
       (patientData) {
-        emit(NavigateToPatientDataState(
-          patientData: event.patientData,
-          appointment: event.appointment,
-          patientPeriods: patientData.patientPeriods,
-          patientAppointments: patientData.patientAppointments,
-        ));
+        completedAppointmentsResults.fold((failure) {
+          emit(DoctorConsultationErrorAppointmentState(
+              message: failure.toString()));
+        }, (completedAppointments) {
+          emit(NavigateToPatientDataState(
+            patientData: event.patientData,
+            appointment: event.appointment,
+            patientPeriods: patientData.patientPeriods,
+            patientAppointments: completedAppointments,
+          ));
+        });
       },
     );
   }

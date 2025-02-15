@@ -8,18 +8,23 @@ import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 
 class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
   final AppointmentModel? upcomingAppointment;
   final UserModel patientData;
+  final List<AppointmentModel> completedAppointments;
   const UpcomingAppointmentsNavigationWidget({
     super.key,
     this.upcomingAppointment,
     required this.patientData,
+    required this.completedAppointments,
   });
 
   @override
   Widget build(BuildContext context) {
+    final homeDashboardBloc = context.read<HomeDashboardBloc>();
     final ginaTheme = Theme.of(context);
     final size = MediaQuery.of(context).size;
     String formattedDate = 'No upcoming appointment';
@@ -60,16 +65,32 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
         ),
         const Gap(10),
         GestureDetector(
-          onTap: () {
-            upcomingAppointment?.appointmentUid != null
-                ? Navigator.push(context, MaterialPageRoute(builder: (context) {
+          onTap: () async {
+            if (upcomingAppointment?.appointmentUid != null) {
+              // Fetch completed appointments
+              final completedAppointmentsResult = await homeDashboardBloc
+                  .doctorHomeDashboardController
+                  .getCompletedAppointments();
+
+              completedAppointmentsResult.fold(
+                (failure) {
+                  debugPrint(
+                      'Failed to fetch completed appointments: $failure');
+                },
+                (completedAppointments) {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return ApprovedRequestDetailsScreenState(
                       appointment: upcomingAppointment!,
                       patientData: patientData,
                       appointmentStatus: upcomingAppointment?.appointmentStatus,
+                      completedAppointments: completedAppointments.values
+                          .expand((appointments) => appointments)
+                          .toList(),
                     );
-                  }))
-                : null;
+                  }));
+                },
+              );
+            }
           },
           child: Container(
             height: size.height * 0.22,

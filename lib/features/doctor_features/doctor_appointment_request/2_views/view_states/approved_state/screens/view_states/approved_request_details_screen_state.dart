@@ -19,11 +19,13 @@ class ApprovedRequestDetailsScreenState extends StatelessWidget {
   final AppointmentModel appointment;
   final UserModel patientData;
   final int? appointmentStatus;
+  final List<AppointmentModel> completedAppointments;
   const ApprovedRequestDetailsScreenState({
     super.key,
     required this.appointment,
     required this.patientData,
     this.appointmentStatus = 1,
+    required this.completedAppointments,
   });
 
   @override
@@ -304,13 +306,8 @@ class ApprovedRequestDetailsScreenState extends StatelessWidget {
                                 builder: (context) => ViewPatientDataScreen(
                                       patient: patientData,
                                       patientAppointment: appointment,
-                                      patientAppointments: patientData
-                                          .appointmentsBooked
-                                          .map((appointmentId) =>
-                                              AppointmentModel(
-                                                  appointmentUid:
-                                                      appointmentId))
-                                          .toList(),
+                                      patientAppointments:
+                                          completedAppointments,
                                     )));
                       },
                       style: ButtonStyle(

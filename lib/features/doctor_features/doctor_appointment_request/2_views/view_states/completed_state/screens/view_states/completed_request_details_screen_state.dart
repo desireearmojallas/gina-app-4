@@ -19,11 +19,13 @@ class CompletedRequestDetailsScreenState extends StatelessWidget {
   final AppointmentModel appointment;
   final UserModel patientData;
   final int? appointmentStatus;
+  final List<AppointmentModel> completedAppointments;
   const CompletedRequestDetailsScreenState({
     super.key,
     required this.appointment,
     required this.patientData,
     this.appointmentStatus = 2,
+    required this.completedAppointments,
   });
 
   @override
@@ -37,6 +39,9 @@ class CompletedRequestDetailsScreenState extends StatelessWidget {
     debugPrint('Patient Gender: ${patientData.gender}');
     debugPrint('Patient Address: ${patientData.address}');
     debugPrint('Patient Email: ${patientData.email}');
+
+    debugPrint(
+        'Patient Completed Appointments from Completed request details screen state: $completedAppointments');
 
     final labelStyle = ginaTheme.textTheme.bodySmall?.copyWith(
       color: GinaAppTheme.lightOutline,
@@ -304,13 +309,8 @@ class CompletedRequestDetailsScreenState extends StatelessWidget {
                                 builder: (context) => ViewPatientDataScreen(
                                       patient: patientData,
                                       patientAppointment: appointment,
-                                      patientAppointments: patientData
-                                          .appointmentsBooked
-                                          .map((appointmentId) =>
-                                              AppointmentModel(
-                                                  appointmentUid:
-                                                      appointmentId))
-                                          .toList(),
+                                      patientAppointments:
+                                          completedAppointments,
                                     )));
                       },
                       style: ButtonStyle(

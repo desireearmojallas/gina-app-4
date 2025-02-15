@@ -41,6 +41,7 @@ class ApprovedRequestStateScreen extends StatelessWidget {
                 builder: (context) => ApprovedRequestDetailsScreenState(
                   appointment: state.appointment,
                   patientData: state.patientData,
+                  completedAppointments: state.completedAppointments,
                 ),
               ),
             ).then((value) => context

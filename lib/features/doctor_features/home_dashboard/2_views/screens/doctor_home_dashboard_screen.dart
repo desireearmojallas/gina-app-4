@@ -17,7 +17,7 @@ class DoctorHomeScreenDashboardProvider extends StatelessWidget {
     return BlocProvider(
       create: (context) {
         final homeDashboardBloc = sl<HomeDashboardBloc>();
-        homeDashboardBloc.add(HomeInitialEvent());
+        homeDashboardBloc.add(const HomeInitialEvent());
         return homeDashboardBloc;
       },
       child: const DoctorHomeScreenDashboard(),
@@ -59,6 +59,8 @@ class DoctorHomeScreenDashboard extends StatelessWidget {
           if (state is HomeDashboardInitial) {
             // Debug statements to check patientData
             debugPrint('Patient Data: ${state.patientData}');
+            debugPrint(
+                'Completed Appointments from HomeDashboardInitial: ${state.completedAppointmentsForPatientData}');
             return DoctorHomeScreenDashboardLoaded(
               pendingRequests: state.pendingAppointments,
               confirmedAppointments: state.confirmedAppointments,
@@ -80,6 +82,7 @@ class DoctorHomeScreenDashboard extends StatelessWidget {
                     appointmentsBooked: const [],
                   ),
               completedAppointmentsList: state.completedAppointmentList!,
+              completedAppointments: state.completedAppointmentsForPatientData,
             );
           }
           return DoctorHomeScreenDashboardLoaded(
@@ -102,6 +105,7 @@ class DoctorHomeScreenDashboard extends StatelessWidget {
               appointmentsBooked: const [],
             ),
             completedAppointmentsList: const {},
+            completedAppointments: const [],
           );
         },
       ),

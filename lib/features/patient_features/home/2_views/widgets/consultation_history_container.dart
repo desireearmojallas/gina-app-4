@@ -31,14 +31,14 @@ class ConsultationHistoryContainer extends StatelessWidget {
               GinaAppTheme.defaultBoxShadow,
             ],
           ),
-          height: height / 2.85,
+          height: height / 2.7,
           width: width / 1.05,
           child: Column(
             children: [
               Row(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(left: 14.0, top: 12),
+                    padding: const EdgeInsets.only(left: 14.0, top: 15),
                     child: Align(
                       alignment: Alignment.topLeft,
                       child: Text(
@@ -151,6 +151,24 @@ class ConsultationHistoryContainer extends StatelessWidget {
                                   ),
                                 ),
                               ],
+                            ),
+                          ),
+                        if (completedAppointments.length >= 3)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: 5.0,
+                              right: 10.0,
+                              left: 10.0,
+                              top: 5.0,
+                            ),
+                            child: Text(
+                              'Showing 3 of ${completedAppointments.length} consultations',
+                              style: ginaTheme.bodySmall?.copyWith(
+                                color:
+                                    GinaAppTheme.lightOutline.withOpacity(0.6),
+                                fontSize: 11,
+                                fontStyle: FontStyle.italic,
+                              ),
                             ),
                           ),
                       ],

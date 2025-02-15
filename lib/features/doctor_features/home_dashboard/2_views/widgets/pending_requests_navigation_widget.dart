@@ -16,11 +16,13 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
   final int pendingRequests;
   final AppointmentModel? pendingAppointment;
   final UserModel patientData;
+  final List<AppointmentModel> completedAppointments;
   const PendingRequestsNavigationWidget({
     super.key,
     required this.pendingRequests,
     required this.pendingAppointment,
     required this.patientData,
+    required this.completedAppointments,
   });
 
   @override
@@ -106,15 +108,31 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
         ),
         // const Gap(10),
         GestureDetector(
-          onTap: () {
-            pendingRequests == 0
-                ? null
-                : Navigator.push(context, MaterialPageRoute(builder: (context) {
+          onTap: () async {
+            if (pendingRequests != 0) {
+              // Fetch completed appointments
+              final completedAppointmentsResult = await homeDashboardBloc
+                  .doctorHomeDashboardController
+                  .getCompletedAppointments();
+
+              completedAppointmentsResult.fold(
+                (failure) {
+                  debugPrint(
+                      'Failed to fetch completed appointments: $failure');
+                },
+                (completedAppointments) {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return PendingRequestDetailsScreenState(
                       appointment: pendingAppointment!,
                       patientData: patientData,
+                      completedAppointments: completedAppointments.values
+                          .expand((appointments) => appointments)
+                          .toList(),
                     );
                   }));
+                },
+              );
+            }
           },
           child: Container(
             height: size.height * 0.14,
@@ -210,24 +228,25 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                   child: Row(
                     children: [
                       IconButton(
-                        onPressed:
-                            pendingRequests == 0 || pendingAppointment == null
-                                ? null
-                                : () {
-                                    debugPrint(
-                                        'Pending Requests: $pendingRequests');
-                                    debugPrint(
-                                        'Appointment ID: ${pendingAppointment!.appointmentUid}');
+                        onPressed: pendingRequests == 0 ||
+                                pendingAppointment == null
+                            ? null
+                            : () {
+                                debugPrint(
+                                    'Pending Requests: $pendingRequests');
+                                debugPrint(
+                                    'Appointment ID: ${pendingAppointment!.appointmentUid}');
 
-                                    showConfirmingPendingRequestDialog(
-                                      context,
-                                      appointmentId:
-                                          pendingAppointment!.appointmentUid!,
-                                      appointment: pendingAppointment!,
-                                      patientData: patientData,
-                                      isFromHomePendingRequest: true,
-                                    );
-                                  },
+                                showConfirmingPendingRequestDialog(
+                                  context,
+                                  appointmentId:
+                                      pendingAppointment!.appointmentUid!,
+                                  appointment: pendingAppointment!,
+                                  patientData: patientData,
+                                  isFromHomePendingRequest: true,
+                                  completedAppointments: completedAppointments,
+                                );
+                              },
                         icon: Icon(
                           MingCute.close_circle_fill,
                           color: pendingRequests == 0
@@ -237,24 +256,25 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                         ),
                       ),
                       IconButton(
-                        onPressed:
-                            pendingRequests == 0 || pendingAppointment == null
-                                ? null
-                                : () {
-                                    debugPrint(
-                                        'Pending Requests: $pendingRequests');
-                                    debugPrint(
-                                        'Appointment ID: ${pendingAppointment!.appointmentUid}');
+                        onPressed: pendingRequests == 0 ||
+                                pendingAppointment == null
+                            ? null
+                            : () {
+                                debugPrint(
+                                    'Pending Requests: $pendingRequests');
+                                debugPrint(
+                                    'Appointment ID: ${pendingAppointment!.appointmentUid}');
 
-                                    showConfirmingPendingRequestDialog(
-                                      context,
-                                      appointmentId:
-                                          pendingAppointment!.appointmentUid!,
-                                      appointment: pendingAppointment!,
-                                      patientData: patientData,
-                                      isFromHomePendingRequest: true,
-                                    );
-                                  },
+                                showConfirmingPendingRequestDialog(
+                                  context,
+                                  appointmentId:
+                                      pendingAppointment!.appointmentUid!,
+                                  appointment: pendingAppointment!,
+                                  patientData: patientData,
+                                  isFromHomePendingRequest: true,
+                                  completedAppointments: completedAppointments,
+                                );
+                              },
                         icon: Icon(
                           MingCute.check_circle_fill,
                           color: pendingRequests == 0

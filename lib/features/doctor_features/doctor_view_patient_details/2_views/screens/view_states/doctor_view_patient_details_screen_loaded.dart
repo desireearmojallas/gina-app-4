@@ -16,6 +16,10 @@ class DoctorViewPatientDetailsScreenLoaded extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ginaTheme = Theme.of(context);
+
+    debugPrint(
+        'Patient consultation history from doctor view patient details screen: $completedAppointments');
+
     return ScrollbarCustom(
       child: Stack(
         children: [

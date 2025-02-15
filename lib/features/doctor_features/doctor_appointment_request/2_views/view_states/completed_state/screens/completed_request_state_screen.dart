@@ -41,6 +41,7 @@ class CompletedRequestStateScreen extends StatelessWidget {
                 builder: (context) => CompletedRequestDetailsScreenState(
                   appointment: state.appointment,
                   patientData: state.patientData,
+                  completedAppointments: state.completedAppointments,
                 ),
               ),
             ).then((value) => context
@@ -61,7 +62,7 @@ class CompletedRequestStateScreen extends StatelessWidget {
               child: Text(state.errorMessage),
             );
           } else if (state is CompletedRequestLoadingState) {
-            return const CustomLoadingIndicator();
+            return const Center(child: CustomLoadingIndicator());
           }
           return Container();
         },

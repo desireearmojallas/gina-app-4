@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,6 +12,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/widgets/face_to_face_widgets/doctor_consultation_face_to_face_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/widgets/doctor_consultation_menu.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/view_states/consultation_face_to_face_appointment_screen.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/view_states/consultation_no_appointment.dart';
@@ -50,6 +49,7 @@ class DoctorConsultationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final doctorConsultationBloc = context.read<DoctorConsultationBloc>();
+    final homeDashboardBloc = context.read<HomeDashboardBloc>();
     return BlocBuilder<DoctorConsultationBloc, DoctorConsultationState>(
       builder: (context, state) {
         return WillPopScope(
@@ -65,21 +65,7 @@ class DoctorConsultationScreen extends StatelessWidget {
             return true;
           },
           child: Scaffold(
-            // backgroundColor: Colors.white,
             appBar: state is NavigateToPatientDataState
-                // ? AppBar(
-                //     leading: IconButton(
-                //       icon: const Icon(Icons.arrow_back),
-                //       onPressed: () {
-                //         doctorConsultationBloc.add(
-                //           DoctorConsultationGetRequestedAppointmentEvent(
-                //             recipientUid: selectedPatientUid!,
-                //           ),
-                //         );
-                //       },
-                //     ),
-                //     title: const Text('Patient Details'),
-                //   )
                 ? null
                 : AppBar(
                     notificationPredicate: (notification) => false,
@@ -98,6 +84,8 @@ class DoctorConsultationScreen extends StatelessWidget {
                               'doctor_consultation_screen selectedPatientAppointment: $selectedPatientAppointment');
                           return DoctorConsultationMenu(
                             appointmentId: selectedPatientAppointment!,
+                            completedAppointments:
+                                completedAppointmentsForPatientDataMenu ?? [],
                           );
                         },
                       ),
@@ -224,17 +212,13 @@ class DoctorConsultationScreen extends StatelessWidget {
                         selectedPatientAppointmentModel ?? AppointmentModel(),
                   );
                 } else if (state is NavigateToPatientDataState) {
+                  completedAppointmentsForPatientDataMenu =
+                      state.patientAppointments;
                   return ViewPatientDataScreen(
                     patient: state.patientData,
                     patientAppointment: state.appointment,
                     patientAppointments: state.patientAppointments,
                   );
-                  // } else if (state is DoctorConsultationF2FSessionStartedState ||
-                  //     state is DoctorConsultationF2FSessionEndedState) {
-                  //   return DoctorConsultationFaceToFaceScreen(
-                  //     patientAppointment: selectedPatientAppointmentModel!,
-                  //     patientDetails: selectedPatientDetails!,
-                  //   );
                 }
                 return const Center(
                   child: CustomLoadingIndicator(),

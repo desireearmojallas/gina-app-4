@@ -32,6 +32,7 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
   final AppointmentModel pendingAppointment;
   final UserModel patientData;
   final Map<DateTime, List<AppointmentModel>> completedAppointmentsList;
+  final List<AppointmentModel> completedAppointments;
 
   const DoctorHomeScreenDashboardLoaded({
     super.key,
@@ -42,6 +43,7 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
     required this.pendingAppointment,
     required this.patientData,
     required this.completedAppointmentsList,
+    required this.completedAppointments,
   });
 
   @override
@@ -232,6 +234,7 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                         chatrooms: const [],
                         appointmentsBooked: const [],
                       ),
+                  completedAppointments: completedAppointments,
                 ),
                 const Gap(20),
                 PendingRequestsNavigationWidget(
@@ -251,6 +254,7 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                         chatrooms: const [],
                         appointmentsBooked: const [],
                       ),
+                  completedAppointments: completedAppointments,
                 ),
                 const Gap(30),
                 Align(

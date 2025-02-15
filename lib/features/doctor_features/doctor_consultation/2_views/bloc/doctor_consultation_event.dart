@@ -59,14 +59,20 @@ class CompleteDoctorConsultationButtonEvent extends DoctorConsultationEvent {
 class NavigateToPatientDataEvent extends DoctorConsultationEvent {
   final UserModel patientData;
   final AppointmentModel appointment;
+  final List<AppointmentModel> completedAppointments;
 
   const NavigateToPatientDataEvent({
     required this.patientData,
     required this.appointment,
+    required this.completedAppointments,
   });
 
   @override
-  List<Object> get props => [patientData, appointment];
+  List<Object> get props => [
+        patientData,
+        appointment,
+        completedAppointments,
+      ];
 }
 
 class DoctorConsultationCheckStatusEvent extends DoctorConsultationEvent {

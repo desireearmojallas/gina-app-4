@@ -27,7 +27,8 @@ class ViewPatientDataScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final ginaTheme = Theme.of(context);
 
-    debugPrint('Patient consultation history: $patientAppointments');
+    debugPrint(
+        'Patient consultation history from view patient data screen: $patientAppointments');
 
     return Scaffold(
       appBar: GinaDoctorAppBar(

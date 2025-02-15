@@ -385,6 +385,7 @@ Future<void> init() async {
     () => HomeDashboardBloc(
       doctorHomeDashboardController: sl(),
       doctorProfileController: sl(),
+      doctorAppointmentRequestController: sl(),
     ),
   );
 

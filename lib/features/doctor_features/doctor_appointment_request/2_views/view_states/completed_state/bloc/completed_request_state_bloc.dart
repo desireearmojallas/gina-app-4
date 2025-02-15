@@ -48,17 +48,31 @@ class CompletedRequestStateBloc
     final patientData = await doctorAppointmentRequestController.getPatientData(
         patientUid: event.appointment.patientUid!);
 
+    final completedAppointmentsResult = await doctorAppointmentRequestController
+        .getPatientCompletedAppointmentsWithCurrentDoctor(
+      patientUid: event.appointment.patientUid!,
+    );
+
     patientData.fold(
       (failure) {
         emit(GetCompletedRequestFailedState(errorMessage: failure.toString()));
       },
       (patientData) {
-        storedAppointment = event.appointment;
-        storedPatientData = patientData;
-        emit(NavigateToCompletedRequestDetailState(
-          appointment: event.appointment,
-          patientData: patientData,
-        ));
+        completedAppointmentsResult.fold(
+          (failure) {
+            emit(GetCompletedRequestFailedState(
+                errorMessage: failure.toString()));
+          },
+          (completedAppointments) {
+            storedAppointment = event.appointment;
+            storedPatientData = patientData;
+            emit(NavigateToCompletedRequestDetailState(
+              appointment: event.appointment,
+              patientData: patientData,
+              completedAppointments: completedAppointments,
+            ));
+          },
+        );
       },
     );
   }

@@ -14,6 +14,17 @@ class ConsultationHistoryPatientData extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
+    debugPrint('Completed Appointments: ${completedAppointments.length}');
+    for (var appointment in completedAppointments) {
+      debugPrint('Appointment ID: ${appointment.appointmentUid}');
+      debugPrint('Appointment Date: ${appointment.appointmentDate}');
+      debugPrint('Doctor UID: ${appointment.doctorUid}');
+      debugPrint('Doctor Name: ${appointment.doctorName}');
+      debugPrint('Appointment Time: ${appointment.appointmentTime}');
+      debugPrint('Mode of Appointment: ${appointment.modeOfAppointment}');
+      debugPrint('Appointment Status: ${appointment.appointmentStatus}');
+    }
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 50),
       child: Container(
