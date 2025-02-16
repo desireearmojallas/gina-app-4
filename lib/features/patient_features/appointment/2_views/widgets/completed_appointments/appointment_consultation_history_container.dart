@@ -10,9 +10,11 @@ import 'package:intl/intl.dart';
 
 class AppointmentConsultationHistoryContainer extends StatelessWidget {
   final AppointmentModel appointment;
+  final bool? isDoctor;
   const AppointmentConsultationHistoryContainer({
     super.key,
     required this.appointment,
+    this.isDoctor = false,
   });
 
   @override
@@ -50,10 +52,30 @@ class AppointmentConsultationHistoryContainer extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         HapticFeedback.mediumImpact();
-        appointmentBloc.add(NavigateToAppointmentDetailsEvent(
-          doctorUid: appointment.doctorUid!,
-          appointmentUid: appointment.appointmentUid!,
-        ));
+
+        // TODO: the changes would be if doctor, we will redirect to another screen, but if patient, this will happen.
+
+        isDoctor == true
+            ? {
+                debugPrint('isDoctor is true'),
+                null,
+              }
+
+            // Navigator.push(
+            //     context,
+            //     MaterialPageRoute(
+            //       builder: (context) => CompletedAppointmentDetailedScreenState(
+            //         appointment: appointment,
+            //         patientData: state.patientData!,
+            //         completedAppointments:
+            //             state.completedAppointmentsForPatientData,
+            //       ),
+            //     ),
+            //   )
+            : appointmentBloc.add(NavigateToAppointmentDetailsEvent(
+                doctorUid: appointment.doctorUid!,
+                appointmentUid: appointment.appointmentUid!,
+              ));
       },
       child: Column(
         children: [

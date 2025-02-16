@@ -138,20 +138,31 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
             },
             (images) async {
               storedPrescriptionImages = images;
-              emit(ConsultationHistoryState(
-                appointment: appointment,
-                doctorDetails: doctorInformation!,
-                currentPatient: currentActivePatient!,
-                prescriptionImages: images,
-              ));
+              if (doctorInformation != null && currentActivePatient != null) {
+                emit(ConsultationHistoryState(
+                  appointment: appointment,
+                  doctorDetails: doctorInformation!,
+                  currentPatient: currentActivePatient!,
+                  prescriptionImages: images,
+                ));
+              } else {
+                emit(const AppointmentDetailsError(
+                    errorMessage:
+                        'Doctor information or patient data is null'));
+              }
             },
           );
         } else {
-          emit(AppointmentDetailsState(
-            appointment: appointment,
-            doctorDetails: doctorInformation!,
-            currentPatient: currentActivePatient!,
-          ));
+          if (doctorInformation != null && currentActivePatient != null) {
+            emit(AppointmentDetailsState(
+              appointment: appointment,
+              doctorDetails: doctorInformation!,
+              currentPatient: currentActivePatient!,
+            ));
+          } else {
+            emit(const AppointmentDetailsError(
+                errorMessage: 'Doctor information or patient data is null'));
+          }
         }
       },
     );

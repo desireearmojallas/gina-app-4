@@ -45,6 +45,7 @@ class ConsultationHistoryPatientData extends StatelessWidget {
               final appointment = completedAppointments[index];
               return AppointmentConsultationHistoryContainer(
                 appointment: appointment,
+                isDoctor: true,
               );
             },
           ),

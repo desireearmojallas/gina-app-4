@@ -38,13 +38,22 @@ class ProfileController with ChangeNotifier {
 
   Future<Either<Exception, UserModel>> getPatientProfile() async {
     try {
+      if (currentUser == null) {
+        throw Exception('Current user is null');
+      }
+
       DocumentSnapshot<Map<String, dynamic>> userSnapshot =
           await FirebaseFirestore.instance
               .collection('patients')
               .doc(currentUser!.uid)
               .get();
 
-      UserModel userModel = UserModel.fromJson(userSnapshot.data()!);
+      final userData = userSnapshot.data();
+      if (userData == null) {
+        throw Exception('User data is null');
+      }
+
+      UserModel userModel = UserModel.fromJson(userData);
 
       return Right(userModel);
     } on FirebaseAuthException catch (e) {
@@ -53,6 +62,9 @@ class ProfileController with ChangeNotifier {
       error = e;
       notifyListeners();
       return Left(Exception(e.message));
+    } catch (e) {
+      debugPrint('Error fetching patient profile: $e');
+      return Left(Exception(e.toString()));
     }
   }
 

@@ -143,8 +143,6 @@ class CompletedAppointmentDetailScreenState extends StatelessWidget {
                                   ...appointments.map((appointment) {
                                     return GestureDetector(
                                       onTap: () {
-                                        bool eventTriggered = false;
-
                                         HapticFeedback.mediumImpact();
 
                                         // Store the patientUid in patientIdForPastAppointmentDetails
@@ -156,41 +154,42 @@ class CompletedAppointmentDetailScreenState extends StatelessWidget {
                                         // Trigger the HomeInitialEvent to fetch patient data
                                         homeDashboardBloc.add(HomeInitialEvent(
                                             selectedAppointment: appointment));
-                                        eventTriggered = true;
 
                                         // Delay to allow event to be processed
                                         Future.delayed(
                                             const Duration(seconds: 2), () {
-                                          if (!eventTriggered) {
-                                            // Fallback navigation in case the event triggering doesn't work
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    CompletedAppointmentDetailedScreenState(
-                                                  appointment: appointment,
-                                                  patientData:
-                                                      patientDataToUse ??
-                                                          UserModel(
-                                                            name: '',
-                                                            email: '',
-                                                            uid: '',
-                                                            gender: '',
-                                                            dateOfBirth: '',
-                                                            profileImage: '',
-                                                            headerImage: '',
-                                                            accountType: '',
-                                                            address: '',
-                                                            chatrooms: const [],
-                                                            appointmentsBooked: const [],
-                                                          ),
-                                                  completedAppointments:
-                                                      completedAppointmentsForPatientData ??
-                                                          [],
-                                                ),
-                                              ),
-                                            );
+                                          // Check if the navigation has already occurred
+                                          if (Navigator.canPop(context)) {
+                                            return;
                                           }
+
+                                          // Fallback navigation in case the event triggering doesn't work
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  CompletedAppointmentDetailedScreenState(
+                                                appointment: appointment,
+                                                patientData: patientDataToUse ??
+                                                    UserModel(
+                                                      name: '',
+                                                      email: '',
+                                                      uid: '',
+                                                      gender: '',
+                                                      dateOfBirth: '',
+                                                      profileImage: '',
+                                                      headerImage: '',
+                                                      accountType: '',
+                                                      address: '',
+                                                      chatrooms: const [],
+                                                      appointmentsBooked: const [],
+                                                    ),
+                                                completedAppointments:
+                                                    completedAppointmentsForPatientData ??
+                                                        [],
+                                              ),
+                                            ),
+                                          );
                                         });
                                       },
                                       child: Container(
