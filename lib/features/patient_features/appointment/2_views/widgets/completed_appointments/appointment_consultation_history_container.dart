@@ -53,8 +53,6 @@ class AppointmentConsultationHistoryContainer extends StatelessWidget {
       onTap: () {
         HapticFeedback.mediumImpact();
 
-        // TODO: the changes would be if doctor, we will redirect to another screen, but if patient, this will happen.
-
         isDoctor == true
             ? {
                 debugPrint('isDoctor is true'),

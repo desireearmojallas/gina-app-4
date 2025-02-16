@@ -14,6 +14,7 @@ class MyForumsBloc extends Bloc<MyForumsEvent, MyForumsState> {
     required this.myForumsController,
   }) : super(MyForumsInitial()) {
     on<GetMyForumsPostEvent>(getMyForumsPostEvent);
+    on<DeleteMyForumsPostEvent>(deleteMyForumsPost);
   }
 
   FutureOr<void> getMyForumsPostEvent(
@@ -30,6 +31,33 @@ class MyForumsBloc extends Bloc<MyForumsEvent, MyForumsState> {
         emit(MyForumsLoadedState(
           myForumsPosts: myForumsPost,
         ));
+      },
+    );
+  }
+
+  FutureOr<void> deleteMyForumsPost(
+      DeleteMyForumsPostEvent event, Emitter<MyForumsState> emit) async {
+    final deleteMyForumsPost =
+        await myForumsController.deleteMyForumsPost(event.forumUid);
+
+    await deleteMyForumsPost.fold(
+      (failure) async {
+        emit(MyForumsErrorState(message: failure.toString()));
+      },
+      (success) async {
+        final getMyForumsPost =
+            await myForumsController.getListOfMyForumsPost();
+
+        await getMyForumsPost.fold(
+          (failure) async {
+            emit(MyForumsErrorState(message: failure.toString()));
+          },
+          (myForumsPost) async {
+            emit(MyForumsLoadedState(
+              myForumsPosts: myForumsPost,
+            ));
+          },
+        );
       },
     );
   }

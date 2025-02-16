@@ -98,50 +98,45 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    BlocBuilder<DoctorConsultationFeeBloc,
+                    BlocListener<DoctorConsultationFeeBloc,
                         DoctorConsultationFeeState>(
-                      builder: (context, state) {
+                      listener: (context, state) {
                         if (state is NavigateToEditDoctorConsultationFeeState) {
-                          Future.microtask(() {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Scaffold(
-                                  appBar: GinaDoctorAppBar(
-                                    title: 'Edit Consultation Fees',
-                                  ),
-                                  body: EditDoctorConsultationFeeScreenLoaded(
-                                    doctorData: state.doctorData,
-                                    isFromDashboard: true,
-                                  ),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Scaffold(
+                                appBar: GinaDoctorAppBar(
+                                  title: 'Edit Consultation Fees',
+                                ),
+                                body: EditDoctorConsultationFeeScreenLoaded(
+                                  doctorData: state.doctorData,
+                                  isFromDashboard: true,
                                 ),
                               ),
-                            );
-                          });
+                            ),
+                          );
                         }
-
-                        return WidgetNavigationCards(
-                          widgetText: 'Edit Consultation\nFees',
-                          icon: Icons.paid,
-                          onPressed: () async {
-                            if (canVibrate == true) {
-                              await Haptics.vibrate(HapticsType.selection);
-                            }
-
-                            if (context.mounted) {
-                              context.read<DoctorConsultationFeeBloc>().add(
-                                  NavigateToEditDoctorConsultationFeeEvent());
-                            }
-                          },
-                        );
                       },
+                      child: WidgetNavigationCards(
+                        widgetText: 'Edit Consultation\nFees',
+                        icon: Icons.paid,
+                        onPressed: () async {
+                          if (canVibrate == true) {
+                            await Haptics.vibrate(HapticsType.selection);
+                          }
+
+                          if (context.mounted) {
+                            context.read<DoctorConsultationFeeBloc>().add(
+                                NavigateToEditDoctorConsultationFeeEvent());
+                          }
+                        },
+                      ),
                     ),
                     WidgetNavigationCards(
                       widgetText: 'Create Emergency\nAnnouncement',
                       icon: MingCute.report_fill,
                       onPressed: () async {
-                        // Trigger haptic feedback
-                        // final canVibrate = await Haptics.canVibrate();
                         if (canVibrate == true) {
                           await Haptics.vibrate(HapticsType.selection);
                         }

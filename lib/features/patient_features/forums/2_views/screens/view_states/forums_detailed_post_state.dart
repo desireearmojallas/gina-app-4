@@ -13,6 +13,8 @@ import 'package:gina_app_4/features/patient_features/forums/0_models/forums_mode
 import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/widgets/forum_header.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/widgets/main_detailed_post_container.dart';
+import 'package:gina_app_4/features/patient_features/my_forums/2_views/bloc/my_forums_bloc.dart';
+import 'package:gina_app_4/features/patient_features/my_forums/2_views/screens/my_forums_post_screen.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class ForumsDetailedPostState extends StatelessWidget {
@@ -36,6 +38,7 @@ class ForumsDetailedPostState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final forumsBloc = context.read<ForumsBloc>();
+    final myForumsBloc = context.read<MyForumsBloc>();
     final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -69,7 +72,35 @@ class ForumsDetailedPostState extends StatelessWidget {
                               forumPost: forumPost,
                               doctorRatingId: doctorRatingId,
                             ),
+                            const Gap(20),
+
+                            //delete icon
+
+                            IconButton(
+                              padding: const EdgeInsets.all(10),
+                              onPressed: () {
+                                _showDeleteConfirmationDialog(
+                                  context,
+                                  myForumsBloc,
+                                );
+                              },
+                              icon: const Icon(
+                                Icons.delete,
+                                color: GinaAppTheme.lightOnPrimaryColor,
+                              ),
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                    GinaAppTheme.appbarColorLight
+                                        .withOpacity(0.5)),
+                                shape: MaterialStateProperty.all(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                              ),
+                            ),
                             const Gap(10),
+
                             Align(
                               alignment: Alignment.centerLeft,
                               child: Padding(
@@ -214,6 +245,51 @@ class ForumsDetailedPostState extends StatelessWidget {
                 ),
         ],
       ),
+    );
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context, MyForumsBloc bloc) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content:
+              const Text('Are you sure you want to delete this announcement?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel',
+                  style: TextStyle(color: GinaAppTheme.lightOutline)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FilledButton(
+              onPressed: () {
+                bloc.add(
+                  DeleteMyForumsPostEvent(
+                    forumUid: forumPost.postId,
+                  ),
+                );
+                bloc.add(GetMyForumsPostEvent());
+
+                Navigator.of(context).pop();
+              },
+              style: ButtonStyle(
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                backgroundColor: MaterialStateProperty.all(
+                  GinaAppTheme.lightTertiaryContainer,
+                ),
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

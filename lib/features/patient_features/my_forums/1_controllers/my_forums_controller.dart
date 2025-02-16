@@ -45,4 +45,17 @@ class MyForumsController with ChangeNotifier {
       return Left(Exception(e.message));
     }
   }
+
+  Future<Either<Exception, bool>> deleteMyForumsPost(String postId) async {
+    try {
+      await firestore.collection('forums').doc(postId).delete();
+      return const Right(true);
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException code: ${e.code}');
+      error = e;
+      notifyListeners();
+      return Left(Exception(e.message));
+    }
+  }
 }
