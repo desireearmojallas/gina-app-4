@@ -10,3 +10,5 @@ abstract class DoctorDetailsEvent extends Equatable {
 class DoctorDetailsFetchRequestedEvent extends DoctorDetailsEvent {}
 
 class DoctorDetailsNavigateToConsultationEvent extends DoctorDetailsEvent {}
+
+class NavigateToDoctorOfficeAddressMapViewEvent extends DoctorDetailsEvent {}

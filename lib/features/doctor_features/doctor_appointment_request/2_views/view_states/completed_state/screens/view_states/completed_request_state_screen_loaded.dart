@@ -39,7 +39,7 @@ class CompletedRequestStateScreenLoaded extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'No approved requests',
+                      'No completed appointments',
                       style: ginaTheme.textTheme.titleSmall?.copyWith(
                         color: GinaAppTheme.lightOutline,
                       ),

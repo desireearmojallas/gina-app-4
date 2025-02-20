@@ -46,7 +46,7 @@ class CreatePostTextFields extends StatelessWidget {
                     ? 3
                     : (MediaQuery.of(context).size.height / 50).floor(),
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontSize: isTitle ? 18.0 : 12.0,
+                      fontSize: isTitle ? 18.0 : 14.0,
                       fontWeight: isTitle ? FontWeight.bold : FontWeight.w500,
                     ),
                 textCapitalization: TextCapitalization.sentences,

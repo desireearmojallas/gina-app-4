@@ -72,6 +72,8 @@ class DoctorViewPatientsController with ChangeNotifier {
         }
       }
 
+      filteredPatients.sort((a, b) => a.name.compareTo(b.name));
+
       return Right(filteredPatients);
     } on FirebaseAuthException catch (e) {
       debugPrint('FirebaseAuthException: ${e.message}');

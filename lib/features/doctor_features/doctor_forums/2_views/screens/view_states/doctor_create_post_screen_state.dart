@@ -4,11 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
 import 'package:gina_app_4/core/reusable_widgets/gina_divider.dart';
-import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/bloc/doctor_forums_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/widgets/doctor_create_post_textfields.dart';
+import 'package:gina_app_4/features/patient_features/forums/2_views/widgets/posted_confirmation_dialog.dart';
 
 class CreateDoctorPostScreenState extends StatelessWidget {
   CreateDoctorPostScreenState({super.key});
@@ -60,7 +60,16 @@ class CreateDoctorPostScreenState extends StatelessWidget {
                           buildWhen: (previous, current) =>
                               current is! DoctorForumsActionState,
                           listener: (context, state) {
-                            // TODO: implement listener
+                            if (state is CreateDoctorForumsPostSuccessState) {
+                              debugPrint('Post created successfully');
+                              postedConfirmationDialog(context, 'Posted', false)
+                                  .then((_) {
+                                Navigator.pop(context);
+                              });
+                            } else if (state
+                                is CreateDoctorForumsPostFailedState) {
+                              debugPrint('Failed to create post');
+                            }
                           },
                           builder: (context, state) {
                             return Row(
@@ -136,7 +145,7 @@ class CreateDoctorPostScreenState extends StatelessWidget {
                                             postedAt: Timestamp.now(),
                                           ),
                                         );
-                                        Navigator.pop(context);
+                                        // Navigator.pop(context);
                                       }
                                     },
                                     child: const Text(

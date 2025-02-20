@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/0_models/forums_model.dart';
 import 'package:gina_app_4/features/patient_features/my_forums/1_controllers/my_forums_controller.dart';
@@ -28,9 +30,14 @@ class MyForumsBloc extends Bloc<MyForumsEvent, MyForumsState> {
         emit(MyForumsErrorState(message: failure.toString()));
       },
       (myForumsPost) {
-        emit(MyForumsLoadedState(
-          myForumsPosts: myForumsPost,
-        ));
+        if (myForumsPost.isEmpty) {
+          emit(MyForumsEmptyState());
+        } else {
+          emit(MyForumsLoadedState(
+            myForumsPosts: myForumsPost,
+            currentUser: myForumsController.currentUser!,
+          ));
+        }
       },
     );
   }
@@ -45,6 +52,8 @@ class MyForumsBloc extends Bloc<MyForumsEvent, MyForumsState> {
         emit(MyForumsErrorState(message: failure.toString()));
       },
       (success) async {
+        debugPrint('Deleted forum post successfully');
+        emit(DeleteMyForumsPostSuccessState());
         final getMyForumsPost =
             await myForumsController.getListOfMyForumsPost();
 
@@ -55,6 +64,7 @@ class MyForumsBloc extends Bloc<MyForumsEvent, MyForumsState> {
           (myForumsPost) async {
             emit(MyForumsLoadedState(
               myForumsPosts: myForumsPost,
+              currentUser: myForumsController.currentUser!,
             ));
           },
         );

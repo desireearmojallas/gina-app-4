@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/1_controllers/appointment_controller.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 
@@ -16,6 +17,8 @@ class DoctorDetailsBloc extends Bloc<DoctorDetailsEvent, DoctorDetailsState> {
     on<DoctorDetailsFetchRequestedEvent>(doctorDetailsFetchRequestedEvent);
     on<DoctorDetailsNavigateToConsultationEvent>(
         doctorDetailsNavigateToConsultationEvent);
+    on<NavigateToDoctorOfficeAddressMapViewEvent>(
+        navigateToDoctorOfficeAddressMapView);
   }
 
   FutureOr<void> doctorDetailsFetchRequestedEvent(
@@ -38,5 +41,11 @@ class DoctorDetailsBloc extends Bloc<DoctorDetailsEvent, DoctorDetailsState> {
       DoctorDetailsNavigateToConsultationEvent event,
       Emitter<DoctorDetailsState> emit) {
     emit(DoctorDetailsNavigateToConsultationState());
+  }
+
+  FutureOr<void> navigateToDoctorOfficeAddressMapView(
+      NavigateToDoctorOfficeAddressMapViewEvent event,
+      Emitter<DoctorDetailsState> emit) {
+    emit(DoctorOfficeAddressMapViewState());
   }
 }

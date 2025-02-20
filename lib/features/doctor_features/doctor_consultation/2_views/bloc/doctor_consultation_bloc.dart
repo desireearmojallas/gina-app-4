@@ -93,6 +93,8 @@ class DoctorConsultationBloc
             chatRoomId: chatRoomId!, recipientUid: event.recipientUid));
       } else if (checkAppointmentForOnlineConsultation ==
           'appointmentNotStartedYet') {
+        isChatWaiting = true;
+        isAppointmentFinished = false;
         debugPrint(
             'checkAppointmentForOnlineConsultation == appointmentIsNotStartedYet');
         emit(DoctorConsultationWaitingForAppointmentState(
@@ -132,6 +134,8 @@ class DoctorConsultationBloc
             chatRoomId: chatRoomId!, recipientUid: event.recipientUid));
       } else if (checkAppointmentForOnlineConsultation ==
           'faceToFaceAppointment') {
+        isChatWaiting = true;
+        isAppointmentFinished = false;
         debugPrint(
             'checkAppointmentForOnlineConsultation == faceToFaceAppointment');
         final patientDetailsResult = await doctorAppointmentRequestController

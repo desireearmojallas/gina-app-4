@@ -30,6 +30,8 @@ class DoctorDetailsScreenLoaded extends StatelessWidget {
     final doctorAvailabilityBloc = context.read<DoctorAvailabilityBloc>();
     final appointmentsBloc = context.read<AppointmentBloc>();
 
+    debugPrint('Doctor details screen loaded: $appointment');
+
     return BlocProvider(
       create: (context) => sl<DoctorAvailabilityBloc>()
         ..add(GetDoctorAvailabilityEvent(doctorId: doctor.uid)),
@@ -147,6 +149,7 @@ class DoctorDetailsScreenLoaded extends StatelessWidget {
                                 DetailsContainerNavigation(
                                   icon: Icons.date_range,
                                   containerLabel: 'Appointment\nDetails',
+                                  isNull: appointment.appointmentUid == null,
                                   onTap: () {
                                     HapticFeedback.mediumImpact;
 

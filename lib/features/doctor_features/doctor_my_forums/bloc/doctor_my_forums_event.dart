@@ -8,3 +8,12 @@ abstract class DoctorMyForumsEvent extends Equatable {
 }
 
 class GetMyDoctorForumsPostEvent extends DoctorMyForumsEvent {}
+
+class DeleteMyForumsPostEvent extends DoctorMyForumsEvent {
+  final String forumUid;
+
+  const DeleteMyForumsPostEvent({required this.forumUid});
+
+  @override
+  List<Object> get props => [forumUid];
+}

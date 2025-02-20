@@ -29,15 +29,15 @@ class FindNavigateToPatientDetailsState extends DoctorViewPatientsActionState {
 }
 
 class GetPatientListSuccessState extends DoctorViewPatientsState {
-  final List<UserModel> patientsAppointmentperiod;
+  final List<UserModel> patientsAppointmentPeriod;
   final List<AppointmentModel> patientAppointmentList;
 
   const GetPatientListSuccessState(
-      {required this.patientsAppointmentperiod,
+      {required this.patientsAppointmentPeriod,
       required this.patientAppointmentList});
 
   @override
-  List<Object> get props => [patientsAppointmentperiod, patientAppointmentList];
+  List<Object> get props => [patientsAppointmentPeriod, patientAppointmentList];
 }
 
 class GetPatientListFailedState extends DoctorViewPatientsState {

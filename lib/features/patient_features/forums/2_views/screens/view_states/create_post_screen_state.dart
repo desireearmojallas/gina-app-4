@@ -7,6 +7,7 @@ import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/gina_p
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/widgets/create_post_textfields.dart';
+import 'package:gina_app_4/features/patient_features/forums/2_views/widgets/posted_confirmation_dialog.dart';
 
 class CreatePostScreenState extends StatelessWidget {
   CreatePostScreenState({super.key});
@@ -51,7 +52,15 @@ class CreatePostScreenState extends StatelessWidget {
                 listenWhen: (previous, current) => current is ForumsActionState,
                 buildWhen: (previous, current) => current is! ForumsActionState,
                 listener: (context, state) {
-                  // TODO: Implement listener if needed
+                  if (state is CreateForumsPostSuccessState) {
+                    debugPrint('Post created successfully');
+                    postedConfirmationDialog(context, 'Posted', false)
+                        .then((_) {
+                      Navigator.pop(context);
+                    });
+                  } else if (state is CreateForumsPostFailedState) {
+                    debugPrint('Failed to create post');
+                  }
                 },
                 builder: (context, state) {
                   return Row(
@@ -118,7 +127,6 @@ class CreatePostScreenState extends StatelessWidget {
                                   postedAt: Timestamp.now(),
                                 ),
                               );
-                              Navigator.pop(context);
                             }
                           },
                           child: const Text(

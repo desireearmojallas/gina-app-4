@@ -1,5 +1,6 @@
 // ignore_for_file: must_be_immutable
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
@@ -14,7 +15,6 @@ import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_
 import 'package:gina_app_4/features/patient_features/forums/2_views/widgets/forum_header.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/widgets/main_detailed_post_container.dart';
 import 'package:gina_app_4/features/patient_features/my_forums/2_views/bloc/my_forums_bloc.dart';
-import 'package:gina_app_4/features/patient_features/my_forums/2_views/screens/my_forums_post_screen.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class ForumsDetailedPostState extends StatelessWidget {
@@ -24,6 +24,7 @@ class ForumsDetailedPostState extends StatelessWidget {
   bool? useCustomAppBar;
   bool? isDoctor;
   bool? isFromMyForums;
+  User? currentUser;
 
   ForumsDetailedPostState({
     super.key,
@@ -33,6 +34,7 @@ class ForumsDetailedPostState extends StatelessWidget {
     this.useCustomAppBar = false,
     this.isDoctor,
     this.isFromMyForums = false,
+    this.currentUser,
   });
 
   @override
@@ -40,6 +42,8 @@ class ForumsDetailedPostState extends StatelessWidget {
     final forumsBloc = context.read<ForumsBloc>();
     final myForumsBloc = context.read<MyForumsBloc>();
     final width = MediaQuery.of(context).size.width;
+
+    debugPrint('Forum Post current user id: ${currentUser?.uid}');
 
     return Scaffold(
       appBar: useCustomAppBar == true
@@ -76,29 +80,31 @@ class ForumsDetailedPostState extends StatelessWidget {
 
                             //delete icon
 
-                            IconButton(
-                              padding: const EdgeInsets.all(10),
-                              onPressed: () {
-                                _showDeleteConfirmationDialog(
-                                  context,
-                                  myForumsBloc,
-                                );
-                              },
-                              icon: const Icon(
-                                Icons.delete,
-                                color: GinaAppTheme.lightOnPrimaryColor,
-                              ),
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    GinaAppTheme.appbarColorLight
-                                        .withOpacity(0.5)),
-                                shape: MaterialStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                            if (forumPost.posterUid == currentUser?.uid)
+                              IconButton(
+                                padding: const EdgeInsets.all(10),
+                                onPressed: () {
+                                  _showDeleteConfirmationDialog(
+                                    context,
+                                    myForumsBloc,
+                                    forumsBloc,
+                                  );
+                                },
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: GinaAppTheme.lightOnPrimaryColor,
+                                ),
+                                style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.all(
+                                      GinaAppTheme.appbarColorLight
+                                          .withOpacity(0.5)),
+                                  shape: MaterialStateProperty.all(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
                             const Gap(10),
 
                             Align(
@@ -248,7 +254,8 @@ class ForumsDetailedPostState extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmationDialog(BuildContext context, MyForumsBloc bloc) {
+  void _showDeleteConfirmationDialog(
+      BuildContext context, MyForumsBloc bloc, ForumsBloc forumsBloc) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -271,9 +278,26 @@ class ForumsDetailedPostState extends StatelessWidget {
                     forumUid: forumPost.postId,
                   ),
                 );
-                bloc.add(GetMyForumsPostEvent());
 
-                Navigator.of(context).pop();
+                debugPrint('isFromMyForums $isFromMyForums');
+
+                bloc.stream
+                    .firstWhere(
+                        (state) => state is DeleteMyForumsPostSuccessState)
+                    .then((_) {
+                  Navigator.of(context).pop(); // Close confirmation dialog
+
+                  if (isFromMyForums == true) {
+                    Navigator.of(context).pop(); // Close detailed post screen
+                    debugPrint('Fetching updated my forums posts...');
+                    bloc.add(GetMyForumsPostEvent());
+                    Navigator.of(context).pushReplacementNamed('/myForumsPost');
+                  } else {
+                    forumsBloc.add(ForumsFetchRequestedEvent());
+                  }
+                }).catchError((error) {
+                  debugPrint('Error deleting post: $error');
+                });
               },
               style: ButtonStyle(
                 shape: MaterialStateProperty.all(

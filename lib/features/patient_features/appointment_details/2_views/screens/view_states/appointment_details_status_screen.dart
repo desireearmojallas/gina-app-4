@@ -225,7 +225,7 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                     appointment.appointmentStatus ==
                         AppointmentStatus.confirmed.index
                 ? Positioned(
-                    bottom: 105.0,
+                    bottom: 175.0,
                     right: 70.0,
                     child: Material(
                       color: Colors.transparent,

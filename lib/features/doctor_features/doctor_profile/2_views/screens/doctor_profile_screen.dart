@@ -47,7 +47,7 @@ class DoctorProfileScreen extends StatelessWidget {
                 current is! DoctorProfileActionState,
             listener: (context, state) {
               if (state is DoctorProfileNavigateToMyForumsPostState) {
-                Navigator.pushNamed(context, '/dotorMyForumPosts')
+                Navigator.pushNamed(context, '/doctorMyForumPosts')
                     .then((value) => profileBloc.add(GetDoctorProfileEvent()));
               }
             },

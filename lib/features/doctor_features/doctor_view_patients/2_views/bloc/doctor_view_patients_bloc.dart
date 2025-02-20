@@ -48,7 +48,7 @@ class DoctorViewPatientsBloc
       listOfPatients = patients;
 
       emit(GetPatientListSuccessState(
-          patientsAppointmentperiod: listOfPatients!,
+          patientsAppointmentPeriod: listOfPatients!,
           patientAppointmentList: listOfPatientAppointment!));
     });
   }

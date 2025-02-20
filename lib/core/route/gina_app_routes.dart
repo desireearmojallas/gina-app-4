@@ -79,7 +79,7 @@ Map<String, WidgetBuilder> ginaAppRoutes() {
     '/doctorForumsCreatePost': (context) => CreateDoctorPostScreenState(),
     '/doctorForumBadge': (context) => const DoctorForumBadgeScreenProvider(),
     '/doctorForumsPost': (context) => const DoctorForumsScreenProvider(),
-    '/dotorMyForumPosts': (context) => const DoctorMyForumsScreenProvider(),
+    '/doctorMyForumPosts': (context) => const DoctorMyForumsScreenProvider(),
     '/reviewCreatedSchedule': (context) => const DoctorReviewScheduleScreen(),
     '/doctorConsultationFee': (context) =>
         const DoctorConsultationFeeScreenProvider(),

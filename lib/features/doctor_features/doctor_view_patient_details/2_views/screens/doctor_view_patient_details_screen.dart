@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
+import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patient_details/2_views/bloc/doctor_view_patient_details_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patient_details/2_views/screens/view_states/doctor_view_patient_details_screen_loaded.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patients/2_views/bloc/doctor_view_patients_bloc.dart';
@@ -45,8 +46,22 @@ class DoctorViewPatientDetailsScreen extends StatelessWidget {
           } else if (state is DoctorViewPatientDetailsInitial) {
             return DoctorViewPatientDetailsScreenLoaded(
               //TODO: edit this later
-              // patient: patient!,
-              completedAppointments: patientAppointments!,
+              //! buggy there is nothing here
+              patient: patient ??
+                  UserModel(
+                    name: '',
+                    email: '',
+                    uid: '',
+                    gender: '',
+                    dateOfBirth: '',
+                    profileImage: '',
+                    headerImage: '',
+                    accountType: '',
+                    address: '',
+                    chatrooms: const [],
+                    appointmentsBooked: const [],
+                  ),
+              completedAppointments: patientAppointments ?? [],
               // patientPeriods: patientPeriods!,
             );
           }

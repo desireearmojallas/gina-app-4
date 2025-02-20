@@ -11,9 +11,9 @@ import 'package:badges/badges.dart' as badges;
 import 'package:icons_plus/icons_plus.dart';
 
 class FloatingDoctorMenuWidget extends StatelessWidget {
-  bool?
+  final bool?
       hasNotification; //TODO: TO CHANGE THIS, ADD LOGIC TO NOTIFICATION INDICATOR FOR AVATAR MENU BUTTON
-  FloatingDoctorMenuWidget({super.key, this.hasNotification});
+  const FloatingDoctorMenuWidget({super.key, this.hasNotification});
 
   @override
   Widget build(BuildContext context) {

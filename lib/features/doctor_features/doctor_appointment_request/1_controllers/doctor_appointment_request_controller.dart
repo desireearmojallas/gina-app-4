@@ -362,6 +362,7 @@ class DoctorAppointmentRequestController with ChangeNotifier {
   }
 
   //---------- Get Patient Completed Appointments with Current Doctor -----------
+  //! Changed this to all appointments with the current doctor
 
   Future<Either<Exception, List<AppointmentModel>>>
       getPatientCompletedAppointmentsWithCurrentDoctor({
@@ -375,8 +376,8 @@ class DoctorAppointmentRequestController with ChangeNotifier {
           .collection('appointments')
           .where('patientUid', isEqualTo: patientUid)
           .where('doctorUid', isEqualTo: currentUser!.uid)
-          .where('appointmentStatus',
-              isEqualTo: AppointmentStatus.completed.index)
+          // .where('appointmentStatus',
+          //     isEqualTo: AppointmentStatus.completed.index)
           .get();
 
       debugPrint(
