@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,7 +13,6 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/bloc/doctor_forums_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/widgets/main_detailed_post_container.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_my_forums/bloc/doctor_my_forums_bloc.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_my_forums/screens/doctor_my_forums_screen.dart';
 import 'package:gina_app_4/features/patient_features/forums/0_models/forums_model.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/widgets/forum_header.dart';
 import 'package:icons_plus/icons_plus.dart';
