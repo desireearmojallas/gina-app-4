@@ -1,0 +1,288 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/resources/images.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
+import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/dependencies_injection.dart';
+import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/1_controllers/appointment_controller.dart';
+import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/floating_container_for_ongoing_appt/bloc/floating_container_for_ongoing_appt_bloc.dart';
+import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
+import 'package:intl/intl.dart';
+
+class FloatingContainerForOnGoingAppointmentProvider extends StatelessWidget {
+  const FloatingContainerForOnGoingAppointmentProvider({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<FloatingContainerForOngoingApptBloc>(
+      create: (context) => sl<FloatingContainerForOngoingApptBloc>()
+        ..add(
+            CheckOngoingAppointments()), // Trigger the check for ongoing appointments
+      child: const FloatingContainerForOnGoingAppointment(),
+    );
+  }
+}
+
+class FloatingContainerForOnGoingAppointment extends StatelessWidget {
+  const FloatingContainerForOnGoingAppointment({super.key});
+
+  Future<void> _handleAppointmentTap(
+      BuildContext context,
+      AppointmentModel appointment,
+      AppointmentController appointmentController,
+      AppointmentBloc appointmentsBloc) async {
+    HapticFeedback.mediumImpact();
+
+    final appointmentUid = appointment.appointmentUid;
+    final doctorUid = appointment.doctorUid;
+
+    if (appointmentUid != null) {
+      debugPrint('Fetching appointment details for UID: $appointmentUid');
+      final appointmentDetails =
+          await appointmentController.getAppointmentDetailsNew(appointmentUid);
+      if (appointmentDetails != null) {
+        final DateFormat dateFormat = DateFormat('MMMM d, yyyy');
+        final DateFormat timeFormat = DateFormat('hh:mm a');
+        final DateTime now = DateTime.now();
+
+        final DateTime appointmentDate =
+            dateFormat.parse(appointmentDetails.appointmentDate!.trim());
+        final List<String> times =
+            appointmentDetails.appointmentTime!.split(' - ');
+        final DateTime endTime = timeFormat.parse(times[1].trim());
+
+        final DateTime appointmentEndDateTime = DateTime(
+          appointmentDate.year,
+          appointmentDate.month,
+          appointmentDate.day,
+          endTime.hour,
+          endTime.minute,
+        );
+
+        debugPrint('Current time: $now');
+        debugPrint('Appointment end time: $appointmentEndDateTime');
+
+        if (now.isBefore(appointmentEndDateTime)) {
+          debugPrint('Marking appointment as visited for UID: $appointmentUid');
+          await appointmentController
+              .markAsVisitedConsultationRoom(appointmentUid);
+        } else {
+          debugPrint('Appointment has already ended.');
+        }
+      } else {
+        debugPrint('Appointment not found.');
+      }
+    } else {
+      debugPrint('Appointment UID is null.');
+    }
+
+    if (doctorUid != null) {
+      final getDoctorDetailsResult =
+          await appointmentController.getDoctorDetail(
+        doctorUid: doctorUid,
+      );
+
+      getDoctorDetailsResult.fold(
+        (failure) {
+          debugPrint('Failed to fetch doctor details: $failure');
+        },
+        (doctorDetailsData) {
+          doctorDetails = doctorDetailsData;
+        },
+      );
+    } else {
+      debugPrint('Doctor UID is null.');
+    }
+
+    isFromConsultationHistory = false;
+    if (context.mounted) {
+      Navigator.pushNamed(
+        context,
+        '/consultation',
+        arguments: {
+          'doctorDetails': doctorDetails,
+          'appointment': appointment,
+        },
+      ).then((_) {
+        Navigator.pushNamed(
+          context,
+          '/bottomNavigation',
+          arguments: {
+            'initialIndex': 2,
+            'appointmentTabIndex': 3,
+          },
+        );
+      });
+    }
+  }
+
+  bool isToday(String appointmentDate) {
+    final DateFormat dateFormat = DateFormat('MMMM d, yyyy');
+    final DateTime date = dateFormat.parse(appointmentDate.trim());
+    final DateTime today = DateTime.now();
+    return date.year == today.year &&
+        date.month == today.month &&
+        date.day == today.day;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final appointmentsBloc = context.read<AppointmentBloc>();
+    final AppointmentController appointmentController = AppointmentController();
+
+    return BlocBuilder<FloatingContainerForOngoingApptBloc,
+        FloatingContainerForOngoingApptState>(
+      builder: (context, state) {
+        if (state is FloatingContainerForOngoingApptLoading) {
+          return const Center(child: CustomLoadingIndicator());
+        } else if (state is NoOngoingAppointments) {
+          return const SizedBox();
+        } else if (state is OngoingAppointmentFound) {
+          final appointment = state.ongoingAppointment;
+
+          return Stack(
+            children: [
+              Positioned(
+                bottom: 98,
+                left: 20,
+                right: 20,
+                child: GestureDetector(
+                  onTap: () => _handleAppointmentTap(context, appointment,
+                      appointmentController, appointmentsBloc),
+                  child: Container(
+                    width: size.width * 0.5,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(40),
+                      color: Colors.white.withOpacity(0.9),
+                      boxShadow: [
+                        BoxShadow(
+                          color: GinaAppTheme.lightOutline.withOpacity(0.2),
+                          blurRadius: 8,
+                          spreadRadius: 3,
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10.0,
+                        vertical: 5.0,
+                      ),
+                      child: Row(
+                        children: [
+                          Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Positioned(
+                                left: 35,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white.withOpacity(0.9),
+                                      width: 3.0,
+                                    ),
+                                  ),
+                                  child: CircleAvatar(
+                                    radius: 20,
+                                    backgroundColor: Colors.transparent,
+                                    foregroundImage:
+                                        AssetImage(Images.patientProfileIcon),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.9),
+                                    width: 3.0,
+                                  ),
+                                ),
+                                child: CircleAvatar(
+                                  radius: 20,
+                                  backgroundColor: Colors.transparent,
+                                  foregroundImage:
+                                      AssetImage(Images.doctorProfileIcon1),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Gap(45),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: size.width * 0.5,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      appointment.modeOfAppointment == 0
+                                          ? 'Ongoing Online Consultation'
+                                          : 'Ongoing Face-to-Face Consultation',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      'with Dr. ${appointment.doctorName}',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Gap(2),
+                              SizedBox(
+                                width: size.width * 0.5,
+                                child: Text(
+                                  isToday(appointment.appointmentDate!)
+                                      ? 'Today • ${appointment.appointmentTime}'
+                                      : '${appointment.appointmentDate} • ${appointment.appointmentTime}',
+                                  style: const TextStyle(
+                                    fontSize: 9,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          IconButton(
+                            onPressed: () => _handleAppointmentTap(
+                                context,
+                                appointment,
+                                appointmentController,
+                                appointmentsBloc),
+                            icon: const Icon(Icons.arrow_forward_ios),
+                            iconSize: 15,
+                            color: Colors.grey,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        } else if (state is OngoingAppointmentError) {
+          return const Center(
+              child: Text('Error loading ongoing appointments'));
+        }
+
+        // Default fallback
+        return const SizedBox();
+      },
+    );
+  }
+}

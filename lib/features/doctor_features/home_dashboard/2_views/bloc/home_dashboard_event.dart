@@ -7,6 +7,13 @@ sealed class HomeDashboardEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class HomeInitialEvent extends HomeDashboardEvent {}
+class HomeInitialEvent extends HomeDashboardEvent {
+  final AppointmentModel? selectedAppointment;
+
+  const HomeInitialEvent({this.selectedAppointment});
+
+  @override
+  List<Object> get props => [selectedAppointment!];
+}
 
 class GetDoctorNameEvent extends HomeDashboardEvent {}

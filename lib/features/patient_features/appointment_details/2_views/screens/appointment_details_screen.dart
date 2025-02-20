@@ -11,9 +11,11 @@ import 'package:gina_app_4/features/patient_features/appointment_details/2_views
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/screens/view_states/appointment_details_status_screen.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/screens/view_states/review_rescheduled_appointment.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/cancel_appointment_widgets/cancellation_success_modal.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/1_controllers/appointment_controller.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:intl/intl.dart';
 
 class AppointmentDetailsScreenProvider extends StatelessWidget {
   const AppointmentDetailsScreenProvider({super.key});
@@ -39,6 +41,8 @@ class AppointmentDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppointmentController appointmentController =
+        sl<AppointmentController>();
     return Scaffold(
       appBar: GinaPatientAppBar(
         title: 'Appointment Details',
@@ -56,9 +60,55 @@ class AppointmentDetailsScreen extends StatelessWidget {
         builder: (context, state) {
           if (state is AppointmentDetailsStatusState) {
             return FloatingActionButton(
-              onPressed: () {
+              onPressed: () async {
+                debugPrint('FloatingActionButton pressed');
+                final appointmentUid = state.appointment.appointmentUid;
+                if (appointmentUid != null) {
+                  debugPrint(
+                      'Fetching appointment details for UID: $appointmentUid');
+                  final appointment = await appointmentController
+                      .getAppointmentDetailsNew(appointmentUid);
+                  if (appointment != null) {
+                    final DateFormat dateFormat = DateFormat('MMMM d, yyyy');
+                    final DateFormat timeFormat = DateFormat('hh:mm a');
+                    final DateTime now = DateTime.now();
+
+                    final DateTime appointmentDate =
+                        dateFormat.parse(appointment.appointmentDate!.trim());
+                    final List<String> times =
+                        appointment.appointmentTime!.split(' - ');
+                    final DateTime endTime = timeFormat.parse(times[1].trim());
+
+                    final DateTime appointmentEndDateTime = DateTime(
+                      appointmentDate.year,
+                      appointmentDate.month,
+                      appointmentDate.day,
+                      endTime.hour,
+                      endTime.minute,
+                    );
+
+                    debugPrint('Current time: $now');
+                    debugPrint('Appointment end time: $appointmentEndDateTime');
+
+                    if (now.isBefore(appointmentEndDateTime)) {
+                      debugPrint(
+                          'Marking appointment as visited for UID: $appointmentUid');
+                      await appointmentController
+                          .markAsVisitedConsultationRoom(appointmentUid);
+                    } else {
+                      debugPrint('Appointment has already ended.');
+                    }
+                  } else {
+                    debugPrint('Appointment not found.');
+                  }
+                } else {
+                  debugPrint('Appointment UID is null.');
+                }
+
                 appointment_bloc.isFromConsultationHistory = false;
-                Navigator.pushNamed(context, '/consultation');
+                if (context.mounted) {
+                  Navigator.pushNamed(context, '/consultation');
+                }
               },
               child: const Icon(MingCute.message_3_fill),
             );
@@ -81,6 +131,22 @@ class AppointmentDetailsScreen extends StatelessWidget {
                 content: Text(state.errorMessage),
               ),
             );
+          } else if (state is NavigateToReviewRescheduledAppointmentState) {
+            debugPrint(
+                "State received, navigating to ReviewRescheduledAppointmentScreen");
+            // Navigate to the new screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return ReviewRescheduledAppointmentScreen(
+                    doctorDetails: state.doctor,
+                    currentPatient: state.patient,
+                    appointmentModel: state.appointment,
+                  );
+                },
+              ),
+            );
           } else if (state is CancelAppointmentLoading) {
             showDialog(
               context: context,
@@ -97,7 +163,7 @@ class AppointmentDetailsScreen extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const CircularProgressIndicator(),
+                        const CustomLoadingIndicator(),
                         const Gap(30),
                         Text(
                           'Cancelling Appointment...',
@@ -116,6 +182,7 @@ class AppointmentDetailsScreen extends StatelessWidget {
           }
         },
         builder: (context, state) {
+          debugPrint('State being built: $state');
           if (state is AppointmentDetailsStatusState) {
             final appointment = state.appointment;
             return appointment.appointmentUid == null

@@ -49,6 +49,11 @@ class ApprovedRequestStateBloc
     final patientData = await doctorAppointmentRequestController.getPatientData(
         patientUid: event.appointment.patientUid!);
 
+    final completedAppointmentsResult = await doctorAppointmentRequestController
+        .getPatientCompletedAppointmentsWithCurrentDoctor(
+      patientUid: event.appointment.patientUid!,
+    );
+
     selectedPatientUid = event.appointment.patientUid!;
     selectedPatientName = event.appointment.patientName!;
     selectedPatientAppointment = event.appointment.appointmentUid!;
@@ -58,12 +63,22 @@ class ApprovedRequestStateBloc
         emit(GetApprovedRequestFailedState(errorMessage: failure.toString()));
       },
       (patientData) {
-        patientDataFromDoctorUpcomingAppointmentsBloc = patientData;
-        appointmentDataFromDoctorUpcomingAppointmentsBloc = event.appointment;
-        emit(NavigateToApprovedRequestDetailState(
-          appointment: event.appointment,
-          patientData: patientData,
-        ));
+        completedAppointmentsResult.fold(
+          (failure) {
+            emit(GetApprovedRequestFailedState(
+                errorMessage: failure.toString()));
+          },
+          (completedAppointments) {
+            patientDataFromDoctorUpcomingAppointmentsBloc = patientData;
+            appointmentDataFromDoctorUpcomingAppointmentsBloc =
+                event.appointment;
+            emit(NavigateToApprovedRequestDetailState(
+              appointment: event.appointment,
+              patientData: patientData,
+              completedAppointments: completedAppointments,
+            ));
+          },
+        );
       },
     );
   }

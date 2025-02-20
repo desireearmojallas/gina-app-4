@@ -6,6 +6,7 @@ import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/approved_state/screens/view_states/approved_request_details_screen_state.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/declined_state/screens/view_states/declined_request_details_screen_state.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/bloc/pending_request_state_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:icons_plus/icons_plus.dart';
 
@@ -14,8 +15,19 @@ Future<dynamic> showConfirmingPendingRequestDialog(
   required String appointmentId,
   required AppointmentModel appointment,
   required UserModel patientData,
+  bool? isFromHomePendingRequest = false,
+  required List<AppointmentModel> completedAppointments,
 }) {
   final pendingRequestStateBloc = context.read<PendingRequestStateBloc>();
+  final homeDashboardBloc = context.read<HomeDashboardBloc>();
+
+  // Debug prints to check the values of patientData
+  debugPrint('Parent Patient Name: ${patientData.name}');
+  debugPrint('Parent Patient Date of Birth: ${patientData.dateOfBirth}');
+  debugPrint('Parent Patient Gender: ${patientData.gender}');
+  debugPrint('Parent Patient Address: ${patientData.address}');
+  debugPrint('Parent Patient Email: ${patientData.email}');
+  debugPrint('Updating Firebase for Appointment ID: $appointmentId');
 
   return showDialog(
     context: context,
@@ -77,19 +89,64 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                     ),
                   ),
                 ),
-                onPressed: () {
+                onPressed: () async {
+                  storedAppointment = appointment;
+                  storedPatientData = patientData;
+
                   pendingRequestStateBloc.add(
                       ApproveAppointmentEvent(appointmentId: appointmentId));
-                  Navigator.pop(context);
-                  Navigator.pushReplacement(context, MaterialPageRoute(
-                    builder: (context) {
-                      return ApprovedRequestDetailsScreenState(
-                        appointment: appointment,
-                        patientData: patientData,
-                        appointmentStatus: 1,
-                      );
-                    },
-                  ));
+
+                  if (isFromHomePendingRequest == true) {
+                    final completedAppointmentsResult = await homeDashboardBloc
+                        .doctorHomeDashboardController
+                        .getCompletedAppointments();
+
+                    completedAppointmentsResult.fold(
+                      (failure) {
+                        debugPrint(
+                            'Failed to fetch completed appointments: $failure');
+                      },
+                      (completedAppointments) {
+                        Navigator.pushReplacement(context,
+                            MaterialPageRoute(builder: (context) {
+                          return ApprovedRequestDetailsScreenState(
+                            appointment: appointment,
+                            patientData: patientData,
+                            appointmentStatus: 1,
+                            completedAppointments: completedAppointments.values
+                                .expand((appointments) => appointments)
+                                .toList(),
+                          );
+                        })).then((value) =>
+                            homeDashboardBloc.add(const HomeInitialEvent()));
+                      },
+                    );
+                  } else {
+                    Navigator.pop(context);
+                    final completedAppointmentsResult = await homeDashboardBloc
+                        .doctorHomeDashboardController
+                        .getCompletedAppointments();
+
+                    completedAppointmentsResult.fold(
+                      (failure) {
+                        debugPrint(
+                            'Failed to fetch completed appointments: $failure');
+                      },
+                      (completedAppointments) {
+                        Navigator.pushReplacement(context,
+                            MaterialPageRoute(builder: (context) {
+                          return ApprovedRequestDetailsScreenState(
+                            appointment: appointment,
+                            patientData: patientData,
+                            appointmentStatus: 1,
+                            completedAppointments: completedAppointments.values
+                                .expand((appointments) => appointments)
+                                .toList(),
+                          );
+                        }));
+                      },
+                    );
+                  }
                 },
                 child: Text(
                   'Approve',
@@ -112,20 +169,35 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                   ),
                 ),
                 onPressed: () {
+                  storedAppointment = appointment;
+                  storedPatientData = patientData;
+
                   pendingRequestStateBloc.add(
                       DeclineAppointmentEvent(appointmentId: appointmentId));
-                  Navigator.pop(context);
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              DeclinedRequestDetailsScreenState(
-                                appointment: appointment,
-                                patient: patientData,
-                                // appointmentStatus:
-                                //     appointment.appointmentStatus,
-                                appointmentStatus: 4,
-                              )));
+
+                  if (isFromHomePendingRequest == true) {
+                    Navigator.pushReplacement(context, MaterialPageRoute(
+                      builder: (context) {
+                        return DeclinedRequestDetailsScreenState(
+                          appointment: appointment,
+                          patient: patientData,
+                          appointmentStatus: 4,
+                        );
+                      },
+                    )).then((value) =>
+                        homeDashboardBloc.add(const HomeInitialEvent()));
+                  } else {
+                    Navigator.pop(context);
+                    Navigator.pushReplacement(context, MaterialPageRoute(
+                      builder: (context) {
+                        return DeclinedRequestDetailsScreenState(
+                          appointment: appointment,
+                          patient: patientData,
+                          appointmentStatus: 4,
+                        );
+                      },
+                    ));
+                  }
                 },
                 child: Text(
                   'Decline',

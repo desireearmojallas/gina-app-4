@@ -14,3 +14,12 @@ class DoctorAppointmentRequestInitial extends DoctorAppointmentRequestState {}
 
 class DoctorAppointmentRequestNavigateToFindDoctorActionState
     extends DoctorAppointmentRequestState {}
+
+class TabChangedState extends DoctorAppointmentRequestState {
+  final int tab;
+
+  const TabChangedState(this.tab);
+
+  @override
+  List<Object> get props => [tab];
+}

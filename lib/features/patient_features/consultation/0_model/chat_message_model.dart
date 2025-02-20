@@ -14,6 +14,7 @@ class ChatMessageModel extends Equatable {
   final String? doctorName;
   final String? doctorUid;
   final String? message;
+  final String? appointmentId; // New field for appointment ID
   List<String> seenBy;
   bool isDeleted;
   bool isEdited;
@@ -29,6 +30,7 @@ class ChatMessageModel extends Equatable {
     this.doctorName,
     this.doctorUid,
     this.message,
+    this.appointmentId, // Initialize the new field
     this.seenBy = const [],
     this.isDeleted = false,
     this.isEdited = false,
@@ -48,6 +50,7 @@ class ChatMessageModel extends Equatable {
           ? List<String>.from(json['seenBy'])
           : <String>[],
       message: json['message'] ?? '',
+      appointmentId: json['appointmentId'] ?? '', // Parse the new field
       isDeleted: json['isDeleted'] ?? false,
       isEdited: json['isEdited'] ?? false,
       createdAt: json['createdAt'] ?? Timestamp.now(),
@@ -66,6 +69,7 @@ class ChatMessageModel extends Equatable {
       doctorUid: json['doctorUid'] ?? '',
       createdAt: json['createdAt'] ?? Timestamp.now(),
       message: json['message'] ?? '',
+      appointmentId: json['appointmentId'] ?? '', // Parse the new field
       seenBy: json['seenBy'] != null
           ? List<String>.from(json['seenBy'])
           : <String>[],
@@ -89,6 +93,7 @@ class ChatMessageModel extends Equatable {
           ? List<String>.from(json['seenBy'])
           : <String>[],
       message: json['message'] ?? '',
+      appointmentId: json['appointmentId'] ?? '', // Parse the new field
       isDeleted: json['isDeleted'] ?? false,
       isEdited: json['isEdited'] ?? false,
       createdAt: json['createdAt'] ?? Timestamp.now(),
@@ -96,6 +101,7 @@ class ChatMessageModel extends Equatable {
   }
 
   Map<String, dynamic> get json => {
+        'uid': uid, // Ensure uid is included
         'authorUid': authorUid,
         'authorName': authorName,
         'authorImage': authorImage,
@@ -104,6 +110,7 @@ class ChatMessageModel extends Equatable {
         'doctorName': doctorName,
         'doctorUid': doctorUid,
         'message': message,
+        'appointmentId': appointmentId, // Include the new field
         'seenBy': seenBy,
         'isDeleted': isDeleted,
         'isEdited': isEdited,
@@ -111,10 +118,12 @@ class ChatMessageModel extends Equatable {
       };
 
   static Stream<List<ChatMessageModel>> individualCurrentChats(
-          String chatroom) =>
+          String chatroom, String appointmentId) =>
       FirebaseFirestore.instance
           .collection('consultation-chatrooms')
           .doc(chatroom)
+          .collection('appointments')
+          .doc(appointmentId)
           .collection('messages')
           .orderBy('createdAt')
           .snapshots()
@@ -133,15 +142,43 @@ class ChatMessageModel extends Equatable {
     return !seenBy.contains(uid);
   }
 
-  Future individualUpdateSeen(String userID, String chatroom) {
-    return FirebaseFirestore.instance
-        .collection('consultation-chatrooms')
-        .doc(chatroom)
-        .collection('messages')
-        .doc(uid)
-        .update({
-      'seenBy': FieldValue.arrayUnion([userID])
-    });
+  // Future individualUpdateSeen(
+  //     String userID, String chatroom, String appointmentId) {
+  //   return FirebaseFirestore.instance
+  //       .collection('consultation-chatrooms')
+  //       .doc(chatroom)
+  //       .collection('appointments')
+  //       .doc(appointmentId)
+  //       .collection('messages')
+  //       .doc(uid)
+  //       .update({
+  //     'seenBy': FieldValue.arrayUnion([userID])
+  //   });
+  // }
+
+  Future individualUpdateSeen(
+      String userID, String chatroom, String appointmentId) async {
+    try {
+      DocumentReference messageRef = FirebaseFirestore.instance
+          .collection('consultation-chatrooms')
+          .doc(chatroom)
+          .collection('appointments')
+          .doc(appointmentId)
+          .collection('messages')
+          .doc(uid);
+
+      DocumentSnapshot messageDoc = await messageRef.get();
+      if (messageDoc.exists) {
+        await messageRef.update({
+          'seenBy': FieldValue.arrayUnion([userID])
+        });
+        debugPrint('Updated seenBy for message: $uid');
+      } else {
+        debugPrint('Message document does not exist: $uid');
+      }
+    } catch (e) {
+      debugPrint('Failed to update seenBy for message: $uid, error: $e');
+    }
   }
 
   @override
@@ -152,6 +189,7 @@ class ChatMessageModel extends Equatable {
         authorImage,
         createdAt,
         message,
+        appointmentId, // Include the new field in props
         seenBy,
         isDeleted,
         isEdited,

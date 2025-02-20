@@ -106,10 +106,12 @@ class ForumScreen extends StatelessWidget {
                   final forumPost = state.forumPost;
                   final forumReplies = state.forumReplies;
                   final doctorRatingId = state.doctorRatingId;
+                  final currentUser = state.currentUser;
                   return ForumsDetailedPostState(
                     forumPost: forumPost,
                     forumReplies: forumReplies,
                     doctorRatingId: doctorRatingId,
+                    currentUser: currentUser,
                   );
                 } else if (state is NavigateToForumsReplyPostState) {
                   final forumPost = state.forumPost;

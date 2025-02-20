@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
+import 'package:gina_app_4/core/reusable_widgets/gina_divider.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/bloc/doctor_consultation_fee_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/view_states/edit_doctor_consultation_fee_screen_loaded.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/bloc/doctor_emergency_announcements_bloc.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/view_states/doctor_emergency_announcement_create_announcement.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/doctor_emergency_announcement_screen.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/my_past_appointments_navigation_widget.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/widget_navigation_cards.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/doctor_forums_navigation_widget.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/emergency_announcement_navigation_widget.dart';
@@ -17,23 +19,62 @@ import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widge
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/pending_requests_navigation_widget.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/schedule_management_navigation_widget.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/upcoming_appointments_navigation_widget.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/main.dart';
+import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
   final int pendingRequests;
   final int confirmedAppointments;
+  final String doctorName;
+  final AppointmentModel upcomingAppointment;
+  final AppointmentModel pendingAppointment;
+  final UserModel patientData;
+  final Map<DateTime, List<AppointmentModel>> completedAppointmentsList;
+  final List<AppointmentModel> completedAppointments;
+
   const DoctorHomeScreenDashboardLoaded({
     super.key,
     required this.pendingRequests,
     required this.confirmedAppointments,
+    required this.doctorName,
+    required this.upcomingAppointment,
+    required this.pendingAppointment,
+    required this.patientData,
+    required this.completedAppointmentsList,
+    required this.completedAppointments,
   });
 
   @override
   Widget build(BuildContext context) {
     final ginaTheme = Theme.of(context);
+    final homeDashboardBloc = context.read<HomeDashboardBloc>();
 
     return RefreshIndicator(
-      onRefresh: () async {},
+      onRefresh: () async {
+        try {
+          homeDashboardBloc.add(const HomeInitialEvent());
+
+          await Future.delayed(
+              const Duration(milliseconds: 800)); // Simulating delay
+
+          if (canVibrate == true) {
+            await Haptics.vibrate(HapticsType.success);
+          }
+        } catch (e) {
+          if (canVibrate == true) {
+            await Haptics.vibrate(HapticsType.error);
+          }
+
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text('Failed to refresh. Please try again.')),
+            );
+          }
+        }
+      },
       child: ScrollbarCustom(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -44,93 +85,79 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const Gap(30),
-                BlocBuilder<HomeDashboardBloc, HomeDashboardState>(
-                  builder: (context, state) {
-                    if (state is GetDoctorNameState) {
-                      return GreetingWidget(
-                        doctorName: state.doctorName,
-                      );
-                    }
-                    return const SizedBox();
-                  },
+                GreetingWidget(
+                  doctorName: doctorName,
                 ),
                 const Gap(20),
                 const HomeDashboardCalendarWidget(),
-                const Gap(30),
+                const Gap(5),
+                GinaDivider(
+                  space: 0.0,
+                ),
+                const Gap(5),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    BlocBuilder<DoctorConsultationFeeBloc,
+                    BlocListener<DoctorConsultationFeeBloc,
                         DoctorConsultationFeeState>(
-                      builder: (context, state) {
+                      listener: (context, state) {
                         if (state is NavigateToEditDoctorConsultationFeeState) {
-                          Future.microtask(() {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Scaffold(
-                                  appBar: GinaDoctorAppBar(
-                                    title: 'Edit Consultation Fees',
-                                  ),
-                                  body: EditDoctorConsultationFeeScreenLoaded(
-                                    doctorData: state.doctorData,
-                                    isFromDashboard: true,
-                                  ),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Scaffold(
+                                appBar: GinaDoctorAppBar(
+                                  title: 'Edit Consultation Fees',
+                                ),
+                                body: EditDoctorConsultationFeeScreenLoaded(
+                                  doctorData: state.doctorData,
+                                  isFromDashboard: true,
                                 ),
                               ),
-                            );
-                          });
+                            ),
+                          );
                         }
+                      },
+                      child: WidgetNavigationCards(
+                        widgetText: 'Edit Consultation\nFees',
+                        icon: Icons.paid,
+                        onPressed: () async {
+                          if (canVibrate == true) {
+                            await Haptics.vibrate(HapticsType.selection);
+                          }
 
-                        return WidgetNavigationCards(
-                          widgetText: 'Edit Consultation\nFees',
-                          icon: Icons.paid,
-                          onPressed: () {
+                          if (context.mounted) {
                             context.read<DoctorConsultationFeeBloc>().add(
                                 NavigateToEditDoctorConsultationFeeEvent());
-                          },
-                        );
-                      },
+                          }
+                        },
+                      ),
                     ),
-
-                    //Create Emergency Announcement
-                    BlocBuilder<DoctorEmergencyAnnouncementsBloc,
-                        DoctorEmergencyAnnouncementsState>(
-                      builder: (context, state) {
-                        if (state is CreateAnnouncementState) {
-                          debugPrint('Create Announcement State');
-                          // WidgetsBinding.instance.addPostFrameCallback((_) {
-                          //   Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //       builder: (context) => Scaffold(
-                          //         appBar: GinaDoctorAppBar(
-                          //           title: 'Create Announcement',
-                          //         ),
-                          //         body:
-                          //             DoctorEmergencyAnnouncementCreateAnnouncementScreen(),
-                          //       ),
-                          //     ),
-                          //   );
-                          //   debugPrint(
-                          //       'Successfully navigated to Create Emergency Announcement');
-                          // });
+                    WidgetNavigationCards(
+                      widgetText: 'Create Emergency\nAnnouncement',
+                      icon: MingCute.report_fill,
+                      onPressed: () async {
+                        if (canVibrate == true) {
+                          await Haptics.vibrate(HapticsType.selection);
                         }
-                        return WidgetNavigationCards(
-                          widgetText: 'Create Emergency\nAnnouncement',
-                          icon: MingCute.report_fill,
-                          onPressed: () {
-                            debugPrint('Create emergency announcement clicked');
-                            context.read<DoctorEmergencyAnnouncementsBloc>().add(
-                                NavigateToDoctorEmergencyCreateAnnouncementEvent());
-                            debugPrint('Successfully added to the bloc');
-                          },
-                        );
+
+                        // Navigate to the next screen
+                        if (context.mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const DoctorEmergencyAnnouncementScreenProvider(
+                                navigateToCreate: true,
+                              ),
+                            ),
+                          );
+                        }
                       },
                     ),
                   ],
                 ),
-                const Gap(30),
+                const Gap(10),
                 Row(
                   children: [
                     Text(
@@ -144,32 +171,41 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                     Container(
                       height: 20,
                       width: 20,
-                      decoration: const BoxDecoration(
-                        color: GinaAppTheme.lightTertiaryContainer,
+                      decoration: BoxDecoration(
+                        color: confirmedAppointments == 0
+                            ? Colors.grey[300]
+                            : GinaAppTheme.lightTertiaryContainer,
                         shape: BoxShape.circle,
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Text(
-                          '3',
-                          style: TextStyle(
+                          confirmedAppointments == 0
+                              ? '0'
+                              : confirmedAppointments.toString(),
+                          style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
-                            fontSize: 10,
+                            fontSize: 12,
                           ),
                         ),
                       ),
                     ),
                     const Spacer(),
-                    GestureDetector(
-                      onTap: () {
-                        // TODO: UPCOMING APPOINTMENTS ROUTE
+                    TextButton(
+                      onPressed: () {
+                        confirmedAppointments == 0
+                            ? null
+                            : Navigator.of(context)
+                                .pushNamed('/doctorEConsult');
                       },
                       child: Align(
                         alignment: Alignment.topRight,
                         child: Text(
                           'See all',
                           style: ginaTheme.textTheme.labelMedium?.copyWith(
-                            color: GinaAppTheme.lightTertiaryContainer,
+                            color: confirmedAppointments == 0
+                                ? Colors.grey[300]
+                                : GinaAppTheme.lightTertiaryContainer,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -177,10 +213,45 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                     ),
                   ],
                 ),
-                const UpcomingAppointmentsNavigationWidget(),
-                const Gap(40),
-                const PendingRequestsNavigationWidget(),
-                const Gap(40),
+                UpcomingAppointmentsNavigationWidget(
+                  upcomingAppointment: upcomingAppointment,
+                  patientData: patientDataForUpcomingAppointment ??
+                      UserModel(
+                        name: '',
+                        email: '',
+                        uid: '',
+                        gender: '',
+                        dateOfBirth: '',
+                        profileImage: '',
+                        headerImage: '',
+                        accountType: '',
+                        address: '',
+                        chatrooms: const [],
+                        appointmentsBooked: const [],
+                      ),
+                  completedAppointments: completedAppointments,
+                ),
+                const Gap(20),
+                PendingRequestsNavigationWidget(
+                  pendingRequests: pendingRequests,
+                  pendingAppointment: pendingAppointment,
+                  patientData: patientDataForPendingAppointment ??
+                      UserModel(
+                        name: '',
+                        email: '',
+                        uid: '',
+                        gender: '',
+                        dateOfBirth: '',
+                        profileImage: '',
+                        headerImage: '',
+                        accountType: '',
+                        address: '',
+                        chatrooms: const [],
+                        appointmentsBooked: const [],
+                      ),
+                  completedAppointments: completedAppointments,
+                ),
+                const Gap(30),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -192,21 +263,39 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                   ),
                 ),
                 const Gap(20),
-                const SingleChildScrollView(
+                SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  physics: BouncingScrollPhysics(),
+                  physics: const BouncingScrollPhysics(),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      EmergencyAnnouncementNavigationWidget(),
-                      Gap(15),
-                      ScheduleManagementNavigationWidget(),
-                      Gap(15),
-                      DoctorForumsNavigationWidget(),
+                      MyPastAppointmentsNavigationWidget(
+                        completedAppointmentsList: completedAppointmentsList,
+                        patientData: patientDataForPastAppointment ??
+                            UserModel(
+                              name: '',
+                              email: '',
+                              uid: '',
+                              gender: '',
+                              dateOfBirth: '',
+                              profileImage: '',
+                              headerImage: '',
+                              accountType: '',
+                              address: '',
+                              chatrooms: const [],
+                              appointmentsBooked: const [],
+                            ),
+                      ),
+                      const Gap(15),
+                      const EmergencyAnnouncementNavigationWidget(),
+                      const Gap(15),
+                      const ScheduleManagementNavigationWidget(),
+                      const Gap(15),
+                      const DoctorForumsNavigationWidget(),
                     ],
                   ),
                 ),
-                const Gap(120),
+                const Gap(100),
               ],
             ),
           ),

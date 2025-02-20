@@ -47,8 +47,11 @@ class DeclinedRequestStateScreen extends StatelessWidget {
       },
       builder: (context, state) {
         if (state is GetDeclinedRequestSuccessState) {
-          return DeclinedRequestStateScreenLoaded(
-            declinedRequests: state.declinedRequests,
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 15.0),
+            child: DeclinedRequestStateScreenLoaded(
+              declinedRequests: state.declinedRequests,
+            ),
           );
         } else if (state is GetDeclinedRequestFailedState) {
           return Center(child: Text(state.errorMessage));

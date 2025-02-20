@@ -43,33 +43,36 @@ class MyForumsScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: Stack(
-        children: [
-          const GradientBackground(),
-          BlocConsumer<MyForumsBloc, MyForumsState>(
-            listenWhen: (previous, current) => current is MyForumsActionState,
-            buildWhen: (previous, current) => current is! MyForumsActionState,
-            listener: (context, state) {},
-            builder: (context, state) {
-              if (state is MyForumsLoadedState) {
-                return MyForumsPostScreenState(
+      body: BlocConsumer<MyForumsBloc, MyForumsState>(
+        listenWhen: (previous, current) => current is MyForumsActionState,
+        buildWhen: (previous, current) => current is! MyForumsActionState,
+        listener: (context, state) {},
+        builder: (context, state) {
+          debugPrint('My Forums State: $state');
+          return Stack(
+            children: [
+              if (state is! MyForumsEmptyState) const GradientBackground(),
+              if (state is MyForumsLoadedState) ...[
+                MyForumsPostScreenState(
                   myForumsPost: state.myForumsPosts,
-                );
-              } else if (state is MyForumsEmptyState) {
-                return const MyForumsEmptyScreenState();
-              } else if (state is MyForumsErrorState) {
-                return Center(
+                  currentUser: state.currentUser,
+                ),
+              ] else if (state is MyForumsEmptyState) ...[
+                const MyForumsEmptyScreenState(),
+              ] else if (state is MyForumsErrorState) ...[
+                Center(
                   child: Text(state.message),
-                );
-              } else if (state is MyForumsLoadingState) {
-                return const Center(
+                ),
+              ] else if (state is MyForumsLoadingState) ...[
+                const Center(
                   child: CustomLoadingIndicator(),
-                );
-              }
-              return Container();
-            },
-          ),
-        ],
+                ),
+              ] else ...[
+                Container(),
+              ],
+            ],
+          );
+        },
       ),
     );
   }

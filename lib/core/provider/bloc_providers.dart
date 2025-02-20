@@ -15,9 +15,12 @@ import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/screens/bloc/doctor_appointment_request_screen_loaded_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/approved_state/bloc/approved_request_state_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/cancelled_state/bloc/cancelled_request_state_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/completed_state/bloc/completed_request_state_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/declined_state/bloc/declined_request_state_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/missed_state/bloc/missed_request_state_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/bloc/pending_request_state_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_bottom_navigation/bloc/doctor_bottom_navigation_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_bottom_navigation/widgets/doctor_floating_container_for_ongoing_appt/bloc/doctor_floating_container_for_ongoing_appt_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/bloc/doctor_consultation_fee_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
@@ -36,6 +39,8 @@ import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/ap
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/bloc/appointment_details_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
+import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/floating_container_for_ongoing_appt/bloc/floating_container_for_ongoing_appt_bloc.dart';
+import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/consultation_fee_details/2_views/bloc/consultation_fee_details_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/2_views/bloc/doctor_availability_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_details/2_views/bloc/doctor_details_bloc.dart';
@@ -90,11 +95,14 @@ List<BlocProvider> getBlocProviders() {
     BlocProvider<BottomNavigationBloc>(
       create: (context) => BottomNavigationBloc(),
     ),
+    BlocProvider<FloatingContainerForOngoingApptBloc>(
+      create: (context) => sl<FloatingContainerForOngoingApptBloc>(),
+    ),
     BlocProvider<HomeBloc>(
       create: (context) => sl<HomeBloc>(),
     ),
     BlocProvider<DoctorDetailsBloc>(
-      create: (context) => DoctorDetailsBloc(),
+      create: (context) => sl<DoctorDetailsBloc>(),
     ),
     BlocProvider<FloatingMenuBloc>(
       create: (context) => sl<FloatingMenuBloc>(),
@@ -132,10 +140,16 @@ List<BlocProvider> getBlocProviders() {
     BlocProvider<AppointmentBloc>(
       create: (context) => sl<AppointmentBloc>(),
     ),
+    BlocProvider<ConsultationBloc>(
+      create: (context) => sl<ConsultationBloc>(),
+    ),
 
     // Doctor Blocs
     BlocProvider<DoctorBottomNavigationBloc>(
       create: (context) => sl<DoctorBottomNavigationBloc>(),
+    ),
+    BlocProvider<DoctorFloatingContainerForOngoingApptBloc>(
+      create: (context) => sl<DoctorFloatingContainerForOngoingApptBloc>(),
     ),
     BlocProvider<FloatingDoctorMenuBarBloc>(
       create: (context) => sl<FloatingDoctorMenuBarBloc>(),
@@ -160,6 +174,12 @@ List<BlocProvider> getBlocProviders() {
     ),
     BlocProvider<CancelledRequestStateBloc>(
       create: (context) => sl<CancelledRequestStateBloc>(),
+    ),
+    BlocProvider<CompletedRequestStateBloc>(
+      create: (context) => sl<CompletedRequestStateBloc>(),
+    ),
+    BlocProvider<MissedRequestStateBloc>(
+      create: (context) => sl<MissedRequestStateBloc>(),
     ),
     BlocProvider<DoctorEconsultBloc>(
       create: (context) => sl<DoctorEconsultBloc>(),

@@ -94,12 +94,16 @@ class CancelledRequestDetailsScreenState extends StatelessWidget {
                             ),
                             SizedBox(
                               width: size.width * 0.5,
-                              child: Text(
-                                'Appointment ID: ${appointment.appointmentUid}',
-                                style: ginaTheme.textTheme.labelSmall?.copyWith(
-                                  color: GinaAppTheme.lightOutline,
+                              child: Flexible(
+                                child: Text(
+                                  'Appointment ID: ${appointment.appointmentUid}',
+                                  style:
+                                      ginaTheme.textTheme.labelSmall?.copyWith(
+                                    color: GinaAppTheme.lightOutline,
+                                  ),
+                                  overflow: TextOverflow.visible,
+                                  softWrap: true,
                                 ),
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
@@ -112,7 +116,7 @@ class CancelledRequestDetailsScreenState extends StatelessWidget {
                             children: [
                               AppointmentStatusContainer(
                                 appointmentStatus:
-                                    appointment.appointmentStatus,
+                                    appointment.appointmentStatus!,
                               ),
                             ],
                           ),

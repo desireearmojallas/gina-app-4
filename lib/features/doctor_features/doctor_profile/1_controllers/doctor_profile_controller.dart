@@ -6,6 +6,7 @@ import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
+import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
 
 class DoctorProfileController with ChangeNotifier {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -28,6 +29,8 @@ class DoctorProfileController with ChangeNotifier {
           await firestore.collection('doctors').doc(currentUser!.uid).get();
 
       DoctorModel userModel = DoctorModel.fromJson(userSnapshot.data()!);
+
+      doctorName = userModel.name;
 
       return userModel.name;
     } catch (e) {

@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/find/1_controllers/find_controllers.dart';
 
 part 'find_event.dart';
@@ -13,6 +14,7 @@ List<DoctorModel>? doctorNearMeLists;
 Map<String, List<DoctorModel>>? storedCitiesWithDoctors;
 List<DoctorModel>? getAllDoctors;
 DoctorModel? doctorDetails;
+AppointmentModel? appointmentForNearbyDocLatestAppointment;
 
 class FindBloc extends Bloc<FindEvent, FindState> {
   final FindController findController;

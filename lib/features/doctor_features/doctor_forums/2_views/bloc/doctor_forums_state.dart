@@ -42,15 +42,18 @@ class NavigateToDoctorForumsDetailedPostState extends DoctorForumsState {
   final ForumModel doctorForumPost;
   final List<ForumModel> forumReplies;
   final int doctorRatingId;
+  final User? currentUser;
 
   const NavigateToDoctorForumsDetailedPostState({
     required this.doctorForumPost,
     required this.forumReplies,
     required this.doctorRatingId,
+    required this.currentUser,
   });
 
   @override
-  List<Object> get props => [doctorForumPost, forumReplies, doctorRatingId];
+  List<Object> get props =>
+      [doctorForumPost, forumReplies, doctorRatingId, currentUser!];
 }
 
 class NavigateToDoctorForumsCreatePostState extends DoctorForumsActionState {}
@@ -80,16 +83,19 @@ class GetRepliesDoctorForumsPostSuccessState extends DoctorForumsState {
   final ForumModel forumPost;
   final List<ForumModel> forumReplies;
   final int doctorRatingId;
+  final User? currentUser;
 
   const GetRepliesDoctorForumsPostSuccessState({
     required this.forumPost,
     required this.forumReplies,
     required this.doctorRatingId,
+    required this.currentUser,
   });
 
   //! added doctorRatingId to the props list. delete it causes errors
   @override
-  List<Object> get props => [forumPost, forumReplies, doctorRatingId];
+  List<Object> get props =>
+      [forumPost, forumReplies, doctorRatingId, currentUser!];
 }
 
 class GetRepliesDoctorForumsPostLoadingState extends DoctorForumsState {}

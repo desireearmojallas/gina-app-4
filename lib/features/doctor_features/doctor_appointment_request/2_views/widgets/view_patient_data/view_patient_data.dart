@@ -27,6 +27,9 @@ class ViewPatientDataScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final ginaTheme = Theme.of(context);
 
+    debugPrint(
+        'Patient consultation history from view patient data screen: $patientAppointments');
+
     return Scaffold(
       appBar: GinaDoctorAppBar(
         title: 'Patient Data',
@@ -90,7 +93,9 @@ class ViewPatientDataScreen extends StatelessWidget {
 
                     //! to be continued here...
                     //! The only consultation history will show here would be the doctor & patient's consultation history together.
-                    const ConsultationHistoryPatientData(),
+                    ConsultationHistoryPatientData(
+                      completedAppointments: patientAppointments,
+                    ),
                   ],
                 ),
               ),

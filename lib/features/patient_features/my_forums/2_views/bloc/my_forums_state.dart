@@ -13,11 +13,15 @@ class MyForumsInitial extends MyForumsState {}
 
 class MyForumsLoadedState extends MyForumsState {
   final List<ForumModel> myForumsPosts;
+  final User? currentUser;
 
-  const MyForumsLoadedState({required this.myForumsPosts});
+  const MyForumsLoadedState({
+    required this.myForumsPosts,
+    required this.currentUser,
+  });
 
   @override
-  List<Object> get props => [myForumsPosts];
+  List<Object> get props => [myForumsPosts, currentUser!];
 }
 
 class MyForumsEmptyState extends MyForumsState {}
@@ -32,3 +36,5 @@ class MyForumsErrorState extends MyForumsState {
 }
 
 class MyForumsLoadingState extends MyForumsActionState {}
+
+class DeleteMyForumsPostSuccessState extends MyForumsState {}

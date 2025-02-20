@@ -76,3 +76,12 @@ class CancelAppointmentInAppointmentTabsEvent extends AppointmentEvent {
   @override
   List<Object> get props => [appointmentUid];
 }
+
+class AppointmentTabChangedEvent extends AppointmentEvent {
+  final int index;
+
+  const AppointmentTabChangedEvent({required this.index});
+
+  @override
+  List<Object> get props => [index];
+}

@@ -22,6 +22,7 @@ class MyForumsEmptyScreenState extends StatelessWidget {
             'No forum posts',
             style: TextStyle(
               color: GinaAppTheme.lightOutline,
+              fontSize: 16,
             ),
           ),
         ],

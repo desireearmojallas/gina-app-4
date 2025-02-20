@@ -27,14 +27,16 @@ class CreateForumsPostEvent extends ForumsEvent {
 class NavigateToForumsDetailedPostEvent extends ForumsEvent {
   final ForumModel forumPost;
   final int doctorRatingId;
+  final bool? isFromMyForums;
 
   const NavigateToForumsDetailedPostEvent({
     required this.forumPost,
     required this.doctorRatingId,
+    this.isFromMyForums = false,
   });
 
   @override
-  List<Object> get props => [forumPost, doctorRatingId];
+  List<Object> get props => [forumPost, doctorRatingId, isFromMyForums!];
 }
 
 class NavigateToForumsCreatePostEvent extends ForumsEvent {}

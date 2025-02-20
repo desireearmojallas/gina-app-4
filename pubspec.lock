@@ -233,6 +233,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
+  dynamic_tabbar:
+    dependency: "direct main"
+    description:
+      name: dynamic_tabbar
+      sha256: "017be3705f70e353e579b7a7d56bb19b5c112072b4532bc8bd68767c4a6fc3fe"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.9"
   easy_date_timeline:
     dependency: "direct main"
     description:
@@ -241,6 +249,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.3"
+  el_tooltip:
+    dependency: "direct main"
+    description:
+      name: el_tooltip
+      sha256: "0860b00e9390a31dd98369dc16d3b6fa2668fc52df712bd00e86d8931787fc17"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.1"
   encrypt:
     dependency: transitive
     description:
@@ -417,6 +433,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  flip_board:
+    dependency: "direct main"
+    description:
+      name: flip_board
+      sha256: "5b3bb7cebc7daa3b950be773a910cca40ff1516972dfb7dd4c5c5d58c94b4416"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -576,6 +600,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  fluttertoast:
+    dependency: "direct main"
+    description:
+      name: fluttertoast
+      sha256: "81b68579e23fcbcada2db3d50302813d2371664afe6165bc78148050ab94bf66"
+      url: "https://pub.dev"
+    source: hosted
+    version: "8.2.5"
   gap:
     dependency: "direct main"
     description:
@@ -744,6 +776,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
+  haptic_feedback:
+    dependency: "direct main"
+    description:
+      name: haptic_feedback
+      sha256: d3b5ad41858d18a35d317636c9cdc1cb8aef23c7b861ca5896273acc68e1a98a
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.1+1"
   html:
     dependency: transitive
     description:

@@ -17,3 +17,5 @@ class DoctorDetailsLoaded extends DoctorDetailsState {}
 
 class DoctorDetailsNavigateToConsultationState
     extends DoctorDetailsActionState {}
+
+class DoctorOfficeAddressMapViewState extends DoctorDetailsActionState {}

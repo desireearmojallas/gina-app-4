@@ -36,27 +36,35 @@ class GetPendingRequestFailedState extends PendingRequestStateState {
 class NavigateToApprovedRequestDetailedState extends PendingRequestActionState {
   final AppointmentModel appointment;
   final UserModel patientData;
+  final List<AppointmentModel> completedAppointments;
 
   const NavigateToApprovedRequestDetailedState({
     required this.appointment,
     required this.patientData,
+    required this.completedAppointments,
   });
 
   @override
-  List<Object> get props => [appointment, patientData];
+  List<Object> get props => [
+        appointment,
+        patientData,
+        completedAppointments,
+      ];
 }
 
 class NavigateToPendingRequestDetailedState extends PendingRequestActionState {
   final AppointmentModel appointment;
   final UserModel patientData;
+  final List<AppointmentModel> completedAppointments;
 
   const NavigateToPendingRequestDetailedState({
     required this.appointment,
     required this.patientData,
+    required this.completedAppointments,
   });
 
   @override
-  List<Object> get props => [appointment, patientData];
+  List<Object> get props => [appointment, patientData, completedAppointments];
 }
 
 class NavigateToDeclinedRequestDetailedState extends PendingRequestActionState {

@@ -2,16 +2,22 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/1_controllers/appointment_controller.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
+import 'package:gina_app_4/features/patient_features/consultation/0_model/chat_message_model.dart';
+import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/find/1_controllers/find_controllers.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:gina_app_4/features/patient_features/profile/1_controllers/profile_controller.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 part 'appointment_event.dart';
 part 'appointment_state.dart';
@@ -19,10 +25,12 @@ part 'appointment_state.dart';
 String? storedAppointmentUid;
 String? storedAppointmentTime;
 AppointmentModel? appointmentDetails;
+AppointmentModel? appointmentDetailsForReschedule;
 List<String>? storedPrescriptionImages;
 bool isUploadPrescriptionMode = false;
 bool isFromAppointmentTabs = false;
 bool isFromConsultationHistory = false;
+List<ChatMessageModel> chatMessages = [];
 
 class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
   final AppointmentController appointmentController;
@@ -34,6 +42,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     required this.profileController,
     required this.findController,
   }) : super(AppointmentInitial()) {
+    // }) : super(const AppointmentTabViewState(activeTabIndex: 0)) {
     on<GetAppointmentsEvent>(getAppointmentsEvent);
     on<NavigateToAppointmentDetailsEvent>(navigateToAppointmentDetailsEvent);
     on<NavigateToConsultationHistoryEvent>(navigateToConsultationHistoryEvent);
@@ -41,6 +50,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     on<RemoveImageEvent>(removeImageEvent);
     on<UploadPrescriptionEvent>(uploadPrescriptionEvent);
     on<CancelAppointmentInAppointmentTabsEvent>(cancelAppointmentEvent);
+    on<AppointmentTabChangedEvent>(appointmentTabChangedEvent);
   }
 
   List<File> prescriptionImages = [];
@@ -52,19 +62,33 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     emit(GetAppointmentsLoading());
 
     final result = await appointmentController.getCurrentPatientAppointment();
+    final chatRoomsResult =
+        await appointmentController.getPatientChatroomsAndMessages();
 
     result.fold(
       (failure) {
         emit(GetAppointmentsError(errorMessage: failure.toString()));
       },
       (appointments) {
-        storedAppointments = appointments;
-        emit(GetAppointmentsLoaded(appointments: appointments));
+        chatRoomsResult.fold(
+          (chatRoomsFailure) {
+            emit(GetAppointmentsError(
+                errorMessage: chatRoomsFailure.toString()));
+          },
+          (chatRooms) {
+            storedAppointments = appointments;
+            chatMessages = chatRooms;
+            emit(GetAppointmentsLoaded(
+              appointments: appointments,
+              chatRooms: chatRoomsResult.getOrElse(() => []),
+            ));
+          },
+        );
       },
     );
   }
 
-  FutureOr<void> navigateToAppointmentDetailsEvent(
+  Future<void> navigateToAppointmentDetailsEvent(
       NavigateToAppointmentDetailsEvent event,
       Emitter<AppointmentState> emit) async {
     emit(AppointmentDetailsLoading());
@@ -96,16 +120,50 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     final result = await appointmentController.getAppointmentDetails(
         appointmentUid: event.appointmentUid);
 
-    result.fold(
-      (failure) {
+    await result.fold(
+      (failure) async {
         emit(AppointmentDetailsError(errorMessage: failure.toString()));
       },
-      (appointment) {
-        emit(AppointmentDetailsState(
-          appointment: appointment,
-          doctorDetails: doctorInformation!,
-          currentPatient: currentActivePatient!,
-        ));
+      (appointment) async {
+        if (appointment.appointmentStatus ==
+                AppointmentStatus.completed.index ||
+            appointment.appointmentStatus == 2) {
+          final images = await appointmentController.getPrescriptionImages(
+              appointmentUid: event.appointmentUid);
+
+          await images.fold(
+            (failure) async {
+              emit(
+                  GetPrescriptionImagesError(errorMessage: failure.toString()));
+            },
+            (images) async {
+              storedPrescriptionImages = images;
+              if (doctorInformation != null && currentActivePatient != null) {
+                emit(ConsultationHistoryState(
+                  appointment: appointment,
+                  doctorDetails: doctorInformation!,
+                  currentPatient: currentActivePatient!,
+                  prescriptionImages: images,
+                ));
+              } else {
+                emit(const AppointmentDetailsError(
+                    errorMessage:
+                        'Doctor information or patient data is null'));
+              }
+            },
+          );
+        } else {
+          if (doctorInformation != null && currentActivePatient != null) {
+            emit(AppointmentDetailsState(
+              appointment: appointment,
+              doctorDetails: doctorInformation!,
+              currentPatient: currentActivePatient!,
+            ));
+          } else {
+            emit(const AppointmentDetailsError(
+                errorMessage: 'Doctor information or patient data is null'));
+          }
+        }
       },
     );
   }
@@ -234,8 +292,93 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       },
       (appointment) {
         emit(CancelAppointmentState());
-        emit(GetAppointmentsLoaded(appointments: storedAppointments));
+        emit(GetAppointmentsLoaded(
+          appointments: storedAppointments,
+          chatRooms: chatMessages,
+        ));
       },
     );
+  }
+
+  FutureOr<void> appointmentTabChangedEvent(
+      AppointmentTabChangedEvent event, Emitter<AppointmentState> emit) {
+    emit(AppointmentTabViewState(activeTabIndex: event.index));
+  }
+
+  Future<void> handleConsultationNavigation(state, BuildContext context) async {
+    HapticFeedback.mediumImpact();
+    isFromConsultationHistory = false;
+    selectedDoctorAppointmentModel = state.appointment;
+    final appointmentUid = state.appointment.appointmentUid;
+
+    if (appointmentUid != null) {
+      debugPrint('Fetching appointment details for UID: $appointmentUid');
+      final appointment =
+          await appointmentController.getAppointmentDetailsNew(appointmentUid);
+
+      if (appointment != null) {
+        final bool isValidTime = _isWithinAppointmentTime(appointment);
+        if (isValidTime &&
+            state.appointment.appointmentStatus ==
+                AppointmentStatus.confirmed.index) {
+          debugPrint('Marking appointment as visited for UID: $appointmentUid');
+          await appointmentController
+              .markAsVisitedConsultationRoom(appointmentUid);
+        } else {
+          debugPrint(
+              'Appointment is not within the valid time range or status is not confirmed.');
+        }
+      } else {
+        debugPrint('Appointment not found.');
+      }
+    } else {
+      debugPrint('Appointment UID is null.');
+    }
+
+    if (context.mounted) {
+      Navigator.pushNamed(context, '/consultation').then(
+        (value) => context.read<AppointmentBloc>().add(
+              NavigateToAppointmentDetailsEvent(
+                doctorUid: doctorDetails!.uid,
+                appointmentUid: state.appointment.appointmentUid!,
+              ),
+            ),
+      );
+    }
+  }
+
+  bool _isWithinAppointmentTime(AppointmentModel appointment) {
+    final DateFormat dateFormat = DateFormat('MMMM d, yyyy');
+    final DateFormat timeFormat = DateFormat('hh:mm a');
+    final DateTime now = DateTime.now();
+
+    final DateTime appointmentDate =
+        dateFormat.parse(appointment.appointmentDate!.trim());
+    final List<String> times = appointment.appointmentTime!.split(' - ');
+    final DateTime startTime = timeFormat.parse(times[0].trim());
+    final DateTime endTime = timeFormat.parse(times[1].trim());
+
+    final DateTime appointmentStartDateTime = DateTime(
+      appointmentDate.year,
+      appointmentDate.month,
+      appointmentDate.day,
+      startTime.hour,
+      startTime.minute,
+    );
+
+    final DateTime appointmentEndDateTime = DateTime(
+      appointmentDate.year,
+      appointmentDate.month,
+      appointmentDate.day,
+      endTime.hour,
+      endTime.minute,
+    );
+
+    debugPrint('Current time: $now');
+    debugPrint('Appointment start time: $appointmentStartDateTime');
+    debugPrint('Appointment end time: $appointmentEndDateTime');
+
+    return now.isAfter(appointmentStartDateTime) &&
+        now.isBefore(appointmentEndDateTime);
   }
 }

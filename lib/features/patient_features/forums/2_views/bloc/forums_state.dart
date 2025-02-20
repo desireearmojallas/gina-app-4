@@ -41,15 +41,18 @@ class NavigateToForumsDetailedPostState extends ForumsState {
   final ForumModel forumPost;
   final List<ForumModel> forumReplies;
   final int doctorRatingId;
+  final User? currentUser;
 
   const NavigateToForumsDetailedPostState({
     required this.forumPost,
     required this.forumReplies,
     required this.doctorRatingId,
+    required this.currentUser,
   });
 
   @override
-  List<Object> get props => [forumPost, forumReplies, doctorRatingId];
+  List<Object> get props =>
+      [forumPost, forumReplies, doctorRatingId, currentUser!];
 }
 
 class NavigateToForumsCreatePostState extends ForumsActionState {}
@@ -67,15 +70,17 @@ class GetRepliesForumsPostSuccessState extends ForumsState {
   final ForumModel forumPost;
   final List<ForumModel> forumReplies;
   final int doctorRatingId;
+  final User? currentUser;
 
   const GetRepliesForumsPostSuccessState({
     required this.forumPost,
     required this.forumReplies,
     required this.doctorRatingId,
+    required this.currentUser,
   });
 
   @override
-  List<Object> get props => [forumPost, forumReplies];
+  List<Object> get props => [forumPost, forumReplies, currentUser!];
 }
 
 class GetRepliesForumsPostFailedState extends ForumsState {

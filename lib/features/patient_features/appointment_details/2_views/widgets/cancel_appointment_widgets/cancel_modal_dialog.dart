@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
@@ -51,6 +52,7 @@ Future<dynamic> showCancelModalDialog(
                     ),
                   ),
                   onPressed: () {
+                    HapticFeedback.mediumImpact();
                     if (isFromAppointmentTabs) {
                       isFromAppointmentTabs = false;
                       appointmentBloc.add(
@@ -58,11 +60,21 @@ Future<dynamic> showCancelModalDialog(
                             appointmentUid: appointmentId),
                       );
                       Navigator.of(context).pop();
+                      Navigator.pushReplacementNamed(
+                        context,
+                        '/bottomNavigation',
+                        arguments: {'initialIndex': 2},
+                      );
                     } else {
                       appointmentDetailBloc.add(
                         CancelAppointmentEvent(appointmentUid: appointmentId),
                       );
                       Navigator.of(context).pop();
+                      Navigator.pushReplacementNamed(
+                        context,
+                        '/bottomNavigation',
+                        arguments: {'initialIndex': 2},
+                      );
                     }
                   },
                   child: Text(
@@ -85,6 +97,7 @@ Future<dynamic> showCancelModalDialog(
                     ),
                   ),
                   onPressed: () {
+                    HapticFeedback.mediumImpact();
                     Navigator.of(context).pop();
                   },
                   child: Text(

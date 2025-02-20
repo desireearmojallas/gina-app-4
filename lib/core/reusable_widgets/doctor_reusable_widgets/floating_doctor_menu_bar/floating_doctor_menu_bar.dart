@@ -1,5 +1,3 @@
-// ignore_for_file: must_be_immutable
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,9 +11,9 @@ import 'package:badges/badges.dart' as badges;
 import 'package:icons_plus/icons_plus.dart';
 
 class FloatingDoctorMenuWidget extends StatelessWidget {
-  bool?
+  final bool?
       hasNotification; //TODO: TO CHANGE THIS, ADD LOGIC TO NOTIFICATION INDICATOR FOR AVATAR MENU BUTTON
-  FloatingDoctorMenuWidget({super.key, this.hasNotification});
+  const FloatingDoctorMenuWidget({super.key, this.hasNotification});
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +59,7 @@ class FloatingDoctorMenuWidget extends StatelessWidget {
               CircleAvatar(
                 radius: 20,
                 foregroundImage: AssetImage(Images.doctorProfileIcon1),
-                backgroundColor: GinaAppTheme.lightPrimaryColor,
+                backgroundColor: Colors.transparent,
               ),
               const Gap(10),
               BlocBuilder<FloatingDoctorMenuBarBloc,
@@ -78,7 +76,7 @@ class FloatingDoctorMenuWidget extends StatelessWidget {
                   return const Text('Loading...');
                 },
               ),
-              const SizedBox(width: 8),
+              const Gap(8),
               const Icon(
                 Icons.verified,
                 color: Colors.blue,
@@ -264,7 +262,7 @@ class FloatingDoctorMenuWidget extends StatelessWidget {
         position: badges.BadgePosition.topEnd(top: -8, end: -7),
         child: CircleAvatar(
           foregroundImage: AssetImage(Images.doctorProfileIcon1),
-          backgroundColor: GinaAppTheme.lightPrimaryColor,
+          backgroundColor: Colors.transparent,
         ),
       ),
     );

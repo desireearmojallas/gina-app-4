@@ -1,12 +1,17 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
+import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
 import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
+import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/gina_patient_app_bar/gina_patient_app_bar.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/bloc/doctor_forums_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/widgets/main_detailed_post_container.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_my_forums/bloc/doctor_my_forums_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_my_forums/screens/doctor_my_forums_screen.dart';
 import 'package:gina_app_4/features/patient_features/forums/0_models/forums_model.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/widgets/forum_header.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -15,19 +20,35 @@ class DoctorForumsDetailedPostState extends StatelessWidget {
   final ForumModel forumPost;
   final List<ForumModel> forumReplies;
   final int doctorRatingId;
-  const DoctorForumsDetailedPostState({
+  bool? useCustomAppBar;
+  bool? isDoctor;
+  final User? currentUser;
+  final bool? isFromMyForums;
+
+  DoctorForumsDetailedPostState({
     super.key,
     required this.forumPost,
     required this.forumReplies,
     required this.doctorRatingId,
+    required this.currentUser,
+    this.isFromMyForums = false,
+    this.useCustomAppBar = false,
+    this.isDoctor,
   });
 
   @override
   Widget build(BuildContext context) {
     final forumsBloc = context.read<DoctorForumsBloc>();
+    final myForumsBloc = context.read<DoctorMyForumsBloc>();
     final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
+      appBar: useCustomAppBar == true
+          ? (isDoctor == true
+              ? GinaDoctorAppBar(title: forumPost.title) as PreferredSizeWidget
+              : GinaPatientAppBar(title: forumPost.title)
+                  as PreferredSizeWidget)
+          : null,
       body: Stack(
         children: [
           const GradientBackground(),
@@ -52,6 +73,35 @@ class DoctorForumsDetailedPostState extends StatelessWidget {
                               forumPost: forumPost,
                               doctorRatingId: doctorRatingId,
                             ),
+                            const Gap(20),
+
+                            //delete icon
+
+                            if (forumPost.posterUid == currentUser?.uid)
+                              IconButton(
+                                padding: const EdgeInsets.all(10),
+                                onPressed: () {
+                                  _showDeleteConfirmationDialog(
+                                    context,
+                                    myForumsBloc,
+                                    forumsBloc,
+                                  );
+                                },
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: GinaAppTheme.lightOnPrimaryColor,
+                                ),
+                                style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.all(
+                                      GinaAppTheme.appbarColorLight
+                                          .withOpacity(0.5)),
+                                  shape: MaterialStateProperty.all(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             const Gap(10),
                             Align(
                               alignment: Alignment.centerLeft,
@@ -195,6 +245,68 @@ class DoctorForumsDetailedPostState extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context,
+      DoctorMyForumsBloc bloc, DoctorForumsBloc forumsBloc) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content:
+              const Text('Are you sure you want to delete this announcement?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel',
+                  style: TextStyle(color: GinaAppTheme.lightOutline)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FilledButton(
+              onPressed: () {
+                bloc.add(
+                  DeleteMyForumsPostEvent(
+                    forumUid: forumPost.postId,
+                  ),
+                );
+
+                bloc.stream
+                    .firstWhere(
+                        (state) => state is DeleteMyForumsPostSuccessState)
+                    .then((_) {
+                  Navigator.of(context).pop(); // Close confirmation dialog
+
+                  if (isFromMyForums == true) {
+                    Navigator.of(context).pop(); // Close detailed post screen
+                    debugPrint('Fetching updated my forums posts...');
+                    bloc.add(GetMyDoctorForumsPostEvent());
+                    Navigator.of(context)
+                        .pushReplacementNamed('/doctorMyForumPosts');
+                  } else {
+                    forumsBloc.add(DoctorForumsFetchRequestedEvent());
+                  }
+                }).catchError((error) {
+                  debugPrint('Error deleting post: $error');
+                });
+              },
+              style: ButtonStyle(
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                backgroundColor: MaterialStateProperty.all(
+                  GinaAppTheme.lightTertiaryContainer,
+                ),
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

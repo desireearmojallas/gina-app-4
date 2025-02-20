@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/1_controllers/doctor_appointment_request_controller.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 
 part 'pending_request_state_event.dart';
@@ -54,20 +56,35 @@ class PendingRequestStateBloc
     final patientData = await doctorAppointmentRequestController.getPatientData(
         patientUid: event.appointment.patientUid!);
 
+    final completedAppointmentsResult = await doctorAppointmentRequestController
+        .getPatientCompletedAppointmentsWithCurrentDoctor(
+      patientUid: event.appointment.patientUid!,
+    );
+
     patientData.fold(
       (failure) {
         debugPrint('Failed to fetch patient data: $failure');
         emit(GetPendingRequestFailedState(errorMessage: failure.toString()));
       },
       (patientData) {
-        debugPrint('Fetched patient data: $patientData');
-        storedAppointment = event.appointment;
-        storedPatientData = patientData;
-        emit(
-          NavigateToPendingRequestDetailedState(
-            appointment: event.appointment,
-            patientData: patientData,
-          ),
+        completedAppointmentsResult.fold(
+          (failure) {
+            debugPrint('Failed to fetch completed appointments: $failure');
+            emit(
+                GetPendingRequestFailedState(errorMessage: failure.toString()));
+          },
+          (completedAppointments) {
+            debugPrint('Fetched patient data: $patientData');
+            storedAppointment = event.appointment;
+            storedPatientData = patientData;
+            emit(
+              NavigateToPendingRequestDetailedState(
+                appointment: event.appointment,
+                patientData: patientData,
+                completedAppointments: completedAppointments,
+              ),
+            );
+          },
         );
       },
     );
@@ -75,25 +92,44 @@ class PendingRequestStateBloc
 
   FutureOr<void> approveAppointment(ApproveAppointmentEvent event,
       Emitter<PendingRequestStateState> emit) async {
+    debugPrint('Stored Patient Data: $storedPatientData');
+    debugPrint('Stored Appointment: $storedAppointment');
     emit(ApproveAppointmentLoadingState());
+
+    if (storedPatientData == null || storedAppointment == null) {
+      emit(const ApproveAppointmentFailedState(
+          errorMessage: 'Stored appointment or patient data is null'));
+      return;
+    }
 
     final result =
         await doctorAppointmentRequestController.approvePendingPatientRequest(
       appointmentId: event.appointmentId,
     );
 
-    //TODO: Uncomment this after implementing the doctor consultation bloc
-    //! Uncomment this after implementing the doctor consultation bloc
-    // selectedPatientUid = storedPatientData!.uid;
-    // selectedPatientAppointment = storedAppointment!.appointmentUid;
-    // selectedPatientName = storedPatientData!.name;
+    final completedAppointmentsResult = await doctorAppointmentRequestController
+        .getPatientCompletedAppointmentsWithCurrentDoctor(
+      patientUid: storedAppointment!.patientUid!,
+    );
 
     result.fold(
       (failure) =>
           emit(ApproveAppointmentFailedState(errorMessage: failure.toString())),
-      (success) {
-        emit(NavigateToApprovedRequestDetailedState(
-            appointment: storedAppointment!, patientData: storedPatientData!));
+      (appointment) {
+        completedAppointmentsResult.fold((failure) {
+          debugPrint('Failed to fetch completed appointments: $failure');
+          emit(GetPendingRequestFailedState(errorMessage: failure.toString()));
+        }, (completedAppointments) {
+          selectedPatientUid = storedPatientData!.uid;
+          selectedPatientAppointment = storedAppointment!.appointmentUid;
+          selectedPatientName = storedPatientData!.name;
+
+          emit(NavigateToApprovedRequestDetailedState(
+            appointment: storedAppointment!,
+            patientData: storedPatientData!,
+            completedAppointments: completedAppointments,
+          ));
+        });
       },
     );
   }
@@ -101,6 +137,12 @@ class PendingRequestStateBloc
   FutureOr<void> declineAppointment(DeclineAppointmentEvent event,
       Emitter<PendingRequestStateState> emit) async {
     emit(DeclineAppointmentLoadingState());
+
+    if (storedAppointment == null) {
+      emit(const DeclineAppointmentFailedState(
+          errorMessage: 'Stored appointment is null'));
+      return;
+    }
 
     final result = await doctorAppointmentRequestController
         .declinePendingPatientRequest(appointmentId: event.appointmentId);

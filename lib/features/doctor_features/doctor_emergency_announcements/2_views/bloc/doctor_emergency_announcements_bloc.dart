@@ -1,7 +1,8 @@
 import 'dart:async';
-
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/0_model/emergency_announcements_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/1_controller/doctor_emergency_announcements_controller.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
@@ -25,6 +26,7 @@ class DoctorEmergencyAnnouncementsBloc extends Bloc<
     on<NavigateToDoctorCreatedAnnouncementEvent>(
         navigateToDoctorCreatedAnnouncementEvent);
     on<CreateEmergencyAnnouncementEvent>(createEmergencyAnnouncementEvent);
+    on<DeleteEmergencyAnnouncementEvent>(deleteEmergencyAnnouncementEvent);
   }
 
   FutureOr<void> getDoctorEmergencyAnnouncementsEvent(
@@ -32,17 +34,41 @@ class DoctorEmergencyAnnouncementsBloc extends Bloc<
       Emitter<DoctorEmergencyAnnouncementsState> emit) async {
     emit(DoctorEmergencyAnnouncementsLoading());
 
-    final emergencyAnnouncements = await doctorEmergencyAnnouncementsController
-        .getEmergencyAnnouncements();
+    final emergencyAnnouncementsResult =
+        await doctorEmergencyAnnouncementsController
+            .getEmergencyAnnouncements();
 
-    emergencyAnnouncements.fold(
+    emergencyAnnouncementsResult.fold(
       (failure) {
         emit(DoctorEmergencyAnnouncementsError(
             errorMessage: failure.toString()));
       },
       (emergencyAnnouncements) {
+        if (emergencyAnnouncements.isEmpty) {
+          emit(DoctorEmergencyAnnouncementsEmpty());
+          return;
+        }
+
+        // Sort the announcements by createdAt in descending order
+        emergencyAnnouncements
+            .sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+        // Group the announcements by date
+        final groupedAnnouncements =
+            <DateTime, List<EmergencyAnnouncementModel>>{};
+        for (var announcement in emergencyAnnouncements) {
+          final createdAtDateTime = announcement.createdAt.toDate();
+          final date = DateTime(createdAtDateTime.year, createdAtDateTime.month,
+              createdAtDateTime.day);
+          if (groupedAnnouncements.containsKey(date)) {
+            groupedAnnouncements[date]!.add(announcement);
+          } else {
+            groupedAnnouncements[date] = [announcement];
+          }
+        }
+
         emit(DoctorEmergencyAnnouncementsLoaded(
-          emergencyAnnouncements: emergencyAnnouncements,
+          emergencyAnnouncements: groupedAnnouncements,
         ));
       },
     );
@@ -81,7 +107,21 @@ class DoctorEmergencyAnnouncementsBloc extends Bloc<
 
   FutureOr<void> navigateToDoctorCreatedAnnouncementEvent(
       NavigateToDoctorCreatedAnnouncementEvent event,
-      Emitter<DoctorEmergencyAnnouncementsState> emit) {
+      Emitter<DoctorEmergencyAnnouncementsState> emit) async {
+    final appointment = await doctorEmergencyAnnouncementsController
+        .getChosenAppointment(event.appointmentUid);
+
+    chosenAppointment = appointment.fold(
+      (failure) {
+        emit(DoctorEmergencyAnnouncementsError(
+            errorMessage: failure.toString()));
+        return null;
+      },
+      (appointment) {
+        return appointment;
+      },
+    );
+
     emit(NavigateToDoctorCreatedAnnouncementState(
       emergencyAnnouncement: event.emergencyAnnouncement,
     ));
@@ -90,6 +130,11 @@ class DoctorEmergencyAnnouncementsBloc extends Bloc<
   FutureOr<void> createEmergencyAnnouncementEvent(
       CreateEmergencyAnnouncementEvent event,
       Emitter<DoctorEmergencyAnnouncementsState> emit) async {
+    debugPrint('Emitting CreateAnnouncementLoadingState');
+    emit(CreateAnnouncementLoadingState());
+
+    await Future.delayed(const Duration(seconds: 2));
+
     final createEmergencyAnnouncement =
         await doctorEmergencyAnnouncementsController
             .createEmergencyAnnouncement(
@@ -108,5 +153,70 @@ class DoctorEmergencyAnnouncementsBloc extends Bloc<
         emit(CreateEmergencyAnnouncementPostSuccessState());
       },
     );
+  }
+
+  Future<void> deleteEmergencyAnnouncementEvent(
+      DeleteEmergencyAnnouncementEvent event,
+      Emitter<DoctorEmergencyAnnouncementsState> emit) async {
+    emit(DoctorEmergencyAnnouncementsLoading());
+
+    try {
+      final deleteEmergencyAnnouncement =
+          await doctorEmergencyAnnouncementsController
+              .deleteEmergencyAnnouncement(event.emergencyAnnouncement);
+
+      await deleteEmergencyAnnouncement.fold(
+        (failure) async {
+          emit(DoctorEmergencyAnnouncementsError(
+              errorMessage: failure.toString()));
+        },
+        (success) async {
+          try {
+            final emergencyAnnouncements =
+                await doctorEmergencyAnnouncementsController
+                    .getEmergencyAnnouncements();
+
+            await emergencyAnnouncements.fold(
+              (failure) async {
+                emit(DoctorEmergencyAnnouncementsError(
+                    errorMessage: failure.toString()));
+              },
+              (emergencyAnnouncements) async {
+                if (emergencyAnnouncements.isEmpty) {
+                  emit(DoctorEmergencyAnnouncementsEmpty());
+                  return;
+                }
+
+                // Sort the announcements by createdAt in descending order
+                emergencyAnnouncements
+                    .sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+                // Group the announcements by date
+                final groupedAnnouncements =
+                    <DateTime, List<EmergencyAnnouncementModel>>{};
+                for (var announcement in emergencyAnnouncements) {
+                  final createdAtDateTime = announcement.createdAt.toDate();
+                  final date = DateTime(createdAtDateTime.year,
+                      createdAtDateTime.month, createdAtDateTime.day);
+                  if (groupedAnnouncements.containsKey(date)) {
+                    groupedAnnouncements[date]!.add(announcement);
+                  } else {
+                    groupedAnnouncements[date] = [announcement];
+                  }
+                }
+
+                emit(DoctorEmergencyAnnouncementsLoaded(
+                  emergencyAnnouncements: groupedAnnouncements,
+                ));
+              },
+            );
+          } catch (e) {
+            emit(DoctorEmergencyAnnouncementsError(errorMessage: e.toString()));
+          }
+        },
+      );
+    } catch (e) {
+      emit(DoctorEmergencyAnnouncementsError(errorMessage: e.toString()));
+    }
   }
 }

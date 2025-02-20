@@ -24,12 +24,17 @@ import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/screens/bloc/doctor_appointment_request_screen_loaded_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/approved_state/bloc/approved_request_state_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/cancelled_state/bloc/cancelled_request_state_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/completed_state/bloc/completed_request_state_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/declined_state/bloc/declined_request_state_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/missed_state/bloc/missed_request_state_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/bloc/pending_request_state_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_bottom_navigation/bloc/doctor_bottom_navigation_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_bottom_navigation/widgets/doctor_floating_container_for_ongoing_appt/bloc/doctor_floating_container_for_ongoing_appt_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation/1_controllers/doctor_chat_message_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/1_controllers/doctor_consultation_fee_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/bloc/doctor_consultation_fee_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_econsult/1_controllers/doctor_e_consult_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/1_controller/doctor_emergency_announcements_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/bloc/doctor_emergency_announcements_bloc.dart';
@@ -42,8 +47,10 @@ import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/bloc/
 import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/widgets/doctor_profile_update_dialog/bloc/doctor_profile_update_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/1_controllers/doctor_schedule_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_schedule_management/2_views/bloc/doctor_schedule_management_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_upcoming_appointments/2_views/1_controllers/doctor_upcoming_appointments_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_upcoming_appointments/2_views/bloc/doctor_upcoming_appointments_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patient_details/2_views/bloc/doctor_view_patient_details_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_view_patients/1_controllers/doctor_view_patients_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patients/2_views/bloc/doctor_view_patients_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
@@ -52,6 +59,10 @@ import 'package:gina_app_4/features/patient_features/appointment_details/2_views
 import 'package:gina_app_4/features/patient_features/book_appointment/1_controllers/appointment_controller.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
+import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/floating_container_for_ongoing_appt/bloc/floating_container_for_ongoing_appt_bloc.dart';
+import 'package:gina_app_4/features/patient_features/consultation/1_controllers/appointment_chat_controller.dart';
+import 'package:gina_app_4/features/patient_features/consultation/1_controllers/chat_message_controllers.dart';
+import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/consultation_fee_details/1_controller/consultation_fee_details_controller.dart';
 import 'package:gina_app_4/features/patient_features/consultation_fee_details/2_views/bloc/consultation_fee_details_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/1_controller/doctor_availability_controller.dart';
@@ -180,12 +191,21 @@ Future<void> init() async {
     () => BottomNavigationBloc(),
   );
 
+//! Features - Floating Container for Ongoing Appointment
+  sl.registerFactory(
+    () => FloatingContainerForOngoingApptBloc(
+      appointmentController: sl(),
+    ),
+  );
+
 //------------------------------------------------------------------------------
 
 //! Features - Home
   sl.registerFactory(
     () => HomeBloc(
       profileController: sl(),
+      appointmentController: sl(),
+      periodTrackerController: sl(),
     ),
   );
 
@@ -201,6 +221,12 @@ Future<void> init() async {
 //------------------------------------------------------------------------------
 
   //! Features - Patient Appointment
+  sl.registerFactory(() => ConsultationBloc(
+        appointmentChatController: sl(),
+        chatMessageController: sl(),
+      ));
+
+  sl.registerFactory(() => ChatMessageController());
 
 //------------------------------------------------------------------------------
 
@@ -259,7 +285,9 @@ Future<void> init() async {
 
   //! Features - Find / Doctor Details
   sl.registerFactory(
-    () => DoctorDetailsBloc(),
+    () => DoctorDetailsBloc(
+      appointmentController: sl(),
+    ),
   );
 
   //------------------------------------------------------------------------------
@@ -331,6 +359,14 @@ Future<void> init() async {
     () => DoctorBottomNavigationBloc(),
   );
 
+  //! Features - Doctor Floating Container for Ongoing Appointment
+  sl.registerFactory(
+    () => DoctorFloatingContainerForOngoingApptBloc(
+      doctorAppointmentRequestController: sl(),
+      chatMessageController: sl(),
+    ),
+  );
+
 // ----------------------------------------------------------------------------------
 
   //! Features - Floating Doctor Menu Bar
@@ -349,6 +385,7 @@ Future<void> init() async {
     () => HomeDashboardBloc(
       doctorHomeDashboardController: sl(),
       doctorProfileController: sl(),
+      doctorAppointmentRequestController: sl(),
     ),
   );
 
@@ -389,14 +426,31 @@ Future<void> init() async {
     ),
   );
 
+  sl.registerFactory(
+    () => CompletedRequestStateBloc(
+      doctorAppointmentRequestController: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => MissedRequestStateBloc(
+      doctorAppointmentRequestController: sl(),
+    ),
+  );
+
   sl.registerFactory(() => DoctorAppointmentRequestController());
 
 // ----------------------------------------------------------------------------------
 
   //! Features - Doctor EConsult
   sl.registerFactory(
-    () => DoctorEconsultBloc(),
+    () => DoctorEconsultBloc(
+      doctorEConsultController: sl(),
+      doctorAppointmentRequestController: sl(),
+    ),
   );
+
+  sl.registerFactory(() => DoctorEConsultController());
 
 // ----------------------------------------------------------------------------------
 
@@ -455,8 +509,12 @@ Future<void> init() async {
 
   //! Features - Doctor View Patients
   sl.registerFactory(
-    () => DoctorViewPatientsBloc(),
+    () => DoctorViewPatientsBloc(
+      doctorViewPatientsController: sl(),
+    ),
   );
+
+  sl.registerFactory(() => DoctorViewPatientsController());
 
 // ----------------------------------------------------------------------------------
 
@@ -503,15 +561,26 @@ Future<void> init() async {
 
   //! Features - Doctor Consultation Screen
   sl.registerFactory(
-    () => DoctorConsultationBloc(),
+    () => DoctorConsultationBloc(
+      doctorChatMessageController: sl(),
+      appointmentChatController: sl(),
+      doctorAppointmentRequestController: sl(),
+    ),
   );
+
+  sl.registerFactory(() => AppointmentChatController());
+  sl.registerFactory(() => DoctorChatMessageController());
 
 // ----------------------------------------------------------------------------------
 
   //! Features - Doctor Upcoming Appointments
   sl.registerFactory(
-    () => DoctorUpcomingAppointmentsBloc(),
+    () => DoctorUpcomingAppointmentsBloc(
+      doctorUpcomingAppointmentControllers: sl(),
+    ),
   );
+
+  sl.registerFactory(() => DoctorUpcomingAppointmentControllers());
 
 // ----------------------------------------------------------------------------------
 }

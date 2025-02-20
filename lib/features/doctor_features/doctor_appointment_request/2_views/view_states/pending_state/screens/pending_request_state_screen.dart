@@ -42,6 +42,7 @@ class PendingRequestStateScreen extends StatelessWidget {
                 builder: (context) => PendingRequestDetailsScreenState(
                   appointment: state.appointment,
                   patientData: state.patientData,
+                  completedAppointments: state.completedAppointments,
                 ),
               ),
             ).then((value) => context
@@ -53,8 +54,11 @@ class PendingRequestStateScreen extends StatelessWidget {
           // Debugging: Print when the builder is triggered
           debugPrint('Builder triggered with state: $state');
           if (state is GetPendingRequestSuccessState) {
-            return PendingRequestStateScreenLoaded(
-              pendingRequests: state.pendingRequests,
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 15.0),
+              child: PendingRequestStateScreenLoaded(
+                pendingRequests: state.pendingRequests,
+              ),
             );
           } else if (state is GetPendingRequestFailedState) {
             return Center(

@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/screens/view_states/doctor_forums_details_post_state.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_my_forums/bloc/doctor_my_forums_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/0_models/forums_model.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/screens/view_states/forums_detailed_post_state.dart';
@@ -12,22 +15,32 @@ import 'package:icons_plus/icons_plus.dart';
 
 class MyForumsPostScreenState extends StatelessWidget {
   final List<ForumModel> myForumsPost;
-  const MyForumsPostScreenState({super.key, required this.myForumsPost});
+  final User? currentUser;
+  final bool? isDoctor;
+  const MyForumsPostScreenState({
+    super.key,
+    required this.myForumsPost,
+    required this.currentUser,
+    this.isDoctor = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final forumsBloc = context.read<ForumsBloc>();
     final myForumsBloc = context.read<MyForumsBloc>();
+    final doctorMyForumsBloc = context.read<DoctorMyForumsBloc>();
     final width = MediaQuery.of(context).size.width;
     final ginaTheme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
       child: myForumsPost.isEmpty
           ? const MyForumsEmptyScreenState()
           : RefreshIndicator(
               onRefresh: () async {
-                myForumsBloc.add(GetMyForumsPostEvent());
+                isDoctor == true
+                    ? doctorMyForumsBloc.add(GetMyDoctorForumsPostEvent())
+                    : myForumsBloc.add(GetMyForumsPostEvent());
               },
               child: ListView.builder(
                 shrinkWrap: true,
@@ -41,28 +54,40 @@ class MyForumsPostScreenState extends StatelessWidget {
                         NavigateToForumsDetailedPostEvent(
                           forumPost: forumPost,
                           doctorRatingId: forumPost.doctorRatingId,
+                          isFromMyForums: true,
                         ),
                       );
 
                       debugPrint('Event added to Bloc');
 
-                      // Navigate directly here
+                      // Navigate based on isDoctor flag
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ForumsDetailedPostState(
-                            forumPost: forumPost,
-                            forumReplies: forumPost.replies,
-                            doctorRatingId: forumPost.doctorRatingId,
-                            useCustomAppBar: true,
-                            isDoctor: false,
-                            isFromMyForums: true,
-                          ),
+                          builder: (context) => isDoctor == true
+                              ? DoctorForumsDetailedPostState(
+                                  forumPost: forumPost,
+                                  forumReplies: forumPost.replies,
+                                  doctorRatingId: forumPost.doctorRatingId,
+                                  useCustomAppBar: true,
+                                  isDoctor: isDoctor,
+                                  isFromMyForums: true,
+                                  currentUser: currentUser,
+                                )
+                              : ForumsDetailedPostState(
+                                  forumPost: forumPost,
+                                  forumReplies: forumPost.replies,
+                                  doctorRatingId: forumPost.doctorRatingId,
+                                  useCustomAppBar: true,
+                                  isDoctor: isDoctor,
+                                  isFromMyForums: true,
+                                  currentUser: currentUser,
+                                ),
                         ),
                       );
                     },
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      padding: const EdgeInsets.symmetric(vertical: 5.0),
                       child: Container(
                         width: width * 0.94,
                         decoration: BoxDecoration(

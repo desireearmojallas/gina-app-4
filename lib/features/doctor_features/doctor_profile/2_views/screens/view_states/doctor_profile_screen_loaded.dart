@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/core/resources/images.dart';
+import 'package:gina_app_4/core/reusable_widgets/gina_divider.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/doctor_rating_badge/doctor_rating_badge.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
@@ -251,8 +252,10 @@ class DoctorProfileScreenLoaded extends StatelessWidget {
                 ),
               ),
 
+              GinaDivider(),
+
               //! -- License Number --
-              Gap(size.height * 0.015),
+              // Gap(size.height * 0.015),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

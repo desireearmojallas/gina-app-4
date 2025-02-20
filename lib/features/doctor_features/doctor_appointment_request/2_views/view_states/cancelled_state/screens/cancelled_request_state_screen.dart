@@ -50,8 +50,11 @@ class CancelledRequestStateScreen extends StatelessWidget {
         },
         builder: (context, state) {
           if (state is GetCancelledRequestSuccessState) {
-            return CancelledRequestStateScreenLoaded(
-              cancelledRequests: state.cancelledRequests,
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 15.0),
+              child: CancelledRequestStateScreenLoaded(
+                cancelledRequests: state.cancelledRequests,
+              ),
             );
           } else if (state is GetCancelledRequestFailedState) {
             return Center(

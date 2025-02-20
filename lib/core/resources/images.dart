@@ -26,6 +26,8 @@ class Images {
   static String doctorProfileIcon1 = "assets/images/doctor_avatar.jpg";
   static String doctorProfileIcon2 = "assets/images/doctor_avatar_2.jpg";
   static String doctorProfileIcon3 = "assets/images/doctor_avatar_2.png";
+  static String placeholderProfileIcon =
+      "assets/images/placeholder_profile_pic.png";
 
   //! Home Screen
   static String appointmentImage =
@@ -58,6 +60,14 @@ class Images {
       "assets/images/doctor_features/home/schedule_management.png";
   static String emergencyAnnouncementIcon =
       "assets/images/doctor_features/home/emergency_announcement_doctor.png";
+  static String pastAppointmentsIcon =
+      "assets/images/doctor_features/home/past_appointments.png";
+  static String pastAppointmentsIcon2 =
+      "assets/images/doctor_features/home/past_appointments_2.png";
+  static String completedAppointments =
+      "assets/images/doctor_features/home/completed_appointments.png";
+  static String completedAppointmentsIcon =
+      "assets/images/doctor_features/home/completed_appointments_2.png";
 
   //! Doctor Forum Badges Screen
   static String newDoctorForumBadgeBackground =
@@ -76,6 +86,8 @@ class Images {
   //! Doctor Emergency Announcement Screen
   static String emergencyAnnouncementIllustration =
       "assets/images/doctor_features/emergency_announcements/no_emergency_announcement_illustration.png";
+  static String emergencyAnnouncementLoaded =
+      "assets/images/doctor_features/emergency_announcements/emergency_announcement_loaded.png";
 
   //! Doctor Schedule Management
   static String reviewScheduleIllustration =

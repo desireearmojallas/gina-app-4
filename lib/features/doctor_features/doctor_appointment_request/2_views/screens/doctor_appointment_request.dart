@@ -11,7 +11,8 @@ class DoctorAppointmentRequestProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => sl<DoctorAppointmentRequestBloc>(),
+      create: (context) => sl<DoctorAppointmentRequestBloc>()
+        ..add(DoctorAppointmentRequestInitialEvent()), // Dispatch initial event
       child: const DoctorAppointmentRequestScreen(),
     );
   }
@@ -23,22 +24,23 @@ class DoctorAppointmentRequestScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: GinaDoctorAppBar(
-          title: 'Appointment Requests',
-        ),
-        body: BlocConsumer<DoctorAppointmentRequestBloc,
-            DoctorAppointmentRequestState>(
-          listenWhen: (previous, current) =>
-              current is DoctorAppointmentRequestActionState,
-          buildWhen: (previous, current) =>
-              current is! DoctorAppointmentRequestActionState,
-          listener: (context, state) {},
-          builder: (context, state) {
-            if (state is DoctorAppointmentRequestInitial) {
-              return const DoctorAppointmentRequestScreenLoaded();
-            }
+      appBar: GinaDoctorAppBar(
+        title: 'Appointment Requests',
+      ),
+      body: BlocConsumer<DoctorAppointmentRequestBloc,
+          DoctorAppointmentRequestState>(
+        listenWhen: (previous, current) =>
+            current is DoctorAppointmentRequestActionState,
+        buildWhen: (previous, current) =>
+            current is! DoctorAppointmentRequestActionState,
+        listener: (context, state) {},
+        builder: (context, state) {
+          if (state is DoctorAppointmentRequestInitial) {
             return const DoctorAppointmentRequestScreenLoaded();
-          },
-        ));
+          }
+          return const DoctorAppointmentRequestScreenLoaded();
+        },
+      ),
+    );
   }
 }

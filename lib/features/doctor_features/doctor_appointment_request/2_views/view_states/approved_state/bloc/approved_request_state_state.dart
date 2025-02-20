@@ -36,14 +36,16 @@ class GetApprovedRequestFailedState extends ApprovedRequestStateState {
 class NavigateToApprovedRequestDetailState extends ApprovedRequestActionState {
   final AppointmentModel appointment;
   final UserModel patientData;
+  final List<AppointmentModel> completedAppointments;
 
-  NavigateToApprovedRequestDetailState({
+  const NavigateToApprovedRequestDetailState({
     required this.appointment,
     required this.patientData,
+    required this.completedAppointments,
   });
 
   @override
-  List<Object> get props => [appointment, patientData];
+  List<Object> get props => [appointment, patientData, completedAppointments];
 }
 
 class NavigateToPatientDataState extends ApprovedRequestActionState {
@@ -52,7 +54,7 @@ class NavigateToPatientDataState extends ApprovedRequestActionState {
   final List<PeriodTrackerModel> patientPeriods;
   final List<AppointmentModel> patientAppointments;
 
-  NavigateToPatientDataState({
+  const NavigateToPatientDataState({
     required this.patientData,
     required this.appointment,
     required this.patientPeriods,

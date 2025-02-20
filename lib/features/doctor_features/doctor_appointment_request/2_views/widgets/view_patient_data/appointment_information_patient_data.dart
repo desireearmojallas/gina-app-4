@@ -38,10 +38,13 @@ class AppointmentInformationPatientData extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
       child: Container(
         height: size.height * 0.23,
-        width: size.width / 1.05,
+        width: size.width / 1.08,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            GinaAppTheme.defaultBoxShadow,
+          ],
         ),
         child: Column(
           children: [

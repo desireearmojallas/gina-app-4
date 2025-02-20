@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
@@ -14,6 +15,7 @@ class EmergencyAnnouncementNavigationWidget extends StatelessWidget {
 
     return InkWell(
       onTap: () {
+        HapticFeedback.selectionClick();
         Navigator.pushNamed(
           context,
           '/doctorEmergencyAnnouncements',

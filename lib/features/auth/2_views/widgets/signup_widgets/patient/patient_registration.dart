@@ -195,7 +195,7 @@ class _PatientRegistrationState extends State<PatientRegistration> {
       'Male',
       'Female',
       'Non-Binary',
-      'Prefere not to say',
+      'Prefer not to say',
     ];
 
     return Container(

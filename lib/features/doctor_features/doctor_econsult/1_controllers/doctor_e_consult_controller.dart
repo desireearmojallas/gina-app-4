@@ -63,6 +63,60 @@ class DoctorEConsultController with ChangeNotifier {
     }
   }
 
+  //------------- GET UPCOMING DOCTOR APPOINTMENTS LIST ----------------
+
+  Future<Either<Exception, List<AppointmentModel>>>
+      getUpcomingDoctorAppointmentsList() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> appointmentSnapshot = await firestore
+          .collection('appointments')
+          .where('doctorUid', isEqualTo: currentDoctor!.uid)
+          .where('appointmentStatus',
+              isEqualTo: AppointmentStatus.confirmed.index)
+          .get();
+
+      var patientAppointments = appointmentSnapshot.docs
+          .map((doc) => AppointmentModel.fromJson(doc.data()))
+          .toList()
+        ..sort((a, b) {
+          final aDate = DateFormat('MMMM d, yyyy').parse(a.appointmentDate!);
+          final bDate = DateFormat('MMMM d, yyyy').parse(b.appointmentDate!);
+
+          return aDate
+              .difference(DateTime.now())
+              .abs()
+              .compareTo(bDate.difference(DateTime.now()).abs());
+        });
+
+      // Filter out appointments that have already ended
+      final DateTime now = DateTime.now();
+      patientAppointments = patientAppointments.where((appointment) {
+        final DateTime appointmentDate =
+            DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
+        final String endTimeString =
+            appointment.appointmentTime!.split(' - ')[1];
+        final DateTime endTime = DateFormat('hh:mm a').parse(endTimeString);
+
+        final DateTime appointmentEndDateTime = DateTime(
+          appointmentDate.year,
+          appointmentDate.month,
+          appointmentDate.day,
+          endTime.hour,
+          endTime.minute,
+        );
+
+        return appointmentEndDateTime.isAfter(now);
+      }).toList();
+
+      return Right(patientAppointments);
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException code: ${e.code}');
+      error = e;
+      return Left(Exception(e.message));
+    }
+  }
+
   //------------- GET DOCTOR CHATROOMS AND MESSAGES ----------------
 
   Future<Either<Exception, List<ChatMessageModel>>>
@@ -76,24 +130,59 @@ class DoctorEConsultController with ChangeNotifier {
       var chatroomDocs = chatroomSnapshot.docs;
       List<Future<ChatMessageModel?>> chatroomMessagesFutures =
           chatroomDocs.map((chatroomDoc) async {
-        QuerySnapshot<Map<String, dynamic>> messagesSnapshot = await firestore
-            .collection('consultation-chatrooms')
-            .doc(chatroomDoc.id)
-            .collection('messages')
-            .orderBy('createdAt', descending: true)
-            .get();
+        QuerySnapshot<Map<String, dynamic>> appointmentsSnapshot =
+            await firestore
+                .collection('consultation-chatrooms')
+                .doc(chatroomDoc.id)
+                .collection('appointments')
+                .get();
 
-        List<ChatMessageModel> messages = messagesSnapshot.docs
-            .map((doc) => ChatMessageModel.fromJson(doc.data()))
-            .toList();
+        var appointmentDocs = appointmentsSnapshot.docs;
 
-        return messages.isNotEmpty ? messages.first : null;
+        appointmentDocs.sort((a, b) {
+          if (!a.data().containsKey('startTime') ||
+              !b.data().containsKey('startTime')) {
+            return 0;
+          }
+          DateTime startTimeA = a['startTime'].toDate();
+          DateTime startTimeB = b['startTime'].toDate();
+          return startTimeB.compareTo(startTimeA);
+        });
+
+        List<Future<ChatMessageModel?>> appointmentMessagesFutures =
+            appointmentDocs.map((appointmentDoc) async {
+          QuerySnapshot<Map<String, dynamic>> messagesSnapshot = await firestore
+              .collection('consultation-chatrooms')
+              .doc(chatroomDoc.id)
+              .collection('appointments')
+              .doc(appointmentDoc.id)
+              .collection('messages')
+              .orderBy('createdAt', descending: true)
+              .get();
+
+          List<ChatMessageModel> messages = messagesSnapshot.docs
+              .map((doc) => ChatMessageModel.fromJson(doc.data()))
+              .toList();
+
+          return messages.isNotEmpty ? messages.first : null;
+        }).toList();
+
+        List<ChatMessageModel> appointmentMessages =
+            (await Future.wait(appointmentMessagesFutures))
+                .whereType<ChatMessageModel>()
+                .toList();
+
+        return appointmentMessages.isNotEmpty
+            ? appointmentMessages.first
+            : null;
       }).toList();
 
       List<ChatMessageModel> chatroomMessages =
           (await Future.wait(chatroomMessagesFutures))
               .whereType<ChatMessageModel>()
               .toList();
+
+      chatroomMessages.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
 
       return Right(chatroomMessages);
     } on FirebaseAuthException catch (e) {

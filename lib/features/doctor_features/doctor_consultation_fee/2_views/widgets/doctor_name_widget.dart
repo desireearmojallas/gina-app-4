@@ -19,6 +19,7 @@ Widget doctorNameWidget(size, ginaTheme, DoctorModel doctorDetails) {
           children: [
             CircleAvatar(
               radius: 50,
+              backgroundColor: Colors.transparent,
               backgroundImage: AssetImage(
                 Images.doctorProfileIcon1,
               ),

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/1_controllers/doctor_forums_controller.dart';
 import 'package:gina_app_4/features/patient_features/forums/0_models/forums_model.dart';
@@ -101,6 +102,7 @@ class DoctorForumsBloc extends Bloc<DoctorForumsEvent, DoctorForumsState> {
           doctorForumPost: event.docForumPost,
           forumReplies: repliesPost.getOrElse(() => []),
           doctorRatingId: doctorRatingIdForCreate ?? 0,
+          currentUser: docForumsController.currentUser,
         ));
       }
     });
@@ -122,6 +124,7 @@ class DoctorForumsBloc extends Bloc<DoctorForumsEvent, DoctorForumsState> {
         doctorForumPost: forumPost,
         forumReplies: forumReplies,
         doctorRatingId: doctorRatingId,
+        currentUser: docForumsController.currentUser,
       ));
     });
   }
@@ -165,6 +168,7 @@ class DoctorForumsBloc extends Bloc<DoctorForumsEvent, DoctorForumsState> {
         forumPost: event.docForumPost,
         forumReplies: replies,
         doctorRatingId: doctorRatingId ?? 0,
+        currentUser: docForumsController.currentUser,
       ));
     });
   }

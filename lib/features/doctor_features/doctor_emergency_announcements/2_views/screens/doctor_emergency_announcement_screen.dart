@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/1_controller/doctor_emergency_announcements_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/bloc/doctor_emergency_announcements_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/view_states/doctor_emergency_announcement_create_announcement.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/view_states/doctor_emergency_announcement_initial.dart';
@@ -12,7 +13,9 @@ import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcemen
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/view_states/doctor_emergency_announcements_loaded.dart';
 
 class DoctorEmergencyAnnouncementScreenProvider extends StatelessWidget {
-  const DoctorEmergencyAnnouncementScreenProvider({super.key});
+  final bool navigateToCreate;
+  const DoctorEmergencyAnnouncementScreenProvider(
+      {super.key, required this.navigateToCreate});
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +23,15 @@ class DoctorEmergencyAnnouncementScreenProvider extends StatelessWidget {
       create: (context) {
         final doctorEmergencyAnnouncementsBloc =
             sl<DoctorEmergencyAnnouncementsBloc>();
-        doctorEmergencyAnnouncementsBloc
-            .add(GetDoctorEmergencyAnnouncementsEvent());
+        // doctorEmergencyAnnouncementsBloc
+        //     .add(GetDoctorEmergencyAnnouncementsEvent());
+        if (navigateToCreate) {
+          doctorEmergencyAnnouncementsBloc
+              .add(NavigateToDoctorEmergencyCreateAnnouncementEvent());
+        } else {
+          doctorEmergencyAnnouncementsBloc
+              .add(GetDoctorEmergencyAnnouncementsEvent());
+        }
         return doctorEmergencyAnnouncementsBloc;
       },
       child: const DoctorEmergencyAnnouncementScreen(),
@@ -61,7 +71,7 @@ class DoctorEmergencyAnnouncementScreen extends StatelessWidget {
                       )
                     : null,
             title: state is DoctorEmergencyGetApprovedPatientList
-                ? 'Select a Patient'
+                ? 'Select a patient'
                 : state is CreateAnnouncementState
                     ? 'Create Announcement'
                     : 'Emergency Announcements',
@@ -70,6 +80,7 @@ class DoctorEmergencyAnnouncementScreen extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 78),
             child: state is DoctorEmergencyAnnouncementsLoaded ||
                     state is DoctorEmergencyAnnouncementsInitial ||
+                    state is DoctorEmergencyAnnouncementsEmpty ||
                     state is DoctorEmergencyAnnouncementsLoaded
                 ? FloatingActionButton(
                     onPressed: () {
@@ -104,23 +115,25 @@ class DoctorEmergencyAnnouncementScreen extends StatelessWidget {
                 return Center(
                   child: Text(state.errorMessage),
                 );
-              } else if (state is CreateAnnouncementState) {
-                return DoctorEmergencyAnnouncementCreateAnnouncementScreen();
-              } else if (state is DoctorEmergencyAnnouncementsEmpty) {
-                return const Center(
-                  child: Text(
-                    'No emergency announcements',
-                  ),
+              } else if (state is CreateAnnouncementState ||
+                  state is CreateAnnouncementLoadingState) {
+                return DoctorEmergencyAnnouncementCreateAnnouncementScreen(
+                  isLoading: state is CreateAnnouncementLoadingState,
                 );
+              } else if (state is DoctorEmergencyAnnouncementsEmpty) {
+                return const DoctorEmergencyAnnouncementInitialScreen();
               } else if (state is DoctorEmergencyGetApprovedPatientList) {
                 return DoctorEmergencyAnnouncementPatientList(
                   approvedPatients: state.approvedPatientList,
                 );
               } else if (state is SelectedAPatientState) {
-                return DoctorEmergencyAnnouncementCreateAnnouncementScreen();
+                return DoctorEmergencyAnnouncementCreateAnnouncementScreen(
+                  isLoading: state is CreateAnnouncementLoadingState,
+                );
               } else if (state is NavigateToDoctorCreatedAnnouncementState) {
                 return DoctorEmergencyAnnouncementsLoadedDetailsScreen(
                   emergencyAnnouncement: state.emergencyAnnouncement,
+                  appointment: chosenAppointment!,
                 );
               }
               return const SizedBox();

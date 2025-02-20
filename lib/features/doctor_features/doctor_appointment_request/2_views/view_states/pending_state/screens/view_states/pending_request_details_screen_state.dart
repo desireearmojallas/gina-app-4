@@ -13,11 +13,13 @@ import 'package:gina_app_4/features/patient_features/book_appointment/0_model/ap
 class PendingRequestDetailsScreenState extends StatelessWidget {
   final AppointmentModel appointment;
   final UserModel patientData;
+  final List<AppointmentModel> completedAppointments;
 
   const PendingRequestDetailsScreenState({
     super.key,
     required this.appointment,
     required this.patientData,
+    required this.completedAppointments,
   });
 
   @override
@@ -95,12 +97,16 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                             ),
                             SizedBox(
                               width: size.width * 0.5,
-                              child: Text(
-                                'Appointment ID: ${appointment.appointmentUid}',
-                                style: ginaTheme.textTheme.labelSmall?.copyWith(
-                                  color: GinaAppTheme.lightOutline,
+                              child: Flexible(
+                                child: Text(
+                                  'Appointment ID: ${appointment.appointmentUid}',
+                                  style:
+                                      ginaTheme.textTheme.labelSmall?.copyWith(
+                                    color: GinaAppTheme.lightOutline,
+                                  ),
+                                  overflow: TextOverflow.visible,
+                                  softWrap: true,
                                 ),
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
@@ -112,7 +118,7 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                             children: [
                               AppointmentStatusContainer(
                                 appointmentStatus:
-                                    appointment.appointmentStatus,
+                                    appointment.appointmentStatus!,
                               ),
                             ],
                           ),
@@ -237,6 +243,7 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                     TextButton(
                       onPressed: () {
                         // Navigator.pushNamed(context, '/viewPatientData');
+                        //TODO: For testing only patient data routing
                         //! for testing only
                         Navigator.push(
                             context,
@@ -244,13 +251,8 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                                 builder: (context) => ViewPatientDataScreen(
                                       patient: patientData,
                                       patientAppointment: appointment,
-                                      patientAppointments: patientData
-                                          .appointmentsBooked
-                                          .map((appointmentId) =>
-                                              AppointmentModel(
-                                                  appointmentUid:
-                                                      appointmentId))
-                                          .toList(),
+                                      patientAppointments:
+                                          completedAppointments,
                                     )));
                       },
                       style: ButtonStyle(
@@ -292,6 +294,7 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                                   appointmentId: appointment.appointmentUid!,
                                   patientData: patientData,
                                   appointment: appointment,
+                                  completedAppointments: completedAppointments,
                                 );
                               },
                               style: ButtonStyle(
@@ -322,6 +325,7 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                                   appointmentId: appointment.appointmentUid!,
                                   patientData: patientData,
                                   appointment: appointment,
+                                  completedAppointments: completedAppointments,
                                 );
                               },
                               style: ButtonStyle(

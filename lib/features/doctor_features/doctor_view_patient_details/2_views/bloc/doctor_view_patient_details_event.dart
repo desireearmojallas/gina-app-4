@@ -6,3 +6,6 @@ sealed class DoctorViewPatientDetailsEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+class DoctorViewPatientDetailsFetchRequestedEvent
+    extends DoctorViewPatientDetailsEvent {}

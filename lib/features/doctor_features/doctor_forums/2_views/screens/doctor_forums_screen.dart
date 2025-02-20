@@ -78,6 +78,7 @@ class DoctorForumsScreen extends StatelessWidget {
             buildWhen: (previous, current) =>
                 current is! DoctorForumsActionState,
             listener: (context, state) {
+              debugPrint('Listener: Current state is $state');
               if (state is NavigateToDoctorForumsCreatePostState) {
                 Navigator.pushNamed(context, '/doctorForumsCreatePost').then(
                   (value) => forumsBloc.add(
@@ -93,12 +94,15 @@ class DoctorForumsScreen extends StatelessWidget {
               //   );
               // }
               else if (state is CreateDoctorForumsPostSuccessState) {
+                debugPrint('Listener: CreateDoctorForumsPostSuccessState');
                 postedConfirmationDialog(context, 'Posted', false);
               } else if (state is CreateReplyDoctorForumsPostSuccessState) {
+                debugPrint('Listener: CreateReplyDoctorForumsPostSuccessState');
                 postedConfirmationDialog(context, 'Reply posted', false);
               }
             },
             builder: (context, state) {
+              debugPrint('Builder: Current state is $state');
               if (state is GetDoctorForumsPostsSuccessState) {
                 final forumPosts = state.forumsPosts;
                 final doctorRatingIds = state.doctorRatingIds;
@@ -122,10 +126,12 @@ class DoctorForumsScreen extends StatelessWidget {
                 final forumPost = state.doctorForumPost;
                 final forumReplies = state.forumReplies;
                 final doctorRatingId = state.doctorRatingId;
+                final currentUser = state.currentUser;
                 return DoctorForumsDetailedPostState(
                   forumPost: forumPost,
                   forumReplies: forumReplies,
                   doctorRatingId: doctorRatingId,
+                  currentUser: currentUser,
                 );
               } else if (state is NavigateToDoctorForumsReplyPostState) {
                 final forumPost = state.docForumPost;
@@ -138,6 +144,7 @@ class DoctorForumsScreen extends StatelessWidget {
                   forumPost: state.forumPost,
                   forumReplies: forumReplies,
                   doctorRatingId: state.doctorRatingId,
+                  currentUser: state.currentUser,
                 );
               }
               return const SizedBox();

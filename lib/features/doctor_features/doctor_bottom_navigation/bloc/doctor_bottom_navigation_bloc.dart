@@ -6,6 +6,8 @@ import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/scre
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/screens/doctor_forums_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/screens/doctor_profile_screen.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/screens/doctor_home_dashboard_screen.dart';
+import 'package:gina_app_4/main.dart';
+import 'package:haptic_feedback/haptic_feedback.dart';
 
 part 'doctor_bottom_navigation_event.dart';
 part 'doctor_bottom_navigation_state.dart';
@@ -18,11 +20,15 @@ class DoctorBottomNavigationBloc
           selectedScreen: DoctorHomeScreenDashboardProvider(),
           navigationHistory: [0],
         )) {
-    on<TabChangedEvent>((event, emit) {
+    on<TabChangedEvent>((event, emit) async {
       final newHistory = List<int>.from(state.navigationHistory);
 
       if (newHistory.last != event.tab) {
         newHistory.add(event.tab);
+      }
+
+      if (canVibrate == true) {
+        await Haptics.vibrate(HapticsType.selection);
       }
 
       emit(DoctorBottomNavigationInitial(

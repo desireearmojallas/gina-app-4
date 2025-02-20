@@ -23,12 +23,14 @@ class RescheduleAppointmentEvent extends AppointmentDetailsEvent {
   final String appointmentDate;
   final String appointmentTime;
   final int modeOfAppointment;
+  final DoctorModel doctor;
 
   const RescheduleAppointmentEvent({
     required this.appointmentUid,
     required this.appointmentDate,
     required this.appointmentTime,
     required this.modeOfAppointment,
+    required this.doctor,
   });
 
   @override
@@ -37,6 +39,7 @@ class RescheduleAppointmentEvent extends AppointmentDetailsEvent {
         appointmentDate,
         appointmentTime,
         modeOfAppointment,
+        doctor,
       ];
 }
 
@@ -46,6 +49,15 @@ class NavigateToReviewRescheduledAppointmentEvent
 
   const NavigateToReviewRescheduledAppointmentEvent(
       {required this.appointmentUid});
+
+  @override
+  List<Object> get props => [appointmentUid];
+}
+
+class FetchLatestAppointmentDetailsEvent extends AppointmentDetailsEvent {
+  final String appointmentUid;
+
+  const FetchLatestAppointmentDetailsEvent({required this.appointmentUid});
 
   @override
   List<Object> get props => [appointmentUid];
