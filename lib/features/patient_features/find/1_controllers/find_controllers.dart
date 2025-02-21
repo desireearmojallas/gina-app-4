@@ -48,8 +48,8 @@ class FindController {
 
   Future<Either<Exception, List<DoctorModel>>> getDoctorsNearMe() async {
     try {
-      // 50km radius of the user's current location
-      const double maxDistance = 1000;
+      // 25km radius of the user's current location
+      const double maxDistance = 25000;
 
       final doctorSnapshot = await firestore
           .collection('doctors')
