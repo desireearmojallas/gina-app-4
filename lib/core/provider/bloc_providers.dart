@@ -101,6 +101,15 @@ List<BlocProvider> getBlocProviders() {
     BlocProvider<HomeBloc>(
       create: (context) => sl<HomeBloc>(),
     ),
+    BlocProvider<BookAppointmentBloc>(
+      create: (context) => sl<BookAppointmentBloc>(),
+    ),
+    BlocProvider<AppointmentDetailsBloc>(
+      create: (context) => sl<AppointmentDetailsBloc>(),
+    ),
+    BlocProvider<AppointmentBloc>(
+      create: (context) => sl<AppointmentBloc>(),
+    ),
     BlocProvider<DoctorDetailsBloc>(
       create: (context) => sl<DoctorDetailsBloc>(),
     ),
@@ -130,15 +139,6 @@ List<BlocProvider> getBlocProviders() {
     ),
     BlocProvider<ConsultationFeeDetailsBloc>(
       create: (context) => sl<ConsultationFeeDetailsBloc>(),
-    ),
-    BlocProvider<BookAppointmentBloc>(
-      create: (context) => sl<BookAppointmentBloc>(),
-    ),
-    BlocProvider<AppointmentDetailsBloc>(
-      create: (context) => sl<AppointmentDetailsBloc>(),
-    ),
-    BlocProvider<AppointmentBloc>(
-      create: (context) => sl<AppointmentBloc>(),
     ),
     BlocProvider<ConsultationBloc>(
       create: (context) => sl<ConsultationBloc>(),

@@ -301,19 +301,20 @@ class AppointmentController with ChangeNotifier {
           .collection('appointments')
           .where('patientUid', isEqualTo: currentPatient!.uid)
           .where('doctorUid', isEqualTo: doctorUid)
-          .where('appointmentStatus', isNotEqualTo: 2)
-          .get();
+          .get(); // Removed .where('appointmentStatus', isNotEqualTo: 2)
 
       if (snapshot.docs.isEmpty) {
         return Right(AppointmentModel());
       }
 
-      final docs = snapshot.docs.map((doc) {
-        final model = AppointmentModel.fromDocumentSnap(doc);
-        model.appointmentDate = DateFormat('MMMM d, yyyy')
-            .format(DateFormat('MMMM d, yyyy').parse(model.appointmentDate!));
-        return model;
-      }).toList();
+      final docs = snapshot.docs
+          .map((doc) => AppointmentModel.fromDocumentSnap(doc))
+          .where((model) => model.appointmentStatus == 1) // Filter manually
+          .toList();
+
+      if (docs.isEmpty) {
+        return Right(AppointmentModel());
+      }
 
       docs.sort((a, b) => a.appointmentDate!.compareTo(b.appointmentDate!));
       return Right(docs.first);

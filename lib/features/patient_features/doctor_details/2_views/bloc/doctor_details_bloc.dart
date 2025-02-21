@@ -24,17 +24,27 @@ class DoctorDetailsBloc extends Bloc<DoctorDetailsEvent, DoctorDetailsState> {
   FutureOr<void> doctorDetailsFetchRequestedEvent(
       DoctorDetailsFetchRequestedEvent event,
       Emitter<DoctorDetailsState> emit) async {
+    if (doctorDetails == null) {
+      emit(const DoctorDetailsError('Doctor details are not available.'));
+      return;
+    }
+
     final result = await appointmentController.getRecentPatientAppointment(
       doctorUid: doctorDetails!.uid,
     );
 
     result.fold(
-      (failure) {},
+      (failure) {
+        emit(const DoctorDetailsError(
+            'Failed to fetch recent patient appointment.'));
+      },
       (appointment) {
         appointmentForNearbyDocLatestAppointment = appointment;
+        emit(DoctorDetailsLoaded(
+          appointment: appointment,
+        ));
       },
     );
-    emit(DoctorDetailsLoaded());
   }
 
   FutureOr<void> doctorDetailsNavigateToConsultationEvent(

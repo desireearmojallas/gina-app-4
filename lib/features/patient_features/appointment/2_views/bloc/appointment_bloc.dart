@@ -91,53 +91,69 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
   Future<void> navigateToAppointmentDetailsEvent(
       NavigateToAppointmentDetailsEvent event,
       Emitter<AppointmentState> emit) async {
+    debugPrint('NavigateToAppointmentDetailsEvent triggered');
     emit(AppointmentDetailsLoading());
 
     storedAppointmentUid = event.appointmentUid;
 
+    debugPrint('Fetching doctor details for UID: ${event.doctorUid}');
     final getDoctorDetails =
         await appointmentController.getDoctorDetail(doctorUid: event.doctorUid);
 
     DoctorModel? doctorInformation;
 
     getDoctorDetails.fold(
-      (failure) {},
+      (failure) {
+        debugPrint('Failed to fetch doctor details: $failure');
+      },
       (getDoctorDetails) {
         doctorInformation = getDoctorDetails;
         doctorDetails = getDoctorDetails;
+        debugPrint('Fetched doctor details: $doctorInformation');
       },
     );
 
+    debugPrint('Fetching patient profile data');
     final getProfileData = await profileController.getPatientProfile();
 
     getProfileData.fold(
-      (failure) {},
+      (failure) {
+        debugPrint('Failed to fetch patient profile data: $failure');
+      },
       (patientData) {
         currentActivePatient = patientData;
+        debugPrint('Fetched patient profile data: $currentActivePatient');
       },
     );
 
+    debugPrint('Fetching appointment details for UID: ${event.appointmentUid}');
     final result = await appointmentController.getAppointmentDetails(
         appointmentUid: event.appointmentUid);
 
     await result.fold(
       (failure) async {
+        debugPrint('Failed to fetch appointment details: $failure');
         emit(AppointmentDetailsError(errorMessage: failure.toString()));
       },
       (appointment) async {
+        debugPrint('Fetched appointment details: $appointment');
         if (appointment.appointmentStatus ==
                 AppointmentStatus.completed.index ||
             appointment.appointmentStatus == 2) {
+          debugPrint(
+              'Fetching prescription images for appointment UID: ${event.appointmentUid}');
           final images = await appointmentController.getPrescriptionImages(
               appointmentUid: event.appointmentUid);
 
           await images.fold(
             (failure) async {
+              debugPrint('Failed to fetch prescription images: $failure');
               emit(
                   GetPrescriptionImagesError(errorMessage: failure.toString()));
             },
             (images) async {
               storedPrescriptionImages = images;
+              debugPrint('Fetched prescription images: $images');
               if (doctorInformation != null && currentActivePatient != null) {
                 emit(ConsultationHistoryState(
                   appointment: appointment,
@@ -154,6 +170,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
           );
         } else {
           if (doctorInformation != null && currentActivePatient != null) {
+            debugPrint('Emitting AppointmentDetailsState...');
             emit(AppointmentDetailsState(
               appointment: appointment,
               doctorDetails: doctorInformation!,
