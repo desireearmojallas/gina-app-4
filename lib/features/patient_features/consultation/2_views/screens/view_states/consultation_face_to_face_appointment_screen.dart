@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
@@ -28,6 +29,8 @@ class FaceToFaceAppointmentScreen extends StatefulWidget {
       _FaceToFaceAppointmentScreenState();
 }
 
+//! follow the doctor_office_address_map_view.dart for realtime marker updates
+
 class _FaceToFaceAppointmentScreenState
     extends State<FaceToFaceAppointmentScreen> {
   late GoogleMapController mapController;
@@ -37,6 +40,7 @@ class _FaceToFaceAppointmentScreenState
   final Set<Marker> _markers = {};
   bool _isLoading = true;
   StreamSubscription<Position>? _positionStreamSubscription;
+  BitmapDescriptor? _patientMarkerIcon;
 
   @override
   void initState() {
@@ -45,12 +49,22 @@ class _FaceToFaceAppointmentScreenState
         const LatLng(10.3157, 123.8854);
     _getCurrentLocation();
     _listenToLocationChanges();
+    _loadCustomMarker();
   }
 
   @override
   void dispose() {
     _positionStreamSubscription?.cancel();
     super.dispose();
+  }
+
+  /// Load custom marker icon
+  Future<void> _loadCustomMarker() async {
+    _patientMarkerIcon = await _createCircularMarker(
+      Images.patientProfileIcon,
+      120,
+      Colors.white,
+    );
   }
 
   /// Get the patient's current location
@@ -78,7 +92,8 @@ class _FaceToFaceAppointmentScreenState
     _positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
-        distanceFilter: 10,
+        // distanceFilter: 10,
+        distanceFilter: 1,
       ),
     ).listen((Position position) {
       if (!mounted) return;
@@ -101,7 +116,7 @@ class _FaceToFaceAppointmentScreenState
       markerId: const MarkerId('patientLocation'),
       position: _patientLocation!,
       infoWindow: const InfoWindow(title: 'Your Location'),
-      icon: patientMarker.icon,
+      icon: _patientMarkerIcon ?? patientMarker.icon,
     ));
   }
 
@@ -119,11 +134,6 @@ class _FaceToFaceAppointmentScreenState
 
   /// Add markers for patient and doctor locations
   Future<void> _addMarkers() async {
-    final patientMarker = await _createCircularMarker(
-      Images.patientProfileIcon,
-      120,
-      Colors.white,
-    );
     final doctorMarker = await _createCircularMarker(
       Images.doctorProfileIcon1,
       120,
@@ -136,7 +146,7 @@ class _FaceToFaceAppointmentScreenState
         markerId: const MarkerId('patientLocation'),
         position: _patientLocation!,
         infoWindow: const InfoWindow(title: 'Your Location'),
-        icon: patientMarker,
+        icon: _patientMarkerIcon!,
       ));
 
       _markers.add(Marker(
@@ -506,7 +516,7 @@ class _FaceToFaceAppointmentScreenState
       body: Stack(
         children: [
           _isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(child: CustomLoadingIndicator())
               : GoogleMap(
                   onMapCreated: _onMapCreated,
                   initialCameraPosition: CameraPosition(

@@ -61,6 +61,8 @@ class AppointmentScreen extends StatelessWidget {
     final AppointmentController appointmentController =
         sl<AppointmentController>();
     final appointmentBloc = context.read<AppointmentBloc>();
+    bool? isOkayToUploadPrescription;
+
     return BlocConsumer<AppointmentBloc, AppointmentState>(
       listenWhen: (previous, current) => current is AppointmentActionState,
       buildWhen: (previous, current) => current is! AppointmentActionState,
@@ -75,6 +77,16 @@ class AppointmentScreen extends StatelessWidget {
       },
       builder: (context, state) {
         debugPrint('AppointmentScreen builder: $state');
+
+        if (state is ConsultationHistoryState) {
+          isOkayToUploadPrescription = state.appointment.appointmentStatus ==
+              AppointmentStatus.completed.index;
+        } else if (state is AppointmentDetailsState) {
+          isOkayToUploadPrescription = state.appointment.appointmentStatus ==
+              AppointmentStatus.completed.index;
+        } else {
+          isOkayToUploadPrescription = false;
+        }
         return Scaffold(
           appBar: GinaPatientAppBar(
             title: state is AppointmentDetailsState ||
@@ -135,10 +147,7 @@ class AppointmentScreen extends StatelessWidget {
                           Navigator.pushNamed(context, '/uploadPrescription');
                         },
                         context: context,
-                        // isOkayToUploadPrescription: state.appointment.appointmentStatus ==
-                        //         AppointmentStatus.completed.index
-                        //     ? true
-                        //     : false,
+                        isOkayToUploadPrescription: isOkayToUploadPrescription,
                       ),
                     ],
                   )
