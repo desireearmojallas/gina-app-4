@@ -39,7 +39,11 @@ class DoctorsInTheNearestCity extends StatelessWidget {
                     DoctorAvailabilityState>(
                   builder: (context, state) {
                     return GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        findBloc.add(FindNavigateToDoctorDetailsEvent(
+                          doctor: doctor,
+                        ));
+                      },
                       child: Container(
                         width: width / 1.05,
                         decoration: BoxDecoration(

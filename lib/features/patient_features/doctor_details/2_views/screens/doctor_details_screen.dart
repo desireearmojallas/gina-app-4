@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/gina_patient_app_bar/gina_patient_app_bar.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
-import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/doctor_details/2_views/bloc/doctor_details_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_details/2_views/screens/view_states/doctor_details_screen_loaded.dart';
 import 'package:gina_app_4/features/patient_features/doctor_details/2_views/widgets/doctor_office_address_map_view.dart';
@@ -32,6 +31,8 @@ class DoctorDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint(
+        'Doctor details screen appointmentForNearbyDocLatestAppointment: $appointmentForNearbyDocLatestAppointment');
     return BlocBuilder<DoctorDetailsBloc, DoctorDetailsState>(
       builder: (context, state) {
         return Scaffold(
@@ -46,11 +47,14 @@ class DoctorDetailsScreen extends StatelessWidget {
             buildWhen: (previous, current) =>
                 current is! DoctorDetailsActionState,
             listener: (context, state) {
+              debugPrint('DoctorDetailsScreen listener: $state');
               if (state is DoctorOfficeAddressMapViewState) {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const DoctorOfficeAddressMapView(),
+                    builder: (context) => DoctorOfficeAddressMapView(
+                      doctor: doctorDetails!,
+                    ),
                   ),
                 ).then((_) {
                   // Re-fetch the doctor details when returning from the map view
@@ -61,6 +65,7 @@ class DoctorDetailsScreen extends StatelessWidget {
               }
             },
             builder: (context, state) {
+              debugPrint('DoctorDetailsScreen builder: $state');
               if (state is DoctorDetailsLoading) {
                 return const Center(
                   child: CustomLoadingIndicator(),
@@ -68,8 +73,11 @@ class DoctorDetailsScreen extends StatelessWidget {
               } else if (state is DoctorDetailsLoaded) {
                 return DoctorDetailsScreenLoaded(
                   doctor: doctorDetails!,
-                  appointment: appointmentForNearbyDocLatestAppointment ??
-                      AppointmentModel(),
+                  appointment: state.appointment,
+                );
+              } else if (state is DoctorDetailsError) {
+                return Center(
+                  child: Text(state.message),
                 );
               }
               return Container();

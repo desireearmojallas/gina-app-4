@@ -36,6 +36,7 @@ class _FaceToFaceAppointmentScreenState
   final Set<Polyline> _polylines = {};
   final Set<Marker> _markers = {};
   bool _isLoading = true;
+  StreamSubscription<Position>? _positionStreamSubscription;
 
   @override
   void initState() {
@@ -43,6 +44,13 @@ class _FaceToFaceAppointmentScreenState
     _doctorLocation = _parseLatLng(widget.doctor.officeLatLngAddress) ??
         const LatLng(10.3157, 123.8854);
     _getCurrentLocation();
+    _listenToLocationChanges();
+  }
+
+  @override
+  void dispose() {
+    _positionStreamSubscription?.cancel();
+    super.dispose();
   }
 
   /// Get the patient's current location
@@ -63,6 +71,38 @@ class _FaceToFaceAppointmentScreenState
       _drawRoute();
       _isLoading = false;
     });
+  }
+
+  /// Listen to location changes
+  void _listenToLocationChanges() {
+    _positionStreamSubscription = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 10,
+      ),
+    ).listen((Position position) {
+      if (!mounted) return;
+      setState(() {
+        _patientLocation = LatLng(position.latitude, position.longitude);
+        _updatePatientMarker();
+      });
+    });
+  }
+
+  /// Update the patient marker position
+  void _updatePatientMarker() {
+    final patientMarker = _markers.firstWhere(
+      (marker) => marker.markerId == const MarkerId('patientLocation'),
+      orElse: () => const Marker(markerId: MarkerId('patientLocation')),
+    );
+
+    _markers.remove(patientMarker);
+    _markers.add(Marker(
+      markerId: const MarkerId('patientLocation'),
+      position: _patientLocation!,
+      infoWindow: const InfoWindow(title: 'Your Location'),
+      icon: patientMarker.icon,
+    ));
   }
 
   /// Parse LatLng from stored string

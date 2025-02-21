@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/gina_patient_app_bar/gina_patient_app_bar.dart';
+import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/screens/view_states/appointment_screen_loaded.dart';
@@ -24,9 +25,12 @@ class AppointmentScreenProvider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('AppointmentScreenProvider build method called');
+
     return BlocProvider<AppointmentBloc>(
       create: (context) {
         final appointmentBloc = sl<AppointmentBloc>();
+        debugPrint('AppointmentBloc created');
 
         if (isUploadPrescriptionMode) {
           appointmentBloc.add(NavigateToConsultationHistoryEvent(
@@ -54,14 +58,23 @@ class AppointmentScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final arguments = ModalRoute.of(context)?.settings.arguments as Map?;
-    // final int initialIndexFromArgs = arguments?['initialIndex'] ?? 3;
-
     final AppointmentController appointmentController =
         sl<AppointmentController>();
     final appointmentBloc = context.read<AppointmentBloc>();
-    return BlocBuilder<AppointmentBloc, AppointmentState>(
+    return BlocConsumer<AppointmentBloc, AppointmentState>(
+      listenWhen: (previous, current) => current is AppointmentActionState,
+      buildWhen: (previous, current) => current is! AppointmentActionState,
+      listener: (context, state) {
+        debugPrint('AppointmentScreen listener: $state');
+        if (state is CancelAppointmentState) {
+          showCancellationSuccessDialog(context)
+              .then((value) => appointmentBloc.add(GetAppointmentsEvent()));
+        } else if (state is AppointmentDetailsState) {
+          debugPrint('Received AppointmentDetailsState');
+        }
+      },
       builder: (context, state) {
+        debugPrint('AppointmentScreen builder: $state');
         return Scaffold(
           appBar: GinaPatientAppBar(
             title: state is AppointmentDetailsState ||
@@ -104,37 +117,49 @@ class AppointmentScreen extends StatelessWidget {
                 ? Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      _buildFloatingActionButton(
+                      buildFloatingActionButton(
                         heroTag: 'consultation',
                         icon: MingCute.message_3_fill,
                         onPressed: () async {
                           await appointmentBloc.handleConsultationNavigation(
                               state, context);
                         },
+                        context: context,
                       ),
                       const Gap(10),
-                      _buildFloatingActionButton(
+                      buildFloatingActionButton(
                         heroTag: 'uploadPrescription',
                         icon: MingCute.upload_line,
                         onPressed: () {
                           HapticFeedback.mediumImpact();
                           Navigator.pushNamed(context, '/uploadPrescription');
                         },
+                        context: context,
+                        // isOkayToUploadPrescription: state.appointment.appointmentStatus ==
+                        //         AppointmentStatus.completed.index
+                        //     ? true
+                        //     : false,
                       ),
                     ],
                   )
                 : const SizedBox(),
           ),
           body: BlocConsumer<AppointmentBloc, AppointmentState>(
-            listenWhen: (previous, current) => state is AppointmentActionState,
-            buildWhen: (previous, current) => state is! AppointmentActionState,
+            listenWhen: (previous, current) =>
+                current is AppointmentActionState,
+            buildWhen: (previous, current) =>
+                current is! AppointmentActionState,
             listener: (context, state) {
+              debugPrint('AppointmentScreen listener: $state');
               if (state is CancelAppointmentState) {
                 showCancellationSuccessDialog(context).then(
                     (value) => appointmentBloc.add(GetAppointmentsEvent()));
+              } else if (state is AppointmentDetailsState) {
+                debugPrint('🔎 Received AppointmentDetailsState');
               }
             },
             builder: (context, state) {
+              debugPrint('AppointmentScreen builder: $state');
               if (state is GetAppointmentsLoading) {
                 return const Center(
                   child: CustomLoadingIndicator(),
@@ -158,6 +183,7 @@ class AppointmentScreen extends StatelessWidget {
                   child: CustomLoadingIndicator(),
                 );
               } else if (state is AppointmentDetailsState) {
+                debugPrint('Navigating to AppointmentDetailsStatusScreen');
                 return AppointmentDetailsStatusScreen(
                   appointment: state.appointment,
                   doctorDetails: state.doctorDetails,
@@ -178,16 +204,27 @@ class AppointmentScreen extends StatelessWidget {
       },
     );
   }
+}
 
-  FloatingActionButton _buildFloatingActionButton({
-    required String heroTag,
-    required IconData icon,
-    required VoidCallback onPressed,
-  }) {
-    return FloatingActionButton(
-      heroTag: heroTag,
-      onPressed: onPressed,
-      child: Icon(icon),
-    );
-  }
+FloatingActionButton buildFloatingActionButton({
+  required String heroTag,
+  required IconData icon,
+  required VoidCallback onPressed,
+  bool? isOkayToUploadPrescription = true,
+  required BuildContext context,
+}) {
+  return FloatingActionButton(
+    heroTag: heroTag,
+    onPressed: isOkayToUploadPrescription == true ? onPressed : null,
+    backgroundColor: isOkayToUploadPrescription == true
+        ? Theme.of(context).primaryColor
+        : GinaAppTheme.lightSurfaceVariant,
+    elevation: isOkayToUploadPrescription == true ? 4.0 : 0.0,
+    child: Icon(
+      icon,
+      color: isOkayToUploadPrescription == true
+          ? Colors.white
+          : Colors.white.withOpacity(0.5),
+    ),
+  );
 }
