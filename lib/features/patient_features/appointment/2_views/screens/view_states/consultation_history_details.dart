@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_name_widget.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
+import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/face_to_face_card_details.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/full_screen_image_viewer.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/appointment_information_container.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/appointment_status_card.dart';
@@ -57,6 +59,7 @@ class ConsultationHistoryDetailScreen extends StatelessWidget {
                 appointment: appointment,
                 currentPatient: currentPatient,
               ),
+              const FaceToFaceCardDetails(),
               reversedPrescriptionImages.isEmpty
                   ? Align(
                       alignment: Alignment.center,

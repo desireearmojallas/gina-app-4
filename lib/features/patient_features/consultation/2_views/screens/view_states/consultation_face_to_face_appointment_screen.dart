@@ -100,6 +100,7 @@ class _FaceToFaceAppointmentScreenState
       setState(() {
         _patientLocation = LatLng(position.latitude, position.longitude);
         _updatePatientMarker();
+        _drawRoute();
       });
     });
   }
@@ -215,6 +216,7 @@ class _FaceToFaceAppointmentScreenState
 
     if (!mounted) return;
     setState(() {
+      _polylines.clear();
       _polylines.add(Polyline(
         polylineId: const PolylineId('route'),
         color: GinaAppTheme.lightTertiaryContainer,

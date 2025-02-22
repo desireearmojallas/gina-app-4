@@ -94,6 +94,7 @@ class _DoctorOfficeAddressMapViewState
       setState(() {
         _patientLocation = LatLng(position.latitude, position.longitude);
         _updatePatientMarker();
+        _drawRoute();
       });
     });
   }
@@ -209,6 +210,7 @@ class _DoctorOfficeAddressMapViewState
 
     if (!mounted) return;
     setState(() {
+      _polylines.clear();
       _polylines.add(Polyline(
         polylineId: const PolylineId('route'),
         color: GinaAppTheme.lightTertiaryContainer,
