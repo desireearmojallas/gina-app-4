@@ -101,77 +101,80 @@ class ConsultationHistoryContainer extends StatelessWidget {
                         ),
                       ),
                     )
-                  : Column(
-                      children: [
-                        SizedBox(
-                          height: height / 2.85 - 50,
-                          child: ListView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: min(completedAppointments.length, 3),
-                            itemBuilder: (context, index) {
-                              final appointment = completedAppointments[index];
-                              return AppointmentConsultationHistoryContainer(
-                                appointment: appointment,
-                              );
-                            },
-                          ),
-                        ),
-                        if (completedAppointments.length < 3)
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: 30.0,
-                              right: 10.0,
-                              left: 10.0,
+                  : Flexible(
+                      // Use Flexible instead of SizedBox
+                      child: Column(
+                        children: [
+                          Flexible(
+                            child: ListView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: min(completedAppointments.length, 3),
+                              itemBuilder: (context, index) {
+                                final appointment =
+                                    completedAppointments[index];
+                                return AppointmentConsultationHistoryContainer(
+                                  appointment: appointment,
+                                );
+                              },
                             ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Divider(
-                                    color: GinaAppTheme.lightOutline
-                                        .withOpacity(0.2),
-                                    thickness: 1,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10.0),
-                                  child: Text(
-                                    'Nothing follows',
-                                    style: ginaTheme.bodyMedium?.copyWith(
+                          ),
+                          if (completedAppointments.length < 3)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: 30.0,
+                                right: 10.0,
+                                left: 10.0,
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Divider(
                                       color: GinaAppTheme.lightOutline
-                                          .withOpacity(0.3),
+                                          .withOpacity(0.2),
+                                      thickness: 1,
                                     ),
                                   ),
-                                ),
-                                Expanded(
-                                  child: Divider(
-                                    color: GinaAppTheme.lightOutline
-                                        .withOpacity(0.2),
-                                    thickness: 1,
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10.0),
+                                    child: Text(
+                                      'Nothing follows',
+                                      style: ginaTheme.bodyMedium?.copyWith(
+                                        color: GinaAppTheme.lightOutline
+                                            .withOpacity(0.3),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        if (completedAppointments.length >= 3)
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: 5.0,
-                              right: 10.0,
-                              left: 10.0,
-                              top: 5.0,
-                            ),
-                            child: Text(
-                              'Showing 3 of ${completedAppointments.length} consultations',
-                              style: ginaTheme.bodySmall?.copyWith(
-                                color:
-                                    GinaAppTheme.lightOutline.withOpacity(0.6),
-                                fontSize: 11,
-                                fontStyle: FontStyle.italic,
+                                  Expanded(
+                                    child: Divider(
+                                      color: GinaAppTheme.lightOutline
+                                          .withOpacity(0.2),
+                                      thickness: 1,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
-                      ],
+                          if (completedAppointments.length >= 3)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: 5.0,
+                                right: 10.0,
+                                left: 10.0,
+                                top: 5.0,
+                              ),
+                              child: Text(
+                                'Showing 3 of ${completedAppointments.length} consultations',
+                                style: ginaTheme.bodySmall?.copyWith(
+                                  color: GinaAppTheme.lightOutline
+                                      .withOpacity(0.6),
+                                  fontSize: 11,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
             ],
           ),

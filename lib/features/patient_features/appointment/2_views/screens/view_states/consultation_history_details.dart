@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
-import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
@@ -52,6 +51,12 @@ class ConsultationHistoryDetailScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               doctorNameWidget(size, ginaTheme, doctorDetails),
+              if (appointment.modeOfAppointment == 1) ...[
+                FaceToFaceCardDetails(
+                  appointment: appointment,
+                ),
+                const Gap(5),
+              ],
               AppointmentStatusCard(
                 appointmentStatus: appointment.appointmentStatus!,
               ),
@@ -59,7 +64,6 @@ class ConsultationHistoryDetailScreen extends StatelessWidget {
                 appointment: appointment,
                 currentPatient: currentPatient,
               ),
-              const FaceToFaceCardDetails(),
               reversedPrescriptionImages.isEmpty
                   ? Align(
                       alignment: Alignment.center,
@@ -145,7 +149,7 @@ class ConsultationHistoryDetailScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-              const Gap(20),
+              const Gap(100),
             ],
           ),
         ),
