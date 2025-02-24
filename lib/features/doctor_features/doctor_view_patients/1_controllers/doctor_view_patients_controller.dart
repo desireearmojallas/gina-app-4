@@ -56,7 +56,8 @@ class DoctorViewPatientsController with ChangeNotifier {
             .map((doc) => AppointmentModel.fromJson(doc.data()))
             .where((element) =>
                 element.appointmentStatus == 1 ||
-                element.appointmentStatus == 2)
+                element.appointmentStatus == 2 ||
+                element.appointmentStatus == 5)
             .toList()
           ..sort((a, b) {
             final aDate = DateFormat('MMMM d, yyyy').parse(a.appointmentDate!);

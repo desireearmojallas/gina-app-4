@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
@@ -15,93 +16,99 @@ class BookAppointmentContainer extends StatelessWidget {
     final height = MediaQuery.of(context).size.height;
     final ginaTheme = Theme.of(context);
     final homeBloc = context.read<HomeBloc>();
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: GinaAppTheme.lightOnTertiary,
-        boxShadow: [
-          GinaAppTheme.defaultBoxShadow,
-        ],
-      ),
-      height: height * 0.173,
-      width: width / 1.69,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 110,
-                  child: Text(
-                    'Book\nappointment',
-                    style: ginaTheme.textTheme.headlineSmall?.copyWith(
-                      fontSize: 18,
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Navigator.pushNamed(context, '/find');
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: GinaAppTheme.lightOnTertiary,
+          boxShadow: [
+            GinaAppTheme.defaultBoxShadow,
+          ],
+        ),
+        height: height * 0.173,
+        width: width / 1.69,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 110,
+                    child: Text(
+                      'Book\nappointment',
+                      style: ginaTheme.textTheme.headlineSmall?.copyWith(
+                        fontSize: 18,
+                      ),
                     ),
                   ),
-                ),
-                const Gap(30),
-                SizedBox(
-                  height: 25,
-                  child: FilledButton(
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                      padding: MaterialStateProperty.all(
-                          const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 5)),
-                    ),
-                    onPressed: () {
-                      // TODO: ONPRESS BOOK APPT CONTAINER
-                      // homeBloc.add();
-                      //TODO: TO CHANGE? add this after implementing the period tracker
-                      Navigator.pushNamed(context, '/bookAppointment');
-                      //  homeBloc.add(HomeNavigateToFindDoctorEvent());
-                    },
-                    child: Row(
-                      children: [
-                        Text(
-                          'Next',
-                          style: ginaTheme.textTheme.labelMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                  const Gap(30),
+                  SizedBox(
+                    height: 25,
+                    child: FilledButton(
+                      style: ButtonStyle(
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
                           ),
                         ),
-                        const Gap(8),
-                        const Icon(
-                          Icons.arrow_forward,
-                          size: 15,
-                        ),
-                      ],
+                        padding: MaterialStateProperty.all(
+                            const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 5)),
+                      ),
+                      onPressed: () {
+                        // TODO: ONPRESS BOOK APPT CONTAINER
+                        // homeBloc.add();
+                        //TODO: TO CHANGE? add this after implementing the period tracker
+                        Navigator.pushNamed(context, '/find');
+                        //  homeBloc.add(HomeNavigateToFindDoctorEvent());
+                      },
+                      child: Row(
+                        children: [
+                          Text(
+                            'Next',
+                            style: ginaTheme.textTheme.labelMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const Gap(8),
+                          const Icon(
+                            Icons.arrow_forward,
+                            size: 15,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Align(
-            alignment: Alignment.bottomRight,
-            // child: SvgPicture.asset(
-            //   Images.appointmentImage,
-            //   height: height * 0.085,
-            //   fit: BoxFit.fill,
-            // ),
-            child: Image.asset(
-              Images.appointmentImage,
-              height: height * 0.165,
-              // height: 110,
-              fit: BoxFit.fitHeight,
+            Align(
+              alignment: Alignment.bottomRight,
+              // child: SvgPicture.asset(
+              //   Images.appointmentImage,
+              //   height: height * 0.085,
+              //   fit: BoxFit.fill,
+              // ),
+              child: Image.asset(
+                Images.appointmentImage,
+                height: height * 0.165,
+                // height: 110,
+                fit: BoxFit.fitHeight,
+              ),
             ),
-          ),
-          const Gap(5),
-        ],
+            const Gap(5),
+          ],
+        ),
       ),
     );
   }
