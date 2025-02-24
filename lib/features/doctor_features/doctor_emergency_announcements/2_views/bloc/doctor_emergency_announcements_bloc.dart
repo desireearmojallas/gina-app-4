@@ -139,7 +139,7 @@ class DoctorEmergencyAnnouncementsBloc extends Bloc<
         await doctorEmergencyAnnouncementsController
             .createEmergencyAnnouncement(
       appointmentUid: event.appointment.appointmentUid!,
-      patientUid: event.appointment.appointmentUid!,
+      patientUid: event.appointment.patientUid!,
       emergencyMessage: event.message,
       patientName: event.appointment.patientName!,
     );

@@ -68,6 +68,8 @@ import 'package:gina_app_4/features/patient_features/consultation_fee_details/2_
 import 'package:gina_app_4/features/patient_features/doctor_availability/1_controller/doctor_availability_controller.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/2_views/bloc/doctor_availability_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_details/2_views/bloc/doctor_details_bloc.dart';
+import 'package:gina_app_4/features/patient_features/emergency_announcements/1_controllers/emergency_announcement_controllers.dart';
+import 'package:gina_app_4/features/patient_features/emergency_announcements/2_views/bloc/emergency_announcements_bloc.dart';
 import 'package:gina_app_4/features/patient_features/find/1_controllers/find_controllers.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/1_controllers/forums_controller.dart';
@@ -269,6 +271,16 @@ Future<void> init() async {
   );
 
   sl.registerFactory(() => ProfileController());
+
+  //------------------------------------------------------------------------------
+  //! Features - Emergency Announcements (Patient)
+  sl.registerFactory(
+    () => EmergencyAnnouncementsBloc(
+      emergencyController: sl(),
+    ),
+  );
+
+  sl.registerFactory(() => EmergencyAnnouncementsController());
 
   //------------------------------------------------------------------------------
 

@@ -132,7 +132,7 @@ class FloatingMenuWidget extends StatelessWidget {
           ),
           onPressed: () {
             // TODO: EMERGENCY ANNOUNCEMENTS ROUTE
-            // Navigator.pushNamed(context, '/emergencyAnnouncements');
+            Navigator.pushNamed(context, '/emergencyAnnouncements');
           },
         ),
         const Divider(

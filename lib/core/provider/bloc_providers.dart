@@ -44,6 +44,7 @@ import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/c
 import 'package:gina_app_4/features/patient_features/consultation_fee_details/2_views/bloc/consultation_fee_details_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/2_views/bloc/doctor_availability_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_details/2_views/bloc/doctor_details_bloc.dart';
+import 'package:gina_app_4/features/patient_features/emergency_announcements/2_views/bloc/emergency_announcements_bloc.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_bloc.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/bloc/home_bloc.dart';
@@ -124,6 +125,9 @@ List<BlocProvider> getBlocProviders() {
     ),
     BlocProvider<PeriodTrackerBloc>(
       create: (context) => sl<PeriodTrackerBloc>(),
+    ),
+    BlocProvider<EmergencyAnnouncementsBloc>(
+      create: (context) => sl<EmergencyAnnouncementsBloc>(),
     ),
     BlocProvider<ForumsBloc>(
       create: (context) => sl<ForumsBloc>(),
