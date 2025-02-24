@@ -17,8 +17,18 @@ class BookAppointmentScreenProvider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final DoctorModel doctor =
-        ModalRoute.of(context)?.settings.arguments as DoctorModel;
+    //! to fix this
+    final doctor = ModalRoute.of(context)?.settings.arguments as DoctorModel?;
+    if (doctor == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Error'),
+        ),
+        body: const Center(
+          child: Text('No doctor information provided.'),
+        ),
+      );
+    }
     return BlocProvider<BookAppointmentBloc>(
       create: (context) {
         final bookAppointmentBloc = sl<BookAppointmentBloc>();
