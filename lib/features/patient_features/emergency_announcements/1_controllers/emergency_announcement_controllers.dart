@@ -22,8 +22,8 @@ class EmergencyAnnouncementsController with ChangeNotifier {
     });
   }
 
-  Future<Either<Exception, EmergencyAnnouncementModel>>
-      getNearestEmergencyAnnouncement() async {
+  Future<Either<Exception, List<EmergencyAnnouncementModel>>>
+      getEmergencyAnnouncements() async {
     try {
       if (currentPatient == null) {
         throw Exception('No current patient found');
@@ -36,28 +36,28 @@ class EmergencyAnnouncementsController with ChangeNotifier {
           .get();
 
       if (snapshot.docs.isEmpty) {
-        return Right(EmergencyAnnouncementModel.empty);
+        return const Right([]);
       }
 
-      List<QueryDocumentSnapshot<Map<String, dynamic>>> sortedDocs =
-          snapshot.docs.toList()
-            ..sort((a, b) => (b['createdAt'] as Timestamp)
-                .compareTo(a['createdAt'] as Timestamp));
+      List<EmergencyAnnouncementModel> announcements = [];
+      for (var doc in snapshot.docs) {
+        final doctorModel = await FirebaseFirestore.instance
+            .collection('doctors')
+            .doc(doc.data()['doctorUid'])
+            .get()
+            .then((value) => DoctorModel.fromJson(value.data()!));
 
-      final latestDoc = sortedDocs.first;
+        doctorMedicalSpecialty = doctorModel.medicalSpecialty;
 
-      final doctorModel = await FirebaseFirestore.instance
-          .collection('doctors')
-          .doc(snapshot.docs.first.data()['doctorUid'])
-          .get()
-          .then((value) => DoctorModel.fromJson(value.data()!));
+        EmergencyAnnouncementModel announcement =
+            EmergencyAnnouncementModel.fromJson(doc.data());
+        announcements.add(announcement);
+      }
 
-      doctorMedicalSpecialty = doctorModel.medicalSpecialty;
+      // Sort the announcements locally by createdAt in descending order
+      announcements.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-      EmergencyAnnouncementModel announcement =
-          EmergencyAnnouncementModel.fromJson(latestDoc.data());
-
-      return Right(announcement);
+      return Right(announcements);
     } on FirebaseAuthException catch (e) {
       debugPrint('FirebaseAuthException: ${e.message}');
       return Left(Exception(e.message));

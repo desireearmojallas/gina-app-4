@@ -277,6 +277,7 @@ Future<void> init() async {
   sl.registerFactory(
     () => EmergencyAnnouncementsBloc(
       emergencyController: sl(),
+      appointmentController: sl(),
     ),
   );
 

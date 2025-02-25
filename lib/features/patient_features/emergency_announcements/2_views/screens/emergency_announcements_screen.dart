@@ -37,7 +37,7 @@ class EmergencyAnnouncementsScreen extends StatelessWidget {
           if (state is EmergencyAnnouncementsLoaded) {
             return EmergencyAnnouncementScreenLoaded(
               doctorMedicalSpecialty: state.doctorMedicalSpecialty,
-              emergencyAnnouncement: state.emergencyAnnouncement,
+              emergencyAnnouncements: state.emergencyAnnouncements,
             );
           } else if (state is EmergencyAnnouncementsError) {
             return Center(

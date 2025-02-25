@@ -10,16 +10,16 @@ abstract class EmergencyAnnouncementsState extends Equatable {
 class EmergencyAnnouncementsInitial extends EmergencyAnnouncementsState {}
 
 class EmergencyAnnouncementsLoaded extends EmergencyAnnouncementsState {
-  final EmergencyAnnouncementModel emergencyAnnouncement;
+  final List<EmergencyAnnouncementModel> emergencyAnnouncements;
   final String doctorMedicalSpecialty;
 
   const EmergencyAnnouncementsLoaded({
-    required this.emergencyAnnouncement,
+    required this.emergencyAnnouncements,
     required this.doctorMedicalSpecialty,
   });
 
   @override
-  List<Object> get props => [emergencyAnnouncement];
+  List<Object> get props => [emergencyAnnouncements];
 }
 
 class EmergencyAnnouncementsError extends EmergencyAnnouncementsState {
