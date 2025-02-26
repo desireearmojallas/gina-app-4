@@ -19,6 +19,7 @@ class DoctorForumBadgeScreenLoaded extends StatelessWidget {
         children: [
           const Gap(20),
           //TODO: ADD BADGE CARDS HERE : WILL CHANGE ONCE BLOC IS IMPLEMENTED
+          //! will do this
           DoctorForumBadgeCard(
             formattedDate: 'November 1, 2021',
             badgeName: 'New Doctor',
