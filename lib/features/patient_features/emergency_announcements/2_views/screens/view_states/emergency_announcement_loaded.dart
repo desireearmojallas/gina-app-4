@@ -170,8 +170,15 @@ class EmergencyAnnouncementScreenLoaded extends StatelessWidget {
                                                     .textTheme
                                                     .labelLarge
                                                     ?.copyWith(
-                                                        fontWeight:
-                                                            FontWeight.w700),
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      color: isCompleted
+                                                          ? GinaAppTheme
+                                                              .lightOnPrimaryColor
+                                                              .withOpacity(0.5)
+                                                          : GinaAppTheme
+                                                              .lightOnPrimaryColor,
+                                                    ),
                                               ),
                                               const Gap(5),
                                               const Icon(
@@ -212,8 +219,15 @@ class EmergencyAnnouncementScreenLoaded extends StatelessWidget {
                                     alignment: Alignment.centerLeft,
                                     child: Text(
                                       emergencyAnnouncement.message,
-                                      style:
-                                          Theme.of(context).textTheme.bodySmall,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                            color: isCompleted
+                                                ? GinaAppTheme.lightOutline
+                                                : GinaAppTheme
+                                                    .lightOnPrimaryColor,
+                                          ),
                                     ),
                                   ),
                                   const Gap(10),
