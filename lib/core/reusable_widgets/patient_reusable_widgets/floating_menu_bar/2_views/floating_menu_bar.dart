@@ -7,6 +7,7 @@ import 'package:gina_app_4/core/storage/shared_preferences/shared_preferences_ma
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/1_controllers/patient_auth_controller.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:gina_app_4/features/patient_features/profile/2_views/screens/profile_screen.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class FloatingMenuWidget extends StatelessWidget {
@@ -53,6 +54,14 @@ class FloatingMenuWidget extends StatelessWidget {
       ),
       menuChildren: [
         MenuItemButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ProfileScreenProvider(),
+              ),
+            );
+          },
           child: Row(
             children: [
               CircleAvatar(
@@ -132,7 +141,7 @@ class FloatingMenuWidget extends StatelessWidget {
           ),
           onPressed: () {
             // TODO: EMERGENCY ANNOUNCEMENTS ROUTE
-            // Navigator.pushNamed(context, '/emergencyAnnouncements');
+            Navigator.pushNamed(context, '/emergencyAnnouncements');
           },
         ),
         const Divider(
