@@ -6,3 +6,7 @@ sealed class DoctorForumBadgeEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+class DoctorForumBadgeInitialEvent extends DoctorForumBadgeEvent {}
+
+class GetForumBadgeEvent extends DoctorForumBadgeEvent {}

@@ -1,10 +1,32 @@
 part of 'doctor_forum_badge_bloc.dart';
 
-sealed class DoctorForumBadgeState extends Equatable {
+abstract class DoctorForumBadgeState extends Equatable {
   const DoctorForumBadgeState();
-  
+
   @override
   List<Object> get props => [];
 }
 
-final class DoctorForumBadgeInitial extends DoctorForumBadgeState {}
+abstract class DoctorForumBadgeActionState extends DoctorForumBadgeState {}
+
+class DoctorForumBadgeInitial extends DoctorForumBadgeState {}
+
+class DoctorForumBadgeLoadingState extends DoctorForumBadgeState {}
+
+class DoctorForumBadgeScuccessState extends DoctorForumBadgeState {
+  final DoctorModel doctorPost;
+
+  const DoctorForumBadgeScuccessState({required this.doctorPost});
+
+  @override
+  List<Object> get props => [doctorPost];
+}
+
+class DoctorForumBadgeFailedState extends DoctorForumBadgeState {
+  final String message;
+
+  const DoctorForumBadgeFailedState({required this.message});
+
+  @override
+  List<Object> get props => [message];
+}
