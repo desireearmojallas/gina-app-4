@@ -21,7 +21,10 @@ class PeriodTrackerBloc extends Bloc<PeriodTrackerEvent, PeriodTrackerState> {
   FutureOr<void> navigateToPeriodTrackerEditDates(
       NavigateToPeriodTrackerEditDatesEvent event,
       Emitter<PeriodTrackerState> emit) {
-    emit(NavigateToPeriodTrackerEditDatesState());
+    emit(const NavigateToPeriodTrackerEditDatesState(
+      periodTrackerModel: [],
+      loggedPeriodDates: [],
+    ));
   }
 
   FutureOr<void> periodTrackerInitial(
