@@ -46,7 +46,7 @@ class PeriodTrackerInitialScreen extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 30.0),
         child: ElevatedButton(
           onPressed: () {
-            periodTrackerBloc.add(NavigateToPeriodTrackerEditDatesEvent());
+            // periodTrackerBloc.add(NavigateToPeriodTrackerEditDatesEvent());
           },
           style: ElevatedButton.styleFrom(
             foregroundColor: Colors.white,

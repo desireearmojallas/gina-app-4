@@ -56,6 +56,8 @@ class DoctorHomeDashboardController extends ChangeNotifier {
 
   Future<Either<Exception, AppointmentModel>> getUpcomingAppointment() async {
     try {
+      await updateMissedAppointments(); // Call the method to update missed appointments
+
       QuerySnapshot<Map<String, dynamic>> appointmentSnapshot = await firestore
           .collection('appointments')
           .where('doctorUid', isEqualTo: currentUser!.uid)
@@ -90,8 +92,40 @@ class DoctorHomeDashboardController extends ChangeNotifier {
     }
   }
 
+  Future<void> updateMissedAppointments() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> appointmentSnapshot = await firestore
+          .collection('appointments')
+          .where('doctorUid', isEqualTo: currentUser!.uid)
+          .where('appointmentStatus',
+              isEqualTo: AppointmentStatus.confirmed.index)
+          .get();
+
+      final DateFormat dateTimeFormat = DateFormat('MMMM d, yyyy h:mm a');
+      final DateTime now = DateTime.now();
+
+      for (var doc in appointmentSnapshot.docs) {
+        final appointment = AppointmentModel.fromJson(doc.data());
+        final appointmentEndTime = dateTimeFormat.parse(
+            '${appointment.appointmentDate} ${appointment.appointmentTime?.split('-')[1].trim()}');
+
+        if (now.isAfter(appointmentEndTime)) {
+          await firestore
+              .collection('appointments')
+              .doc(doc.id)
+              .update({'appointmentStatus': AppointmentStatus.missed.index});
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException code: ${e.code}');
+      error = e;
+    }
+  }
+
   Future<Either<Exception, int>> getPendingAppointments() async {
     try {
+      await updateDeclinedAppointments(); // Call the method to update declined appointments
       QuerySnapshot<Map<String, dynamic>> appointmentSnapshot = await firestore
           .collection('appointments')
           .where('doctorUid', isEqualTo: currentUser!.uid)
@@ -115,6 +149,8 @@ class DoctorHomeDashboardController extends ChangeNotifier {
   Future<Either<Exception, AppointmentModel>>
       getPendingAppointmentLatest() async {
     try {
+      await updateDeclinedAppointments(); // Call the method to update declined appointments
+
       QuerySnapshot<Map<String, dynamic>> appointmentSnapshot = await firestore
           .collection('appointments')
           .where('doctorUid', isEqualTo: currentUser!.uid)
@@ -146,6 +182,37 @@ class DoctorHomeDashboardController extends ChangeNotifier {
       debugPrint('FirebaseAuthException code: ${e.code}');
       error = e;
       return Left(Exception(e.message));
+    }
+  }
+
+  Future<void> updateDeclinedAppointments() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> appointmentSnapshot = await firestore
+          .collection('appointments')
+          .where('doctorUid', isEqualTo: currentUser!.uid)
+          .where('appointmentStatus',
+              isEqualTo: AppointmentStatus.pending.index)
+          .get();
+
+      final DateFormat dateTimeFormat = DateFormat('MMMM d, yyyy h:mm a');
+      final DateTime now = DateTime.now();
+
+      for (var doc in appointmentSnapshot.docs) {
+        final appointment = AppointmentModel.fromJson(doc.data());
+        final appointmentEndTime = dateTimeFormat.parse(
+            '${appointment.appointmentDate} ${appointment.appointmentTime?.split('-')[1].trim()}');
+
+        if (now.isAfter(appointmentEndTime)) {
+          await firestore
+              .collection('appointments')
+              .doc(doc.id)
+              .update({'appointmentStatus': AppointmentStatus.declined.index});
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException code: ${e.code}');
+      error = e;
     }
   }
 

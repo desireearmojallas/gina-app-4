@@ -13,23 +13,23 @@ class PeriodTrackerBloc extends Bloc<PeriodTrackerEvent, PeriodTrackerState> {
   final PeriodTrackerController periodTrackerController;
   PeriodTrackerBloc({required this.periodTrackerController})
       : super(PeriodTrackerInitialState()) {
-    on<PeriodTrackerInitialEvent>(periodTrackerInitial);
-
     on<NavigateToPeriodTrackerEditDatesEvent>(navigateToPeriodTrackerEditDates);
+    on<LogFirstMenstrualPeriodEvent>(logFirstMenstrualPeriod);
+    on<GetFirstMenstrualPeriodDatesEvent>(getFirstMenstrualDatesPeriod);
+    on<SelectDateEvent>(selectDateEvent);
   }
 
   FutureOr<void> navigateToPeriodTrackerEditDates(
       NavigateToPeriodTrackerEditDatesEvent event,
-      Emitter<PeriodTrackerState> emit) {
-    emit(const NavigateToPeriodTrackerEditDatesState(
-      periodTrackerModel: [],
-      loggedPeriodDates: [],
-    ));
-  }
+      Emitter<PeriodTrackerState> emit) {}
 
-  FutureOr<void> periodTrackerInitial(
-      PeriodTrackerInitialEvent event, Emitter<PeriodTrackerState> emit) async {
-    debugPrint('initial period tracker event triggered');
-    emit(PeriodTrackerInitialState());
-  }
+  FutureOr<void> logFirstMenstrualPeriod(
+      LogFirstMenstrualPeriodEvent event, Emitter<PeriodTrackerState> emit) {}
+
+  FutureOr<void> getFirstMenstrualDatesPeriod(
+      GetFirstMenstrualPeriodDatesEvent event,
+      Emitter<PeriodTrackerState> emit) {}
+
+  FutureOr<void> selectDateEvent(
+      SelectDateEvent event, Emitter<PeriodTrackerState> emit) {}
 }
