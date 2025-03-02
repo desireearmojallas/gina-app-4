@@ -17,6 +17,8 @@ class MainDetailedDoctorPostContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
+    debugPrint('Doctor Rating ID: $doctorRatingId');
+
     return Container(
       width: width * 0.94,
       decoration: BoxDecoration(

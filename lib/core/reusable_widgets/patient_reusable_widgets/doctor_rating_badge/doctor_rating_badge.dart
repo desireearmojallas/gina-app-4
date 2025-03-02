@@ -23,6 +23,8 @@ class DoctorRatingBadge extends StatelessWidget {
     Widget badge;
     void Function()? onTap;
 
+    debugPrint('Doctor Rating ID 4: $doctorRating');
+
     switch (doctorRating) {
       case 0:
         badge = const DoctorBadge(
@@ -34,19 +36,20 @@ class DoctorRatingBadge extends StatelessWidget {
         break;
       case 1:
         badge = const DoctorBadge(
-          badgeName: 'Active Doctor',
-          badgeBgColor: Color(0xffFFEBD8),
-          badgeTextColor: GinaAppTheme.pendingTextColor,
-        );
-        onTap = () => activeDoctorModal(context);
-        break;
-      case 2:
-        badge = const DoctorBadge(
           badgeName: 'Contributing Doctor',
           badgeBgColor: Color(0xffFFEAE7),
           badgeTextColor: GinaAppTheme.lightTertiary,
         );
         onTap = () => contributingDoctorModal(context);
+        break;
+      case 2:
+        badge = const DoctorBadge(
+          badgeName: 'Active Doctor',
+          badgeBgColor: Color(0xffFFEBD8),
+          badgeTextColor: GinaAppTheme.pendingTextColor,
+        );
+        onTap = () => activeDoctorModal(context);
+
         break;
       case 3:
         badge = const DoctorBadge(
@@ -57,12 +60,8 @@ class DoctorRatingBadge extends StatelessWidget {
         onTap = () => topDoctorModal(context);
         break;
       default:
-        badge = const DoctorBadge(
-          badgeName: 'New Doctor',
-          badgeBgColor: GinaAppTheme.searchBarColor,
-          badgeTextColor: GinaAppTheme.lightOutline,
-        );
-        onTap = () => newDoctorModal(context);
+        badge = const SizedBox.shrink(); // Show nothing
+        onTap = null;
     }
 
     return InkWell(

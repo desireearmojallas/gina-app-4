@@ -49,6 +49,11 @@ class DoctorForumsScreenLoaded extends StatelessWidget {
                           final doctorRatingId = index < doctorRatingIds.length
                               ? doctorRatingIds[index]
                               : -1;
+
+                          // Add debug print to log forumPost and doctorRatingId
+                          debugPrint(
+                              'Forum Post: ${forumPost.title}, Doctor Rating ID: $doctorRatingId');
+
                           return BlocBuilder<DoctorForumsBloc,
                               DoctorForumsState>(
                             builder: (context, state) {

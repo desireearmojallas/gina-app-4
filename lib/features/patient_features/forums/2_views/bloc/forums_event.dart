@@ -73,3 +73,14 @@ class GetRepliesForumsPostEvent extends ForumsEvent {
   @override
   List<Object> get props => [forumPost];
 }
+
+class GetDoctorRatingIdsForRepliesEvent extends ForumsEvent {
+  final List<ForumModel> replies;
+
+  const GetDoctorRatingIdsForRepliesEvent({
+    required this.replies,
+  });
+
+  @override
+  List<Object> get props => [replies];
+}

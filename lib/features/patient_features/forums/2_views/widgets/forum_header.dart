@@ -11,6 +11,9 @@ Widget forumHeader(
     required final int doctorRatingId,
     required BuildContext context}) {
   final ginaTheme = Theme.of(context);
+
+  debugPrint('Doctor Rating ID 3: $doctorRatingId');
+
   return forumPost.isDoctor
       ? Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -14,14 +14,16 @@ class DoctorMyForumsInitial extends DoctorMyForumsState {}
 class GetMyForumsPostState extends DoctorMyForumsState {
   final List<ForumModel> myForumsPost;
   final User? currentUser;
+  final DoctorModel? doctorModel;
 
   const GetMyForumsPostState({
     required this.myForumsPost,
     required this.currentUser,
+    this.doctorModel,
   });
 
   @override
-  List<Object> get props => [myForumsPost, currentUser!];
+  List<Object> get props => [myForumsPost, currentUser!, doctorModel ?? ''];
 }
 
 class GetMyForumsPostErrorState extends DoctorMyForumsState {

@@ -13,15 +13,17 @@ class MyForumsInitial extends MyForumsState {}
 
 class MyForumsLoadedState extends MyForumsState {
   final List<ForumModel> myForumsPosts;
-  final User? currentUser;
+  final User currentUser;
+  final DoctorModel? doctorModel;
 
   const MyForumsLoadedState({
     required this.myForumsPosts,
     required this.currentUser,
+    this.doctorModel,
   });
 
   @override
-  List<Object> get props => [myForumsPosts, currentUser!];
+  List<Object> get props => [myForumsPosts, currentUser, doctorModel ?? ''];
 }
 
 class MyForumsEmptyState extends MyForumsState {}

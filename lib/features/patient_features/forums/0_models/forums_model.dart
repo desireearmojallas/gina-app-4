@@ -77,21 +77,48 @@ class ForumModel extends Equatable {
       'profileImage': profileImage,
       'postedAt': postedAt,
       'isDoctor': isDoctor,
-      'replies': replies,
+      'replies': replies.map((x) => x.toJson()).toList(),
       'doctorRatingId': doctorRatingId,
     };
+  }
+
+  ForumModel copyWith({
+    dynamic postId,
+    String? posterUid,
+    String? postedBy,
+    String? title,
+    String? content,
+    Timestamp? postedAt,
+    String? profileImage,
+    bool? isDoctor,
+    int? doctorRatingId,
+    List<ForumModel>? replies,
+  }) {
+    return ForumModel(
+      postId: postId ?? this.postId,
+      posterUid: posterUid ?? this.posterUid,
+      postedBy: postedBy ?? this.postedBy,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      postedAt: postedAt ?? this.postedAt,
+      profileImage: profileImage ?? this.profileImage,
+      isDoctor: isDoctor ?? this.isDoctor,
+      doctorRatingId: doctorRatingId ?? this.doctorRatingId,
+      replies: replies ?? this.replies,
+    );
   }
 
   @override
   List<Object?> get props => [
         postId,
         posterUid,
+        postedBy,
         title,
         content,
-        postedBy,
         postedAt,
+        profileImage,
         isDoctor,
-        replies,
         doctorRatingId,
+        replies,
       ];
 }

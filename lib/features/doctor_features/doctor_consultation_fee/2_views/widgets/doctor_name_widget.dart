@@ -32,7 +32,7 @@ Widget doctorNameWidget(size, ginaTheme, DoctorModel doctorDetails) {
                 children: [
                   DoctorRatingBadge(
                     //! will change this doctor rating id once bloc is implemented
-                    doctorRating: 2,
+                    doctorRating: doctorDetails.doctorRatingId,
                     width: 100,
                   ),
                   const Gap(10),

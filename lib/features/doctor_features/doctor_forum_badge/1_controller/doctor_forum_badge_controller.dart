@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DoctorForumBadgeController with ChangeNotifier {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -22,6 +23,14 @@ class DoctorForumBadgeController with ChangeNotifier {
 
   Future<void> deletePostsNumberIfFirstDayOfMonth() async {
     final DateTime now = DateTime.now();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    const String lastExecutionDateKey = 'lastExecutionDate';
+
+    // Check if the method has already been executed today
+    final String? lastExecutionDate = prefs.getString(lastExecutionDateKey);
+    if (lastExecutionDate == now.toIso8601String().split('T').first) {
+      return; // Already executed today, so return early
+    }
 
     if (now.day == 1) {
       try {
@@ -29,11 +38,33 @@ class DoctorForumBadgeController with ChangeNotifier {
             await firestore.collection('doctors').get();
 
         for (final doc in doctorsSnapshot.docs) {
+          final doctorData = doc.data();
+          final createdPosts = doctorData['createdPosts'] != null
+              ? List<String>.from(doctorData['createdPosts'])
+              : <String>[];
+          final repliedPosts = doctorData['repliedPosts'] != null
+              ? List<String>.from(doctorData['repliedPosts'])
+              : <String>[];
+
+          final updatedCreatedPosts = createdPosts.where((postId) {
+            final postDate = DateTime.parse(postId.split('_').last);
+            return postDate.isAfter(now.subtract(const Duration(days: 1)));
+          }).toList();
+
+          final updatedRepliedPosts = repliedPosts.where((postId) {
+            final postDate = DateTime.parse(postId.split('_').last);
+            return postDate.isAfter(now.subtract(const Duration(days: 1)));
+          }).toList();
+
           await firestore.collection('doctors').doc(doc.id).update({
-            'createdPosts': FieldValue.delete(),
-            'repliedPosts': FieldValue.delete(),
+            'createdPosts': updatedCreatedPosts,
+            'repliedPosts': updatedRepliedPosts,
           });
         }
+
+        // Store the last execution date
+        await prefs.setString(
+            lastExecutionDateKey, now.toIso8601String().split('T').first);
       } catch (e) {
         debugPrint('Failed to delete posts: $e');
       }
