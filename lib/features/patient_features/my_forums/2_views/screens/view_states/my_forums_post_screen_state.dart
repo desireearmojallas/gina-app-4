@@ -1,8 +1,12 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/screens/view_states/doctor_forums_details_post_state.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_my_forums/bloc/doctor_my_forums_bloc.dart';
 import 'package:gina_app_4/features/patient_features/forums/0_models/forums_model.dart';
@@ -17,12 +21,37 @@ class MyForumsPostScreenState extends StatelessWidget {
   final List<ForumModel> myForumsPost;
   final User? currentUser;
   final bool? isDoctor;
+  final DoctorModel? doctorModel;
   const MyForumsPostScreenState({
     super.key,
     required this.myForumsPost,
     required this.currentUser,
     this.isDoctor = false,
+    this.doctorModel,
   });
+
+  Future<List<ForumModel>> getUpdatedRepliesWithDoctorRatingIds(
+      List<ForumModel> forums) async {
+    final updatedForums = await Future.wait(forums.map((forum) async {
+      final updatedReplies = await Future.wait(forum.replies.map((reply) async {
+        final doctorDoc = await FirebaseFirestore.instance
+            .collection('doctors')
+            .doc(reply.posterUid)
+            .get();
+        if (doctorDoc.exists) {
+          final doctor = DoctorModel.fromDocumentSnap(doctorDoc);
+          debugPrint(
+              'Fetched doctorRatingId: ${doctor.doctorRatingId} for reply: ${reply.postId}');
+          return reply.copyWith(doctorRatingId: doctor.doctorRatingId);
+        } else {
+          debugPrint('Doctor not found for reply: ${reply.postId}');
+        }
+        return reply;
+      }).toList());
+      return forum.copyWith(replies: updatedReplies);
+    }).toList());
+    return updatedForums;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +60,10 @@ class MyForumsPostScreenState extends StatelessWidget {
     final doctorMyForumsBloc = context.read<DoctorMyForumsBloc>();
     final width = MediaQuery.of(context).size.width;
     final ginaTheme = Theme.of(context);
+
+    debugPrint('DoctorModel $doctorModel');
+    debugPrint('doctorModel?.doctorRatingId ${doctorModel?.doctorRatingId}');
+    debugPrint('isDoctor $isDoctor');
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
@@ -49,11 +82,15 @@ class MyForumsPostScreenState extends StatelessWidget {
                   final forumPost = myForumsPost[index];
 
                   return InkWell(
-                    onTap: () {
+                    onTap: () async {
+                      final updatedForums =
+                          await getUpdatedRepliesWithDoctorRatingIds(
+                              [forumPost]);
+                      final updatedForumPost = updatedForums.first;
                       forumsBloc.add(
                         NavigateToForumsDetailedPostEvent(
-                          forumPost: forumPost,
-                          doctorRatingId: forumPost.doctorRatingId,
+                          forumPost: updatedForumPost,
+                          doctorRatingId: doctorModel?.doctorRatingId ?? 0,
                           isFromMyForums: true,
                         ),
                       );
@@ -66,18 +103,20 @@ class MyForumsPostScreenState extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (context) => isDoctor == true
                               ? DoctorForumsDetailedPostState(
-                                  forumPost: forumPost,
-                                  forumReplies: forumPost.replies,
-                                  doctorRatingId: forumPost.doctorRatingId,
+                                  forumPost: updatedForumPost,
+                                  forumReplies: updatedForumPost.replies,
+                                  doctorRatingId:
+                                      doctorModel?.doctorRatingId ?? 0,
                                   useCustomAppBar: true,
                                   isDoctor: isDoctor,
                                   isFromMyForums: true,
                                   currentUser: currentUser,
                                 )
                               : ForumsDetailedPostState(
-                                  forumPost: forumPost,
-                                  forumReplies: forumPost.replies,
-                                  doctorRatingId: forumPost.doctorRatingId,
+                                  forumPost: updatedForumPost,
+                                  forumReplies: updatedForumPost.replies,
+                                  doctorRatingId:
+                                      doctorModel?.doctorRatingId ?? 0,
                                   useCustomAppBar: true,
                                   isDoctor: isDoctor,
                                   isFromMyForums: true,
@@ -104,7 +143,8 @@ class MyForumsPostScreenState extends StatelessWidget {
                             children: [
                               forumHeader(
                                 forumPost: forumPost,
-                                doctorRatingId: forumPost.doctorRatingId,
+                                doctorRatingId:
+                                    doctorModel?.doctorRatingId ?? 0,
                                 context: context,
                               ),
                               const Gap(10),

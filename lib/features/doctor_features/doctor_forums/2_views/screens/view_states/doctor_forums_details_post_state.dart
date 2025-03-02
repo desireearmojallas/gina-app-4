@@ -43,6 +43,8 @@ class DoctorForumsDetailedPostState extends StatelessWidget {
     final myForumsBloc = context.read<DoctorMyForumsBloc>();
     final width = MediaQuery.of(context).size.width;
 
+    debugPrint('DoctorRatingId: $doctorRatingId');
+
     return Scaffold(
       appBar: useCustomAppBar == true
           ? (isDoctor == true
@@ -122,6 +124,7 @@ class DoctorForumsDetailedPostState extends StatelessWidget {
                             ),
                             BlocBuilder<DoctorForumsBloc, DoctorForumsState>(
                               builder: (context, state) {
+                                debugPrint('State: $state');
                                 if (state
                                     is GetRepliesDoctorForumsPostLoadingState) {
                                   return const Center(
@@ -143,6 +146,11 @@ class DoctorForumsDetailedPostState extends StatelessWidget {
                                   itemCount: forumReplies.length,
                                   itemBuilder: (context, index) {
                                     final reply = forumReplies[index];
+
+                                    debugPrint('Reply: $reply');
+                                    debugPrint(
+                                        'DoctorRatingId: ${reply.doctorRatingId}');
+
                                     return Column(
                                       children: [
                                         const Gap(10),

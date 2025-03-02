@@ -124,3 +124,24 @@ class GetRepliesDoctorForumsPostEmptyState extends DoctorForumsState {
   @override
   List<Object> get props => [forumPost, forumReplies, doctorRatingId];
 }
+
+class DoctorDetailsLoadingState extends DoctorForumsState {}
+
+class DoctorDetailsLoadedState extends DoctorForumsState {
+  final DoctorModel doctor;
+  final int doctorRatingId;
+
+  const DoctorDetailsLoadedState(this.doctor, this.doctorRatingId);
+
+  @override
+  List<Object> get props => [doctor, doctorRatingId];
+}
+
+class DoctorDetailsErrorState extends DoctorForumsState {
+  final String message;
+
+  const DoctorDetailsErrorState(this.message);
+
+  @override
+  List<Object> get props => [message];
+}

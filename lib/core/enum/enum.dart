@@ -1,8 +1,9 @@
 enum DoctorRating {
   newDoctor, // 0
-  activeDoctor, // 1
-  contributingDoctor, // 2
+  contributingDoctor, // 1
+  activeDoctor, // 2
   topDoctor, // 3
+  inactiveDoctor, //4
 }
 
 enum DoctorVerificationStatus {

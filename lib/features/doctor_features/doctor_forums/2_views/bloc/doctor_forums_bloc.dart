@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/1_controllers/doctor_forums_controller.dart';
 import 'package:gina_app_4/features/patient_features/forums/0_models/forums_model.dart';
 import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_bloc.dart';
@@ -27,6 +29,7 @@ class DoctorForumsBloc extends Bloc<DoctorForumsEvent, DoctorForumsState> {
         navigateToDoctorForumsReplyPostEvent);
     on<GetRepliesDoctorForumsPostRequestedEvent>(
         getRepliesDoctorForumsPostRequestedEvent);
+    on<GetDoctorRatingIdsForRepliesEvent>(getDoctorRatingIdsForRepliesEvent);
   }
 
   FutureOr<void> docForumsFetchRequestedEvent(
@@ -126,6 +129,7 @@ class DoctorForumsBloc extends Bloc<DoctorForumsEvent, DoctorForumsState> {
         doctorRatingId: doctorRatingId,
         currentUser: docForumsController.currentUser,
       ));
+      add(GetDoctorRatingIdsForRepliesEvent(replies: forumReplies));
     });
   }
 
@@ -170,6 +174,40 @@ class DoctorForumsBloc extends Bloc<DoctorForumsEvent, DoctorForumsState> {
         doctorRatingId: doctorRatingId ?? 0,
         currentUser: docForumsController.currentUser,
       ));
+      debugPrint('Triggering GetDoctorRatingIdsForRepliesEvent');
+      add(GetDoctorRatingIdsForRepliesEvent(replies: replies));
     });
+  }
+
+  FutureOr<void> getDoctorRatingIdsForRepliesEvent(
+      GetDoctorRatingIdsForRepliesEvent event,
+      Emitter<DoctorForumsState> emit) async {
+    debugPrint('Inside getDoctorRatingIdsForRepliesEvent');
+    final updatedReplies = await Future.wait(event.replies.map((reply) async {
+      final doctorDoc = await FirebaseFirestore.instance
+          .collection('doctors')
+          .doc(reply.posterUid)
+          .get();
+      if (doctorDoc.exists) {
+        final doctor = DoctorModel.fromDocumentSnap(doctorDoc);
+        debugPrint(
+            'Fetched doctorRatingId: ${doctor.doctorRatingId} for reply: ${reply.postId}');
+        return reply.copyWith(doctorRatingId: doctor.doctorRatingId);
+      } else {
+        debugPrint('Doctor not found for reply: ${reply.postId}');
+      }
+      return reply;
+    }).toList());
+
+    // Update the forumReplies in the current state
+    final currentState = state;
+    if (currentState is NavigateToDoctorForumsDetailedPostState) {
+      emit(NavigateToDoctorForumsDetailedPostState(
+        doctorForumPost: currentState.doctorForumPost,
+        forumReplies: updatedReplies,
+        doctorRatingId: currentState.doctorRatingId,
+        currentUser: currentState.currentUser,
+      ));
+    }
   }
 }

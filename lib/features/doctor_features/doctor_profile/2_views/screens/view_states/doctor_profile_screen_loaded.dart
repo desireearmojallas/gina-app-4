@@ -80,9 +80,7 @@ class DoctorProfileScreenLoaded extends StatelessWidget {
                         ),
                         const Gap(15),
                         DoctorRatingBadge(
-                          //TODO: to change the rating
-                          //! todo: to change the rating
-                          doctorRating: 2,
+                          doctorRating: doctorData.doctorRatingId,
                         ),
                         Gap(size.height * 0.025),
                         Column(

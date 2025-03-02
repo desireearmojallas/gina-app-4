@@ -38,6 +38,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_econsult/1_controller
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/1_controller/doctor_emergency_announcements_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/bloc/doctor_emergency_announcements_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_forum_badge/1_controller/doctor_forum_badge_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forum_badge/2_views/bloc/doctor_forum_badge_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/1_controllers/doctor_forums_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/bloc/doctor_forums_bloc.dart';
@@ -504,8 +505,13 @@ Future<void> init() async {
 
   //! Features - Doctor Forum Badges
   sl.registerFactory(
-    () => DoctorForumBadgeBloc(),
+    () => DoctorForumBadgeBloc(
+      doctorForumBadgeController: sl(),
+      doctorConsultationFeeController: sl(),
+    ),
   );
+
+  sl.registerFactory(() => DoctorForumBadgeController());
 
 // ----------------------------------------------------------------------------------
 

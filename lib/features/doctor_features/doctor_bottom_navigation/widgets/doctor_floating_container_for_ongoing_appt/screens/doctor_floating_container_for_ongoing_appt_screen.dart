@@ -68,6 +68,18 @@ class DoctorFloatingContainerForOnGoingAppointment extends StatelessWidget {
         date.day == today.day;
   }
 
+  bool isWithinTimeRange(String appointmentTime) {
+    final DateFormat timeFormat = DateFormat('h:mm a');
+    final DateTime now = DateTime.now();
+    final DateTime appointmentStartTime =
+        timeFormat.parse(appointmentTime.split('-')[0].trim());
+    final DateTime appointmentEndTime =
+        timeFormat.parse(appointmentTime.split('-')[1].trim());
+
+    return now.isAfter(appointmentStartTime) &&
+        now.isBefore(appointmentEndTime);
+  }
+
   Future<bool> hasMessages(String chatroomId, String appointmentId) async {
     final messagesSnapshot = await FirebaseFirestore.instance
         .collection('consultation-chatrooms')
@@ -218,9 +230,10 @@ class DoctorFloatingContainerForOnGoingAppointment extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          appointment.modeOfAppointment == 0
-                                              ? 'Ongoing Online Consultation'
-                                              : 'Ongoing Face-to-Face Consultation',
+                                          isWithinTimeRange(
+                                                  appointment.appointmentTime!)
+                                              ? 'Ongoing ${appointment.modeOfAppointment == 0 ? 'Online' : 'Face-to-Face'} Consultation'
+                                              : 'Upcoming ${appointment.modeOfAppointment == 0 ? 'Online' : 'Face-to-Face'} Consultation',
                                           style: const TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.bold,

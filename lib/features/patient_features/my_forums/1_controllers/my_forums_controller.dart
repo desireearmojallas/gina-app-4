@@ -46,9 +46,36 @@ class MyForumsController with ChangeNotifier {
     }
   }
 
+  // Future<Either<Exception, bool>> deleteMyForumsPost(String postId) async {
+  //   try {
+  //     await firestore.collection('forums').doc(postId).delete();
+  //     return const Right(true);
+  //   } on FirebaseAuthException catch (e) {
+  //     debugPrint('FirebaseAuthException: ${e.message}');
+  //     debugPrint('FirebaseAuthException code: ${e.code}');
+  //     error = e;
+  //     notifyListeners();
+  //     return Left(Exception(e.message));
+  //   }
+  // }
+
   Future<Either<Exception, bool>> deleteMyForumsPost(String postId) async {
     try {
+      // Delete the post from the forums collection
       await firestore.collection('forums').doc(postId).delete();
+
+      // Delete the post from the createdPosts of the doctors collection
+      QuerySnapshot<Map<String, dynamic>> doctorSnapshot = await firestore
+          .collection('doctors')
+          .where('createdPosts', arrayContains: postId)
+          .get();
+
+      for (var doc in doctorSnapshot.docs) {
+        await firestore.collection('doctors').doc(doc.id).update({
+          'createdPosts': FieldValue.arrayRemove([postId])
+        });
+      }
+
       return const Right(true);
     } on FirebaseAuthException catch (e) {
       debugPrint('FirebaseAuthException: ${e.message}');

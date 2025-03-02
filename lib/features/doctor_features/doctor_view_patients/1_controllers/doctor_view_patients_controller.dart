@@ -91,6 +91,10 @@ class DoctorViewPatientsController with ChangeNotifier {
   Future<Either<Exception, List<AppointmentModel>>>
       getListOfPatientsAppointment() async {
     try {
+      if (currentUser == null) {
+        throw Exception("Current user is null");
+      }
+
       QuerySnapshot<Map<String, dynamic>> userSnapshot = await firestore
           .collection('patients')
           .where('doctorsBookedForAppt', arrayContains: currentUser!.uid)
@@ -98,6 +102,8 @@ class DoctorViewPatientsController with ChangeNotifier {
       List<UserModel> patients = userSnapshot.docs
           .map((doc) => UserModel.fromJson(doc.data()))
           .toList();
+
+      List<AppointmentModel> allAppointments = [];
 
       for (var patient in patients) {
         QuerySnapshot<Map<String, dynamic>> appointmentSnapshot =
@@ -109,7 +115,7 @@ class DoctorViewPatientsController with ChangeNotifier {
 
         final currentDate = DateTime.now();
 
-        patientAppointmentList = appointmentSnapshot.docs
+        List<AppointmentModel> patientAppointments = appointmentSnapshot.docs
             .map((doc) => AppointmentModel.fromJson(doc.data()))
             .where((element) =>
                 element.appointmentStatus == 1 ||
@@ -123,15 +129,20 @@ class DoctorViewPatientsController with ChangeNotifier {
                 .abs()
                 .compareTo(bDate.difference(currentDate).abs());
           });
+
+        allAppointments.addAll(patientAppointments);
       }
 
-      return Right(patientAppointmentList!);
+      return Right(allAppointments);
     } on FirebaseAuthException catch (e) {
       debugPrint('FirebaseAuthException: ${e.message}');
       debugPrint('FirebaseAuthException code: ${e.code}');
       error = e;
       notifyListeners();
       return Left(Exception(e.message));
+    } catch (e) {
+      debugPrint('Exception: ${e.toString()}');
+      return Left(Exception(e.toString()));
     }
   }
 

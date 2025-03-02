@@ -20,8 +20,13 @@ class LoginScreenLoaded extends StatefulWidget {
 class _LoginScreenLoadedState extends State<LoginScreenLoaded> {
   String selectedType = 'Patient';
   bool obscurePassword = true;
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  //TODO: erase this, for testing only
+  TextEditingController emailController = TextEditingController(
+    text: '@gina.com',
+  );
+  TextEditingController passwordController = TextEditingController(
+    text: 'password123',
+  );
 
   final formKey = GlobalKey<FormState>();
 

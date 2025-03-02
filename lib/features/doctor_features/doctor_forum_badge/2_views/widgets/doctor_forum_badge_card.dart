@@ -51,7 +51,7 @@ class DoctorForumBadgeCard extends StatelessWidget {
                   radius: 15,
                   backgroundColor:
                       GinaAppTheme.lightOnTertiary.withOpacity(0.5),
-                  child: Icon(
+                  child: const Icon(
                     Icons.star_rounded,
                     color: GinaAppTheme.lightOnTertiary,
                   ),
@@ -110,16 +110,16 @@ class DoctorForumBadgeCard extends StatelessWidget {
                           child: Column(
                             children: [
                               CircleAvatar(
-                                radius: 25,
+                                radius: 20,
                                 backgroundColor:
                                     nextBadgeColor?.withOpacity(0.25),
                                 child: Icon(
                                   Icons.star_rounded,
                                   color: nextBadgeColor,
-                                  size: 35,
+                                  size: 30,
                                 ),
                               ),
-                              const Gap(2),
+                              const Gap(6),
                               Text(
                                 nextBadgeName,
                                 textAlign: TextAlign.center,
@@ -127,7 +127,7 @@ class DoctorForumBadgeCard extends StatelessWidget {
                                     .textTheme
                                     .bodySmall!
                                     .copyWith(
-                                      fontSize: 12,
+                                      fontSize: 10,
                                       fontWeight: FontWeight.bold,
                                       color: nextBadgeColor,
                                     ),
@@ -221,10 +221,10 @@ class DoctorForumBadgeCard extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                     'Progress will be refreshed $formattedDate',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall!
-                        .copyWith(color: Colors.grey[500]),
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                          color: Colors.grey[500],
+                          fontSize: 10,
+                        ),
                   ),
                 ),
               ],

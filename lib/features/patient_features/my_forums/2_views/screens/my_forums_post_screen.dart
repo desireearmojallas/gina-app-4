@@ -56,6 +56,7 @@ class MyForumsScreen extends StatelessWidget {
                 MyForumsPostScreenState(
                   myForumsPost: state.myForumsPosts,
                   currentUser: state.currentUser,
+                  doctorModel: state.doctorModel,
                 ),
               ] else if (state is MyForumsEmptyState) ...[
                 const MyForumsEmptyScreenState(),
