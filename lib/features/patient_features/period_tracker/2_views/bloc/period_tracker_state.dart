@@ -9,7 +9,7 @@ abstract class PeriodTrackerState extends Equatable {
 
 abstract class PeriodTrackerActionState extends PeriodTrackerState {}
 
-class PeriodTrackerInitialState extends PeriodTrackerState {}
+class PeriodTrackerInitial extends PeriodTrackerState {}
 
 class NavigateToPeriodTrackerEditDatesState extends PeriodTrackerState {
   final List<PeriodTrackerModel> periodTrackerModel;
@@ -42,12 +42,10 @@ class GetFirstMenstrualPeriodLoadingState extends PeriodTrackerState {}
 class GetFirstMenstrualPeriodSuccess extends PeriodTrackerState {
   final List<PeriodTrackerModel> periodTrackerModel;
   final List<PeriodTrackerModel> allPeriodsWithPredictions;
-  final List<PeriodTrackerModel> defaultPeriodPredictions;
 
   const GetFirstMenstrualPeriodSuccess({
     required this.periodTrackerModel,
     required this.allPeriodsWithPredictions,
-    required this.defaultPeriodPredictions,
   });
 
   @override

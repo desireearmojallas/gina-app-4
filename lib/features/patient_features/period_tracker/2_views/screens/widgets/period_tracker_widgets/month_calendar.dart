@@ -1,5 +1,3 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -11,14 +9,20 @@ class MonthCalendar extends StatefulWidget {
   final int year;
   final int month;
   final List<DateTime> periodDates;
+  final List<DateTime> averageBasedPredictionDates;
+  final List<DateTime> day28PredictionDates;
   final bool isEditMode;
+  final Function(List<DateTime> newDates) onPeriodDatesChanged;
 
   const MonthCalendar({
     super.key,
     required this.year,
     required this.month,
     required this.periodDates,
-    required this.isEditMode, required Null Function(dynamic newDates) onPeriodDatesChanged,
+    required this.averageBasedPredictionDates,
+    required this.day28PredictionDates,
+    required this.isEditMode,
+    required this.onPeriodDatesChanged,
   });
 
   @override
@@ -26,12 +30,20 @@ class MonthCalendar extends StatefulWidget {
 }
 
 class _MonthCalendarState extends State<MonthCalendar> {
+  List<DateTime> periodDates = [];
+
+  @override
+  void initState() {
+    super.initState();
+    periodDates = widget.periodDates;
+  }
+
   @override
   Widget build(BuildContext context) {
     return buildMonthCalendar(
       widget.year,
       widget.month,
-      widget.periodDates,
+      periodDates,
       widget.isEditMode,
     );
   }
@@ -40,18 +52,9 @@ class _MonthCalendarState extends State<MonthCalendar> {
       int year, int month, List<DateTime> periodDates, bool isEditMode) {
     DateTime firstDayOfMonth = DateTime(year, month, 1);
 
-    // Sample predicted dates for demonstration
-    List<DateTime> averageBasedPredictionDates = [
-      DateTime(year, month, 5),
-      DateTime(year, month, 6),
-      DateTime(year, month, 7),
-    ];
-
-    List<DateTime> day28PredictionDates = [
-      DateTime(year, month, 15),
-      DateTime(year, month, 16),
-      DateTime(year, month, 17),
-    ];
+    List<DateTime> averageBasedPredictionDates =
+        widget.averageBasedPredictionDates;
+    List<DateTime> day28PredictionDates = widget.day28PredictionDates;
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -124,6 +127,8 @@ class _MonthCalendarState extends State<MonthCalendar> {
                         } else {
                           periodDates.add(date);
                         }
+                        widget.onPeriodDatesChanged(periodDates);
+                        debugPrint('Updated period dates: $periodDates');
                       });
                     },
                     radius: 40,
@@ -172,6 +177,9 @@ class _MonthCalendarState extends State<MonthCalendar> {
                     date.month == day.month &&
                     date.day == day.day)) {
                   isAverageBasedPredictionDate = true;
+                  backgroundColor = isEditMode
+                      ? null
+                      : GinaAppTheme.lightPrimaryColor.withOpacity(0.5);
                 }
 
                 if (day28PredictionDates.any((date) =>
@@ -179,15 +187,13 @@ class _MonthCalendarState extends State<MonthCalendar> {
                     date.month == day.month &&
                     date.day == day.day)) {
                   is28DayPredictionDate = true;
-                  backgroundColor =
-                      GinaAppTheme.lightPrimaryColor.withOpacity(0.5);
                 }
 
-                if (widget.periodDates.any((date) =>
+                if (periodDates.any((date) =>
                     date.year == day.year &&
                     date.month == day.month &&
                     date.day == day.day)) {
-                  backgroundColor = widget.isEditMode
+                  backgroundColor = isEditMode
                       ? Colors.transparent
                       : GinaAppTheme.lightTertiaryContainer;
                   isPeriodDate = true;
@@ -202,13 +208,15 @@ class _MonthCalendarState extends State<MonthCalendar> {
                   alignment: Alignment.center,
                   child: Text(
                     day.day.toString(),
-                    style: const TextStyle(
-                      color: GinaAppTheme.lightOnPrimaryColor,
+                    style: TextStyle(
+                      color: isPeriodDate && !isEditMode
+                          ? Colors.white
+                          : GinaAppTheme.lightOnPrimaryColor,
                     ),
                   ),
                 );
 
-                if (widget.isEditMode) {
+                if (isEditMode) {
                   return InkWell(
                     onTap: () {
                       setState(() {
@@ -220,6 +228,8 @@ class _MonthCalendarState extends State<MonthCalendar> {
                         } else {
                           periodDates.add(day);
                         }
+                        widget.onPeriodDatesChanged(periodDates);
+                        debugPrint('Updated period dates: $periodDates');
                       });
                     },
                     radius: 40,
@@ -230,10 +240,10 @@ class _MonthCalendarState extends State<MonthCalendar> {
                           margin: const EdgeInsets.only(top: 5.0),
                           width: 20.0,
                           height: 20.0,
-                          child: isAverageBasedPredictionDate
+                          child: is28DayPredictionDate
                               ? DottedBorder(
                                   borderType: BorderType.Circle,
-                                  color: GinaAppTheme.lightTertiaryContainer,
+                                  color: GinaAppTheme.lightPrimaryColor,
                                   dashPattern: const [4, 2],
                                   strokeWidth: 2,
                                   child: Container(
@@ -253,7 +263,7 @@ class _MonthCalendarState extends State<MonthCalendar> {
                                             color: isPeriodDate
                                                 ? Colors.white
                                                 : GinaAppTheme
-                                                    .lightTertiaryContainer,
+                                                    .lightPrimaryColor,
                                             size: 15,
                                           )
                                         : const SizedBox.shrink(),
@@ -270,8 +280,9 @@ class _MonthCalendarState extends State<MonthCalendar> {
                                     border: Border.all(
                                       color: isPeriodDate
                                           ? Colors.transparent
-                                          : is28DayPredictionDate
-                                              ? GinaAppTheme.lightPrimaryColor
+                                          : isAverageBasedPredictionDate
+                                              ? GinaAppTheme
+                                                  .lightTertiaryContainer
                                               : Colors.grey,
                                       width: 2,
                                     ),
@@ -283,7 +294,8 @@ class _MonthCalendarState extends State<MonthCalendar> {
                                           Icons.check,
                                           color: isPeriodDate
                                               ? Colors.white
-                                              : GinaAppTheme.lightPrimaryColor,
+                                              : GinaAppTheme
+                                                  .lightTertiaryContainer,
                                           size: 15,
                                         )
                                       : const SizedBox.shrink(),
@@ -294,7 +306,7 @@ class _MonthCalendarState extends State<MonthCalendar> {
                   );
                 }
 
-                if (isAverageBasedPredictionDate) {
+                if (is28DayPredictionDate) {
                   child = DottedBorder(
                     borderType: BorderType.Circle,
                     color: GinaAppTheme.lightTertiaryContainer,

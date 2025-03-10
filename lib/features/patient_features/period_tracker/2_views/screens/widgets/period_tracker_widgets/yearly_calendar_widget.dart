@@ -7,10 +7,19 @@ import 'weekdays_row.dart';
 import 'month_calendar.dart';
 
 class YearlyCalendarWidget extends StatefulWidget {
+  final List<DateTime> periodDates;
+  final List<DateTime> averageBasedPredictionDates;
+  final List<DateTime> day28PredictionDates;
   final bool isEditMode;
+  final Function(List<DateTime> newDates) onPeriodDatesChanged;
+
   const YearlyCalendarWidget({
     super.key,
+    required this.periodDates,
+    required this.averageBasedPredictionDates,
+    required this.day28PredictionDates,
     this.isEditMode = false,
+    required this.onPeriodDatesChanged,
   });
 
   @override
@@ -20,8 +29,6 @@ class YearlyCalendarWidget extends StatefulWidget {
 class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
   int selectedYear = DateTime.now().year;
   final ScrollController _scrollController = ScrollController();
-
-  List<DateTime> periodDates = [];
 
   @override
   void initState() {
@@ -63,15 +70,35 @@ class _YearlyCalendarWidgetState extends State<YearlyCalendarWidget> {
                 physics: const BouncingScrollPhysics(),
                 itemCount: 12,
                 itemBuilder: (context, index) {
+                  final month = index + 1;
+                  final monthPeriodDates = widget.periodDates
+                      .where((date) =>
+                          date.year == selectedYear && date.month == month)
+                      .toList();
+                  final monthAverageBasedPredictionDates = widget
+                      .averageBasedPredictionDates
+                      .where((date) =>
+                          date.year == selectedYear && date.month == month)
+                      .toList();
+                  final monthDay28PredictionDates = widget.day28PredictionDates
+                      .where((date) =>
+                          date.year == selectedYear && date.month == month)
+                      .toList();
                   return MonthCalendar(
                     year: selectedYear,
-                    month: index + 1,
-                    periodDates: periodDates,
+                    month: month,
+                    periodDates: monthPeriodDates,
+                    averageBasedPredictionDates:
+                        monthAverageBasedPredictionDates,
+                    day28PredictionDates: monthDay28PredictionDates,
                     isEditMode: widget.isEditMode,
                     onPeriodDatesChanged: (newDates) {
-                      setState(() {
-                        periodDates = newDates;
-                      });
+                      final updatedDates = widget.periodDates
+                          .where((date) =>
+                              date.year != selectedYear || date.month != month)
+                          .toList();
+                      updatedDates.addAll(newDates);
+                      widget.onPeriodDatesChanged(updatedDates);
                     },
                   );
                 },

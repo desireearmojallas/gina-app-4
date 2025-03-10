@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
@@ -41,7 +42,7 @@ class DoctorViewPatientDetailsScreen extends StatelessWidget {
         builder: (context, state) {
           if (state is DoctorViewPatientDetailsLoading) {
             return const Center(
-              child: CircularProgressIndicator(),
+              child: CustomLoadingIndicator(),
             );
           } else if (state is DoctorViewPatientDetailsInitial) {
             return DoctorViewPatientDetailsScreenLoaded(

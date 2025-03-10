@@ -16,6 +16,10 @@ class UserModel extends Equatable {
   List<String> chatrooms;
   List<String> appointmentsBooked;
 
+  /// New fields for period tracking
+  final List<int> patientTotalCycleLength;
+  final int patientTotalCycleCount;
+
   UserModel({
     required this.uid,
     required this.name,
@@ -30,6 +34,8 @@ class UserModel extends Equatable {
     this.updated,
     required this.chatrooms,
     required this.appointmentsBooked,
+    this.patientTotalCycleLength = const [], // Default to empty list if not set
+    this.patientTotalCycleCount = 0, // Default to 0 if not set
   });
 
   static UserModel fromDocumentSnap(DocumentSnapshot snap) {
@@ -55,6 +61,10 @@ class UserModel extends Equatable {
       appointmentsBooked: json['appointmentsBooked'] != null
           ? List<String>.from(json['appointmentsBooked'])
           : <String>[],
+      patientTotalCycleLength: json['patientTotalCycleLength'] != null
+          ? List<int>.from(json['patientTotalCycleLength'])
+          : <int>[],
+      patientTotalCycleCount: json['patientTotalCycleCount'] ?? 0,
     );
   }
 
@@ -75,8 +85,12 @@ class UserModel extends Equatable {
           ? List<String>.from(json['chatrooms'])
           : <String>[],
       appointmentsBooked: json['appointmentsBooked'] != null
-          ? List<String>.from(json['chatrooms'])
+          ? List<String>.from(json['appointmentsBooked'])
           : <String>[],
+      patientTotalCycleLength: json['patientTotalCycleLength'] != null
+          ? List<int>.from(json['patientTotalCycleLength'])
+          : <int>[],
+      patientTotalCycleCount: json['patientTotalCycleCount'] ?? 0,
     );
   }
 
@@ -108,6 +122,8 @@ class UserModel extends Equatable {
         'created': created,
         'updated': updated,
         'chatrooms': chatrooms,
+        'patientTotalCycleLength': patientTotalCycleLength,
+        'patientTotalCycleCount': patientTotalCycleCount,
       };
 
   @override
@@ -124,6 +140,8 @@ class UserModel extends Equatable {
         address,
         created,
         updated,
-        chatrooms
+        chatrooms,
+        patientTotalCycleLength,
+        patientTotalCycleCount,
       ];
 }
