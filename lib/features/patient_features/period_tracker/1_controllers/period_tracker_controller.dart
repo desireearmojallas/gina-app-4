@@ -20,71 +20,224 @@ class PeriodTrackerController with ChangeNotifier {
     });
   }
 
-  Future<void> logMenstrualPeriod({
-    required DateTime startDate,
-    required DateTime endDate,
+  // Future<void> logMenstrualPeriod({
+  //   required DateTime startDate,
+  //   required DateTime endDate,
+  //   required List<DateTime> periodDates,
+  // }) async {
+  //   try {
+  //     List<Timestamp> periodDatesTimestamps =
+  //         periodDates.map((date) => Timestamp.fromDate(date)).toList();
+
+  //     QuerySnapshot logsSnapshot = await firestore
+  //         .collection('patients')
+  //         .doc(currentUser!.uid)
+  //         .collection('patientLogs')
+  //         .get();
+
+  //     int cycleLength = 28; // Default value
+
+  //     if (logsSnapshot.docs.isNotEmpty) {
+  //       Map<String, dynamic> nearestLog = logsSnapshot.docs
+  //           .map((doc) => doc.data() as Map<String, dynamic>)
+  //           .reduce((curr, next) {
+  //         DateTime currStartDate = (curr['startDate'] as Timestamp).toDate();
+  //         DateTime nextStartDate = (next['startDate'] as Timestamp).toDate();
+
+  //         int currDiff = (startDate.difference(currStartDate).inDays - 1).abs();
+  //         int nextDiff = (startDate.difference(nextStartDate).inDays - 1).abs();
+
+  //         return currDiff < nextDiff ? curr : next;
+  //       });
+
+  //       DateTime nearestStartDate =
+  //           (nearestLog['startDate'] as Timestamp).toDate();
+  //       cycleLength = (startDate.difference(nearestStartDate).inDays - 1).abs();
+
+  //       DateTime nearestEndDate = (nearestLog['endDate'] as Timestamp).toDate();
+
+  //       debugPrint('Nearest Log: $nearestLog');
+  //       debugPrint('Nearest Log End Date: $nearestEndDate');
+  //       debugPrint('Nearest Start Date: $nearestStartDate');
+  //       debugPrint('Cycle Length: $cycleLength');
+  //     }
+
+  //     String snapId = firestore
+  //         .collection('patients')
+  //         .doc(currentUser!.uid)
+  //         .collection('patientLogs')
+  //         .doc()
+  //         .id;
+
+  //     await firestore
+  //         .collection('patients')
+  //         .doc(currentUser!.uid)
+  //         .collection('patientLogs')
+  //         .doc(snapId)
+  //         .set({
+  //       'periodDates': periodDatesTimestamps,
+  //       'startDate': Timestamp.fromDate(startDate),
+  //       'endDate': Timestamp.fromDate(endDate),
+  //       'cycleLength': cycleLength,
+  //       'isLog': true,
+  //     });
+  //     debugPrint('Menstrual Cycle logged successfully.');
+  //   } catch (e) {
+  //     debugPrint('Error logging menstrual cycle: $e');
+  //   }
+  // }
+
+  Future<void> logOrUpdateMenstrualPeriod({
     required List<DateTime> periodDates,
   }) async {
     try {
-      List<Timestamp> periodDatesTimestamps =
-          periodDates.map((date) => Timestamp.fromDate(date)).toList();
+      debugPrint('Starting logOrUpdateMenstrualPeriod...');
+      debugPrint('Received periodDates: $periodDates');
 
-      QuerySnapshot logsSnapshot = await firestore
-          .collection('patients')
-          .doc(currentUser!.uid)
-          .collection('patientLogs')
-          .get();
+      List<List<DateTime>> groupedDates = _groupDatesByRange(periodDates);
 
-      int cycleLength = 28; // Default value
+      for (var periodGroup in groupedDates) {
+        if (periodGroup.isNotEmpty) {
+          DateTime startDate = periodGroup
+              .reduce((curr, next) => curr.isBefore(next) ? curr : next);
+          DateTime endDate = periodGroup
+              .reduce((curr, next) => curr.isAfter(next) ? curr : next);
 
-      if (logsSnapshot.docs.isNotEmpty) {
-        Map<String, dynamic> nearestLog = logsSnapshot.docs
-            .map((doc) => doc.data() as Map<String, dynamic>)
-            .reduce((curr, next) {
-          DateTime currStartDate = (curr['startDate'] as Timestamp).toDate();
-          DateTime nextStartDate = (next['startDate'] as Timestamp).toDate();
+          List<Timestamp> periodDatesTimestamps =
+              periodGroup.map((date) => Timestamp.fromDate(date)).toList();
 
-          int currDiff = (startDate.difference(currStartDate).inDays - 1).abs();
-          int nextDiff = (startDate.difference(nextStartDate).inDays - 1).abs();
+          CollectionReference logsRef =
+              FirebaseFirestore.instance // Initialize logsRef here
+                  .collection('patients')
+                  .doc(currentUser!.uid)
+                  .collection('patientLogs');
 
-          return currDiff < nextDiff ? curr : next;
-        });
+          debugPrint('Fetching all logs...');
 
-        DateTime nearestStartDate =
-            (nearestLog['startDate'] as Timestamp).toDate();
-        cycleLength = (startDate.difference(nearestStartDate).inDays - 1).abs();
+          QuerySnapshot logsSnapshot = await logsRef.get();
 
-        DateTime nearestEndDate = (nearestLog['endDate'] as Timestamp).toDate();
+          debugPrint('Number of logs found: ${logsSnapshot.docs.length}');
 
-        debugPrint('Nearest Log: $nearestLog');
-        debugPrint('Nearest Log End Date: $nearestEndDate');
-        debugPrint('Nearest Start Date: $nearestStartDate');
-        debugPrint('Cycle Length: $cycleLength');
+          bool logUpdated = false;
+
+          if (logsSnapshot.docs.isNotEmpty) {
+            for (var existingLog in logsSnapshot.docs) {
+              String logId = existingLog.id;
+              debugPrint('Existing log found with ID: $logId');
+              List<Timestamp> existingPeriodDates =
+                  List<Timestamp>.from(existingLog['periodDates']);
+              List<DateTime> existingPeriodDatesDateTime = existingPeriodDates
+                  .map((timestamp) => timestamp.toDate())
+                  .toList();
+
+              List<DateTime> addedDates = periodGroup
+                  .where((date) => !existingPeriodDatesDateTime.contains(date))
+                  .toList();
+              List<DateTime> removedDates = existingPeriodDatesDateTime
+                  .where((date) => !periodGroup.contains(date))
+                  .toList();
+
+              debugPrint('Added dates: $addedDates');
+              debugPrint('Removed dates: $removedDates');
+
+              if (addedDates.isNotEmpty || removedDates.isNotEmpty) {
+                existingPeriodDatesDateTime.addAll(addedDates);
+                existingPeriodDatesDateTime
+                    .removeWhere((date) => removedDates.contains(date));
+
+                if (existingPeriodDatesDateTime.isEmpty) {
+                  debugPrint(
+                      'No period dates remain, deleting log with ID: $logId');
+                  await logsRef.doc(logId).delete();
+                  debugPrint(
+                      'Menstrual cycle log deleted because no period dates remain.');
+                } else {
+                  DateTime newStartDate = existingPeriodDatesDateTime.reduce(
+                      (curr, next) => curr.isBefore(next) ? curr : next);
+                  DateTime newEndDate = existingPeriodDatesDateTime
+                      .reduce((curr, next) => curr.isAfter(next) ? curr : next);
+
+                  await logsRef.doc(logId).update({
+                    'periodDates': existingPeriodDatesDateTime
+                        .map((date) => Timestamp.fromDate(date))
+                        .toList(),
+                    'startDate': Timestamp.fromDate(newStartDate),
+                    'endDate': Timestamp.fromDate(newEndDate),
+                  });
+                  debugPrint('Menstrual cycle log updated successfully.');
+                }
+
+                logUpdated = true;
+                break;
+              }
+            }
+          }
+
+          if (!logUpdated) {
+            debugPrint('No overlapping log found. Creating a new log...');
+
+            if (periodGroup.isNotEmpty) {
+              String snapId = logsRef.doc().id;
+              await logsRef.doc(snapId).set({
+                'periodDates': periodDatesTimestamps,
+                'startDate': Timestamp.fromDate(startDate),
+                'endDate': Timestamp.fromDate(endDate),
+                'cycleLength': 28,
+                'isLog': true,
+              });
+              debugPrint('New menstrual cycle log created with ID: $snapId');
+            } else {
+              debugPrint('No period dates provided, skipping log creation.');
+            }
+          }
+        }
       }
 
-      String snapId = firestore
-          .collection('patients')
-          .doc(currentUser!.uid)
-          .collection('patientLogs')
-          .doc()
-          .id;
+      // Additional check to delete logs with no period dates
+      CollectionReference logsRef =
+          FirebaseFirestore.instance // Initialize logsRef here
+              .collection('patients')
+              .doc(currentUser!.uid)
+              .collection('patientLogs');
 
-      await firestore
-          .collection('patients')
-          .doc(currentUser!.uid)
-          .collection('patientLogs')
-          .doc(snapId)
-          .set({
-        'periodDates': periodDatesTimestamps,
-        'startDate': Timestamp.fromDate(startDate),
-        'endDate': Timestamp.fromDate(endDate),
-        'cycleLength': cycleLength,
-        'isLog': true,
-      });
-      debugPrint('Menstrual Cycle logged successfully.');
+      QuerySnapshot allLogsSnapshot = await logsRef.get();
+      for (var doc in allLogsSnapshot.docs) {
+        List<Timestamp> periodDates = List<Timestamp>.from(doc['periodDates']);
+        if (periodDates.isEmpty) {
+          debugPrint(
+              'Deleting log with ID: ${doc.id} because it has no period dates.');
+          await logsRef.doc(doc.id).delete();
+          debugPrint('Deleted log with ID: ${doc.id}');
+        }
+      }
     } catch (e) {
       debugPrint('Error logging menstrual cycle: $e');
     }
+  }
+
+  List<List<DateTime>> _groupDatesByRange(List<DateTime> dates) {
+    List<List<DateTime>> groupedDates = [];
+    List<DateTime> currentGroup = [];
+
+    if (dates.isEmpty) return groupedDates;
+
+    dates.sort();
+
+    for (int i = 0; i < dates.length; i++) {
+      if (currentGroup.isEmpty ||
+          dates[i].difference(currentGroup.last).inDays <= 1) {
+        currentGroup.add(dates[i]);
+      } else {
+        groupedDates.add(currentGroup);
+        currentGroup = [dates[i]];
+      }
+    }
+
+    if (currentGroup.isNotEmpty) {
+      groupedDates.add(currentGroup);
+    }
+
+    return groupedDates;
   }
 
   Future<int?> getAverageCycleLength() async {

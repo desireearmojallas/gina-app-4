@@ -51,6 +51,8 @@ class _MonthCalendarState extends State<MonthCalendar> {
   Widget buildMonthCalendar(
       int year, int month, List<DateTime> periodDates, bool isEditMode) {
     DateTime firstDayOfMonth = DateTime(year, month, 1);
+    DateTime today = DateTime.now();
+    DateTime lastSelectableDay = today.add(const Duration(days: 7));
 
     List<DateTime> averageBasedPredictionDates =
         widget.averageBasedPredictionDates;
@@ -88,34 +90,49 @@ class _MonthCalendarState extends State<MonthCalendar> {
                     d.month == date.month &&
                     d.day == date.day);
 
-                Widget child = Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (!isEditMode)
-                        const Text(
-                          'Today',
+                bool isSelectable = !date.isAfter(lastSelectableDay);
+
+                Widget child = Container(
+                  width: 36.0,
+                  decoration: BoxDecoration(
+                    color: isPeriodDate && !isEditMode
+                        ? GinaAppTheme.lightTertiaryContainer
+                        : Colors.transparent,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (!isEditMode)
+                          Text(
+                            'Today',
+                            style: TextStyle(
+                              color: isPeriodDate
+                                  ? Colors.white
+                                  : GinaAppTheme.lightTertiaryContainer,
+                              fontWeight: FontWeight.bold,
+                              fontSize: isPeriodDate ? 7.5 : 10.0,
+                            ),
+                          )
+                        else
+                          const SizedBox.shrink(),
+                        Text(
+                          date.day.toString(),
                           style: TextStyle(
-                            color: GinaAppTheme.lightTertiaryContainer,
+                            color: isPeriodDate && !isEditMode
+                                ? Colors.white
+                                : GinaAppTheme.lightTertiaryContainer,
                             fontWeight: FontWeight.bold,
-                            fontSize: 10.0,
+                            fontSize: 16.0,
                           ),
-                        )
-                      else
-                        const SizedBox.shrink(),
-                      Text(
-                        date.day.toString(),
-                        style: const TextStyle(
-                          color: GinaAppTheme.lightTertiaryContainer,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16.0,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
 
-                if (isEditMode) {
+                if (isEditMode && isSelectable) {
                   return InkWell(
                     onTap: () {
                       setState(() {
@@ -177,9 +194,8 @@ class _MonthCalendarState extends State<MonthCalendar> {
                     date.month == day.month &&
                     date.day == day.day)) {
                   isAverageBasedPredictionDate = true;
-                  backgroundColor = isEditMode
-                      ? null
-                      : GinaAppTheme.lightPrimaryColor.withOpacity(0.5);
+                  backgroundColor =
+                      GinaAppTheme.lightPrimaryColor.withOpacity(0.5);
                 }
 
                 if (day28PredictionDates.any((date) =>
@@ -199,6 +215,8 @@ class _MonthCalendarState extends State<MonthCalendar> {
                   isPeriodDate = true;
                 }
 
+                bool isSelectable = !day.isAfter(lastSelectableDay);
+
                 Widget child = Container(
                   width: 35.0,
                   decoration: BoxDecoration(
@@ -216,7 +234,7 @@ class _MonthCalendarState extends State<MonthCalendar> {
                   ),
                 );
 
-                if (isEditMode) {
+                if (isEditMode && isSelectable) {
                   return InkWell(
                     onTap: () {
                       setState(() {
@@ -307,15 +325,17 @@ class _MonthCalendarState extends State<MonthCalendar> {
                 }
 
                 if (is28DayPredictionDate) {
-                  child = DottedBorder(
-                    borderType: BorderType.Circle,
-                    color: GinaAppTheme.lightTertiaryContainer,
-                    dashPattern: const [4, 2],
-                    child: Container(
-                      width: 30.0,
-                      height: 30.0,
-                      alignment: Alignment.center,
-                      child: child,
+                  child = Center(
+                    child: DottedBorder(
+                      borderType: BorderType.Circle,
+                      color: GinaAppTheme.lightTertiaryContainer,
+                      dashPattern: const [4, 2],
+                      child: Container(
+                        width: 30.0,
+                        height: 30.0,
+                        alignment: Alignment.center,
+                        child: child,
+                      ),
                     ),
                   );
                 }

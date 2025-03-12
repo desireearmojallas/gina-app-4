@@ -32,6 +32,8 @@ class PeriodTrackerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final periodTrackerBloc = context.read<PeriodTrackerBloc>();
+    BuildContext? dialogContext;
+
     return Scaffold(
         appBar: GinaPatientAppBar(
           title: 'Period Tracker',
@@ -45,16 +47,26 @@ class PeriodTrackerScreen extends StatelessWidget {
               if (state is LogFirstMenstrualPeriodSuccess) {
                 periodDates.clear();
                 periodTrackerBloc.add(GetFirstMenstrualPeriodDatesEvent());
+                if (dialogContext != null) {
+                  Navigator.of(dialogContext!).pop(); // Dismiss the dialog
+                  dialogContext = null;
+                }
               } else if (state is LogFirstMenstrualPeriodError) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(state.errorMessage),
                   ),
                 );
+                if (dialogContext != null) {
+                  Navigator.of(dialogContext!).pop(); // Dismiss the dialog
+                  dialogContext = null;
+                }
               } else if (state is LogFirstMenstrualPeriodLoadingState) {
                 showDialog(
                   context: context,
+                  barrierDismissible: false, // Prevent dismissing the dialog
                   builder: (context) {
+                    dialogContext = context;
                     return Center(
                       child: Container(
                         height: 220,
@@ -82,9 +94,6 @@ class PeriodTrackerScreen extends StatelessWidget {
                     );
                   },
                 );
-                Future.delayed(const Duration(seconds: 5), () {
-                  Navigator.of(context).pop();
-                });
               }
             },
             builder: (context, state) {
