@@ -267,16 +267,66 @@ class PeriodTrackerController with ChangeNotifier {
       debugPrint('Unique new dates: $uniqueNewDates');
 
       if (uniqueNewDates.isNotEmpty) {
-        // Add a new log only if there are new unique dates
-        await logsRef.add({
-          'cycleLength': 28,
-          'startDate': uniqueNewDates.first,
-          'endDate': uniqueNewDates.last,
-          'periodDates': uniqueNewDates,
-          'isLog': true,
-        });
+        // Check if the new dates can be merged with existing logs
+        for (List<DateTime> newGroup in newGroupedDates) {
+          bool merged = false;
+          List<DocumentSnapshot> logsToCheck =
+              List.from(existingLogs); // Create a copy
+          for (var log in logsToCheck) {
+            var logData = log.data() as Map<String, dynamic>;
+            List<DateTime> storedDates =
+                (logData['periodDates'] as List<dynamic>)
+                    .map((date) => (date as Timestamp).toDate())
+                    .toList();
 
-        debugPrint('New period log added with unique dates!');
+            DateTime storedStartDate =
+                (logData['startDate'] as Timestamp).toDate();
+            DateTime storedEndDate = (logData['endDate'] as Timestamp).toDate();
+
+            DateTime newStartDate = newGroup.first;
+            DateTime newEndDate = newGroup.last;
+
+            if ((newStartDate.isAfter(
+                        storedStartDate.subtract(const Duration(days: 1))) &&
+                    newStartDate.isBefore(
+                        storedEndDate.add(const Duration(days: 1)))) ||
+                (newEndDate.isAfter(
+                        storedStartDate.subtract(const Duration(days: 1))) &&
+                    newEndDate.isBefore(
+                        storedEndDate.add(const Duration(days: 1))))) {
+              // Merge the dates and update the log
+              storedDates.addAll(newGroup);
+              storedDates = storedDates.toSet().toList(); // Remove duplicates
+              storedDates.sort();
+
+              await logsRef.doc(log.id).update({
+                'periodDates': storedDates
+                    .map((date) => Timestamp.fromDate(date))
+                    .toList(),
+                'startDate': Timestamp.fromDate(storedDates.first),
+                'endDate': Timestamp.fromDate(storedDates.last),
+              });
+
+              debugPrint(
+                  'Updated log document: ${log.id} with merged dates: $storedDates');
+              merged = true;
+              break; // Break the inner loop, go to the next group.
+            }
+          }
+          if (!merged) {
+            // Add a new log if no existing log could be merged
+            await logsRef.add({
+              'cycleLength': 28,
+              'startDate': newGroup.first,
+              'endDate': newGroup.last,
+              'periodDates':
+                  newGroup.map((date) => Timestamp.fromDate(date)).toList(),
+              'isLog': true,
+            });
+
+            debugPrint('New period log added with unique dates!');
+          }
+        }
       } else {
         debugPrint('No new dates to log.');
       }
@@ -297,9 +347,38 @@ class PeriodTrackerController with ChangeNotifier {
           debugPrint('Deleted log document: ${log.id}');
         } else if (!listEquals(storedDates, remainingDates)) {
           // Update document with remaining dates
-          await logsRef.doc(log.id).update({'periodDates': remainingDates});
+          await logsRef.doc(log.id).update({
+            'periodDates':
+                remainingDates.map((date) => Timestamp.fromDate(date)).toList()
+          });
           debugPrint(
               'Updated log document: ${log.id} with remaining dates: $remainingDates');
+        }
+      }
+
+      // Check for redundant documents after merging
+      logsSnapshot = await logsRef.get();
+      existingLogs = logsSnapshot.docs;
+
+      for (var log1 in existingLogs) {
+        var logData1 = log1.data() as Map<String, dynamic>;
+        List<DateTime> dates1 = (logData1['periodDates'] as List<dynamic>)
+            .map((date) => (date as Timestamp).toDate())
+            .toList();
+
+        for (var log2 in existingLogs) {
+          if (log1.id != log2.id) {
+            var logData2 = log2.data() as Map<String, dynamic>;
+            List<DateTime> dates2 = (logData2['periodDates'] as List<dynamic>)
+                .map((date) => (date as Timestamp).toDate())
+                .toList();
+
+            if (dates2.every((date) => dates1.contains(date))) {
+              // dates2 are completely contained within dates1, delete log2
+              await logsRef.doc(log2.id).delete();
+              debugPrint('Deleted redundant log document: ${log2.id}');
+            }
+          }
         }
       }
     } catch (e) {
