@@ -266,6 +266,8 @@ class PeriodTrackerController with ChangeNotifier {
 
       debugPrint('Unique new dates: $uniqueNewDates');
 
+      bool anyUpdateOrAddition = false; // Flag to track updates or additions
+
       if (uniqueNewDates.isNotEmpty) {
         // Check if the new dates can be merged with existing logs
         for (List<DateTime> newGroup in newGroupedDates) {
@@ -310,13 +312,33 @@ class PeriodTrackerController with ChangeNotifier {
               debugPrint(
                   'Updated log document: ${log.id} with merged dates: $storedDates');
               merged = true;
+              anyUpdateOrAddition = true; // Set the flag
               break; // Break the inner loop, go to the next group.
             }
           }
           if (!merged) {
             // Add a new log if no existing log could be merged
+            int cycleLength = 28; // Default cycle length
+
+            if (existingLogs.isNotEmpty) {
+              // Calculate cycle length if there are existing logs
+              List<DateTime> existingStartDates = existingLogs
+                  .map((log) => (log.data()
+                      as Map<String, dynamic>)['startDate'] as Timestamp)
+                  .map((timestamp) => timestamp.toDate())
+                  .toList();
+
+              existingStartDates.sort();
+
+              if (existingStartDates.isNotEmpty) {
+                DateTime previousStartDate = existingStartDates.last;
+                cycleLength =
+                    newGroup.first.difference(previousStartDate).inDays.abs();
+              }
+            }
+
             await logsRef.add({
-              'cycleLength': 28,
+              'cycleLength': cycleLength,
               'startDate': newGroup.first,
               'endDate': newGroup.last,
               'periodDates':
@@ -325,6 +347,7 @@ class PeriodTrackerController with ChangeNotifier {
             });
 
             debugPrint('New period log added with unique dates!');
+            anyUpdateOrAddition = true; // Set the flag
           }
         }
       } else {
@@ -332,6 +355,7 @@ class PeriodTrackerController with ChangeNotifier {
       }
 
       // Handle deletions
+      bool deletionOccurred = false;
       for (var log in existingLogs) {
         var logData = log.data() as Map<String, dynamic>;
         List<DateTime> storedDates = (logData['periodDates'] as List<dynamic>)
@@ -345,14 +369,42 @@ class PeriodTrackerController with ChangeNotifier {
           // Delete the entire document if no dates remain
           await logsRef.doc(log.id).delete();
           debugPrint('Deleted log document: ${log.id}');
+          deletionOccurred = true;
         } else if (!listEquals(storedDates, remainingDates)) {
-          // Update document with remaining dates
+          // Update document with remaining dates and start/end dates
           await logsRef.doc(log.id).update({
             'periodDates':
-                remainingDates.map((date) => Timestamp.fromDate(date)).toList()
+                remainingDates.map((date) => Timestamp.fromDate(date)).toList(),
+            'startDate': Timestamp.fromDate(remainingDates.first),
+            'endDate': Timestamp.fromDate(remainingDates.last),
           });
           debugPrint(
               'Updated log document: ${log.id} with remaining dates: $remainingDates');
+          deletionOccurred = true;
+        }
+      }
+
+      if (deletionOccurred || anyUpdateOrAddition) {
+        // Recalculate cycle lengths for all logs
+        logsSnapshot = await logsRef.get();
+        existingLogs = logsSnapshot.docs;
+        existingLogs.sort((a, b) =>
+            (a.data() as Map<String, dynamic>)['startDate']
+                .compareTo((b.data() as Map<String, dynamic>)['startDate']));
+
+        for (int i = 0; i < existingLogs.length; i++) {
+          DocumentSnapshot log = existingLogs[i];
+          int newCycleLength = 28; // Default for the first log
+          if (i > 0) {
+            DateTime previousStartDate = (existingLogs[i - 1].data()
+                    as Map<String, dynamic>)['startDate']
+                .toDate();
+            DateTime currentStartDate =
+                (log.data() as Map<String, dynamic>)['startDate'].toDate();
+            newCycleLength =
+                currentStartDate.difference(previousStartDate).inDays.abs();
+          }
+          await logsRef.doc(log.id).update({'cycleLength': newCycleLength});
         }
       }
 
