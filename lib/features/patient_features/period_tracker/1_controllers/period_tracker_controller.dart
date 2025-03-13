@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 
@@ -87,6 +88,149 @@ class PeriodTrackerController with ChangeNotifier {
   //   }
   // }
 
+  // Future<void> logOrUpdateMenstrualPeriod({
+  //   required List<DateTime> periodDates,
+  // }) async {
+  //   try {
+  //     debugPrint('Starting logOrUpdateMenstrualPeriod...');
+  //     debugPrint('Received periodDates: $periodDates');
+
+  //     List<List<DateTime>> newGroupedDates = _groupDatesByRange(periodDates);
+  //     debugPrint('New grouped dates: $newGroupedDates');
+
+  //     CollectionReference logsRef = FirebaseFirestore.instance
+  //         .collection('patients')
+  //         .doc(currentUser!.uid)
+  //         .collection('patientLogs');
+
+  //     QuerySnapshot logsSnapshot = await logsRef.get();
+  //     List<DocumentSnapshot> existingLogs = logsSnapshot.docs;
+  //     debugPrint('Number of existing logs: ${existingLogs.length}');
+
+  //     // Fetch existing logs and their grouped dates
+  //     Map<String, List<List<DateTime>>> logIdToGroupedDates = {};
+  //     for (var doc in existingLogs) {
+  //       String logId = doc.id;
+  //       List<Timestamp> existingPeriodTimestamps =
+  //           List<Timestamp>.from(doc['periodDates']);
+  //       List<DateTime> existingPeriodDates =
+  //           existingPeriodTimestamps.map((ts) => ts.toDate()).toList();
+  //       logIdToGroupedDates[logId] = _groupDatesByRange(existingPeriodDates);
+  //     }
+
+  //     // Process each new group
+  //     for (var newGroup in newGroupedDates) {
+  //       bool groupHandled = false;
+
+  //       // Check if new group fits into existing logs
+  //       for (var logId in logIdToGroupedDates.keys) {
+  //         List<List<DateTime>> existingGroupedDates =
+  //             logIdToGroupedDates[logId]!;
+
+  //         // Check if the new group can be merged with an existing group
+  //         for (var existingGroup in existingGroupedDates) {
+  //           if (_canMergeGroups(existingGroup, newGroup)) {
+  //             // Merge and update
+  //             List<DateTime> mergedDates = List.from(existingGroup)
+  //               ..addAll(newGroup);
+  //             mergedDates.sort();
+
+  //             DateTime newStartDate = mergedDates
+  //                 .reduce((curr, next) => curr.isBefore(next) ? curr : next);
+  //             DateTime newEndDate = mergedDates
+  //                 .reduce((curr, next) => curr.isAfter(next) ? curr : next);
+
+  //             await logsRef.doc(logId).update({
+  //               'periodDates': mergedDates
+  //                   .map((date) => Timestamp.fromDate(date))
+  //                   .toList(),
+  //               'startDate': Timestamp.fromDate(newStartDate),
+  //               'endDate': Timestamp.fromDate(newEndDate),
+  //             });
+  //             debugPrint('Merged and updated log ID: $logId');
+  //             groupHandled = true;
+  //             break;
+  //           }
+  //         }
+  //         if (groupHandled) {
+  //           break;
+  //         }
+  //       }
+
+  //       // If no merge was possible, create a new log
+  //       if (!groupHandled) {
+  //         if (newGroup.isNotEmpty) {
+  //           DateTime startDate = newGroup
+  //               .reduce((curr, next) => curr.isBefore(next) ? curr : next);
+  //           DateTime endDate = newGroup
+  //               .reduce((curr, next) => curr.isAfter(next) ? curr : next);
+
+  //           String snapId = logsRef.doc().id;
+  //           await logsRef.doc(snapId).set({
+  //             'periodDates':
+  //                 newGroup.map((date) => Timestamp.fromDate(date)).toList(),
+  //             'startDate': Timestamp.fromDate(startDate),
+  //             'endDate': Timestamp.fromDate(endDate),
+  //             'cycleLength': 28,
+  //             'isLog': true,
+  //           });
+  //           debugPrint('Created new log ID: $snapId');
+  //         }
+  //       }
+  //     }
+
+  //     // Final cleanup: Remove empty logs
+  //     QuerySnapshot finalLogsSnapshot = await logsRef.get();
+  //     for (var doc in finalLogsSnapshot.docs) {
+  //       List<Timestamp> periodDatesTimestamps =
+  //           List<Timestamp>.from(doc['periodDates']);
+  //       if (periodDatesTimestamps.isEmpty) {
+  //         debugPrint('Deleting empty log ID: ${doc.id}');
+  //         await logsRef.doc(doc.id).delete();
+  //       }
+  //     }
+  //   } catch (e) {
+  //     debugPrint('Error logging menstrual cycle: $e');
+  //   }
+  // }
+
+  // List<List<DateTime>> _groupDatesByRange(List<DateTime> dates) {
+  //   // Implement your date grouping logic here
+  //   dates.sort();
+  //   List<List<DateTime>> groupedDates = [];
+  //   if (dates.isEmpty) return groupedDates;
+  //   List<DateTime> currentGroup = [dates.first];
+  //   for (int i = 1; i < dates.length; i++) {
+  //     if (dates[i].difference(currentGroup.last).inDays <= 1) {
+  //       currentGroup.add(dates[i]);
+  //     } else {
+  //       groupedDates.add(currentGroup);
+  //       currentGroup = [dates[i]];
+  //     }
+  //   }
+  //   groupedDates.add(currentGroup);
+  //   return groupedDates;
+  // }
+
+  // bool _canMergeGroups(List<DateTime> existingGroup, List<DateTime> newGroup) {
+  //   // Check if the new group is adjacent to the existing group
+  //   DateTime existingMax =
+  //       existingGroup.reduce((curr, next) => curr.isAfter(next) ? curr : next);
+  //   DateTime newMin =
+  //       newGroup.reduce((curr, next) => curr.isBefore(next) ? curr : next);
+  //   DateTime existingMin =
+  //       existingGroup.reduce((curr, next) => curr.isBefore(next) ? curr : next);
+  //   DateTime newMax =
+  //       newGroup.reduce((curr, next) => curr.isAfter(next) ? curr : next);
+
+  //   if (existingMax.difference(newMin).inDays <= 1 ||
+  //       newMax.difference(existingMin).inDays <= 1) {
+  //     return true;
+  //   }
+  //   return false;
+  // }
+
+  //------------------------------------------------------------------------
   Future<void> logOrUpdateMenstrualPeriod({
     required List<DateTime> periodDates,
   }) async {
@@ -94,126 +238,84 @@ class PeriodTrackerController with ChangeNotifier {
       debugPrint('Starting logOrUpdateMenstrualPeriod...');
       debugPrint('Received periodDates: $periodDates');
 
-      List<List<DateTime>> groupedDates = _groupDatesByRange(periodDates);
+      List<List<DateTime>> newGroupedDates = _groupDatesByRange(periodDates);
+      debugPrint('New grouped dates: $newGroupedDates');
 
-      for (var periodGroup in groupedDates) {
-        if (periodGroup.isNotEmpty) {
-          DateTime startDate = periodGroup
-              .reduce((curr, next) => curr.isBefore(next) ? curr : next);
-          DateTime endDate = periodGroup
-              .reduce((curr, next) => curr.isAfter(next) ? curr : next);
+      CollectionReference logsRef = FirebaseFirestore.instance
+          .collection('patients')
+          .doc(currentUser!.uid)
+          .collection('patientLogs');
 
-          List<Timestamp> periodDatesTimestamps =
-              periodGroup.map((date) => Timestamp.fromDate(date)).toList();
+      QuerySnapshot logsSnapshot = await logsRef.get();
+      List<DocumentSnapshot> existingLogs = logsSnapshot.docs;
+      debugPrint('Number of existing logs: ${existingLogs.length}');
 
-          CollectionReference logsRef =
-              FirebaseFirestore.instance // Initialize logsRef here
-                  .collection('patients')
-                  .doc(currentUser!.uid)
-                  .collection('patientLogs');
-
-          debugPrint('Fetching all logs...');
-
-          QuerySnapshot logsSnapshot = await logsRef.get();
-
-          debugPrint('Number of logs found: ${logsSnapshot.docs.length}');
-
-          bool logUpdated = false;
-
-          if (logsSnapshot.docs.isNotEmpty) {
-            for (var existingLog in logsSnapshot.docs) {
-              String logId = existingLog.id;
-              debugPrint('Existing log found with ID: $logId');
-              List<Timestamp> existingPeriodDates =
-                  List<Timestamp>.from(existingLog['periodDates']);
-              List<DateTime> existingPeriodDatesDateTime = existingPeriodDates
-                  .map((timestamp) => timestamp.toDate())
-                  .toList();
-
-              List<DateTime> addedDates = periodGroup
-                  .where((date) => !existingPeriodDatesDateTime.contains(date))
-                  .toList();
-              List<DateTime> removedDates = existingPeriodDatesDateTime
-                  .where((date) => !periodGroup.contains(date))
-                  .toList();
-
-              debugPrint('Added dates: $addedDates');
-              debugPrint('Removed dates: $removedDates');
-
-              if (addedDates.isNotEmpty || removedDates.isNotEmpty) {
-                existingPeriodDatesDateTime.addAll(addedDates);
-                existingPeriodDatesDateTime
-                    .removeWhere((date) => removedDates.contains(date));
-
-                if (existingPeriodDatesDateTime.isEmpty) {
-                  debugPrint(
-                      'No period dates remain, deleting log with ID: $logId');
-                  await logsRef.doc(logId).delete();
-                  debugPrint(
-                      'Menstrual cycle log deleted because no period dates remain.');
-                } else {
-                  DateTime newStartDate = existingPeriodDatesDateTime.reduce(
-                      (curr, next) => curr.isBefore(next) ? curr : next);
-                  DateTime newEndDate = existingPeriodDatesDateTime
-                      .reduce((curr, next) => curr.isAfter(next) ? curr : next);
-
-                  await logsRef.doc(logId).update({
-                    'periodDates': existingPeriodDatesDateTime
-                        .map((date) => Timestamp.fromDate(date))
-                        .toList(),
-                    'startDate': Timestamp.fromDate(newStartDate),
-                    'endDate': Timestamp.fromDate(newEndDate),
-                  });
-                  debugPrint('Menstrual cycle log updated successfully.');
-                }
-
-                logUpdated = true;
-                break;
-              }
-            }
-          }
-
-          if (!logUpdated) {
-            debugPrint('No overlapping log found. Creating a new log...');
-
-            if (periodGroup.isNotEmpty) {
-              String snapId = logsRef.doc().id;
-              await logsRef.doc(snapId).set({
-                'periodDates': periodDatesTimestamps,
-                'startDate': Timestamp.fromDate(startDate),
-                'endDate': Timestamp.fromDate(endDate),
-                'cycleLength': 28,
-                'isLog': true,
-              });
-              debugPrint('New menstrual cycle log created with ID: $snapId');
-            } else {
-              debugPrint('No period dates provided, skipping log creation.');
-            }
-          }
-        }
+      // Collect all stored dates from existing logs
+      Set<DateTime> allStoredDates = {};
+      for (var log in existingLogs) {
+        var logData = log.data() as Map<String, dynamic>;
+        List<DateTime> storedDates = (logData['periodDates'] as List<dynamic>)
+            .map((date) => (date as Timestamp).toDate())
+            .toList();
+        allStoredDates.addAll(storedDates);
       }
 
-      // Additional check to delete logs with no period dates
-      CollectionReference logsRef =
-          FirebaseFirestore.instance // Initialize logsRef here
-              .collection('patients')
-              .doc(currentUser!.uid)
-              .collection('patientLogs');
+      // Identify only new dates that haven't been logged yet
+      List<DateTime> uniqueNewDates =
+          periodDates.where((date) => !allStoredDates.contains(date)).toList();
 
-      QuerySnapshot allLogsSnapshot = await logsRef.get();
-      for (var doc in allLogsSnapshot.docs) {
-        List<Timestamp> periodDates = List<Timestamp>.from(doc['periodDates']);
-        if (periodDates.isEmpty) {
+      debugPrint('Unique new dates: $uniqueNewDates');
+
+      if (uniqueNewDates.isNotEmpty) {
+        // Add a new log only if there are new unique dates
+        await logsRef.add({
+          'cycleLength': 28,
+          'startDate': uniqueNewDates.first,
+          'endDate': uniqueNewDates.last,
+          'periodDates': uniqueNewDates,
+          'isLog': true,
+        });
+
+        debugPrint('New period log added with unique dates!');
+      } else {
+        debugPrint('No new dates to log.');
+      }
+
+      // Handle deletions
+      for (var log in existingLogs) {
+        var logData = log.data() as Map<String, dynamic>;
+        List<DateTime> storedDates = (logData['periodDates'] as List<dynamic>)
+            .map((date) => (date as Timestamp).toDate())
+            .toList();
+
+        List<DateTime> remainingDates =
+            storedDates.where((date) => periodDates.contains(date)).toList();
+
+        if (remainingDates.isEmpty) {
+          // Delete the entire document if no dates remain
+          await logsRef.doc(log.id).delete();
+          debugPrint('Deleted log document: ${log.id}');
+        } else if (!listEquals(storedDates, remainingDates)) {
+          // Update document with remaining dates
+          await logsRef.doc(log.id).update({'periodDates': remainingDates});
           debugPrint(
-              'Deleting log with ID: ${doc.id} because it has no period dates.');
-          await logsRef.doc(doc.id).delete();
-          debugPrint('Deleted log with ID: ${doc.id}');
+              'Updated log document: ${log.id} with remaining dates: $remainingDates');
         }
       }
     } catch (e) {
       debugPrint('Error logging menstrual cycle: $e');
     }
   }
+
+  bool listEquals(List<DateTime> list1, List<DateTime> list2) {
+    if (list1.length != list2.length) return false;
+    for (int i = 0; i < list1.length; i++) {
+      if (list1[i] != list2[i]) return false;
+    }
+    return true;
+  }
+
+  //------------------------------------------------------------------------
 
   List<List<DateTime>> _groupDatesByRange(List<DateTime> dates) {
     List<List<DateTime>> groupedDates = [];

@@ -146,19 +146,16 @@ class _PeriodTrackerEditDatesScreenState
         }
 
         final sortedDates = periodDates..sort();
-        final groupedDates = _groupDatesByRange(sortedDates);
 
-        for (var dates in groupedDates) {
-          periodTrackerBloc.add(LogFirstMenstrualPeriodEvent(
-            periodDates: dates,
-            startDate: dates.first,
-            endDate: dates.last,
-          ));
+        periodTrackerBloc.add(LogFirstMenstrualPeriodEvent(
+          periodDates: sortedDates,
+          startDate: sortedDates.first,
+          endDate: sortedDates.last,
+        ));
 
-          debugPrint('Period Dates: $dates');
-          debugPrint('Start Date: ${dates.first}');
-          debugPrint('End Date: ${dates.last}');
-        }
+        debugPrint('Period Dates: $sortedDates');
+        // debugPrint('Start Date: ${sortedDates.first}');
+        // debugPrint('End Date: ${sortedDates.last}');
       },
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,

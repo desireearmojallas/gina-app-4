@@ -32,16 +32,16 @@ class PeriodTrackerBloc extends Bloc<PeriodTrackerEvent, PeriodTrackerState> {
       Emitter<PeriodTrackerState> emit) async {
     emit(LogFirstMenstrualPeriodLoadingState());
     try {
-      await periodTrackerController
-          .logOrUpdateMenstrualPeriod(
+      await periodTrackerController.logOrUpdateMenstrualPeriod(
         periodDates: event.periodDates,
         // startDate: event.startDate,
         // endDate: event.endDate,
-      )
-          .then((value) async {
-        await periodTrackerController.predictNext12Periods();
-        await periodTrackerController.predictNext12Periods28Default();
-      });
+        // )
+        //     .then((value) async {
+        //   await periodTrackerController.predictNext12Periods();
+        //   await periodTrackerController.predictNext12Periods28Default();
+        // }
+      );
 
       emit(LogFirstMenstrualPeriodSuccess());
     } catch (error) {
