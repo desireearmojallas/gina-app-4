@@ -28,6 +28,7 @@ import 'package:gina_app_4/features/patient_features/book_appointment/2_views/sc
 import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/floating_container_for_ongoing_appt/screens/floating_container_for_ongoing_appt.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/screens/consultation_screen.dart';
 import 'package:gina_app_4/features/patient_features/consultation_fee_details/2_views/screens/consultation_fee_details_screen.dart';
+import 'package:gina_app_4/features/patient_features/cycle_history/2_views/screens/cycle_history_screen.dart';
 import 'package:gina_app_4/features/patient_features/doctor_details/2_views/screens/doctor_details_screen.dart';
 import 'package:gina_app_4/features/patient_features/emergency_announcements/2_views/screens/emergency_announcements_screen.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/screens/find_screen.dart';
@@ -65,6 +66,7 @@ Map<String, WidgetBuilder> ginaAppRoutes() {
     '/consultation': (context) => const ConsultationScreenProvider(),
     '/consultationFeeDetails': (context) =>
         const ConsultationFeeDetailsScreenProvider(),
+    '/cycleHistory': (context) => const CycleHistoryScreenProvider(),
     '/doctorDetails': (context) => const DoctorDetailsScreenProvider(),
     '/emergencyAnnouncements': (context) =>
         const EmergencyAnnouncementScreenProvider(),
