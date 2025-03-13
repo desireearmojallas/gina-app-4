@@ -42,6 +42,7 @@ import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bott
 import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/floating_container_for_ongoing_appt/bloc/floating_container_for_ongoing_appt_bloc.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/consultation_fee_details/2_views/bloc/consultation_fee_details_bloc.dart';
+import 'package:gina_app_4/features/patient_features/cycle_history/2_views/bloc/cycle_history_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/2_views/bloc/doctor_availability_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_details/2_views/bloc/doctor_details_bloc.dart';
 import 'package:gina_app_4/features/patient_features/emergency_announcements/2_views/bloc/emergency_announcements_bloc.dart';
@@ -125,6 +126,9 @@ List<BlocProvider> getBlocProviders() {
     ),
     BlocProvider<PeriodTrackerBloc>(
       create: (context) => sl<PeriodTrackerBloc>(),
+    ),
+    BlocProvider<CycleHistoryBloc>(
+      create: (context) => sl<CycleHistoryBloc>(),
     ),
     BlocProvider<EmergencyAnnouncementsBloc>(
       create: (context) => sl<EmergencyAnnouncementsBloc>(),

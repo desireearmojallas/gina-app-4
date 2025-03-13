@@ -46,6 +46,8 @@ class Images {
       "assets/images/patient_features/profile/cycle_history.png";
   static String patientForumPost =
       "assets/images/patient_features/profile/forum_post.png";
+  static String womanThinking =
+      "assets/images/patient_features/cycle_history/woman_thinking.png";
 
   //! Forums Screen
   // static String forumsEmptyPlaceholder =

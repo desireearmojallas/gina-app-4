@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/profile/1_controllers/profile_controller.dart';
 
 part 'profile_event.dart';
@@ -26,9 +27,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     getProfileData
         .fold((failure) => emit(ProfileError(message: failure.toString())),
             (patientData) {
-      // currentActivePatient = patientData;
-      // TODO: IMPLEMENT ABOVE CURRENT ACTIVE PATIENT CONNECTED TO BOOK APPOINTMENT
-      //! Implement when BOOK APPOINTMENT feature is implemented
+      currentActivePatient = patientData;
 
       emit(ProfileLoaded(patientData: patientData));
     });
