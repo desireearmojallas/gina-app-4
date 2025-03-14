@@ -56,15 +56,22 @@ class NavigateToPendingRequestDetailedState extends PendingRequestActionState {
   final AppointmentModel appointment;
   final UserModel patientData;
   final List<AppointmentModel> completedAppointments;
+  final List<PeriodTrackerModel> patientPeriods;
 
   const NavigateToPendingRequestDetailedState({
     required this.appointment,
     required this.patientData,
     required this.completedAppointments,
+    required this.patientPeriods,
   });
 
   @override
-  List<Object> get props => [appointment, patientData, completedAppointments];
+  List<Object> get props => [
+        appointment,
+        patientData,
+        completedAppointments,
+        patientPeriods,
+      ];
 }
 
 class NavigateToDeclinedRequestDetailedState extends PendingRequestActionState {

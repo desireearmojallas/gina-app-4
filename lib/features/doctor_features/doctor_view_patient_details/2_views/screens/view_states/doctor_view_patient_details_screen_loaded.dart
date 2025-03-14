@@ -5,14 +5,17 @@ import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/widgets/view_patient_data/menstrual_cycle_information_patient_data_widget.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/widgets/view_patient_data/profile_details_patient_data.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 
 class DoctorViewPatientDetailsScreenLoaded extends StatelessWidget {
   final List<AppointmentModel> completedAppointments;
+  final List<PeriodTrackerModel> patientPeriods;
   final UserModel patient;
   const DoctorViewPatientDetailsScreenLoaded({
     super.key,
     required this.completedAppointments,
     required this.patient,
+    required this.patientPeriods,
   });
 
   @override
@@ -49,7 +52,9 @@ class DoctorViewPatientDetailsScreenLoaded extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const MenstrualCycleInformationPatientData(),
+                  MenstrualCycleInformationPatientData(
+                    patientPeriods: patientPeriods,
+                  ),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Padding(

@@ -20,6 +20,7 @@ import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widge
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/schedule_management_navigation_widget.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/upcoming_appointments_navigation_widget.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 import 'package:gina_app_4/main.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -33,6 +34,7 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
   final UserModel patientData;
   final Map<DateTime, List<AppointmentModel>> completedAppointmentsList;
   final List<AppointmentModel> completedAppointments;
+  final List<PeriodTrackerModel> patientPeriods;
 
   const DoctorHomeScreenDashboardLoaded({
     super.key,
@@ -44,6 +46,7 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
     required this.patientData,
     required this.completedAppointmentsList,
     required this.completedAppointments,
+    required this.patientPeriods,
   });
 
   @override
@@ -230,6 +233,7 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                         appointmentsBooked: const [],
                       ),
                   completedAppointments: completedAppointments,
+                  patientPeriods: patientPeriods,
                 ),
                 const Gap(20),
                 PendingRequestsNavigationWidget(
@@ -250,6 +254,7 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                         appointmentsBooked: const [],
                       ),
                   completedAppointments: completedAppointments,
+                  patientPeriods: patientPeriods,
                 ),
                 const Gap(30),
                 Align(

@@ -246,11 +246,14 @@ class AdminDoctorDetailsPendingState extends StatelessWidget {
                                       style: labelText,
                                     ),
                                     const Gap(20),
-                                    Text(
-                                      pendingDoctorDetails
-                                          .officeMapsLocationAddress,
-                                      style: valueText,
-                                      textAlign: TextAlign.left,
+                                    SizedBox(
+                                      width: size.width * 0.2,
+                                      child: Text(
+                                        pendingDoctorDetails
+                                            .officeMapsLocationAddress,
+                                        style: valueText,
+                                        textAlign: TextAlign.left,
+                                      ),
                                     ),
                                   ],
                                 ),

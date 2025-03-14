@@ -8,17 +8,17 @@ import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/widgets/view_patient_data/menstrual_cycle_information_patient_data_widget.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/widgets/view_patient_data/profile_details_patient_data.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 
 class ViewPatientDataScreen extends StatelessWidget {
   final UserModel patient;
-  // TODO: Will add this after implementing the period tracker
-  //! will add this after implementing the period tracker
-  // final List<PeriodTrackerModel> patientPeriods;
+  final List<PeriodTrackerModel> patientPeriods;
   final AppointmentModel patientAppointment;
   final List<AppointmentModel> patientAppointments;
   const ViewPatientDataScreen({
     super.key,
     required this.patient,
+    required this.patientPeriods,
     required this.patientAppointment,
     required this.patientAppointments,
   });
@@ -75,8 +75,10 @@ class ViewPatientDataScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    //! no data yet
-                    const MenstrualCycleInformationPatientData(),
+
+                    MenstrualCycleInformationPatientData(
+                      patientPeriods: patientPeriods,
+                    ),
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
@@ -91,7 +93,6 @@ class ViewPatientDataScreen extends StatelessWidget {
                       ),
                     ),
 
-                    //! to be continued here...
                     //! The only consultation history will show here would be the doctor & patient's consultation history together.
                     ConsultationHistoryPatientData(
                       completedAppointments: patientAppointments,

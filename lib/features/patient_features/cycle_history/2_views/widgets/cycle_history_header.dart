@@ -3,6 +3,7 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 
 class CycleHistoryHeader extends StatelessWidget {
@@ -35,7 +36,7 @@ class CycleHistoryHeader extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 color: Colors.white,
               ),
-              width: MediaQuery.of(context).size.width * 0.9,
+              width: MediaQuery.of(context).size.width * 1,
               height: MediaQuery.of(context).size.height * 0.18,
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
@@ -58,7 +59,7 @@ class CycleHistoryHeader extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(
-                          Icons.access_time_rounded,
+                          MingCute.time_line,
                           color: GinaAppTheme.lightOutline,
                         ),
                         const Gap(5),

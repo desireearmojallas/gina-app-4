@@ -218,6 +218,7 @@ class DoctorConsultationScreen extends StatelessWidget {
                     patient: state.patientData,
                     patientAppointment: state.appointment,
                     patientAppointments: state.patientAppointments,
+                    patientPeriods: state.patientPeriods,
                   );
                 }
                 return const Center(

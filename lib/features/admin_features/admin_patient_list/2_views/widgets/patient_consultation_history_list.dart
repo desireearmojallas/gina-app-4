@@ -5,12 +5,12 @@ import 'package:gina_app_4/features/admin_features/admin_patient_list/2_views/wi
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 
 class PatientConsultationHistoryList extends StatelessWidget {
-  final int appointmentStatus;
+  // final int appointmentStatus;
   final List<AppointmentModel> appointmentDetails;
 
   const PatientConsultationHistoryList({
     super.key,
-    required this.appointmentStatus,
+    // required this.appointmentStatus,
     required this.appointmentDetails,
   });
 
@@ -134,7 +134,7 @@ class PatientConsultationHistoryList extends StatelessWidget {
                     child: Align(
                       alignment: Alignment.center,
                       child: AdminPatientAppointmentStatusChip(
-                        appointmentStatus: appointmentStatus,
+                        appointmentStatus: appointment.appointmentStatus!,
                       ),
                     ),
                   ),

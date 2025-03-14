@@ -106,7 +106,7 @@ class AdminDoctorDetailsState extends StatelessWidget {
                                     color: Colors.blue,
                                     size: 30,
                                   ),
-                                  const Gap(10),
+                                  const Gap(50),
                                   Row(
                                     children: [
                                       const Icon(

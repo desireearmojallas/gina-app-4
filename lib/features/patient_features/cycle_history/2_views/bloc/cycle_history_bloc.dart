@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/features/patient_features/cycle_history/1_controllers/cycle_history_controller.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
@@ -21,30 +20,28 @@ class CycleHistoryBloc extends Bloc<CycleHistoryEvent, CycleHistoryState> {
       GetCycleHistoryEvent event, Emitter<CycleHistoryState> emit) async {
     emit(CycleHistoryLoading());
 
-    //TODO: Implement the following code
+    List<PeriodTrackerModel>? cycleHistoryList;
 
-    // List<PeriodTrackerModel>? cycleHistoryList;
+    final cycleHistory = await cycleHistoryController.getCycleHistory();
 
-    // final cycleHistory = await cycleHistoryController.getCycleHistory();
+    cycleHistory.fold((failure) => emit(CycleHistoryError(failure.toString())),
+        (cycleHistory) async {
+      cycleHistoryList = cycleHistory;
+    });
 
-    // cycleHistory.fold((failure) => emit(CycleHistoryError(failure.toString())),
-    //     (cycleHistory) async {
-    //   cycleHistoryList = cycleHistory;
-    // });
+    final averageCycleLength =
+        await cycleHistoryController.getAverageCycleLength();
 
-    // final averageCycleLength =
-    //     await cycleHistoryController.getAverageCycleLength();
+    final getLastPeriodDate = await cycleHistoryController.getLastPeriodDate();
 
-    // final getLastPeriodDate = await cycleHistoryController.getLastPeriodDate();
+    final getLastPeriodLenth =
+        await cycleHistoryController.getLastPeriodDuration();
 
-    // final getLastPeriodLenth =
-    //     await cycleHistoryController.getLastPeriodDuration();
-
-    // emit(CycleHistoryLoaded(
-    //   cycleHistoryList: cycleHistoryList,
-    //   averageCycleLengthOfPatient: averageCycleLength,
-    //   getLastPeriodDateOfPatient: getLastPeriodDate,
-    //   getLastPeriodLengthOfPatient: getLastPeriodLenth,
-    // ));
+    emit(CycleHistoryLoaded(
+      cycleHistoryList: cycleHistoryList,
+      averageCycleLengthOfPatient: averageCycleLength,
+      getLastPeriodDateOfPatient: getLastPeriodDate,
+      getLastPeriodLengthOfPatient: getLastPeriodLenth,
+    ));
   }
 }

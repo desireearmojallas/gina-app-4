@@ -13,17 +13,20 @@ import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc
 import 'package:gina_app_4/features/doctor_features/doctor_upcoming_appointments/2_views/bloc/doctor_upcoming_appointments_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class CompletedAppointmentDetailedScreenState extends StatelessWidget {
   final AppointmentModel appointment;
   final UserModel patientData;
   final List<AppointmentModel> completedAppointments;
+  final List<PeriodTrackerModel> patientPeriods;
   const CompletedAppointmentDetailedScreenState({
     super.key,
     required this.appointment,
     required this.patientData,
     required this.completedAppointments,
+    required this.patientPeriods,
   });
 
   @override
@@ -298,6 +301,7 @@ class CompletedAppointmentDetailedScreenState extends StatelessWidget {
                                       patientAppointment: appointment,
                                       patientAppointments:
                                           completedAppointments,
+                                      patientPeriods: patientPeriods,
                                     )));
                       },
                       style: ButtonStyle(

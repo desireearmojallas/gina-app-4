@@ -8,6 +8,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/bloc/pending_request_state_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 Future<dynamic> showConfirmingPendingRequestDialog(
@@ -17,6 +18,7 @@ Future<dynamic> showConfirmingPendingRequestDialog(
   required UserModel patientData,
   bool? isFromHomePendingRequest = false,
   required List<AppointmentModel> completedAppointments,
+  required List<PeriodTrackerModel> patientPeriods,
 }) {
   final pendingRequestStateBloc = context.read<PendingRequestStateBloc>();
   final homeDashboardBloc = context.read<HomeDashboardBloc>();
@@ -116,6 +118,7 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                             completedAppointments: completedAppointments.values
                                 .expand((appointments) => appointments)
                                 .toList(),
+                            patientPeriods: patientPeriods,
                           );
                         })).then((value) =>
                             homeDashboardBloc.add(const HomeInitialEvent()));
@@ -142,6 +145,7 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                             completedAppointments: completedAppointments.values
                                 .expand((appointments) => appointments)
                                 .toList(),
+                            patientPeriods: patientPeriods,
                           );
                         }));
                       },

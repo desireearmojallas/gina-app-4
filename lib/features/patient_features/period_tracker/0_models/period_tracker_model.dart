@@ -1,8 +1,7 @@
-// ignore_for_file: must_be_immutable
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 
+// ignore: must_be_immutable
 class PeriodTrackerModel extends Equatable {
   final List<DateTime> periodDates;
   final List<DateTime> averageBasedPredictionDates;
@@ -70,22 +69,29 @@ class PeriodTrackerModel extends Equatable {
 
   factory PeriodTrackerModel.fromJson(Map<String, dynamic> json) {
     return PeriodTrackerModel(
-      startDate: DateTime.parse(json['startDate']),
-      endDate: DateTime.parse(json['endDate']),
+      startDate: json['startDate'] is Timestamp
+          ? (json['startDate'] as Timestamp).toDate()
+          : DateTime.parse(json['startDate']),
+      endDate: json['endDate'] is Timestamp
+          ? (json['endDate'] as Timestamp).toDate()
+          : DateTime.parse(json['endDate']),
       isLog: json['isLog'],
       periodDates: json['periodDates'] != null
           ? (json['periodDates'] as List)
-              .map((date) => DateTime.parse(date))
+              .map((date) =>
+                  date is Timestamp ? (date).toDate() : DateTime.parse(date))
               .toList()
           : [],
       averageBasedPredictionDates: json['averageBasedPredictionDates'] != null
           ? (json['averageBasedPredictionDates'] as List)
-              .map((date) => DateTime.parse(date))
+              .map((date) =>
+                  date is Timestamp ? (date).toDate() : DateTime.parse(date))
               .toList()
           : [],
       day28PredictionDates: json['day28PredictionDates'] != null
           ? (json['day28PredictionDates'] as List)
-              .map((date) => DateTime.parse(date))
+              .map((date) =>
+                  date is Timestamp ? (date).toDate() : DateTime.parse(date))
               .toList()
           : [],
       cycleLength: json['cycleLength'],

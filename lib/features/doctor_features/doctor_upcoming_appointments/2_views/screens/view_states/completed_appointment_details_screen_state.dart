@@ -57,6 +57,7 @@ class CompletedAppointmentDetailScreenState extends StatelessWidget {
                       patientData: state.patientData!,
                       completedAppointments:
                           state.completedAppointmentsForPatientData,
+                      patientPeriods: state.patientPeriods,
                     ),
                   ),
                 );
@@ -187,6 +188,7 @@ class CompletedAppointmentDetailScreenState extends StatelessWidget {
                                                 completedAppointments:
                                                     completedAppointmentsForPatientData ??
                                                         [],
+                                                patientPeriods: const [],
                                               ),
                                             ),
                                           );

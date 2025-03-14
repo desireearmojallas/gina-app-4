@@ -780,4 +780,30 @@ class DoctorAppointmentRequestController with ChangeNotifier {
       return Stream.value(false);
     }
   }
+
+  Future<Either<Exception, List<PeriodTrackerModel>>> getPatientPeriods(
+      String patientUid) async {
+    try {
+      // Debug print to check the patientUid
+      debugPrint('Fetching periods for patientUid: $patientUid');
+
+      QuerySnapshot<Map<String, dynamic>> periodSnapshot = await firestore
+          .collection('patients')
+          .doc(patientUid)
+          .collection('patientLogs')
+          .orderBy('startDate')
+          .get();
+
+      var patientPeriods = periodSnapshot.docs
+          .map((doc) => PeriodTrackerModel.fromFirestore(doc))
+          .toList();
+
+      return Right(patientPeriods);
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException code: ${e.code}');
+      error = e;
+      return Left(Exception(e.message));
+    }
+  }
 }

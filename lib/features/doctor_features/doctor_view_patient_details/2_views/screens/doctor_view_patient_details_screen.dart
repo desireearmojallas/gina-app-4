@@ -63,7 +63,7 @@ class DoctorViewPatientDetailsScreen extends StatelessWidget {
                     appointmentsBooked: const [],
                   ),
               completedAppointments: patientAppointments ?? [],
-              // patientPeriods: patientPeriods!,
+              patientPeriods: patientPeriods!,
             );
           }
           return const SizedBox();

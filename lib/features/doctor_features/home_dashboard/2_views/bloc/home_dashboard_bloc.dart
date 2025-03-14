@@ -6,8 +6,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/1_controllers/doctor_appointment_request_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/1_controllers/doctor_profile_controller.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_view_patients/2_views/bloc/doctor_view_patients_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 
 part 'home_dashboard_event.dart';
 part 'home_dashboard_state.dart';
@@ -48,6 +50,7 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
           ),
           completedAppointmentList: const {},
           completedAppointmentsForPatientData: const [],
+          patientPeriods: const [],
         )) {
     on<HomeInitialEvent>(homeInitialEvent);
     on<GetDoctorNameEvent>(getDoctorName);
@@ -62,6 +65,7 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
     Map<DateTime, List<AppointmentModel>> completedAppointmentsList = {};
     UserModel? selectedPatientData;
     List<AppointmentModel> completedAppointmentsForPatientData = [];
+    List<PeriodTrackerModel> patientPeriods = [];
 
     final getTheNumberOfConfirmedAppointments =
         await doctorHomeDashboardController.getConfirmedAppointments();
@@ -183,6 +187,19 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
           completedAppointmentsForPatientData = appointments;
         },
       );
+
+      // Fetch patient periods for the selected patient
+      final patientPeriodsResult = await doctorHomeDashboardController
+          .getPatientPeriods(selectedPatientData.uid);
+
+      patientPeriodsResult.fold(
+        (failure) {
+          debugPrint('Failed to fetch patient periods: $failure');
+        },
+        (periods) {
+          patientPeriods = periods;
+        },
+      );
     }
 
     emit(HomeDashboardInitial(
@@ -208,6 +225,7 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
       completedAppointmentList: completedAppointmentsList,
       selectedAppointment: event.selectedAppointment,
       completedAppointmentsForPatientData: completedAppointmentsForPatientData,
+      patientPeriods: patientPeriods,
     ));
   }
 

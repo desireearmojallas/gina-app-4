@@ -83,6 +83,7 @@ class DoctorHomeScreenDashboard extends StatelessWidget {
                   ),
               completedAppointmentsList: state.completedAppointmentList!,
               completedAppointments: state.completedAppointmentsForPatientData,
+              patientPeriods: state.patientPeriods,
             );
           }
           return DoctorHomeScreenDashboardLoaded(
@@ -106,6 +107,7 @@ class DoctorHomeScreenDashboard extends StatelessWidget {
             ),
             completedAppointmentsList: const {},
             completedAppointments: const [],
+            patientPeriods: const [],
           );
         },
       ),

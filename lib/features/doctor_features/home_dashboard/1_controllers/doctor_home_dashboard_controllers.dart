@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 import 'package:intl/intl.dart';
 
 int? pendingAppointmentsCount;
@@ -280,6 +280,32 @@ class DoctorHomeDashboardController extends ChangeNotifier {
       debugPrint('FirebaseAuthException code: ${e.code}');
       error = e;
       notifyListeners();
+      return Left(Exception(e.message));
+    }
+  }
+
+  Future<Either<Exception, List<PeriodTrackerModel>>> getPatientPeriods(
+      String patientUid) async {
+    try {
+      // Debug print to check the patientUid
+      debugPrint('Fetching periods for patientUid: $patientUid');
+
+      QuerySnapshot<Map<String, dynamic>> periodSnapshot = await firestore
+          .collection('patients')
+          .doc(patientUid)
+          .collection('patientLogs')
+          .orderBy('startDate')
+          .get();
+
+      var patientPeriods = periodSnapshot.docs
+          .map((doc) => PeriodTrackerModel.fromFirestore(doc))
+          .toList();
+
+      return Right(patientPeriods);
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException code: ${e.code}');
+      error = e;
       return Left(Exception(e.message));
     }
   }

@@ -20,7 +20,7 @@ class CycleHistoryInitialScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child: SingleChildScrollView(
         child: SingleChildScrollView(
           child: Column(
@@ -31,7 +31,7 @@ class CycleHistoryInitialScreen extends StatelessWidget {
                 getLastPeriodDateOfPatient: getLastPeriodDateOfPatient,
                 getLastPeriodLengthOfPatient: getLastPeriodLengthOfPatient,
               ),
-              const Gap(20),
+              const Gap(15),
               LastCycleDatesContainer(
                 cycleHistoryList: cycleHistoryList,
                 averageCycleLengthOfPatient: averageCycleLengthOfPatient,

@@ -6,6 +6,7 @@ import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/approved_state/screens/view_states/approved_request_details_screen_state.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,11 +16,13 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
   final AppointmentModel? upcomingAppointment;
   final UserModel patientData;
   final List<AppointmentModel> completedAppointments;
+  final List<PeriodTrackerModel> patientPeriods;
   const UpcomingAppointmentsNavigationWidget({
     super.key,
     this.upcomingAppointment,
     required this.patientData,
     required this.completedAppointments,
+    required this.patientPeriods,
   });
 
   @override
@@ -86,6 +89,7 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
                       completedAppointments: completedAppointments.values
                           .expand((appointments) => appointments)
                           .toList(),
+                      patientPeriods: patientPeriods,
                     );
                   }));
                 },
