@@ -66,6 +66,8 @@ import 'package:gina_app_4/features/patient_features/consultation/1_controllers/
 import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/consultation_fee_details/1_controller/consultation_fee_details_controller.dart';
 import 'package:gina_app_4/features/patient_features/consultation_fee_details/2_views/bloc/consultation_fee_details_bloc.dart';
+import 'package:gina_app_4/features/patient_features/cycle_history/1_controllers/cycle_history_controller.dart';
+import 'package:gina_app_4/features/patient_features/cycle_history/2_views/bloc/cycle_history_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/1_controller/doctor_availability_controller.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/2_views/bloc/doctor_availability_bloc.dart';
 import 'package:gina_app_4/features/patient_features/doctor_details/2_views/bloc/doctor_details_bloc.dart';
@@ -241,6 +243,14 @@ Future<void> init() async {
       periodTrackerController: sl(),
     ),
   );
+
+  sl.registerFactory(
+    () => CycleHistoryBloc(
+      cycleHistoryController: sl(),
+    ),
+  );
+
+  sl.registerFactory(() => CycleHistoryController());
 
 //------------------------------------------------------------------------------
 

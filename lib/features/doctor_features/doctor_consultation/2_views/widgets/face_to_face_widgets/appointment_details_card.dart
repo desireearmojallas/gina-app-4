@@ -301,7 +301,7 @@ Padding appointmentDetailsCard(
                                 child: SizedBox(
                                   width: size.width * 0.25,
                                   child: Text(
-                                    'Date & time',
+                                    'Mode of appointment',
                                     style: ginaTheme.bodySmall?.copyWith(
                                       fontWeight: FontWeight.w600,
                                       color: GinaAppTheme.lightOutline
@@ -315,7 +315,9 @@ Padding appointmentDetailsCard(
                                 child: SizedBox(
                                   width: size.width * 0.5,
                                   child: Text(
-                                    '${updatedAppointment.appointmentDate}\n${updatedAppointment.appointmentTime}',
+                                    updatedAppointment.modeOfAppointment == 1
+                                        ? 'Face-to-face Consultation'
+                                        : 'Online Consultation',
                                     style: ginaTheme.bodySmall?.copyWith(
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -334,7 +336,7 @@ Padding appointmentDetailsCard(
                                 child: SizedBox(
                                   width: size.width * 0.25,
                                   child: Text(
-                                    'Mode of appointment',
+                                    'Date & time',
                                     style: ginaTheme.bodySmall?.copyWith(
                                       fontWeight: FontWeight.w600,
                                       color: GinaAppTheme.lightOutline
@@ -348,9 +350,7 @@ Padding appointmentDetailsCard(
                                 child: SizedBox(
                                   width: size.width * 0.5,
                                   child: Text(
-                                    updatedAppointment.modeOfAppointment == 1
-                                        ? 'Face-to-face Consultation'
-                                        : 'Online Consultation',
+                                    '${updatedAppointment.appointmentDate}\n${updatedAppointment.appointmentTime}',
                                     style: ginaTheme.bodySmall?.copyWith(
                                       fontWeight: FontWeight.w600,
                                     ),

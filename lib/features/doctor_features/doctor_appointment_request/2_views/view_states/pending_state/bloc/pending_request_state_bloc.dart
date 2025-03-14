@@ -7,6 +7,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/1
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 
 part 'pending_request_state_event.dart';
 part 'pending_request_state_state.dart';
@@ -61,6 +62,11 @@ class PendingRequestStateBloc
       patientUid: event.appointment.patientUid!,
     );
 
+    final patientPeriodsResult =
+        await doctorAppointmentRequestController.getPatientPeriods(
+      event.appointment.patientUid!,
+    );
+
     patientData.fold(
       (failure) {
         debugPrint('Failed to fetch patient data: $failure');
@@ -75,14 +81,20 @@ class PendingRequestStateBloc
           },
           (completedAppointments) {
             debugPrint('Fetched patient data: $patientData');
-            storedAppointment = event.appointment;
-            storedPatientData = patientData;
-            emit(
-              NavigateToPendingRequestDetailedState(
-                appointment: event.appointment,
-                patientData: patientData,
-                completedAppointments: completedAppointments,
-              ),
+            patientPeriodsResult.fold(
+              (failure) {},
+              (patientPeriods) {
+                storedAppointment = event.appointment;
+                storedPatientData = patientData;
+                emit(
+                  NavigateToPendingRequestDetailedState(
+                    appointment: event.appointment,
+                    patientData: patientData,
+                    completedAppointments: completedAppointments,
+                    patientPeriods: patientPeriods,
+                  ),
+                );
+              },
             );
           },
         );

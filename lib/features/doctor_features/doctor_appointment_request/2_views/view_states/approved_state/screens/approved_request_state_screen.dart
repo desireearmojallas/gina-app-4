@@ -42,6 +42,7 @@ class ApprovedRequestStateScreen extends StatelessWidget {
                   appointment: state.appointment,
                   patientData: state.patientData,
                   completedAppointments: state.completedAppointments,
+                  patientPeriods: state.patientPeriods,
                 ),
               ),
             ).then((value) => context

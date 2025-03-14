@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:intl/intl.dart';
 
 class ListOfAllAppointmentsBooked extends StatelessWidget {
-  const ListOfAllAppointmentsBooked({super.key});
+  final List<AppointmentModel> appointments;
+  const ListOfAllAppointmentsBooked({
+    super.key,
+    required this.appointments,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,33 +23,48 @@ class ListOfAllAppointmentsBooked extends StatelessWidget {
           thickness: 0.1,
           height: 12,
         ),
-        itemCount: 50,
+        itemCount: appointments.length,
         itemBuilder: (context, index) {
+          final appointment = appointments[index];
+          final appointmentDate =
+              DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
+          final appointmentTimes = appointment.appointmentTime!.split(' - ');
+          final appointmentStartTime =
+              DateFormat('hh:mm a').parse(appointmentTimes[0]);
+          final appointmentEndTime =
+              DateFormat('hh:mm a').parse(appointmentTimes[1]);
+
+          final formattedAppointmentDate =
+              DateFormat('MMM d, yyyy').format(appointmentDate);
+          final formattedAppointmentStartTime =
+              DateFormat('h:mm a').format(appointmentStartTime);
+          final formattedAppointmentEndTime =
+              DateFormat('h:mm a').format(appointmentEndTime);
+
           return InkWell(
             onTap: () {},
             child: Row(
               children: [
                 Row(
-                  // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     const Gap(40),
                     SizedBox(
-                      width: size.width * 0.08,
+                      width: size.width * 0.09,
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          '20230910221545C001',
+                          appointment.appointmentUid!,
                           style: ginaTheme.labelMedium,
                         ),
                       ),
                     ),
                     const Gap(10),
                     SizedBox(
-                      width: size.width * 0.12,
+                      width: size.width * 0.1,
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          'Desiree Armojallas',
+                          appointment.patientName!,
                           style: ginaTheme.labelMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -56,23 +76,23 @@ class ListOfAllAppointmentsBooked extends StatelessWidget {
                       width: size.width * 0.14,
                       child: Align(
                         alignment: Alignment.centerLeft,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'Dr. Malou Malooy, FPOGS, FPSOUG',
+                        child: Flexible(
+                          child: Row(
+                            children: [
+                              Text(
+                                'Dr. ${appointment.doctorName!}',
                                 style: ginaTheme.labelMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            ),
-                            const Gap(2),
-                            const Icon(
-                              Icons.verified,
-                              color: Colors.blue,
-                              size: 15,
-                            ),
-                          ],
+                              const Gap(5),
+                              const Icon(
+                                Icons.verified,
+                                color: Colors.blue,
+                                size: 15,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -82,7 +102,7 @@ class ListOfAllAppointmentsBooked extends StatelessWidget {
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          'Sep 10, 2023\n@ 10:00 AM - 11:00 AM',
+                          '$formattedAppointmentDate\n$formattedAppointmentStartTime - $formattedAppointmentEndTime',
                           style: ginaTheme.labelMedium,
                           softWrap: true,
                         ),
@@ -95,7 +115,7 @@ class ListOfAllAppointmentsBooked extends StatelessWidget {
                         child: Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            'Dr. Desiree Armojallas Clinic, 1234 Main St., Looc, Lapu-Lapu City, Cebu, PH 6015',
+                            appointment.doctorClinicAddress!,
                             style: ginaTheme.labelMedium,
                           ),
                         ),
@@ -107,7 +127,9 @@ class ListOfAllAppointmentsBooked extends StatelessWidget {
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          'Face-to-face',
+                          appointment.modeOfAppointment == 0
+                              ? 'Online'
+                              : 'Face-to-face',
                           style: ginaTheme.labelMedium,
                         ),
                       ),
@@ -117,7 +139,7 @@ class ListOfAllAppointmentsBooked extends StatelessWidget {
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: AppointmentStatusContainer(
-                          appointmentStatus: 2,
+                          appointmentStatus: appointment.appointmentStatus!,
                         ),
                       ),
                     ),

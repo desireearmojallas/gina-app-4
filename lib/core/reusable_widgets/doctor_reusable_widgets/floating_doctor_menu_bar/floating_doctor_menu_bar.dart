@@ -89,46 +89,46 @@ class FloatingDoctorMenuWidget extends StatelessWidget {
           thickness: 0.2,
           height: 3,
         ),
+        // MenuItemButton(
+        //   child: Row(
+        //     children: [
+        //       Stack(
+        //         children: [
+        //           const Icon(
+        //             MingCute.notification_line,
+        //             size: 20,
+        //             color: GinaAppTheme.lightOnPrimaryColor,
+        //           ),
+        //           if (hasNotification == true) notificationCircle(),
+        //         ],
+        //       ),
+        //       const Gap(10),
+        //       Text(
+        //         'Notifications',
+        //         style: textStyle,
+        //       ),
+        //     ],
+        //   ),
+        //   onPressed: () {
+        //     // TODO: EMERGENCY ANNOUNCEMENTS ROUTE
+        //     // Navigator.pushNamed(context, '/emergencyAnnouncements');
+        //   },
+        // ),
+        // const Divider(
+        //   thickness: 0.2,
+        //   height: 3,
+        // ),
         MenuItemButton(
           child: Row(
             children: [
-              Stack(
+              const Stack(
                 children: [
-                  const Icon(
-                    MingCute.notification_line,
-                    size: 20,
-                    color: GinaAppTheme.lightOnPrimaryColor,
-                  ),
-                  if (hasNotification == true) notificationCircle(),
-                ],
-              ),
-              const Gap(10),
-              Text(
-                'Notifications',
-                style: textStyle,
-              ),
-            ],
-          ),
-          onPressed: () {
-            // TODO: EMERGENCY ANNOUNCEMENTS ROUTE
-            // Navigator.pushNamed(context, '/emergencyAnnouncements');
-          },
-        ),
-        const Divider(
-          thickness: 0.2,
-          height: 3,
-        ),
-        MenuItemButton(
-          child: Row(
-            children: [
-              Stack(
-                children: [
-                  const Icon(
+                  Icon(
                     MingCute.clipboard_line,
                     size: 22,
                     color: GinaAppTheme.lightOnPrimaryColor,
                   ),
-                  if (hasNotification == true) notificationCircle(),
+                  // if (hasNotification == true) notificationCircle(),
                 ],
               ),
               const Gap(10),
@@ -250,21 +250,26 @@ class FloatingDoctorMenuWidget extends StatelessWidget {
         ),
       ],
 
-      // TODO: BADGE LOGIC FOR FLOATING MENU BAR
-      child: badges.Badge(
-        badgeContent: const Text(
-          '3',
-          style: TextStyle(color: Colors.white),
-        ),
-        badgeStyle: const badges.BadgeStyle(
-          badgeColor: GinaAppTheme.lightTertiaryContainer,
-        ),
-        position: badges.BadgePosition.topEnd(top: -8, end: -7),
-        child: CircleAvatar(
-          foregroundImage: AssetImage(Images.doctorProfileIcon1),
-          backgroundColor: Colors.transparent,
-        ),
+      child: CircleAvatar(
+        foregroundImage: AssetImage(Images.doctorProfileIcon1),
+        backgroundColor: Colors.transparent,
       ),
+
+      // TODO: BADGE LOGIC FOR FLOATING MENU BAR
+      // child: badges.Badge(
+      //   badgeContent: const Text(
+      //     '3',
+      //     style: TextStyle(color: Colors.white),
+      //   ),
+      //   badgeStyle: const badges.BadgeStyle(
+      //     badgeColor: GinaAppTheme.lightTertiaryContainer,
+      //   ),
+      //   position: badges.BadgePosition.topEnd(top: -8, end: -7),
+      //   child: CircleAvatar(
+      //     foregroundImage: AssetImage(Images.doctorProfileIcon1),
+      //     backgroundColor: Colors.transparent,
+      //   ),
+      // ),
     );
   }
 

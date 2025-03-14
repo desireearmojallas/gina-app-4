@@ -35,6 +35,7 @@ class HomeDashboardInitial extends HomeDashboardState {
   final UserModel? patientData;
   final Map<DateTime, List<AppointmentModel>>? completedAppointmentList;
   final List<AppointmentModel> completedAppointmentsForPatientData;
+  final List<PeriodTrackerModel> patientPeriods;
 
   const HomeDashboardInitial({
     required this.pendingAppointments,
@@ -46,6 +47,7 @@ class HomeDashboardInitial extends HomeDashboardState {
     this.completedAppointmentList,
     this.selectedAppointment,
     required this.completedAppointmentsForPatientData,
+    required this.patientPeriods,
   });
 
   @override
@@ -59,6 +61,7 @@ class HomeDashboardInitial extends HomeDashboardState {
         completedAppointmentList ?? Object(),
         selectedAppointment ?? Object(),
         completedAppointmentsForPatientData,
+        patientPeriods,
       ];
 }
 

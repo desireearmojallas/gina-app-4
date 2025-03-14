@@ -53,6 +53,11 @@ class CompletedRequestStateBloc
       patientUid: event.appointment.patientUid!,
     );
 
+    final patientPeriodsResult =
+        await doctorAppointmentRequestController.getPatientPeriods(
+      event.appointment.patientUid!,
+    );
+
     patientData.fold(
       (failure) {
         emit(GetCompletedRequestFailedState(errorMessage: failure.toString()));
@@ -64,13 +69,22 @@ class CompletedRequestStateBloc
                 errorMessage: failure.toString()));
           },
           (completedAppointments) {
-            storedAppointment = event.appointment;
-            storedPatientData = patientData;
-            emit(NavigateToCompletedRequestDetailState(
-              appointment: event.appointment,
-              patientData: patientData,
-              completedAppointments: completedAppointments,
-            ));
+            patientPeriodsResult.fold(
+              (failure) {
+                emit(GetCompletedRequestFailedState(
+                    errorMessage: failure.toString()));
+              },
+              (patientPeriods) {
+                storedAppointment = event.appointment;
+                storedPatientData = patientData;
+                emit(NavigateToCompletedRequestDetailState(
+                  appointment: event.appointment,
+                  patientData: patientData,
+                  completedAppointments: completedAppointments,
+                  patientPeriods: patientPeriods,
+                ));
+              },
+            );
           },
         );
       },

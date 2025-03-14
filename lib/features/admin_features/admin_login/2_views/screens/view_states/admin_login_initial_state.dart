@@ -21,8 +21,10 @@ class AdminLoginInitialState extends StatefulWidget {
 
 class _AdminLoginInitialStateState extends State<AdminLoginInitialState> {
   bool obscurePassword = true;
-  final TextEditingController emailAdminController = TextEditingController();
-  final TextEditingController passwordAdminController = TextEditingController();
+  final TextEditingController emailAdminController =
+      TextEditingController(text: 'gina_admin@gina.com');
+  final TextEditingController passwordAdminController =
+      TextEditingController(text: 'admin_gina');
 
   final adminFormKey = GlobalKey<FormState>();
 

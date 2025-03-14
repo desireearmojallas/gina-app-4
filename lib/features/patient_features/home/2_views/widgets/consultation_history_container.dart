@@ -27,7 +27,7 @@ class ConsultationHistoryContainer extends StatelessWidget {
         return GestureDetector(
           onTap: () {
             HapticFeedback.mediumImpact();
-            Navigator.pushNamed(
+            Navigator.pushReplacementNamed(
               context,
               '/bottomNavigation',
               arguments: {
@@ -65,7 +65,7 @@ class ConsultationHistoryContainer extends StatelessWidget {
                     const Spacer(),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(
+                        Navigator.pushReplacementNamed(
                           context,
                           '/bottomNavigation',
                           arguments: {

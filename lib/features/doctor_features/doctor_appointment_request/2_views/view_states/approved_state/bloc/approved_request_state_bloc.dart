@@ -54,6 +54,11 @@ class ApprovedRequestStateBloc
       patientUid: event.appointment.patientUid!,
     );
 
+    final patientPeriodsResult =
+        await doctorAppointmentRequestController.getPatientPeriods(
+      event.appointment.patientUid!,
+    );
+
     selectedPatientUid = event.appointment.patientUid!;
     selectedPatientName = event.appointment.patientName!;
     selectedPatientAppointment = event.appointment.appointmentUid!;
@@ -69,14 +74,23 @@ class ApprovedRequestStateBloc
                 errorMessage: failure.toString()));
           },
           (completedAppointments) {
-            patientDataFromDoctorUpcomingAppointmentsBloc = patientData;
-            appointmentDataFromDoctorUpcomingAppointmentsBloc =
-                event.appointment;
-            emit(NavigateToApprovedRequestDetailState(
-              appointment: event.appointment,
-              patientData: patientData,
-              completedAppointments: completedAppointments,
-            ));
+            patientPeriodsResult.fold(
+              (failure) {
+                emit(GetApprovedRequestFailedState(
+                    errorMessage: failure.toString()));
+              },
+              (patientPeriods) {
+                patientDataFromDoctorUpcomingAppointmentsBloc = patientData;
+                appointmentDataFromDoctorUpcomingAppointmentsBloc =
+                    event.appointment;
+                emit(NavigateToApprovedRequestDetailState(
+                  appointment: event.appointment,
+                  patientData: patientData,
+                  completedAppointments: completedAppointments,
+                  patientPeriods: patientPeriods,
+                ));
+              },
+            );
           },
         );
       },

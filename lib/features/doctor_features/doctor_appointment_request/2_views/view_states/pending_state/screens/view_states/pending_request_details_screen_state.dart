@@ -9,17 +9,20 @@ import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/widgets/view_patient_data/view_patient_data.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 
 class PendingRequestDetailsScreenState extends StatelessWidget {
   final AppointmentModel appointment;
   final UserModel patientData;
   final List<AppointmentModel> completedAppointments;
+  final List<PeriodTrackerModel> patientPeriods;
 
   const PendingRequestDetailsScreenState({
     super.key,
     required this.appointment,
     required this.patientData,
     required this.completedAppointments,
+    required this.patientPeriods,
   });
 
   @override
@@ -253,6 +256,7 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                                       patientAppointment: appointment,
                                       patientAppointments:
                                           completedAppointments,
+                                      patientPeriods: patientPeriods,
                                     )));
                       },
                       style: ButtonStyle(
@@ -295,6 +299,7 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                                   patientData: patientData,
                                   appointment: appointment,
                                   completedAppointments: completedAppointments,
+                                  patientPeriods: patientPeriods,
                                 );
                               },
                               style: ButtonStyle(
@@ -326,6 +331,7 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                                   patientData: patientData,
                                   appointment: appointment,
                                   completedAppointments: completedAppointments,
+                                  patientPeriods: patientPeriods,
                                 );
                               },
                               style: ButtonStyle(

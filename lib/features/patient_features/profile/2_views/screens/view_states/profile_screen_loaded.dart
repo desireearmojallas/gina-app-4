@@ -220,7 +220,10 @@ class ProfileScreenLoaded extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 GestureDetector(
-                                  onTap: () {},
+                                  onTap: () {
+                                    profileBloc.add(
+                                        ProfileNavigateToCycleHistoryEvent());
+                                  },
                                   child: Container(
                                     width: width * 0.41,
                                     height: height * 0.12,

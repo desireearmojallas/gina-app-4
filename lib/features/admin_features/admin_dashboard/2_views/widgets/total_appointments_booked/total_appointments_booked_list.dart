@@ -4,9 +4,14 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/bloc/admin_dashboard_bloc.dart';
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/total_appointments_booked/list_of_all_appointments_booked.dart';
 import 'package:gina_app_4/features/admin_features/admin_dashboard/2_views/widgets/total_appointments_booked/label_total_appointments_booked_container.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 
 class AdminDashboardTotalAppointmentsBooked extends StatelessWidget {
-  const AdminDashboardTotalAppointmentsBooked({super.key});
+  final List<AppointmentModel> appointments;
+  const AdminDashboardTotalAppointmentsBooked({
+    super.key,
+    required this.appointments,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +60,9 @@ class AdminDashboardTotalAppointmentsBooked extends StatelessWidget {
               ),
               // Gap(10),
               const TotalAppointmentsBookedTable(),
-              const ListOfAllAppointmentsBooked(),
+              ListOfAllAppointmentsBooked(
+                appointments: appointments,
+              ),
             ],
           ),
         ),

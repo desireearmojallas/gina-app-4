@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
+import 'package:intl/intl.dart';
 
 class MenstrualCycleInformationPatientData extends StatelessWidget {
-  const MenstrualCycleInformationPatientData({super.key});
+  final List<PeriodTrackerModel> patientPeriods;
+  const MenstrualCycleInformationPatientData({
+    super.key,
+    required this.patientPeriods,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,45 +26,47 @@ class MenstrualCycleInformationPatientData extends StatelessWidget {
             GinaAppTheme.defaultBoxShadow,
           ],
         ),
-        child: Column(
-          children: [
-            const Gap(20),
-            ListView(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              children: [
-                menstrualCycleInformationWidget(
-                  context,
-                  startDate: 'Sep 11',
-                  endDate: 'Sep 15',
-                  cycleDays: 25,
-                  isLastItem: false,
+        child: patientPeriods.isEmpty
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Text(
+                    'No cycle data',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: GinaAppTheme.lightOutline),
+                  ),
                 ),
-                menstrualCycleInformationWidget(
-                  context,
-                  startDate: 'Sep 11',
-                  endDate: 'Sep 15',
-                  cycleDays: 25,
-                  isLastItem: false,
-                ),
-                menstrualCycleInformationWidget(
-                  context,
-                  startDate: 'Sep 11',
-                  endDate: 'Sep 15',
-                  cycleDays: 25,
-                  isLastItem: false,
-                ),
-                menstrualCycleInformationWidget(
-                  context,
-                  startDate: 'Sep 11',
-                  endDate: 'Sep 15',
-                  cycleDays: 25,
-                  isLastItem: true,
-                ),
-              ],
-            ),
-          ],
-        ),
+              )
+            : Column(
+                children: [
+                  const Gap(20),
+                  ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: patientPeriods.length,
+                    itemBuilder: (context, index) {
+                      final period = patientPeriods[index];
+                      final startDate =
+                          DateFormat('MMM d').format(period.startDate);
+                      final endDate =
+                          DateFormat('MMM d').format(period.endDate);
+                      final cycleDays = period.cycleLength;
+                      final isLastItem = index == patientPeriods.length - 1;
+
+                      return menstrualCycleInformationWidget(
+                        context,
+                        startDate: startDate,
+                        endDate: endDate,
+                        cycleDays: cycleDays,
+                        isFirstLog: index == 0,
+                        isLastItem: isLastItem,
+                      );
+                    },
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -68,6 +76,7 @@ class MenstrualCycleInformationPatientData extends StatelessWidget {
     required String startDate,
     required String endDate,
     required int cycleDays,
+    required bool isFirstLog,
     required bool isLastItem,
   }) {
     final ginaTheme = Theme.of(context);
@@ -99,23 +108,24 @@ class MenstrualCycleInformationPatientData extends StatelessWidget {
             ),
           ),
           const Gap(5),
-          Row(
-            children: [
-              const Icon(
-                Icons.calendar_today,
-                size: 16,
-                color: GinaAppTheme.cancelledTextColor,
-              ),
-              const Gap(10),
-              Text(
-                '$cycleDays day cycle',
-                style: ginaTheme.textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w600,
+          if (!isFirstLog)
+            Row(
+              children: [
+                const Icon(
+                  Icons.calendar_today,
+                  size: 16,
                   color: GinaAppTheme.cancelledTextColor,
                 ),
-              ),
-            ],
-          ),
+                const Gap(10),
+                Text(
+                  '$cycleDays day cycle',
+                  style: ginaTheme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: GinaAppTheme.cancelledTextColor,
+                  ),
+                ),
+              ],
+            ),
           isLastItem ? const Gap(25) : divider,
         ],
       ),

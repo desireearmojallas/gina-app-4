@@ -37,11 +37,11 @@ class DoctorHomeScreenDashboard extends StatelessWidget {
           size: 45,
           isDoctor: true,
         ),
-        actions: [
+        actions: const [
           FloatingDoctorMenuWidget(
             hasNotification: true,
           ),
-          const Gap(10),
+          Gap(10),
         ],
         surfaceTintColor: Colors.white,
         elevation: 4,
@@ -83,6 +83,7 @@ class DoctorHomeScreenDashboard extends StatelessWidget {
                   ),
               completedAppointmentsList: state.completedAppointmentList!,
               completedAppointments: state.completedAppointmentsForPatientData,
+              patientPeriods: state.patientPeriods,
             );
           }
           return DoctorHomeScreenDashboardLoaded(
@@ -106,6 +107,7 @@ class DoctorHomeScreenDashboard extends StatelessWidget {
             ),
             completedAppointmentsList: const {},
             completedAppointments: const [],
+            patientPeriods: const [],
           );
         },
       ),

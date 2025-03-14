@@ -72,11 +72,16 @@ class LoginScreen extends StatelessWidget {
               ),
             );
           } else if (state is AuthLoginDoctorFailureState) {
-            // TODO: AUTH LOGIN DOCTOR FAILURE STATE
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
+            );
+            authBloc.add(AuthInitialEvent());
           } else if (state is NavigateToAdminLoginScreenState) {
-            // TODO: NAVIGATE TO ADMIN LOGIN SCREEN STATE
             if (kIsWeb) {
-              // TODO: NAVIGATE TO ADMIN LOGIN SCREEN STATE
+              Navigator.pushReplacementNamed(context, '/adminLogin');
             }
           }
         },

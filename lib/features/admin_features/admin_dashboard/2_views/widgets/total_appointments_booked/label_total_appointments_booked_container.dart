@@ -18,7 +18,7 @@ class TotalAppointmentsBookedTable extends StatelessWidget {
         children: [
           const Gap(40),
           SizedBox(
-            width: size.width * 0.08,
+            width: size.width * 0.09,
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -31,7 +31,7 @@ class TotalAppointmentsBookedTable extends StatelessWidget {
           ),
           const Gap(10),
           SizedBox(
-            width: size.width * 0.12,
+            width: size.width * 0.1,
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(

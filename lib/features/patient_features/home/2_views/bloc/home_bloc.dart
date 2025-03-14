@@ -7,6 +7,7 @@ import 'package:geodesy/geodesy.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/1_controllers/appointment_controller.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/1_controllers/period_tracker_controller.dart';
 import 'package:gina_app_4/features/patient_features/profile/1_controllers/profile_controller.dart';

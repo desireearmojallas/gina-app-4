@@ -87,24 +87,23 @@ class AdminPatientDetailsState extends StatelessWidget {
                         Row(
                           children: [
                             SizedBox(
-                              width: size.width * 0.4,
+                              width: size.width * 0.55,
                               child: Row(
+                                // mainAxisAlignment:
+                                //     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Expanded(
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          patientDetails.name,
-                                          style: const TextStyle(
-                                            fontSize: 24.0,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          softWrap: true,
-                                        ),
-                                      ],
+                                  Flexible(
+                                    child: Text(
+                                      patientDetails.name,
+                                      style: const TextStyle(
+                                        fontSize: 24.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      softWrap: true,
                                     ),
                                   ),
-                                  const Gap(200),
+                                  // const Gap(200),
+                                  const Gap(50),
                                   Row(
                                     children: [
                                       const Icon(
@@ -289,7 +288,7 @@ class AdminPatientDetailsState extends StatelessWidget {
               const Gap(20),
               patientConsultationHistoryTableLabel(size, ginaTheme),
               PatientConsultationHistoryList(
-                appointmentStatus: 2,
+                // appointmentStatus: 2,
                 appointmentDetails: appointmentDetails,
               ),
             ],

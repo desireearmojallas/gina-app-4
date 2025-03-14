@@ -9,6 +9,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/widgets/confirming_pending_request_modal.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 
@@ -17,12 +18,14 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
   final AppointmentModel? pendingAppointment;
   final UserModel patientData;
   final List<AppointmentModel> completedAppointments;
+  final List<PeriodTrackerModel> patientPeriods;
   const PendingRequestsNavigationWidget({
     super.key,
     required this.pendingRequests,
     required this.pendingAppointment,
     required this.patientData,
     required this.completedAppointments,
+    required this.patientPeriods,
   });
 
   @override
@@ -128,6 +131,7 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                       completedAppointments: completedAppointments.values
                           .expand((appointments) => appointments)
                           .toList(),
+                      patientPeriods: patientPeriods,
                     );
                   }));
                 },
@@ -245,6 +249,7 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                                   patientData: patientData,
                                   isFromHomePendingRequest: true,
                                   completedAppointments: completedAppointments,
+                                  patientPeriods: patientPeriods,
                                 );
                               },
                         icon: Icon(
@@ -273,6 +278,7 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                                   patientData: patientData,
                                   isFromHomePendingRequest: true,
                                   completedAppointments: completedAppointments,
+                                  patientPeriods: patientPeriods,
                                 );
                               },
                         icon: Icon(

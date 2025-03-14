@@ -52,8 +52,8 @@ class ProfileScreen extends StatelessWidget {
             buildWhen: (previous, current) => current is! ProfileActionState,
             listener: (context, state) {
               if (state is ProfileNavigateToCycleHistoryState) {
-                //TODO: Implement when CYCLE HISTORY feature is implemented
-                //! Implement when CYCLE HISTORY feature is implemented
+                Navigator.pushNamed(context, '/cycleHistory')
+                    .then((value) => profileBloc.add(GetProfileEvent()));
               } else if (state is ProfileNavigateToMyForumsPostState) {
                 Navigator.pushNamed(context, '/myForumsPost')
                     .then((value) => profileBloc.add(GetProfileEvent()));
