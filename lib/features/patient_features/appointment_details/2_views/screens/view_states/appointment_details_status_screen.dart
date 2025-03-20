@@ -9,6 +9,7 @@ import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_name_widget.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/appointment_status_card.dart';
+import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/approved_appointment_payment_widgets/appointment_payment_widgets.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/cancel_appointment_widgets/cancel_modal_dialog.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/reschedule_filled_button.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
@@ -78,6 +79,11 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                           ),
                         ],
                       ),
+
+                [1].contains(appointment.appointmentStatus!)
+                    ? const AppointmentPaymentWidgets()
+                    : const SizedBox.shrink(),
+
                 appointmentDetailsContent(
                   labelStyle,
                   valueStyle,
