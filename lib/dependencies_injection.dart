@@ -80,6 +80,8 @@ import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_
 import 'package:gina_app_4/features/patient_features/home/2_views/bloc/home_bloc.dart';
 import 'package:gina_app_4/features/patient_features/my_forums/1_controllers/my_forums_controller.dart';
 import 'package:gina_app_4/features/patient_features/my_forums/2_views/bloc/my_forums_bloc.dart';
+import 'package:gina_app_4/features/patient_features/payment_feature/2_views/bloc/patient_payment_bloc.dart';
+import 'package:gina_app_4/features/patient_features/payment_feature/3_services/patient_payment_service.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/1_controllers/period_tracker_controller.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/bloc/period_tracker_bloc.dart';
 import 'package:gina_app_4/features/patient_features/profile/1_controllers/profile_controller.dart';
@@ -232,6 +234,14 @@ Future<void> init() async {
       ));
 
   sl.registerFactory(() => ChatMessageController());
+
+//------------------------------------------------------------------------------
+  //! Features - Patient Payment
+  sl.registerFactory(() => PatientPaymentBloc(
+        paymentService: sl(),
+      ));
+
+  sl.registerFactory(() => PaymentService());
 
 //------------------------------------------------------------------------------
 

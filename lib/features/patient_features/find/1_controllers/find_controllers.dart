@@ -76,8 +76,15 @@ class FindController {
             .where((doctor) => doctor != null)
             .toList();
 
-        doctorList.sort(
-            (a, b) => a!.officeLatLngAddress.compareTo(b!.officeLatLngAddress));
+        doctorList.sort((a, b) {
+          int addressComparison =
+              a!.officeLatLngAddress.compareTo(b!.officeLatLngAddress);
+          if (addressComparison != 0) {
+            return addressComparison;
+          } else {
+            return a.doctorRatingId.compareTo(b.doctorRatingId);
+          }
+        });
 
         return Right(doctorList.cast<DoctorModel>());
       } else {
@@ -155,6 +162,18 @@ class FindController {
         }
       }
 
+      doctorsInCities.forEach((city, doctors) {
+        doctors.sort((a, b) {
+          int addressComparison =
+              a.officeLatLngAddress.compareTo(b.officeLatLngAddress);
+          if (addressComparison != 0) {
+            return addressComparison;
+          } else {
+            return a.doctorRatingId.compareTo(b.doctorRatingId);
+          }
+        });
+      });
+
       final sortedDoctorsInCities = Map.fromEntries(
         doctorsInCities.entries.toList()
           ..sort((a, b) => a.key.compareTo(b.key)),
@@ -165,5 +184,13 @@ class FindController {
       working = false;
       return Left(Exception('Failed to get doctors in cities'));
     }
+  }
+
+  String calculateDistanceToDoctor(String doctorLatLngString) {
+    final doctorLatLng = parseLatLngFromString(doctorLatLngString);
+    final distance = geo.Geodesy().distanceBetweenTwoGeoPoints(
+        storePatientCurrentGeoLatLng!, doctorLatLng);
+    return (distance / 1000).toStringAsFixed(
+        2); // Convert meters to kilometers and format to 2 decimal places
   }
 }

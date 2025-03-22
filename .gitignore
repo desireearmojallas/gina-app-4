@@ -68,3 +68,6 @@ local.properties
 *.hprof
 .cxx/
 build/
+
+# Environment variables
+.env

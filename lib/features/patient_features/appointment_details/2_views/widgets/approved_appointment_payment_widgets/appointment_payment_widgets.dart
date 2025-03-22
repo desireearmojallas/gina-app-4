@@ -3,6 +3,7 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/approved_appointment_payment_widgets/upload_payment_receipt_widgets/upload_payment_receipt_screen.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/approved_appointment_payment_widgets/view_bank_details_widgets/view_bank_details_screen.dart';
+import 'package:gina_app_4/features/patient_features/payment_feature/2_views/screens/patient_payment_screen.dart';
 
 class AppointmentPaymentWidgets extends StatelessWidget {
   const AppointmentPaymentWidgets({super.key});
@@ -18,8 +19,12 @@ class AppointmentPaymentWidgets extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: () {
+              // Navigator.push(context, MaterialPageRoute(builder: (context) {
+              //   return const ViewBankDetailsScreen();
+              // }));
+
               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return const ViewBankDetailsScreen();
+                return const PatientPaymentScreenProvider();
               }));
             },
             child: Container(

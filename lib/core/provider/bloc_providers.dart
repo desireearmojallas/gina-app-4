@@ -50,6 +50,7 @@ import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc
 import 'package:gina_app_4/features/patient_features/forums/2_views/bloc/forums_bloc.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/bloc/home_bloc.dart';
 import 'package:gina_app_4/features/patient_features/my_forums/2_views/bloc/my_forums_bloc.dart';
+import 'package:gina_app_4/features/patient_features/payment_feature/2_views/bloc/patient_payment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/bloc/period_tracker_bloc.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/bloc/profile_bloc.dart';
 import 'package:gina_app_4/features/patient_features/profile/2_views/widgets/profile_update_dialog/bloc/profile_update_bloc.dart';
@@ -111,6 +112,9 @@ List<BlocProvider> getBlocProviders() {
     ),
     BlocProvider<AppointmentBloc>(
       create: (context) => sl<AppointmentBloc>(),
+    ),
+    BlocProvider<PatientPaymentBloc>(
+      create: (context) => sl<PatientPaymentBloc>(),
     ),
     BlocProvider<DoctorDetailsBloc>(
       create: (context) => sl<DoctorDetailsBloc>(),
