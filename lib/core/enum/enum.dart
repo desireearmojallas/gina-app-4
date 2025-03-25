@@ -25,3 +25,16 @@ enum ModeOfAppointmentId {
   onlineConsultation, // 0
   faceToFaceConsultation, // 1
 }
+
+enum PaymentMethod {
+  creditCard,
+  bankTransfer,
+  eWallet,
+}
+
+enum PaymentStatus {
+  initial,
+  loading,
+  success,
+  failure,
+}

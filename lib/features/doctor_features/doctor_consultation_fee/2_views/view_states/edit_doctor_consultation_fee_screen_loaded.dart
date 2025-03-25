@@ -56,7 +56,7 @@ class EditDoctorConsultationFeeScreenLoaded extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 30.0, vertical: 10.0),
                     child: Text(
-                      'Face-to-face Consultation'.toUpperCase(),
+                      'Consultation Fees'.toUpperCase(),
                       style: ginaTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         fontSize: 11,
@@ -79,7 +79,7 @@ class EditDoctorConsultationFeeScreenLoaded extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Initial consultation',
+                              'Face-to-face consultation',
                               style: ginaTheme.bodyMedium?.copyWith(
                                 fontWeight: FontWeight.w500,
                                 color: GinaAppTheme.lightOutline,
@@ -131,85 +131,7 @@ class EditDoctorConsultationFeeScreenLoaded extends StatelessWidget {
                               MainAxisAlignment.spaceBetween, //space evenly
                           children: [
                             Text(
-                              'Follow-up consultation',
-                              style: ginaTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: GinaAppTheme.lightOutline,
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                const Text(
-                                  '₱',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16.0,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 100,
-                                  child: TextField(
-                                    controller:
-                                        f2fFollowUpConsultationPriceController,
-                                    keyboardType: TextInputType.number,
-                                    textAlign: TextAlign.right,
-                                    decoration: const InputDecoration(
-                                      border: UnderlineInputBorder(),
-                                      focusedBorder: UnderlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: GinaAppTheme
-                                              .lightTertiaryContainer,
-                                        ),
-                                      ),
-                                      isDense: true,
-                                    ),
-                                    style: ginaTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const Gap(10),
-              Column(
-                children: [
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 30.0, vertical: 10.0),
-                    child: Text(
-                      'Online Consultation'.toUpperCase(),
-                      style: ginaTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    height: size.height * 0.22,
-                    width: size.width * 0.92,
-                    padding: const EdgeInsets.all(30.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween, //space evenly
-                          children: [
-                            Text(
-                              'Initial consultation',
+                              'Online consultation',
                               style: ginaTheme.bodyMedium?.copyWith(
                                 fontWeight: FontWeight.w500,
                                 color: GinaAppTheme.lightOutline,
@@ -250,63 +172,141 @@ class EditDoctorConsultationFeeScreenLoaded extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const Gap(20),
-                        const Divider(
-                          thickness: 0.5,
-                          color: GinaAppTheme.lightOutline,
-                        ),
-                        const Gap(20),
-                        Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween, //space evenly
-                          children: [
-                            Text(
-                              'Follow-up consultation',
-                              style: ginaTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: GinaAppTheme.lightOutline,
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                const Text(
-                                  '₱',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16.0,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 100,
-                                  child: TextField(
-                                    controller:
-                                        onlineFollowUpConsultationPriceController,
-                                    keyboardType: TextInputType.number,
-                                    textAlign: TextAlign.right,
-                                    decoration: const InputDecoration(
-                                      border: UnderlineInputBorder(),
-                                      focusedBorder: UnderlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: GinaAppTheme
-                                              .lightTertiaryContainer,
-                                        ),
-                                      ),
-                                      isDense: true,
-                                    ),
-                                    style: ginaTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
                       ],
                     ),
                   ),
                 ],
               ),
+              // const Gap(10),
+              // Column(
+              //   children: [
+              //     Container(
+              //       alignment: Alignment.centerLeft,
+              //       padding: const EdgeInsets.symmetric(
+              //           horizontal: 30.0, vertical: 10.0),
+              //       child: Text(
+              //         'Online Consultation'.toUpperCase(),
+              //         style: ginaTheme.titleMedium?.copyWith(
+              //           fontWeight: FontWeight.bold,
+              //           fontSize: 11,
+              //         ),
+              //       ),
+              //     ),
+              //     Container(
+              //       height: size.height * 0.22,
+              //       width: size.width * 0.92,
+              //       padding: const EdgeInsets.all(30.0),
+              //       decoration: BoxDecoration(
+              //         color: Colors.white,
+              //         borderRadius: BorderRadius.circular(10),
+              //       ),
+              //       child: Column(
+              //         crossAxisAlignment: CrossAxisAlignment.center,
+              //         mainAxisAlignment: MainAxisAlignment.center,
+              //         children: [
+              //           Row(
+              //             mainAxisAlignment:
+              //                 MainAxisAlignment.spaceBetween, //space evenly
+              //             children: [
+              //               Text(
+              //                 'Initial consultation',
+              //                 style: ginaTheme.bodyMedium?.copyWith(
+              //                   fontWeight: FontWeight.w500,
+              //                   color: GinaAppTheme.lightOutline,
+              //                 ),
+              //               ),
+              //               Row(
+              //                 children: [
+              //                   const Text(
+              //                     '₱',
+              //                     style: TextStyle(
+              //                       fontWeight: FontWeight.bold,
+              //                       fontSize: 16.0,
+              //                     ),
+              //                   ),
+              //                   SizedBox(
+              //                     width: 100,
+              //                     child: TextField(
+              //                       controller:
+              //                           onlineInitialConsultationPriceController,
+              //                       keyboardType: TextInputType.number,
+              //                       textAlign: TextAlign.right,
+              //                       decoration: const InputDecoration(
+              //                         border: UnderlineInputBorder(),
+              //                         focusedBorder: UnderlineInputBorder(
+              //                           borderSide: BorderSide(
+              //                             color: GinaAppTheme
+              //                                 .lightTertiaryContainer,
+              //                           ),
+              //                         ),
+              //                         isDense: true,
+              //                       ),
+              //                       style: ginaTheme.bodyMedium?.copyWith(
+              //                         fontWeight: FontWeight.bold,
+              //                       ),
+              //                     ),
+              //                   ),
+              //                 ],
+              //               ),
+              //             ],
+              //           ),
+              //           const Gap(20),
+              //           const Divider(
+              //             thickness: 0.5,
+              //             color: GinaAppTheme.lightOutline,
+              //           ),
+              //           const Gap(20),
+              //           Row(
+              //             mainAxisAlignment:
+              //                 MainAxisAlignment.spaceBetween, //space evenly
+              //             children: [
+              //               Text(
+              //                 'Follow-up consultation',
+              //                 style: ginaTheme.bodyMedium?.copyWith(
+              //                   fontWeight: FontWeight.w500,
+              //                   color: GinaAppTheme.lightOutline,
+              //                 ),
+              //               ),
+              //               Row(
+              //                 children: [
+              //                   const Text(
+              //                     '₱',
+              //                     style: TextStyle(
+              //                       fontWeight: FontWeight.bold,
+              //                       fontSize: 16.0,
+              //                     ),
+              //                   ),
+              //                   SizedBox(
+              //                     width: 100,
+              //                     child: TextField(
+              //                       controller:
+              //                           onlineFollowUpConsultationPriceController,
+              //                       keyboardType: TextInputType.number,
+              //                       textAlign: TextAlign.right,
+              //                       decoration: const InputDecoration(
+              //                         border: UnderlineInputBorder(),
+              //                         focusedBorder: UnderlineInputBorder(
+              //                           borderSide: BorderSide(
+              //                             color: GinaAppTheme
+              //                                 .lightTertiaryContainer,
+              //                           ),
+              //                         ),
+              //                         isDense: true,
+              //                       ),
+              //                       style: ginaTheme.bodyMedium?.copyWith(
+              //                         fontWeight: FontWeight.bold,
+              //                       ),
+              //                     ),
+              //                   ),
+              //                 ],
+              //               ),
+              //             ],
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //   ],
+              // ),
               const Gap(45),
               SizedBox(
                 height: size.height * 0.06,
@@ -324,12 +324,12 @@ class EditDoctorConsultationFeeScreenLoaded extends StatelessWidget {
                       SaveEditDoctorConsultationFeeEvent(
                         f2fInitialConsultationPrice: double.parse(
                             f2fInitialConsultationPriceController.text),
-                        f2fFollowUpConsultationPrice: double.parse(
-                            f2fFollowUpConsultationPriceController.text),
+                        // f2fFollowUpConsultationPrice: double.parse(
+                        //     f2fFollowUpConsultationPriceController.text),
                         olInitialConsultationPrice: double.parse(
                             onlineInitialConsultationPriceController.text),
-                        olFollowUpConsultationPrice: double.parse(
-                            onlineFollowUpConsultationPriceController.text),
+                        // olFollowUpConsultationPrice: double.parse(
+                        //     onlineFollowUpConsultationPriceController.text),
                       ),
                     );
 

@@ -238,7 +238,7 @@ Future<void> init() async {
 //------------------------------------------------------------------------------
   //! Features - Patient Payment
   sl.registerFactory(() => PatientPaymentBloc(
-        paymentService: sl(),
+      // paymentService: sl(),
       ));
 
   sl.registerFactory(() => PaymentService());

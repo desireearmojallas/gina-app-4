@@ -21,6 +21,9 @@ class AppointmentModel extends Equatable {
   final Timestamp? f2fAppointmentStartedTime;
   final Timestamp? f2fAppointmentConcludedTime;
   final Timestamp? onlineAppointmentCompletedTime;
+  final String? paymentStatus;
+  final String? xenditInvoiceId;
+  final double? amountPaid;
 
   AppointmentModel({
     this.appointmentUid,
@@ -40,6 +43,9 @@ class AppointmentModel extends Equatable {
     this.f2fAppointmentStartedTime,
     this.f2fAppointmentConcludedTime,
     this.onlineAppointmentCompletedTime,
+    this.paymentStatus,
+    this.xenditInvoiceId,
+    this.amountPaid,
   });
 
   static AppointmentModel fromDocumentSnap(DocumentSnapshot snap) {
@@ -64,6 +70,9 @@ class AppointmentModel extends Equatable {
       f2fAppointmentStartedTime: json['f2fAppointmentStartedTime'],
       f2fAppointmentConcludedTime: json['f2fAppointmentConcludedTime'],
       onlineAppointmentCompletedTime: json['onlineAppointmentCompletedTime'],
+      paymentStatus: json['paymentStatus'],
+      xenditInvoiceId: json['xenditInvoiceId'],
+      amountPaid: json['amountPaid']?.toDouble(),
     );
   }
 
@@ -88,6 +97,9 @@ class AppointmentModel extends Equatable {
       f2fAppointmentStartedTime: json['f2fAppointmentStartedTime'],
       f2fAppointmentConcludedTime: json['f2fAppointmentConcludedTime'],
       onlineAppointmentCompletedTime: json['onlineAppointmentCompletedTime'],
+      paymentStatus: json['paymentStatus'],
+      xenditInvoiceId: json['xenditInvoiceId'],
+      amountPaid: json['amountPaid']?.toDouble(),
     );
   }
 
@@ -110,6 +122,9 @@ class AppointmentModel extends Equatable {
       'f2fAppointmentStartedTime': f2fAppointmentStartedTime,
       'f2fAppointmentConcludedTime': f2fAppointmentConcludedTime,
       'onlineAppointmentCompletedTime': onlineAppointmentCompletedTime,
+      'paymentStatus': paymentStatus,
+      'xenditInvoiceId': xenditInvoiceId,
+      'amountPaid': amountPaid,
     };
   }
 
@@ -132,5 +147,8 @@ class AppointmentModel extends Equatable {
         f2fAppointmentStartedTime,
         f2fAppointmentConcludedTime,
         onlineAppointmentCompletedTime,
+        paymentStatus,
+        xenditInvoiceId,
+        amountPaid,
       ];
 }

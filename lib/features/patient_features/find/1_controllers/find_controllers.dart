@@ -77,12 +77,18 @@ class FindController {
             .toList();
 
         doctorList.sort((a, b) {
-          int addressComparison =
-              a!.officeLatLngAddress.compareTo(b!.officeLatLngAddress);
-          if (addressComparison != 0) {
-            return addressComparison;
+          if (a!.doctorRatingId == 4 && b!.doctorRatingId != 4) {
+            return 1; // Place doctors with rating 4 at the end
+          } else if (a.doctorRatingId != 4 && b?.doctorRatingId == 4) {
+            return -1; // Place doctors with rating 4 at the end
           } else {
-            return a.doctorRatingId.compareTo(b.doctorRatingId);
+            int ratingComparison = b!.doctorRatingId
+                .compareTo(a.doctorRatingId); // Descending order
+            if (ratingComparison != 0) {
+              return ratingComparison;
+            } else {
+              return a.officeLatLngAddress.compareTo(b.officeLatLngAddress);
+            }
           }
         });
 
@@ -164,12 +170,18 @@ class FindController {
 
       doctorsInCities.forEach((city, doctors) {
         doctors.sort((a, b) {
-          int addressComparison =
-              a.officeLatLngAddress.compareTo(b.officeLatLngAddress);
-          if (addressComparison != 0) {
-            return addressComparison;
+          if (a.doctorRatingId == 4 && b.doctorRatingId != 4) {
+            return 1; // Place doctors with rating 4 at the end
+          } else if (a.doctorRatingId != 4 && b.doctorRatingId == 4) {
+            return -1; // Place doctors with rating 4 at the end
           } else {
-            return a.doctorRatingId.compareTo(b.doctorRatingId);
+            int ratingComparison = b.doctorRatingId
+                .compareTo(a.doctorRatingId); // Descending order
+            if (ratingComparison != 0) {
+              return ratingComparison;
+            } else {
+              return a.officeLatLngAddress.compareTo(b.officeLatLngAddress);
+            }
           }
         });
       });

@@ -83,7 +83,7 @@ class DoctorsInTheNearestCity extends StatelessWidget {
                                       DoctorRatingBadge(
                                         doctorRating: doctor.doctorRatingId,
                                       ),
-                                      const Gap(2),
+                                      const Gap(5),
                                       Row(
                                         children: [
                                           Text(
@@ -103,7 +103,7 @@ class DoctorsInTheNearestCity extends StatelessWidget {
                                           ),
                                         ],
                                       ),
-                                      const Gap(5),
+                                      const Gap(10),
                                       Container(
                                         height: 19,
                                         decoration: BoxDecoration(
@@ -159,6 +159,7 @@ class DoctorsInTheNearestCity extends StatelessWidget {
                                             fontSize: 10.0,
                                           ),
                                         ),
+                                        const Gap(2),
                                         Text(
                                           doctor.officeAddress,
                                           style: const TextStyle(
@@ -169,6 +170,7 @@ class DoctorsInTheNearestCity extends StatelessWidget {
                                           ),
                                           overflow: TextOverflow.visible,
                                         ),
+                                        const Gap(2),
                                         Text(
                                           doctor.officeMapsLocationAddress,
                                           style: TextStyle(
@@ -265,7 +267,7 @@ class DoctorsInTheNearestCity extends StatelessWidget {
                                             ),
                                           ),
                                         ),
-                                        const Gap(10),
+                                        const Gap(5),
                                         if (doctorAvailabilityBloc
                                             .getModeOfAppointment(
                                                 state.doctorAvailabilityModel)

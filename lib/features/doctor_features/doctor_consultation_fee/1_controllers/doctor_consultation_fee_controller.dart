@@ -69,18 +69,18 @@ class DoctorConsultationFeeController {
 
   Future<void> updateDoctorConsultationFee({
     required double f2fInitialConsultationPrice,
-    required double f2fFollowUpConsultationPrice,
+    // required double f2fFollowUpConsultationPrice,
     required double olInitialConsultationPrice,
-    required double olFollowUpConsultationPrice,
+    // required double olFollowUpConsultationPrice,
   }) async {
     try {
       working = true;
 
       await firestore.collection('doctors').doc(currentUser!.uid).update({
         'f2fInitialConsultationPrice': f2fInitialConsultationPrice,
-        'f2fFollowUpConsultationPrice': f2fFollowUpConsultationPrice,
+        // 'f2fFollowUpConsultationPrice': f2fFollowUpConsultationPrice,
         'olInitialConsultationPrice': olInitialConsultationPrice,
-        'olFollowUpConsultationPrice': olFollowUpConsultationPrice,
+        // 'olFollowUpConsultationPrice': olFollowUpConsultationPrice,
       });
 
       working = false;

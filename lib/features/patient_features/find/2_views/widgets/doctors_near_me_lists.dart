@@ -92,7 +92,7 @@ class DoctorsNearMe extends StatelessWidget {
                                           DoctorRatingBadge(
                                             doctorRating: doctor.doctorRatingId,
                                           ),
-                                          const Gap(2),
+                                          const Gap(5),
                                           Row(
                                             children: [
                                               Text(
@@ -112,7 +112,7 @@ class DoctorsNearMe extends StatelessWidget {
                                               ),
                                             ],
                                           ),
-                                          const Gap(5),
+                                          const Gap(10),
                                           Container(
                                             height: 19,
                                             decoration: BoxDecoration(
@@ -174,6 +174,7 @@ class DoctorsNearMe extends StatelessWidget {
                                                 fontSize: 10.0,
                                               ),
                                             ),
+                                            const Gap(2),
                                             Text(
                                               doctor.officeAddress,
                                               style: const TextStyle(
@@ -184,6 +185,7 @@ class DoctorsNearMe extends StatelessWidget {
                                               ),
                                               overflow: TextOverflow.visible,
                                             ),
+                                            const Gap(2),
                                             Text(
                                               doctor.officeMapsLocationAddress,
                                               style: TextStyle(
@@ -285,7 +287,7 @@ class DoctorsNearMe extends StatelessWidget {
                                                 ),
                                               ),
                                             ),
-                                            const Gap(10),
+                                            const Gap(5),
                                             if (doctorAvailabilityBloc
                                                 .getModeOfAppointment(state
                                                     .doctorAvailabilityModel)

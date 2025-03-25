@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
-import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
+import 'package:gina_app_4/core/reusable_widgets/gina_divider.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
@@ -12,7 +12,7 @@ import 'package:gina_app_4/features/patient_features/appointment_details/2_views
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/reschedule_appointment_success.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/reschedule_filled_button.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
-import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/2_views/widgets/pay_now_button.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/0_model/doctor_availability_model.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
@@ -86,8 +86,23 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                           ),
                         ),
                         const Gap(10),
-                        SizedBox(
+                        Container(
                           width: size.width * 1,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: GinaAppTheme.lightTertiaryContainer,
+                            ),
+                            // boxShadow: [
+                            //   BoxShadow(
+                            //     color: GinaAppTheme.lightTertiaryContainer
+                            //         .withOpacity(0.1),
+                            //     blurRadius: 8,
+                            //     offset: const Offset(0, 4),
+                            //   ),
+                            // ],
+                          ),
                           child: TextFormField(
                             controller: bookAppointmentBloc.dateController,
                             readOnly: true,
@@ -110,7 +125,6 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                   now.isAfter(lastDayOfThisWeek)
                                       ? firstDayOfNextWeek
                                       : firstDayOfThisWeek;
-
                               DateTime lastDate =
                                   firstDate.add(const Duration(days: 6));
 
@@ -155,8 +169,9 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                             },
                             decoration: InputDecoration(
                               suffixIcon: const Icon(
-                                  Icons.calendar_today_rounded,
-                                  color: GinaAppTheme.lightOutline),
+                                Icons.calendar_today_rounded,
+                                color: GinaAppTheme.lightTertiaryContainer,
+                              ),
                               filled: true,
                               fillColor: Colors.white,
                               hintText: 'Select a date',
@@ -546,7 +561,10 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const Gap(80),
+                        const Gap(10),
+                        GinaDivider(),
+                        const PayNowButton(),
+                        const Gap(30),
                         BlocBuilder<BookAppointmentBloc, BookAppointmentState>(
                           builder: (context, state) {
                             return Center(

@@ -1,19 +1,50 @@
 part of 'patient_payment_bloc.dart';
 
-abstract class PatientPaymentState {}
+class PaymentSuccessData {
+  final String refNumber;
+  final String date;
+  final String time;
+  final String paymentMethod;
+  final String senderName;
+  final String receiverName;
+  final double amount;
 
-class PaymentInitial extends PatientPaymentState {}
-
-class PaymentLoading extends PatientPaymentState {}
-
-class PaymentSuccess extends PatientPaymentState {
-  final String? invoiceUrl;
-
-  PaymentSuccess({this.invoiceUrl});
+  PaymentSuccessData({
+    required this.refNumber,
+    required this.date,
+    required this.time,
+    required this.paymentMethod,
+    required this.senderName,
+    required this.receiverName,
+    required this.amount,
+  });
 }
 
-class PaymentFailure extends PatientPaymentState {
-  final String error;
+class PatientPaymentState {
+  final PaymentMethod? selectedPaymentMethod;
+  final PaymentStatus status;
+  final PaymentSuccessData? successData;
+  final String? errorMessage;
 
-  PaymentFailure({required this.error});
+  PatientPaymentState({
+    this.selectedPaymentMethod,
+    this.status = PaymentStatus.initial,
+    this.successData,
+    this.errorMessage,
+  });
+
+  PatientPaymentState copyWith({
+    PaymentMethod? selectedPaymentMethod,
+    PaymentStatus? status,
+    PaymentSuccessData? successData,
+    String? errorMessage,
+  }) {
+    return PatientPaymentState(
+      selectedPaymentMethod:
+          selectedPaymentMethod ?? this.selectedPaymentMethod,
+      status: status ?? this.status,
+      successData: successData ?? this.successData,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
+  }
 }
