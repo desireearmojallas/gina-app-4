@@ -36,8 +36,8 @@ class MyPastAppointmentsNavigationWidget extends StatelessWidget {
         );
       },
       child: Container(
-        height: size.height * 0.16,
-        width: size.width / 2.9,
+        height: size.height * 0.08,
+        width: size.width / 2.18,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           // gradient: LinearGradient(
@@ -50,42 +50,46 @@ class MyPastAppointmentsNavigationWidget extends StatelessWidget {
             GinaAppTheme.defaultBoxShadow,
           ],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                // CircleAvatar(
-                //   backgroundColor: GinaAppTheme.lightSecondary.withOpacity(1),
-                //   radius: 40,
-                // ),
-                Image.asset(
-                  Images.pastAppointmentsIcon,
-                  width: 105,
-                  height: 85,
-                ),
-              ],
-            ),
-            const Gap(10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text(
-                  'My Past\nAppointments',
-                  style: ginaTheme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: GinaAppTheme.lightOnPrimaryColor,
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  // CircleAvatar(
+                  //   backgroundColor: GinaAppTheme.lightSecondary.withOpacity(1),
+                  //   radius: 40,
+                  // ),
+                  Image.asset(
+                    Images.pastAppointmentsIcon,
+                    width: 65,
+                    height: 45,
                   ),
-                ),
-                const Icon(
-                  Bootstrap.arrow_right_circle_fill,
-                  color: GinaAppTheme.lightSecondary,
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+              const Gap(15),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(
+                    'My Past\nAppointments',
+                    style: ginaTheme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: GinaAppTheme.lightOnPrimaryColor,
+                      fontSize: 11,
+                    ),
+                  ),
+                  // const Icon(
+                  //   Bootstrap.arrow_right_circle_fill,
+                  //   color: GinaAppTheme.lightSecondary,
+                  // ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -43,6 +43,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_forum_badge/2_views/b
 import 'package:gina_app_4/features/doctor_features/doctor_forums/1_controllers/doctor_forums_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/2_views/bloc/doctor_forums_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_my_forums/bloc/doctor_my_forums_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_payment_feature/2_views/bloc/doctor_payment_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/1_controllers/doctor_profile_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/bloc/doctor_profile_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/2_views/widgets/doctor_profile_update_dialog/bloc/doctor_profile_update_bloc.dart';
@@ -473,6 +474,13 @@ Future<void> init() async {
   );
 
   sl.registerFactory(() => DoctorAppointmentRequestController());
+
+// ----------------------------------------------------------------------------------
+
+  //! Features - Doctor Payment
+  sl.registerFactory(
+    () => DoctorPaymentBloc(),
+  );
 
 // ----------------------------------------------------------------------------------
 

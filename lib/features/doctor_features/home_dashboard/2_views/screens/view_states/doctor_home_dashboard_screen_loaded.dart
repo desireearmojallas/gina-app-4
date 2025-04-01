@@ -10,6 +10,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_vi
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/view_states/edit_doctor_consultation_fee_screen_loaded.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/screens/doctor_emergency_announcement_screen.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/doctor_manage_xendit_account.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/my_past_appointments_navigation_widget.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/widget_navigation_cards.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/doctor_forums_navigation_widget.dart';
@@ -268,35 +269,46 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                   ),
                 ),
                 const Gap(20),
+                DoctorManageXenditAccount(),
+                const Gap(10),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      MyPastAppointmentsNavigationWidget(
-                        completedAppointmentsList: completedAppointmentsList,
-                        patientData: patientDataForPastAppointment ??
-                            UserModel(
-                              name: '',
-                              email: '',
-                              uid: '',
-                              gender: '',
-                              dateOfBirth: '',
-                              profileImage: '',
-                              headerImage: '',
-                              accountType: '',
-                              address: '',
-                              chatrooms: const [],
-                              appointmentsBooked: const [],
-                            ),
+                      Column(
+                        children: [
+                          MyPastAppointmentsNavigationWidget(
+                            completedAppointmentsList:
+                                completedAppointmentsList,
+                            patientData: patientDataForPastAppointment ??
+                                UserModel(
+                                  name: '',
+                                  email: '',
+                                  uid: '',
+                                  gender: '',
+                                  dateOfBirth: '',
+                                  profileImage: '',
+                                  headerImage: '',
+                                  accountType: '',
+                                  address: '',
+                                  chatrooms: const [],
+                                  appointmentsBooked: const [],
+                                ),
+                          ),
+                          const Gap(10),
+                          const EmergencyAnnouncementNavigationWidget(),
+                        ],
                       ),
-                      const Gap(15),
-                      const EmergencyAnnouncementNavigationWidget(),
-                      const Gap(15),
-                      const ScheduleManagementNavigationWidget(),
-                      const Gap(15),
-                      const DoctorForumsNavigationWidget(),
+                      const Gap(10),
+                      const Column(
+                        children: [
+                          ScheduleManagementNavigationWidget(),
+                          Gap(10),
+                          DoctorForumsNavigationWidget(),
+                        ],
+                      ),
                     ],
                   ),
                 ),
