@@ -73,6 +73,13 @@ class BookAppointmentBloc
           doctorAvailabilityModel: doctorAvailabilityModel,
           selectedTimeIndex: null,
           selectedModeofAppointmentIndex: null,
+          appointmentId: currentAppointmentModel?.appointmentUid,
+          doctorName: currentAppointmentModel?.doctorName,
+          consultationType: currentAppointmentModel?.consultationType,
+          amount: currentAppointmentModel?.amount,
+          appointmentDate: currentAppointmentModel?.appointmentDate != null 
+              ? DateFormat('EEEE, d of MMMM y').parse(currentAppointmentModel!.appointmentDate!)
+              : null,
         ));
       },
     );
@@ -156,6 +163,13 @@ class BookAppointmentBloc
       doctorAvailabilityModel: bookDoctorAvailabilityModel!,
       selectedTimeIndex: event.index,
       selectedModeofAppointmentIndex: selectedModeofAppointmentIndex,
+      appointmentId: currentAppointmentModel?.appointmentUid,
+      doctorName: currentAppointmentModel?.doctorName,
+      consultationType: currentAppointmentModel?.consultationType,
+      amount: currentAppointmentModel?.amount,
+      appointmentDate: currentAppointmentModel?.appointmentDate != null 
+          ? DateFormat('EEEE, d of MMMM y').parse(currentAppointmentModel!.appointmentDate!)
+          : null,
     ));
   }
 
@@ -169,16 +183,17 @@ class BookAppointmentBloc
 
     selectedModeofAppointmentIndex = event.index;
 
-    // Debugging: Print the selected mode of appointment
-    debugPrint(
-        'Selected Mode of Appointment Index: $selectedModeofAppointmentIndex');
-    debugPrint(
-        'Selected Mode of Appointment: ${modeOfAppointment[event.index]}');
-
     emit(GetDoctorAvailabilityLoaded(
       doctorAvailabilityModel: bookDoctorAvailabilityModel!,
       selectedTimeIndex: selectedTimeIndex,
       selectedModeofAppointmentIndex: event.index,
+      appointmentId: currentAppointmentModel?.appointmentUid,
+      doctorName: currentAppointmentModel?.doctorName,
+      consultationType: currentAppointmentModel?.consultationType,
+      amount: currentAppointmentModel?.amount,
+      appointmentDate: currentAppointmentModel?.appointmentDate != null 
+          ? DateFormat('EEEE, d of MMMM y').parse(currentAppointmentModel!.appointmentDate!)
+          : null,
     ));
   }
 

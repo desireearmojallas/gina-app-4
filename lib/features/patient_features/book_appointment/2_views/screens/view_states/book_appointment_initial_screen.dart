@@ -170,7 +170,7 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                             decoration: InputDecoration(
                               suffixIcon: const Icon(
                                 Icons.calendar_today_rounded,
-                                color: GinaAppTheme.lightTertiaryContainer,
+                                color: GinaAppTheme.lightOutline,
                               ),
                               filled: true,
                               fillColor: Colors.white,
@@ -563,7 +563,21 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                         ),
                         const Gap(10),
                         GinaDivider(),
-                        const PayNowButton(),
+                        BlocBuilder<BookAppointmentBloc, BookAppointmentState>(
+                          builder: (context, state) {
+                            if (state is GetDoctorAvailabilityLoaded) {
+                              return PayNowButton(
+                                appointmentId: state.appointmentId ?? '',
+                                doctorName: state.doctorName ?? '',
+                                modeOfAppointment: state.selectedModeofAppointmentIndex ?? 0,
+                                amount: state.amount ?? 0.0,
+                                appointmentDate: state.appointmentDate ?? DateTime.now(),
+                              );
+                            }
+                            // Return a placeholder or empty widget for other states
+                            return const SizedBox.shrink();
+                          },
+                        ),
                         const Gap(30),
                         BlocBuilder<BookAppointmentBloc, BookAppointmentState>(
                           builder: (context, state) {

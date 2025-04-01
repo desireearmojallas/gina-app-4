@@ -24,6 +24,8 @@ class AppointmentModel extends Equatable {
   final String? paymentStatus;
   final String? xenditInvoiceId;
   final double? amountPaid;
+  final double? amount;
+  final String? consultationType;
 
   AppointmentModel({
     this.appointmentUid,
@@ -46,6 +48,8 @@ class AppointmentModel extends Equatable {
     this.paymentStatus,
     this.xenditInvoiceId,
     this.amountPaid,
+    this.amount,
+    this.consultationType,
   });
 
   static AppointmentModel fromDocumentSnap(DocumentSnapshot snap) {
@@ -73,6 +77,8 @@ class AppointmentModel extends Equatable {
       paymentStatus: json['paymentStatus'],
       xenditInvoiceId: json['xenditInvoiceId'],
       amountPaid: json['amountPaid']?.toDouble(),
+      amount: json['amount']?.toDouble(),
+      consultationType: json['consultationType'],
     );
   }
 
@@ -100,6 +106,8 @@ class AppointmentModel extends Equatable {
       paymentStatus: json['paymentStatus'],
       xenditInvoiceId: json['xenditInvoiceId'],
       amountPaid: json['amountPaid']?.toDouble(),
+      amount: json['amount']?.toDouble(),
+      consultationType: json['consultationType'],
     );
   }
 
@@ -125,6 +133,8 @@ class AppointmentModel extends Equatable {
       'paymentStatus': paymentStatus,
       'xenditInvoiceId': xenditInvoiceId,
       'amountPaid': amountPaid,
+      'amount': amount,
+      'consultationType': consultationType,
     };
   }
 
@@ -150,5 +160,7 @@ class AppointmentModel extends Equatable {
         paymentStatus,
         xenditInvoiceId,
         amountPaid,
+        amount,
+        consultationType,
       ];
 }

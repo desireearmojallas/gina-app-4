@@ -6,7 +6,20 @@ import 'package:gina_app_4/features/patient_features/appointment_details/2_views
 import 'package:gina_app_4/features/patient_features/payment_feature/2_views/screens/patient_payment_screen.dart';
 
 class AppointmentPaymentWidgets extends StatelessWidget {
-  const AppointmentPaymentWidgets({super.key});
+  final String appointmentId;
+  final String doctorName;
+  final String consultationType;
+  final double amount;
+  final DateTime appointmentDate;
+
+  const AppointmentPaymentWidgets({
+    super.key,
+    required this.appointmentId,
+    required this.doctorName,
+    required this.consultationType,
+    required this.amount,
+    required this.appointmentDate,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,12 +32,14 @@ class AppointmentPaymentWidgets extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: () {
-              // Navigator.push(context, MaterialPageRoute(builder: (context) {
-              //   return const ViewBankDetailsScreen();
-              // }));
-
               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return const PatientPaymentScreenProvider();
+                return PatientPaymentScreenProvider(
+                  appointmentId: appointmentId,
+                  doctorName: doctorName,
+                  modeOfAppointment: consultationType,
+                  amount: amount,
+                  appointmentDate: appointmentDate,
+                );
               }));
             },
             child: Container(

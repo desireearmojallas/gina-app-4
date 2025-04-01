@@ -242,7 +242,7 @@ Future<void> init() async {
       // paymentService: sl(),
       ));
 
-  sl.registerFactory(() => PaymentService());
+  sl.registerFactory(() => PatientPaymentService());
 
 //------------------------------------------------------------------------------
 

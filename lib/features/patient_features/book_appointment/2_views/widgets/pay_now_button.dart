@@ -3,9 +3,23 @@ import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/payment_feature/2_views/screens/patient_payment_screen.dart';
+import 'package:gina_app_4/features/patient_features/payment_feature/2_views/screens/view_states/patient_payment_screen_initial.dart';
 
 class PayNowButton extends StatelessWidget {
-  const PayNowButton({super.key});
+  final String appointmentId;
+  final String doctorName;
+  final int modeOfAppointment;
+  final double amount;
+  final DateTime appointmentDate;
+
+  const PayNowButton({
+    super.key,
+    required this.appointmentId,
+    required this.doctorName,
+    required this.modeOfAppointment,
+    required this.amount,
+    required this.appointmentDate,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -42,14 +56,18 @@ class PayNowButton extends StatelessWidget {
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () {
-              // Add payment logic here
-
               HapticFeedback.mediumImpact();
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) {
-                  return const PatientPaymentScreenProvider();
-                }),
+                MaterialPageRoute(
+                  builder: (context) => PatientPaymentScreenProvider(
+                    appointmentId: appointmentId,
+                    doctorName: doctorName,
+                    modeOfAppointment: modeOfAppointment.toString(),
+                    amount: amount,
+                    appointmentDate: appointmentDate,
+                  ),
+                ),
               );
             },
             child: Padding(

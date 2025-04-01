@@ -4,12 +4,26 @@ import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/gina_patient_app_bar/gina_patient_app_bar.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
+import 'package:gina_app_4/features/patient_features/doctor_availability/2_views/bloc/doctor_availability_bloc.dart';
 import 'package:gina_app_4/features/patient_features/payment_feature/2_views/bloc/patient_payment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/payment_feature/2_views/screens/view_states/patient_payment_screen_initial.dart';
 import 'package:gina_app_4/features/patient_features/payment_feature/2_views/screens/view_states/payment_success_screen.dart';
 
 class PatientPaymentScreenProvider extends StatelessWidget {
-  const PatientPaymentScreenProvider({super.key});
+  final String appointmentId;
+  final String doctorName;
+  final String modeOfAppointment;
+  final double amount;
+  final DateTime appointmentDate;
+
+  const PatientPaymentScreenProvider({
+    super.key,
+    required this.appointmentId,
+    required this.doctorName,
+    required this.modeOfAppointment,
+    required this.amount,
+    required this.appointmentDate,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,13 +32,32 @@ class PatientPaymentScreenProvider extends StatelessWidget {
         final patientPaymentBloc = sl<PatientPaymentBloc>();
         return patientPaymentBloc;
       },
-      child: const PatientPaymentScreen(),
+      child: PatientPaymentScreen(
+        appointmentId: appointmentId,
+        doctorName: doctorName,
+        modeOfAppointment: modeOfAppointment,
+        amount: amount,
+        appointmentDate: appointmentDate,
+      ),
     );
   }
 }
 
 class PatientPaymentScreen extends StatelessWidget {
-  const PatientPaymentScreen({super.key});
+  final String appointmentId;
+  final String doctorName;
+  final String modeOfAppointment;
+  final double amount;
+  final DateTime appointmentDate;
+
+  const PatientPaymentScreen({
+    super.key,
+    required this.appointmentId,
+    required this.doctorName,
+    required this.modeOfAppointment,
+    required this.amount,
+    required this.appointmentDate,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +92,13 @@ class PatientPaymentScreen extends StatelessWidget {
               appBar: GinaPatientAppBar(
                 title: 'Payment',
               ),
-              body: const PatientPaymentScreenInitial(),
+              body: PatientPaymentScreenInitial(
+                appointmentId: appointmentId,
+                doctorName: doctorName,
+                amount: amount,
+                appointmentDate: appointmentDate,
+                modeOfAppointment: modeOfAppointment == 'Face-to-Face' ? 0 : 1,
+              ),
             ),
           ],
         );

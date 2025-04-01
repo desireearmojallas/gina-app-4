@@ -449,13 +449,16 @@ class _DoctorPaymentScreenInitialState
                                   ),
                                 )
                               : TransactionLineChart(
-                                  transactionData:
-                                      _transactionHistory.map((data) {
-                                    return {
-                                      'date': data['date'],
-                                      'amount': data['amount'] as double
-                                    };
-                                  }).toList().reversed.toList(),
+                                  transactionData: _transactionHistory
+                                      .map((data) {
+                                        return {
+                                          'date': data['date'],
+                                          'amount': data['amount'] as double
+                                        };
+                                      })
+                                      .toList()
+                                      .reversed
+                                      .toList(),
                                   height: 200,
                                   lineColor: Colors.white,
                                   gradientStartColor: Colors.white,
@@ -528,6 +531,193 @@ class _DoctorPaymentScreenInitialState
                         ),
                       ],
                     ),
+                  ],
+                ),
+              ),
+              const Gap(24),
+              // Transaction History Section
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Transaction History',
+                          style: ginaTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        InkWell(
+                          onTap: _showTimePeriodSelector,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                _selectedTimePeriod,
+                                style: ginaTheme.bodySmall?.copyWith(
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              const Gap(4),
+                              const Icon(
+                                Icons.arrow_drop_down,
+                                color: Colors.grey,
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Gap(16),
+                    if (_isLoadingTransactions)
+                      const Center(
+                        child: CustomLoadingIndicator(),
+                      )
+                    else if (_transactionHistory.isEmpty)
+                      Center(
+                        child: Text(
+                          'No transactions found',
+                          style: ginaTheme.bodyMedium?.copyWith(
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      )
+                    else
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _transactionHistory.length,
+                        itemBuilder: (context, index) {
+                          final transaction = _transactionHistory[index];
+                          final amount = transaction['amount'] as double;
+                          final isPositive = amount > 0;
+                          final type = transaction['type'] as String;
+                          final status = transaction['status'] as String;
+                          final reference = transaction['reference'] as String;
+
+                          String transactionType = type.toLowerCase();
+                          switch (type) {
+                            case 'PAYMENT':
+                              transactionType = 'Payment Received';
+                              break;
+                            case 'DISBURSEMENT':
+                              transactionType = 'Withdrawal';
+                              break;
+                            case 'TRANSFER':
+                              transactionType = 'Transfer';
+                              break;
+                            case 'TOPUP':
+                              transactionType = 'Top Up';
+                              break;
+                            case 'WITHDRAWAL':
+                              transactionType = 'Withdrawal';
+                              break;
+                          }
+
+                          return Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: Colors.grey[300]!,
+                                ),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '₱${NumberFormat('#,##0.00').format(amount.abs())}',
+                                        style: ginaTheme.titleMedium?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                          color: isPositive
+                                              ? Colors.green
+                                              : Colors.red,
+                                        ),
+                                      ),
+                                      Text(
+                                        transactionType,
+                                        style: ginaTheme.bodySmall?.copyWith(
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                      if (reference.isNotEmpty)
+                                        Text(
+                                          'Ref: $reference',
+                                          style: ginaTheme.bodySmall?.copyWith(
+                                            color: Colors.grey[400],
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      DateFormat('MMM d, y').format(
+                                        DateTime.parse(transaction['date']),
+                                      ),
+                                      style: ginaTheme.bodySmall?.copyWith(
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                    Text(
+                                      DateFormat('h:mm a').format(
+                                        DateTime.parse(
+                                            transaction['timestamp']),
+                                      ),
+                                      style: ginaTheme.bodySmall?.copyWith(
+                                        color: Colors.grey[400],
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: status == 'SUCCESS' ||
+                                                status == 'COMPLETED'
+                                            ? Colors.green[50]
+                                            : Colors.grey[100],
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        status,
+                                        style: ginaTheme.bodySmall?.copyWith(
+                                          color: status == 'SUCCESS' ||
+                                                  status == 'COMPLETED'
+                                              ? Colors.green
+                                              : Colors.grey[600],
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                   ],
                 ),
               ),

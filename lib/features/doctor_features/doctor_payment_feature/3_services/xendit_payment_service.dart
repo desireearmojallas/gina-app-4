@@ -500,11 +500,11 @@ class XenditPaymentService {
           try {
             final transactionDate = DateTime.parse(
                 transaction['created_at'] ?? transaction['created']);
-            if (transactionDate.isBefore(startDate)) continue;
+          if (transactionDate.isBefore(startDate)) continue;
 
-            final date = transactionDate.toIso8601String().split('T')[0];
-            final amount = (transaction['amount'] as num).toDouble();
-            final type = transaction['type'] as String;
+          final date = transactionDate.toIso8601String().split('T')[0];
+          final amount = (transaction['amount'] as num).toDouble();
+          final type = transaction['type'] as String;
 
             // Add individual transaction instead of daily totals
             result.add({
@@ -602,11 +602,11 @@ class XenditPaymentService {
       }
 
       // 1. Validate inputs
-      if (secretKey.isEmpty) {
+    if (secretKey.isEmpty) {
         debugPrint('Error: Secret key is empty');
-        throw Exception('Xendit API key not configured');
-      }
-      
+      throw Exception('Xendit API key not configured');
+    }
+
       debugPrint('Starting withdrawal with bank: $bankCode, account: $accountNumber');
 
       // 2. Generate unique IDs
@@ -655,7 +655,7 @@ class XenditPaymentService {
 
       // 7. Handle response
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return response.data;
+      return response.data;
       } else {
         _handleXenditError(response);
         throw Exception('Failed to process disbursement');

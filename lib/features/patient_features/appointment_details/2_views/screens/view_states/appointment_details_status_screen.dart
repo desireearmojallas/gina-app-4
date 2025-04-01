@@ -81,7 +81,15 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                       ),
 
                 [1].contains(appointment.appointmentStatus!)
-                    ? const AppointmentPaymentWidgets()
+                    ? AppointmentPaymentWidgets(
+                        appointmentId: appointment.appointmentUid ?? '',
+                        doctorName: doctorDetails.name,
+                        consultationType: appointment.consultationType ?? '',
+                        amount: appointment.amount ?? 0.0,
+                        appointmentDate:
+                            appointment.appointmentDate as DateTime? ??
+                                DateTime.now(),
+                      )
                     : const SizedBox.shrink(),
 
                 appointmentDetailsContent(
