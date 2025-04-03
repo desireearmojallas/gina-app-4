@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
+import 'package:gina_app_4/features/patient_features/payment_feature/0_model/payment_model.dart';
 
 class AppointmentModel extends Equatable {
   final String? appointmentUid;
@@ -26,6 +27,8 @@ class AppointmentModel extends Equatable {
   final double? amountPaid;
   final double? amount;
   final String? consultationType;
+  final DateTime? paymentUpdatedAt;
+  final List<PaymentModel>? payments;
 
   AppointmentModel({
     this.appointmentUid,
@@ -50,6 +53,8 @@ class AppointmentModel extends Equatable {
     this.amountPaid,
     this.amount,
     this.consultationType,
+    this.paymentUpdatedAt,
+    this.payments,
   });
 
   static AppointmentModel fromDocumentSnap(DocumentSnapshot snap) {
@@ -79,6 +84,15 @@ class AppointmentModel extends Equatable {
       amountPaid: json['amountPaid']?.toDouble(),
       amount: json['amount']?.toDouble(),
       consultationType: json['consultationType'],
+      paymentUpdatedAt: json['paymentUpdatedAt'] != null
+          ? (json['paymentUpdatedAt'] as Timestamp).toDate()
+          : null,
+      payments: json['payments'] != null
+          ? (json['payments'] as List)
+              .map((payment) => PaymentModel.fromMap(
+                  payment as Map<String, dynamic>, payment['paymentId'] ?? ''))
+              .toList()
+          : null,
     );
   }
 
@@ -108,6 +122,15 @@ class AppointmentModel extends Equatable {
       amountPaid: json['amountPaid']?.toDouble(),
       amount: json['amount']?.toDouble(),
       consultationType: json['consultationType'],
+      paymentUpdatedAt: json['paymentUpdatedAt'] != null
+          ? (json['paymentUpdatedAt'] as Timestamp).toDate()
+          : null,
+      payments: json['payments'] != null
+          ? (json['payments'] as List)
+              .map((payment) => PaymentModel.fromMap(
+                  payment as Map<String, dynamic>, payment['paymentId'] ?? ''))
+              .toList()
+          : null,
     );
   }
 
@@ -135,6 +158,10 @@ class AppointmentModel extends Equatable {
       'amountPaid': amountPaid,
       'amount': amount,
       'consultationType': consultationType,
+      'paymentUpdatedAt': paymentUpdatedAt != null
+          ? Timestamp.fromDate(paymentUpdatedAt!)
+          : null,
+      'payments': payments?.map((payment) => payment.toMap()).toList(),
     };
   }
 
@@ -162,5 +189,67 @@ class AppointmentModel extends Equatable {
         amountPaid,
         amount,
         consultationType,
+        paymentUpdatedAt,
+        payments,
       ];
+
+  AppointmentModel copyWith({
+    String? appointmentUid,
+    String? patientName,
+    String? patientUid,
+    String? doctorName,
+    String? doctorUid,
+    String? doctorClinicAddress,
+    String? appointmentDate,
+    String? appointmentTime,
+    int? modeOfAppointment,
+    int? appointmentStatus,
+    List<String>? prescriptionImages,
+    bool? hasVisitedConsultationRoom,
+    bool? f2fAppointmentStarted,
+    bool? f2fAppointmentConcluded,
+    Timestamp? f2fAppointmentStartedTime,
+    Timestamp? f2fAppointmentConcludedTime,
+    Timestamp? onlineAppointmentCompletedTime,
+    String? paymentStatus,
+    String? xenditInvoiceId,
+    double? amountPaid,
+    double? amount,
+    String? consultationType,
+    DateTime? paymentUpdatedAt,
+    List<PaymentModel>? payments,
+  }) {
+    return AppointmentModel(
+      appointmentUid: appointmentUid ?? this.appointmentUid,
+      patientName: patientName ?? this.patientName,
+      patientUid: patientUid ?? this.patientUid,
+      doctorName: doctorName ?? this.doctorName,
+      doctorUid: doctorUid ?? this.doctorUid,
+      doctorClinicAddress: doctorClinicAddress ?? this.doctorClinicAddress,
+      appointmentDate: appointmentDate ?? this.appointmentDate,
+      appointmentTime: appointmentTime ?? this.appointmentTime,
+      modeOfAppointment: modeOfAppointment ?? this.modeOfAppointment,
+      appointmentStatus: appointmentStatus ?? this.appointmentStatus,
+      prescriptionImages: prescriptionImages ?? this.prescriptionImages,
+      hasVisitedConsultationRoom:
+          hasVisitedConsultationRoom ?? this.hasVisitedConsultationRoom,
+      f2fAppointmentStarted:
+          f2fAppointmentStarted ?? this.f2fAppointmentStarted,
+      f2fAppointmentConcluded:
+          f2fAppointmentConcluded ?? this.f2fAppointmentConcluded,
+      f2fAppointmentStartedTime:
+          f2fAppointmentStartedTime ?? this.f2fAppointmentStartedTime,
+      f2fAppointmentConcludedTime:
+          f2fAppointmentConcludedTime ?? this.f2fAppointmentConcludedTime,
+      onlineAppointmentCompletedTime:
+          onlineAppointmentCompletedTime ?? this.onlineAppointmentCompletedTime,
+      paymentStatus: paymentStatus ?? this.paymentStatus,
+      xenditInvoiceId: xenditInvoiceId ?? this.xenditInvoiceId,
+      amountPaid: amountPaid ?? this.amountPaid,
+      amount: amount ?? this.amount,
+      consultationType: consultationType ?? this.consultationType,
+      paymentUpdatedAt: paymentUpdatedAt ?? this.paymentUpdatedAt,
+      payments: payments ?? this.payments,
+    );
+  }
 }

@@ -12,6 +12,7 @@ import 'package:gina_app_4/features/patient_features/payment_feature/2_views/scr
 class PatientPaymentScreenProvider extends StatelessWidget {
   final String appointmentId;
   final String doctorName;
+  final String patientName;
   final String modeOfAppointment;
   final double amount;
   final DateTime appointmentDate;
@@ -20,6 +21,7 @@ class PatientPaymentScreenProvider extends StatelessWidget {
     super.key,
     required this.appointmentId,
     required this.doctorName,
+    required this.patientName,
     required this.modeOfAppointment,
     required this.amount,
     required this.appointmentDate,
@@ -35,6 +37,7 @@ class PatientPaymentScreenProvider extends StatelessWidget {
       child: PatientPaymentScreen(
         appointmentId: appointmentId,
         doctorName: doctorName,
+        patientName: patientName,
         modeOfAppointment: modeOfAppointment,
         amount: amount,
         appointmentDate: appointmentDate,
@@ -46,6 +49,7 @@ class PatientPaymentScreenProvider extends StatelessWidget {
 class PatientPaymentScreen extends StatelessWidget {
   final String appointmentId;
   final String doctorName;
+  final String patientName;
   final String modeOfAppointment;
   final double amount;
   final DateTime appointmentDate;
@@ -54,6 +58,7 @@ class PatientPaymentScreen extends StatelessWidget {
     super.key,
     required this.appointmentId,
     required this.doctorName,
+    required this.patientName,
     required this.modeOfAppointment,
     required this.amount,
     required this.appointmentDate,
@@ -95,6 +100,7 @@ class PatientPaymentScreen extends StatelessWidget {
               body: PatientPaymentScreenInitial(
                 appointmentId: appointmentId,
                 doctorName: doctorName,
+                patientName: patientName,
                 amount: amount,
                 appointmentDate: appointmentDate,
                 modeOfAppointment: modeOfAppointment == 'Face-to-Face' ? 0 : 1,

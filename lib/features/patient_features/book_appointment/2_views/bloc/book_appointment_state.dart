@@ -107,3 +107,14 @@ class SelectedModeOfAppointmentState extends BookAppointmentState {
   @override
   List<Object> get props => [index];
 }
+
+class BookForAnAppointmentReview extends BookAppointmentState {
+  final AppointmentModel appointmentModel;
+
+  const BookForAnAppointmentReview({
+    required this.appointmentModel,
+  });
+
+  @override
+  List<Object> get props => [appointmentModel];
+}

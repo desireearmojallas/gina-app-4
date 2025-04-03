@@ -19,6 +19,7 @@ class GetDoctorAvailabilityEvent extends BookAppointmentEvent {
 }
 
 class BookForAnAppointmentEvent extends BookAppointmentEvent {
+  final String appointmentId;
   final String doctorId;
   final String doctorName;
   final String doctorClinicAddress;
@@ -26,6 +27,7 @@ class BookForAnAppointmentEvent extends BookAppointmentEvent {
   final String appointmentTime;
 
   const BookForAnAppointmentEvent({
+    required this.appointmentId,
     required this.doctorId,
     required this.doctorName,
     required this.doctorClinicAddress,
@@ -35,6 +37,7 @@ class BookForAnAppointmentEvent extends BookAppointmentEvent {
 
   @override
   List<Object> get props => [
+        appointmentId,
         doctorId,
         doctorName,
         doctorClinicAddress,

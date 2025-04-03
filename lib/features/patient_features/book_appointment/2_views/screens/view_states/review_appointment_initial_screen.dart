@@ -9,6 +9,8 @@ import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_vi
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/widgets/appointment_made_dialogue.dart';
+import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ReviewAppointmentInitialScreen extends StatelessWidget {
   final DoctorModel doctorDetails;
@@ -54,6 +56,7 @@ class ReviewAppointmentInitialScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             doctorNameWidget(size, ginaTheme, doctorDetails),
+            // Appointment Details
             Padding(
               padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
               child: IntrinsicHeight(
@@ -147,6 +150,158 @@ class ReviewAppointmentInitialScreen extends StatelessWidget {
                         ),
                         divider,
                         headerWidget(
+                          Icons.payment,
+                          'Payment Details',
+                        ),
+                        StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('appointments')
+                              .doc(appointmentModel.appointmentUid)
+                              .collection('payments')
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasError) {
+                              return Text(
+                                'Error loading payment details',
+                                style: valueStyle?.copyWith(color: Colors.red),
+                              );
+                            }
+
+                            if (!snapshot.hasData ||
+                                snapshot.data!.docs.isEmpty) {
+                              return Text(
+                                'No payment details available',
+                                style: valueStyle?.copyWith(
+                                  color: Colors.grey,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              );
+                            }
+
+                            final paymentDoc = snapshot.data!.docs.first;
+                            final paymentData =
+                                paymentDoc.data() as Map<String, dynamic>;
+
+                            return Column(
+                              children: [
+                                const Gap(20),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Amount Paid',
+                                      style: labelStyle,
+                                    ),
+                                    Text(
+                                      '₱${NumberFormat('#,##0.00').format(paymentData['amount'] ?? 0)}',
+                                      style: valueStyle?.copyWith(
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const Gap(15),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Payment Status',
+                                      style: labelStyle,
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: (paymentData['status']
+                                                        as String?)
+                                                    ?.toLowerCase() ==
+                                                'paid'
+                                            ? Colors.green.withOpacity(0.1)
+                                            : Colors.orange.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        (paymentData['status'] as String?)
+                                                ?.toUpperCase() ??
+                                            'PENDING',
+                                        style: valueStyle?.copyWith(
+                                          color:
+                                              (paymentData['status'] as String?)
+                                                          ?.toLowerCase() ==
+                                                      'paid'
+                                                  ? Colors.green
+                                                  : Colors.orange,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const Gap(15),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Payment Method',
+                                      style: labelStyle,
+                                    ),
+                                    Text(
+                                      paymentData['paymentMethod'] ?? 'Xendit',
+                                      style: valueStyle?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const Gap(15),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Payment Date',
+                                      style: labelStyle,
+                                    ),
+                                    Text(
+                                      paymentData['linkedAt'] != null
+                                          ? DateFormat('MMMM d, yyyy h:mm a')
+                                              .format((paymentData['linkedAt']
+                                                      as Timestamp)
+                                                  .toDate())
+                                          : 'N/A',
+                                      style: valueStyle,
+                                    ),
+                                  ],
+                                ),
+                                const Gap(15),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Invoice ID',
+                                      style: labelStyle,
+                                    ),
+                                    Text(
+                                      paymentData['invoiceId'] ?? 'N/A',
+                                      style: valueStyle?.copyWith(
+                                        fontFamily: 'monospace',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                        divider,
+                        headerWidget(
                           Icons.person_3,
                           'Patient Personal Information',
                         ),
@@ -214,7 +369,7 @@ class ReviewAppointmentInitialScreen extends StatelessWidget {
                           color: GinaAppTheme.lightOutline,
                         ),
                   ),
-                  const Gap(70),
+                  const Gap(50),
                   SizedBox(
                     width: size.width * 0.93,
                     height: size.height / 17,
@@ -240,6 +395,7 @@ class ReviewAppointmentInitialScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+                  const Gap(40),
                 ],
               ),
             ),

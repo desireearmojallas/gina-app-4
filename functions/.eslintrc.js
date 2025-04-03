@@ -3,9 +3,6 @@ module.exports = {
     es6: true,
     node: true,
   },
-  parserOptions: {
-    ecmaVersion: 2020,
-  },
   extends: ["eslint:recommended"],
   rules: {
     quotes: ["error", "double"],
@@ -16,14 +13,7 @@ module.exports = {
     indent: ["error", 2],
     "valid-jsdoc": "off",
   },
-  overrides: [
-    {
-      files: ["**/*.spec.*"],
-      env: {
-        mocha: true,
-      },
-      rules: {},
-    },
-  ],
-  globals: {},
-};
+  parserOptions: {
+    ecmaVersion: 2020,
+  },
+}; 

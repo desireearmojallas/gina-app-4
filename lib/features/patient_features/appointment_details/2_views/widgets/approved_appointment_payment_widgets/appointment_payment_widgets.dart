@@ -8,6 +8,7 @@ import 'package:gina_app_4/features/patient_features/payment_feature/2_views/scr
 class AppointmentPaymentWidgets extends StatelessWidget {
   final String appointmentId;
   final String doctorName;
+  final String patientName;
   final String consultationType;
   final double amount;
   final DateTime appointmentDate;
@@ -16,6 +17,7 @@ class AppointmentPaymentWidgets extends StatelessWidget {
     super.key,
     required this.appointmentId,
     required this.doctorName,
+    required this.patientName,
     required this.consultationType,
     required this.amount,
     required this.appointmentDate,
@@ -36,6 +38,7 @@ class AppointmentPaymentWidgets extends StatelessWidget {
                 return PatientPaymentScreenProvider(
                   appointmentId: appointmentId,
                   doctorName: doctorName,
+                  patientName: patientName,
                   modeOfAppointment: consultationType,
                   amount: amount,
                   appointmentDate: appointmentDate,

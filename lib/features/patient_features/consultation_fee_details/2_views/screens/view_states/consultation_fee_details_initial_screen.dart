@@ -5,6 +5,7 @@ import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_name_widget.dart';
 import 'package:gina_app_4/features/patient_features/consultation_fee_details/2_views/screens/view_states/consultation_fee_no_pricing_screen.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
+import 'package:intl/intl.dart';
 
 class ConsultationFeeDetailsInitialScreen extends StatelessWidget {
   final bool isPricingShown;
@@ -58,7 +59,7 @@ class ConsultationFeeDetailsInitialScreen extends StatelessWidget {
                               children: [
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment
-                                      .spaceBetween, //space evenly
+                                      .spaceBetween, // space evenly
                                   children: [
                                     Text(
                                       'Face-to-face consultation',
@@ -69,7 +70,7 @@ class ConsultationFeeDetailsInitialScreen extends StatelessWidget {
                                     ),
                                     Text(
                                       doctor.f2fInitialConsultationPrice != null
-                                          ? '₱${doctor.f2fInitialConsultationPrice?.toStringAsFixed(2)}'
+                                          ? '₱${NumberFormat('#,##0.00').format(doctor.f2fInitialConsultationPrice)}'
                                           : '₱0.00',
                                       style: ginaTheme.bodyMedium?.copyWith(
                                         fontWeight: FontWeight.bold,
@@ -85,7 +86,7 @@ class ConsultationFeeDetailsInitialScreen extends StatelessWidget {
                                 const Gap(10),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment
-                                      .spaceBetween, //space evenly
+                                      .spaceBetween, // space evenly
                                   children: [
                                     Text(
                                       'Online consultation',
@@ -95,9 +96,8 @@ class ConsultationFeeDetailsInitialScreen extends StatelessWidget {
                                       ),
                                     ),
                                     Text(
-                                      doctor.f2fFollowUpConsultationPrice !=
-                                              null
-                                          ? '₱${doctor.olInitialConsultationPrice?.toStringAsFixed(2)}'
+                                      doctor.olInitialConsultationPrice != null
+                                          ? '₱${NumberFormat('#,##0.00').format(doctor.olInitialConsultationPrice)}'
                                           : '₱0.00',
                                       style: ginaTheme.bodyMedium?.copyWith(
                                         fontWeight: FontWeight.bold,
