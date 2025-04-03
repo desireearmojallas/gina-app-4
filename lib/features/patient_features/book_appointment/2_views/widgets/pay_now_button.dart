@@ -59,6 +59,7 @@ class PayNowButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final bookAppointmentBloc = context.read<BookAppointmentBloc>();
 
     return Container(
       width: size.width,
@@ -92,11 +93,42 @@ class PayNowButton extends StatelessWidget {
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () async {
+              final bookAppointmentBloc = context.read<BookAppointmentBloc>();
               HapticFeedback.mediumImpact();
               debugPrint('Pay Now button clicked');
               debugPrint('Appointment ID: $appointmentId');
               debugPrint('Amount: $amount');
 
+              // First check if we're in reschedule mode by looking for existing payment
+              final pendingPayment =
+                  await bookAppointmentBloc.fetchPendingPayment(appointmentId);
+              if (pendingPayment != null) {
+                debugPrint('Found existing payment in reschedule mode');
+                final status = pendingPayment['status'] as String? ?? 'pending';
+                debugPrint('Payment status: $status');
+
+                if (status.toLowerCase() == 'paid') {
+                  debugPrint('Payment is already paid, showing receipt');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PatientPaymentScreenInitial(
+                        appointmentId: appointmentId,
+                        doctorName: doctorName,
+                        patientName: patientName,
+                        modeOfAppointment: modeOfAppointment,
+                        amount: amount,
+                        appointmentDate: appointmentDate,
+                        existingInvoiceUrl: pendingPayment['invoiceUrl'],
+                        showReceipt: true,
+                      ),
+                    ),
+                  );
+                  return;
+                }
+              }
+
+              // If not in reschedule mode or payment not found/not paid, proceed with normal flow
               final paymentStatus =
                   await _checkPaymentStatus(context, appointmentId);
               debugPrint('Current payment status: $paymentStatus');
@@ -248,7 +280,6 @@ class PayNowButton extends StatelessWidget {
                 return;
               }
 
-              final bookAppointmentBloc = context.read<BookAppointmentBloc>();
               if (bookAppointmentBloc.currentInvoiceUrl != null) {
                 Navigator.push(
                   context,

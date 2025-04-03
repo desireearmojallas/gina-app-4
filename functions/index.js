@@ -63,18 +63,18 @@ exports.createPayment = onRequest({timeoutSeconds: 60}, async (req, res) => {
 
   try {
     const response = await axios.post(
-      "https://api.xendit.co/v2/invoices",
-      {
+        "https://api.xendit.co/v2/invoices",
+        {
         external_id: external_id || `order_${Date.now()}`,
-        amount,
-        description,
-        payer_email: customerEmail,
-        success_redirect_url: "https://example.com/payment-success",
-        failure_redirect_url: "https://example.com/payment-failed",
-      },
-      {
-        auth: {username: xenditSecretKey, password: ""},
-      },
+          amount,
+          description,
+          payer_email: customerEmail,
+          success_redirect_url: "https://example.com/payment-success",
+          failure_redirect_url: "https://example.com/payment-failed",
+        },
+        {
+          auth: {username: xenditSecretKey, password: ""},
+        },
     );
 
     res.json({
@@ -89,7 +89,7 @@ exports.createPayment = onRequest({timeoutSeconds: 60}, async (req, res) => {
 
 exports.webhookPaymentStatus = onRequest({timeoutSeconds: 60}, async (req, res) => {
   try {
-    const event = req.body;
+  const event = req.body;
     console.log("Received webhook event:", JSON.stringify(event, null, 2));
 
     if (!verifyXenditSignature(req)) {
@@ -122,7 +122,7 @@ exports.webhookPaymentStatus = onRequest({timeoutSeconds: 60}, async (req, res) 
         console.log("Unhandled v3 event type:", event.event);
         return res.status(200).send("Unhandled event type");
       }
-    } else {
+  } else {
       // Handle v2 API format
       console.log("Processing v2 API webhook");
       externalId = event.external_id;
@@ -282,16 +282,16 @@ exports.createPayout = onRequest({timeoutSeconds: 60}, async (req, res) => {
 
   try {
     const response = await axios.post(
-      "https://api.xendit.co/payouts",
-      {
-        external_id: `payout_${Date.now()}`,
-        amount,
-        description,
-        destination: doctorAccountId,
-      },
-      {
-        auth: {username: xenditSecretKey, password: ""},
-      },
+        "https://api.xendit.co/payouts",
+        {
+          external_id: `payout_${Date.now()}`,
+          amount,
+          description,
+          destination: doctorAccountId,
+        },
+        {
+          auth: {username: xenditSecretKey, password: ""},
+        },
     );
 
     res.json(response.data);
@@ -312,26 +312,26 @@ exports.registerDoctorAccount = onRequest({timeoutSeconds: 60}, async (req, res)
     }
 
     const xenditResponse = await axios.post(
-      "https://api.xendit.co/accounts",
-      {
-        type: "MANAGED",
-        public_profile: {
+        "https://api.xendit.co/accounts",
+        {
+          type: "MANAGED",
+          public_profile: {
           business_name: name,
+          },
+          individual_profile: {
+            account_holder_name: name,
+          },
+          bank_account: {
+            bank_code: bankCode,
+            account_number: bankAccount,
+          },
         },
-        individual_profile: {
-          account_holder_name: name,
-        },
-        bank_account: {
-          bank_code: bankCode,
-          account_number: bankAccount,
-        },
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
+        {
+          headers: {
+            "Content-Type": "application/json",
           "Authorization": `Basic ${Buffer.from(`${xenditSecretKey}:`).toString("base64")}`,
         },
-      },
+        },
     );
 
     if (xenditResponse.status !== 201 || !xenditResponse.data.id) {
@@ -344,13 +344,13 @@ exports.registerDoctorAccount = onRequest({timeoutSeconds: 60}, async (req, res)
     const xenditAccountId = xenditResponse.data.id;
 
     await db.collection("doctors").doc(doctorId).set(
-      {
-        xenditAccountId: xenditAccountId,
-        name: name,
-        bankCode: bankCode,
-        bankAccount: bankAccount,
-        registrationDate: admin.firestore.FieldValue.serverTimestamp(),
-      },
+        {
+          xenditAccountId: xenditAccountId,
+          name: name,
+          bankCode: bankCode,
+          bankAccount: bankAccount,
+          registrationDate: admin.firestore.FieldValue.serverTimestamp(),
+        },
       {merge: true},
     );
 

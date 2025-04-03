@@ -219,7 +219,7 @@ class PatientPaymentService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         debugPrint('Firebase Function response: $data');
-        return {
+      return {
           'invoiceUrl': data['invoiceUrl'],
           'invoiceId': data['invoiceId'] ?? appointmentId,
         };

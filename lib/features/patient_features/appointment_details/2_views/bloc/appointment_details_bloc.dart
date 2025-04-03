@@ -93,128 +93,37 @@ class AppointmentDetailsBloc
 
   FutureOr<void> rescheduleAppointmentEvent(RescheduleAppointmentEvent event,
       Emitter<AppointmentDetailsState> emit) async {
-    emit(RescheduleAppointmentLoading());
+    emit(AppointmentDetailsLoading());
 
-    debugPrint('RescheduleAppointmentEvent triggered');
+    final result = await appointmentController.rescheduleAppointment(
+      appointmentUid: event.appointmentUid,
+      appointmentDate: event.appointmentDate,
+      appointmentTime: event.appointmentTime,
+    );
 
-    String dateString = event.appointmentDate;
-    DateTime parsedDate = DateFormat('EEEE, d of MMMM yyyy').parse(dateString);
-    String reformattedDate = DateFormat('MMMM d, yyyy').format(parsedDate);
-
-    debugPrint('datestring: $dateString');
-    debugPrint('parsedDate: $parsedDate');
-    debugPrint('reformattedDate: $reformattedDate');
-
-    try {
-      final result = await appointmentController.rescheduleAppointment(
-        appointmentUid: event.appointmentUid,
-        appointmentDate: reformattedDate,
-        appointmentTime: event.appointmentTime,
-        modeOfAppointment: event.modeOfAppointment,
-      );
-
-      debugPrint('rescheduleAppointment result: $result');
-
-      await result.fold(
-        (failure) async {
-          debugPrint('Reschedule failed: $failure');
-          emit(RescheduleAppointmentError(errorMessage: failure.toString()));
-        },
-        (success) async {
-          debugPrint('Reschedule successful');
-
-          // Fetch the updated appointment details
-          final appointmentDetails =
-              await appointmentController.getAppointmentDetails(
-            appointmentUid: event.appointmentUid,
+    result.fold(
+      (failure) {
+        emit(AppointmentDetailsError(errorMessage: failure.toString()));
+      },
+      (success) {
+        if (storedAppointment != null) {
+          emit(AppointmentDetailsStatusState(
+            appointment: storedAppointment!.copyWith(
+              appointmentDate: event.appointmentDate,
+              appointmentTime: event.appointmentTime,
+              appointmentStatus: 0, // Reset to pending
+            ),
+          ));
+        } else {
+          emit(
+            const AppointmentDetailsError(
+              errorMessage: "Appointment data not found",
+            ),
           );
-
-          await appointmentDetails.fold(
-            (failure) async {
-              debugPrint('Failed to fetch appointment details: $failure');
-              emit(
-                  RescheduleAppointmentError(errorMessage: failure.toString()));
-            },
-            (appointment) async {
-              debugPrint('Fetched appointment details: $appointment');
-
-              // Fetch the patient details
-              final patientDetails =
-                  await profileController.getPatientProfile();
-
-              await patientDetails.fold(
-                (failure) async {
-                  debugPrint('Failed to fetch patient details: $failure');
-                  emit(RescheduleAppointmentError(
-                      errorMessage: failure.toString()));
-                },
-                (patient) async {
-                  debugPrint('Fetched patient details: $patient');
-
-                  // Emit NavigateToReviewRescheduledAppointmentState with the updated appointment details
-                  debugPrint(
-                      'Emitting NavigateToReviewRescheduledAppointmentState');
-                  emit(
-                    NavigateToReviewRescheduledAppointmentState(
-                      appointment: AppointmentModel(
-                        appointmentUid: event.appointmentUid,
-                        doctorUid: appointment.doctorUid,
-                        doctorName: event.doctor.name,
-                        doctorClinicAddress: event.doctor.officeAddress,
-                        appointmentDate: dateString,
-                        appointmentTime: event.appointmentTime,
-                        modeOfAppointment: event.modeOfAppointment,
-                      ),
-                      doctor: event.doctor,
-                      patient: patient,
-                    ),
-                  );
-                  debugPrint(
-                      'NavigateToReviewRescheduledAppointmentState emitted');
-                },
-              );
-            },
-          );
-        },
-      );
-    } catch (e) {
-      debugPrint('Exception occurred in rescheduleAppointmentEvent: $e');
-      emit(RescheduleAppointmentError(errorMessage: e.toString()));
-    }
+        }
+      },
+    );
   }
-
-  // FutureOr<void> rescheduleAppointmentEvent(RescheduleAppointmentEvent event,
-  //     Emitter<AppointmentDetailsState> emit) async {
-  //   emit(RescheduleAppointmentLoading());
-
-  //   String dateString = event.appointmentDate;
-  //   DateTime parsedDate = DateFormat('EEEE, d of MMMM yyyy').parse(dateString);
-  //   String reformattedDate = DateFormat('MMMM d, yyyy').format(parsedDate);
-
-  //   final result = await appointmentController.rescheduleAppointment(
-  //     appointmentUid: event.appointmentUid,
-  //     appointmentDate: reformattedDate,
-  //     appointmentTime: event.appointmentTime,
-  //     modeOfAppointment: event.modeOfAppointment,
-  //   );
-
-  //   await result.fold(
-  //     (failure) async {
-  //       emit(RescheduleAppointmentError(errorMessage: failure.toString()));
-  //     },
-  //     (appointment) async {
-  //       emit(RescheduleAppointmentState());
-
-  //       // Call navigateToReviewRescheduledAppointmentEvent on success
-  //       await navigateToReviewRescheduledAppointmentEvent(
-  //         NavigateToReviewRescheduledAppointmentEvent(
-  //           appointmentUid: event.appointmentUid,
-  //         ),
-  //         emit,
-  //       );
-  //     },
-  //   );
-  // }
 
   FutureOr<void> navigateToReviewRescheduledAppointmentEvent(
       NavigateToReviewRescheduledAppointmentEvent event,

@@ -111,36 +111,49 @@ class AppointmentController with ChangeNotifier {
 //-------GET CURRENT PATIENT APPOINTMENTS-------
   Future<Either<Exception, List<AppointmentModel>>>
       getCurrentPatientAppointment() async {
-    try {
-      final snapshot = await firestore
-          .collection('appointments')
-          .where('patientUid', isEqualTo: currentPatient!.uid)
-          .get();
+    final appointments = <AppointmentModel>[];
+    final currentUser = FirebaseAuth.instance.currentUser;
 
-      List<AppointmentModel> appointments = [];
-
-      for (var element in snapshot.docs) {
-        appointments.add(AppointmentModel.fromDocumentSnap(element));
-      }
-
-      await updateMissedAppointments(appointments);
-      await updateCompletedAppointments(appointments);
-      await updatePendingAppointmentsToDeclined(appointments);
-
-      appointments.sort((a, b) {
-        final aDate = DateFormat('MMMM d, yyyy').parse(a.appointmentDate!);
-        final bDate = DateFormat('MMMM d, yyyy').parse(b.appointmentDate!);
-        return aDate.compareTo(bDate);
-      });
-
-      return Right(appointments);
-    } on FirebaseAuthException catch (e) {
-      debugPrint('FirebaseAuthException: ${e.message}');
-      debugPrint('FirebaseAuthException code: ${e.code}');
-      error = e;
-      notifyListeners();
-      return Left(Exception(e.message));
+    if (currentUser == null) {
+      return Left(Exception('User not authenticated'));
     }
+
+    final querySnapshot = await firestore
+        .collection('appointments')
+        .where('patientUid', isEqualTo: currentUser.uid)
+        .get();
+
+    for (var doc in querySnapshot.docs) {
+      final appointment = AppointmentModel.fromJson(doc.data());
+      // Format the date to MMMM d, yyyy
+      if (appointment.appointmentDate != null) {
+        try {
+          final date = DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
+          appointment.appointmentDate = DateFormat('MMMM d, yyyy').format(date);
+        } catch (e) {
+          debugPrint('Error formatting date: $e');
+        }
+      }
+      appointments.add(appointment);
+    }
+
+    // Sort appointments by date
+    appointments.sort((a, b) {
+      try {
+        final dateA = DateFormat('MMMM d, yyyy').parse(a.appointmentDate!);
+        final dateB = DateFormat('MMMM d, yyyy').parse(b.appointmentDate!);
+        return dateA.compareTo(dateB);
+      } catch (e) {
+        debugPrint('Error sorting appointments: $e');
+        return 0;
+      }
+    });
+
+    await updatePendingAppointmentsToDeclined(appointments);
+    await updateMissedAppointments(appointments);
+    await updateCompletedAppointments(appointments);
+
+    return Right(appointments);
   }
 
   //-------GET LATEST UPCOMING APPOINTMENTS FROM SPECIFIC DOCTOR-------
@@ -151,30 +164,33 @@ class AppointmentController with ChangeNotifier {
     final now = DateTime.now();
 
     for (var appointment in appointments) {
-      final appointmentDate =
-          DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
-      final appointmentTimes = appointment.appointmentTime!.split(' - ');
-      final appointmentEndTime =
-          DateFormat('hh:mm a').parse(appointmentTimes[1]);
+      try {
+        final appointmentDate = DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
+        final appointmentTimes = appointment.appointmentTime!.split(' - ');
+        final appointmentEndTime = DateFormat('hh:mm a').parse(appointmentTimes[1]);
 
-      final appointmentEndDateTime = DateTime(
-        appointmentDate.year,
-        appointmentDate.month,
-        appointmentDate.day,
-        appointmentEndTime.hour,
-        appointmentEndTime.minute,
-      );
+        final appointmentEndDateTime = DateTime(
+          appointmentDate.year,
+          appointmentDate.month,
+          appointmentDate.day,
+          appointmentEndTime.hour,
+          appointmentEndTime.minute,
+        );
 
-      if (appointmentEndDateTime.isBefore(now) &&
-          appointment.appointmentStatus == AppointmentStatus.pending.index) {
-        await firestore
-            .collection('appointments')
-            .doc(appointment.appointmentUid)
-            .update({
-          'appointmentStatus': AppointmentStatus.declined.index,
-        });
+        if (appointmentEndDateTime.isBefore(now) &&
+            appointment.appointmentStatus == AppointmentStatus.pending.index) {
+          await firestore
+              .collection('appointments')
+              .doc(appointment.appointmentUid)
+              .update({
+            'appointmentStatus': AppointmentStatus.declined.index,
+          });
 
-        appointment.appointmentStatus = AppointmentStatus.declined.index;
+          appointment.appointmentStatus = AppointmentStatus.declined.index;
+        }
+      } catch (e) {
+        debugPrint('Error processing appointment ${appointment.appointmentUid}: $e');
+        continue;
       }
     }
   }
@@ -185,31 +201,34 @@ class AppointmentController with ChangeNotifier {
     final now = DateTime.now();
 
     for (var appointment in appointments) {
-      final appointmentDate =
-          DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
-      final appointmentTimes = appointment.appointmentTime!.split(' - ');
-      final appointmentEndTime =
-          DateFormat('hh:mm a').parse(appointmentTimes[1]);
+      try {
+        final appointmentDate = DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
+        final appointmentTimes = appointment.appointmentTime!.split(' - ');
+        final appointmentEndTime = DateFormat('hh:mm a').parse(appointmentTimes[1]);
 
-      final appointmentEndDateTime = DateTime(
-        appointmentDate.year,
-        appointmentDate.month,
-        appointmentDate.day,
-        appointmentEndTime.hour,
-        appointmentEndTime.minute,
-      );
+        final appointmentEndDateTime = DateTime(
+          appointmentDate.year,
+          appointmentDate.month,
+          appointmentDate.day,
+          appointmentEndTime.hour,
+          appointmentEndTime.minute,
+        );
 
-      if (appointmentEndDateTime.isBefore(now) &&
-          appointment.hasVisitedConsultationRoom &&
-          appointment.appointmentStatus == AppointmentStatus.confirmed.index) {
-        await firestore
-            .collection('appointments')
-            .doc(appointment.appointmentUid)
-            .update({
-          'appointmentStatus': AppointmentStatus.completed.index,
-        });
+        if (appointmentEndDateTime.isBefore(now) &&
+            appointment.hasVisitedConsultationRoom &&
+            appointment.appointmentStatus == AppointmentStatus.confirmed.index) {
+          await firestore
+              .collection('appointments')
+              .doc(appointment.appointmentUid)
+              .update({
+            'appointmentStatus': AppointmentStatus.completed.index,
+          });
 
-        appointment.appointmentStatus = AppointmentStatus.completed.index;
+          appointment.appointmentStatus = AppointmentStatus.completed.index;
+        }
+      } catch (e) {
+        debugPrint('Error processing appointment ${appointment.appointmentUid}: $e');
+        continue;
       }
     }
   }
@@ -248,41 +267,43 @@ class AppointmentController with ChangeNotifier {
     final now = DateTime.now();
 
     for (var appointment in appointments) {
-      final appointmentDate =
-          DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
-      final appointmentTimes = appointment.appointmentTime!.split(' - ');
-      final appointmentStartTime =
-          DateFormat('hh:mm a').parse(appointmentTimes[0]);
-      final appointmentEndTime =
-          DateFormat('hh:mm a').parse(appointmentTimes[1]);
+      try {
+        final appointmentDate = DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
+        final appointmentTimes = appointment.appointmentTime!.split(' - ');
+        final appointmentStartTime = DateFormat('hh:mm a').parse(appointmentTimes[0]);
+        final appointmentEndTime = DateFormat('hh:mm a').parse(appointmentTimes[1]);
 
-      final appointmentStartDateTime = DateTime(
-        appointmentDate.year,
-        appointmentDate.month,
-        appointmentDate.day,
-        appointmentStartTime.hour,
-        appointmentStartTime.minute,
-      );
+        final appointmentStartDateTime = DateTime(
+          appointmentDate.year,
+          appointmentDate.month,
+          appointmentDate.day,
+          appointmentStartTime.hour,
+          appointmentStartTime.minute,
+        );
 
-      final appointmentEndDateTime = DateTime(
-        appointmentDate.year,
-        appointmentDate.month,
-        appointmentDate.day,
-        appointmentEndTime.hour,
-        appointmentEndTime.minute,
-      );
+        final appointmentEndDateTime = DateTime(
+          appointmentDate.year,
+          appointmentDate.month,
+          appointmentDate.day,
+          appointmentEndTime.hour,
+          appointmentEndTime.minute,
+        );
 
-      if (appointmentEndDateTime.isBefore(now) &&
-          appointment.appointmentStatus == AppointmentStatus.confirmed.index &&
-          !appointment.hasVisitedConsultationRoom) {
-        await firestore
-            .collection('appointments')
-            .doc(appointment.appointmentUid)
-            .update({
-          'appointmentStatus': AppointmentStatus.missed.index,
-        });
+        if (appointmentEndDateTime.isBefore(now) &&
+            appointment.appointmentStatus == AppointmentStatus.confirmed.index &&
+            !appointment.hasVisitedConsultationRoom) {
+          await firestore
+              .collection('appointments')
+              .doc(appointment.appointmentUid)
+              .update({
+            'appointmentStatus': AppointmentStatus.missed.index,
+          });
 
-        appointment.appointmentStatus = AppointmentStatus.missed.index;
+          appointment.appointmentStatus = AppointmentStatus.missed.index;
+        }
+      } catch (e) {
+        debugPrint('Error processing appointment ${appointment.appointmentUid}: $e');
+        continue;
       }
     }
   }
@@ -427,14 +448,12 @@ class AppointmentController with ChangeNotifier {
     required String appointmentUid,
     required String appointmentDate,
     required String appointmentTime,
-    required int modeOfAppointment,
   }) async {
     try {
       await firestore.collection('appointments').doc(appointmentUid).update({
         'appointmentDate': appointmentDate,
         'appointmentTime': appointmentTime,
-        'modeOfAppointment': modeOfAppointment,
-        'appointmentStatus': 0,
+        'appointmentStatus': 0, // Reset to pending status
       });
 
       return const Right(true);

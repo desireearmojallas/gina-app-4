@@ -29,6 +29,7 @@ class BookAppointmentBloc
   final ProfileController profileController;
   int selectedTimeIndex = -1;
   int selectedModeofAppointmentIndex = -1;
+  String selectedFormattedDate = '';
   TextEditingController dateController = TextEditingController();
   String? currentInvoiceUrl;
   String? tempAppointmentId;
@@ -42,7 +43,7 @@ class BookAppointmentBloc
     // Generate temporary appointment ID when bloc is created
     tempAppointmentId = 'temp-${DateTime.now().millisecondsSinceEpoch}';
     debugPrint('Generated temporary appointment ID: $tempAppointmentId');
-    
+
     on<NavigateToReviewAppointmentEvent>(navigateToReviewAppointmentEvent);
     on<GetDoctorAvailabilityEvent>(getDoctorAvailabilityEvent);
     on<BookForAnAppointmentEvent>(bookForAnAppointmentEvent);
@@ -132,12 +133,14 @@ class BookAppointmentBloc
 
       debugPrint('Verifying with Xendit...');
       final paymentService = PatientPaymentService();
-      final xenditStatus = await paymentService.checkXenditPaymentStatus(invoiceId);
+      final xenditStatus =
+          await paymentService.checkXenditPaymentStatus(invoiceId);
 
       debugPrint('Xendit Payment Status: $xenditStatus');
 
       if (xenditStatus.toLowerCase() != currentStatus.toLowerCase()) {
-        debugPrint('Updating payment status in Firestore from $currentStatus to $xenditStatus');
+        debugPrint(
+            'Updating payment status in Firestore from $currentStatus to $xenditStatus');
         await FirebaseFirestore.instance
             .collection('pending_payments')
             .doc(tempAppointmentId)
@@ -158,15 +161,55 @@ class BookAppointmentBloc
     }
   }
 
-  String _formatAppointmentDate(String dateStr) {
+  Future<Map<String, dynamic>?> fetchPendingPayment(
+      String appointmentId) async {
     try {
-      final inputFormat = DateFormat('yyyy-MM-dd');
-      final outputFormat = DateFormat('MMMM d, yyyy');
-      final date = inputFormat.parse(dateStr);
-      return outputFormat.format(date);
+      debugPrint('=== Fetching Pending Payment ===');
+      debugPrint('Appointment ID: $appointmentId');
+
+      // First, check the payments subcollection to get the tempAppointmentId
+      final paymentsSnapshot = await FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(appointmentId)
+          .collection('payments')
+          .get();
+
+      if (paymentsSnapshot.docs.isEmpty) {
+        debugPrint('No payment documents found in subcollection');
+        return null;
+      }
+
+      // Get the first payment document (assuming there's only one)
+      final paymentDoc = paymentsSnapshot.docs.first;
+      final paymentData = paymentDoc.data();
+      final tempAppointmentId = paymentData['appointmentId'] as String?;
+
+      if (tempAppointmentId == null) {
+        debugPrint('No tempAppointmentId found in payment document');
+        return null;
+      }
+
+      debugPrint('Found tempAppointmentId: $tempAppointmentId');
+
+      // Now fetch the pending payment using the tempAppointmentId
+      final pendingPaymentDoc = await FirebaseFirestore.instance
+          .collection('pending_payments')
+          .doc(tempAppointmentId)
+          .get();
+
+      if (!pendingPaymentDoc.exists) {
+        debugPrint(
+            'No pending payment found for tempAppointmentId: $tempAppointmentId');
+        return null;
+      }
+
+      final pendingPaymentData = pendingPaymentDoc.data();
+      debugPrint(
+          'Found pending payment with status: ${pendingPaymentData?['status']}');
+      return pendingPaymentData;
     } catch (e) {
-      debugPrint('Error formatting date: $e');
-      return dateStr; // Return original if parsing fails
+      debugPrint('Error fetching pending payment: $e');
+      return null;
     }
   }
 
@@ -197,14 +240,18 @@ class BookAppointmentBloc
       }
 
       debugPrint('Payment verified as paid, proceeding with booking...');
-      final appointmentDate =
-          DateFormat('EEEE, d \'of\' MMMM y').parse(event.appointmentDate);
-      final formattedDate = _formatAppointmentDate(DateFormat('yyyy-MM-dd').format(appointmentDate));
+      String dateString = dateController.text;
+      DateTime parsedDate = DateFormat('EEEE, d of MMMM y').parse(dateString);
+      String reformattedDate = DateFormat('MMMM d, yyyy').format(parsedDate);
+      final newDateFormat = DateFormat('EEEE, d \'of\' MMMM y');
+      DateTime? newParsedDate;
+      newParsedDate = newDateFormat.parse(dateString);
+      debugPrint('Parsed new date: $newParsedDate');
 
       debugPrint('Creating appointment with:');
       debugPrint('Doctor ID: ${event.doctorId}');
       debugPrint('Doctor Name: ${event.doctorName}');
-      debugPrint('Date: $formattedDate');
+      debugPrint('Date: $reformattedDate');
       debugPrint('Time: ${event.appointmentTime}');
       debugPrint('Mode: $selectedModeofAppointmentIndex');
 
@@ -212,7 +259,7 @@ class BookAppointmentBloc
         doctorId: event.doctorId,
         doctorName: event.doctorName,
         doctorClinicAddress: event.doctorClinicAddress,
-        appointmentDate: formattedDate,
+        appointmentDate: reformattedDate,
         appointmentTime: event.appointmentTime,
         modeOfAppointment: selectedModeofAppointmentIndex,
       );
@@ -224,7 +271,8 @@ class BookAppointmentBloc
         );
 
         final paymentService = PatientPaymentService();
-        await paymentService.linkPaymentToAppointment(appointmentId, event.appointmentId);
+        await paymentService.linkPaymentToAppointment(
+            appointmentId, event.appointmentId);
 
         debugPrint('Appointment created and payment linked successfully');
 
@@ -232,7 +280,7 @@ class BookAppointmentBloc
           doctorAvailabilityModel: bookDoctorAvailabilityModel!,
           appointmentId: appointmentId,
           doctorName: event.doctorName,
-          appointmentDate: appointmentDate,
+          appointmentDate: newParsedDate,
           selectedTimeIndex: selectedTimeIndex,
           selectedModeofAppointmentIndex: selectedModeofAppointmentIndex,
         ));
@@ -242,7 +290,7 @@ class BookAppointmentBloc
           doctorUid: event.doctorId,
           doctorName: event.doctorName,
           doctorClinicAddress: event.doctorClinicAddress,
-          appointmentDate: formattedDate,
+          appointmentDate: reformattedDate,
           appointmentTime: event.appointmentTime,
           modeOfAppointment: selectedModeofAppointmentIndex,
         );

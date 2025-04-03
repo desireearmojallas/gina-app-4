@@ -114,11 +114,10 @@ class ConsultationHistoryContainer extends StatelessWidget {
                           ),
                         ),
                       )
-                    : Flexible(
-                        // Use Flexible instead of SizedBox
+                    : Expanded(
                         child: Column(
                           children: [
-                            Flexible(
+                            Expanded(
                               child: ListView.builder(
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemCount: min(completedAppointments.length, 3),
