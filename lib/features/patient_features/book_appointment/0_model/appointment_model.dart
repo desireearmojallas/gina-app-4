@@ -29,6 +29,11 @@ class AppointmentModel extends Equatable {
   final String? consultationType;
   final DateTime? paymentUpdatedAt;
   final List<PaymentModel>? payments;
+  final String? refundStatus;
+  final String? refundId;
+  final DateTime? refundInitiatedAt;
+  final DateTime? refundUpdatedAt;
+  final double? refundAmount;
 
   AppointmentModel({
     this.appointmentUid,
@@ -55,6 +60,11 @@ class AppointmentModel extends Equatable {
     this.consultationType,
     this.paymentUpdatedAt,
     this.payments,
+    this.refundStatus,
+    this.refundId,
+    this.refundInitiatedAt,
+    this.refundUpdatedAt,
+    this.refundAmount,
   });
 
   static AppointmentModel fromDocumentSnap(DocumentSnapshot snap) {
@@ -93,6 +103,15 @@ class AppointmentModel extends Equatable {
                   payment as Map<String, dynamic>, payment['paymentId'] ?? ''))
               .toList()
           : null,
+      refundStatus: json['refundStatus'],
+      refundId: json['refundId'],
+      refundInitiatedAt: json['refundInitiatedAt'] != null
+          ? (json['refundInitiatedAt'] as Timestamp).toDate()
+          : null,
+      refundUpdatedAt: json['refundUpdatedAt'] != null
+          ? (json['refundUpdatedAt'] as Timestamp).toDate()
+          : null,
+      refundAmount: json['refundAmount']?.toDouble(),
     );
   }
 
@@ -131,6 +150,15 @@ class AppointmentModel extends Equatable {
                   payment as Map<String, dynamic>, payment['paymentId'] ?? ''))
               .toList()
           : null,
+      refundStatus: json['refundStatus'],
+      refundId: json['refundId'],
+      refundInitiatedAt: json['refundInitiatedAt'] != null
+          ? (json['refundInitiatedAt'] as Timestamp).toDate()
+          : null,
+      refundUpdatedAt: json['refundUpdatedAt'] != null
+          ? (json['refundUpdatedAt'] as Timestamp).toDate()
+          : null,
+      refundAmount: json['refundAmount']?.toDouble(),
     );
   }
 
@@ -162,6 +190,15 @@ class AppointmentModel extends Equatable {
           ? Timestamp.fromDate(paymentUpdatedAt!)
           : null,
       'payments': payments?.map((payment) => payment.toMap()).toList(),
+      'refundStatus': refundStatus,
+      'refundId': refundId,
+      'refundInitiatedAt': refundInitiatedAt != null
+          ? Timestamp.fromDate(refundInitiatedAt!)
+          : null,
+      'refundUpdatedAt': refundUpdatedAt != null
+          ? Timestamp.fromDate(refundUpdatedAt!)
+          : null,
+      'refundAmount': refundAmount,
     };
   }
 
@@ -191,6 +228,11 @@ class AppointmentModel extends Equatable {
         consultationType,
         paymentUpdatedAt,
         payments,
+        refundStatus,
+        refundId,
+        refundInitiatedAt,
+        refundUpdatedAt,
+        refundAmount,
       ];
 
   AppointmentModel copyWith({
@@ -218,6 +260,11 @@ class AppointmentModel extends Equatable {
     String? consultationType,
     DateTime? paymentUpdatedAt,
     List<PaymentModel>? payments,
+    String? refundStatus,
+    String? refundId,
+    DateTime? refundInitiatedAt,
+    DateTime? refundUpdatedAt,
+    double? refundAmount,
   }) {
     return AppointmentModel(
       appointmentUid: appointmentUid ?? this.appointmentUid,
@@ -250,6 +297,11 @@ class AppointmentModel extends Equatable {
       consultationType: consultationType ?? this.consultationType,
       paymentUpdatedAt: paymentUpdatedAt ?? this.paymentUpdatedAt,
       payments: payments ?? this.payments,
+      refundStatus: refundStatus ?? this.refundStatus,
+      refundId: refundId ?? this.refundId,
+      refundInitiatedAt: refundInitiatedAt ?? this.refundInitiatedAt,
+      refundUpdatedAt: refundUpdatedAt ?? this.refundUpdatedAt,
+      refundAmount: refundAmount ?? this.refundAmount,
     );
   }
 }

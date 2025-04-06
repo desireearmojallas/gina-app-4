@@ -157,6 +157,41 @@ class CancelAppointmentError extends AppointmentActionState {
 
 class CancelAppointmentLoading extends AppointmentActionState {}
 
+// class CancelAppointmentWithRefundState extends AppointmentActionState {
+//   final AppointmentModel appointment;
+//   final String refundStatus;
+
+//   CancelAppointmentWithRefundState({
+//     required this.appointment,
+//     required this.refundStatus,
+//   });
+
+//   @override
+//   List<Object> get props => [appointment, refundStatus];
+// }
+
+class CancelAppointmentWithRefundState extends AppointmentState {
+  final String refundStatus;
+  final String? refundId;
+  final DateTime? refundInitiatedAt;
+  final double? refundAmount;
+
+  const CancelAppointmentWithRefundState({
+    required this.refundStatus,
+    this.refundId,
+    this.refundInitiatedAt,
+    this.refundAmount,
+  });
+
+  @override
+  List<Object> get props => [
+        refundStatus,
+        refundId ?? '',
+        refundInitiatedAt ?? DateTime(0),
+        refundAmount ?? 0.0
+      ];
+}
+
 class AppointmentTabViewState extends AppointmentState {
   final int activeTabIndex;
 

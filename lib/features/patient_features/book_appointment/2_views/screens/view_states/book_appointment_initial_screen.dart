@@ -503,22 +503,22 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                   onTap: isRescheduleMode
                                       ? null // Disable selection in reschedule mode
                                       : isAvailable
-                                          ? () {
+                                      ? () {
                                               debugPrint(
                                                   'Clicked Index: $index');
-                                              debugPrint(
-                                                  'Clicked Mode of Appointment: ${modeOfAppointmentList[index]}');
+                                          debugPrint(
+                                              'Clicked Mode of Appointment: ${modeOfAppointmentList[index]}');
 
-                                              bookAppointmentBloc.add(
-                                                SelectedModeOfAppointmentEvent(
-                                                  index: index,
-                                                  modeOfAppointment:
+                                          bookAppointmentBloc.add(
+                                            SelectedModeOfAppointmentEvent(
+                                              index: index,
+                                              modeOfAppointment:
                                                       modeOfAppointmentList[
                                                           index],
-                                                ),
-                                              );
-                                            }
-                                          : null,
+                                            ),
+                                          );
+                                        }
+                                      : null,
                                   child: BlocBuilder<BookAppointmentBloc,
                                       BookAppointmentState>(
                                     builder: (context, state) {
@@ -542,7 +542,7 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                   .lightTertiaryContainer
                                               : isRescheduleMode && !isSelected
                                                   ? Colors.grey[200]
-                                                  : Colors.transparent,
+                                              : Colors.transparent,
                                           borderRadius:
                                               BorderRadius.circular(8),
                                           border: Border.all(
@@ -696,7 +696,7 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 30.0),
                           child: Center(
-                            child: SizedBox(
+                              child: SizedBox(
                               width: MediaQuery.of(context).size.width * 0.93,
                               height: MediaQuery.of(context).size.height / 17,
                               child: BlocBuilder<BookAppointmentBloc,
@@ -744,10 +744,10 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                     'paid';
 
                                             return FilledButton(
-                                              style: ButtonStyle(
+                                  style: ButtonStyle(
                                                 shape:
                                                     MaterialStateProperty.all(
-                                                  RoundedRectangleBorder(
+                                      RoundedRectangleBorder(
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             10),
@@ -761,21 +761,21 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                       : GinaAppTheme
                                                           .lightSurfaceVariant,
                                                 ),
-                                              ),
-                                              onPressed: () {
-                                                if (bookAppointmentBloc
+                                  ),
+                                  onPressed: () {
+                                    if (bookAppointmentBloc
                                                             .selectedTimeIndex ==
-                                                        -1 ||
-                                                    bookAppointmentBloc
+                                            -1 ||
+                                        bookAppointmentBloc
                                                         .dateController
                                                         .text
                                                         .isEmpty) {
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text(
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
                                                           'Please select date and time'),
-                                                      backgroundColor:
+                                          backgroundColor:
                                                           Colors.red,
                                                     ),
                                                   );
@@ -809,59 +809,59 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                   return;
                                                 }
 
-                                                final currentState =
-                                                    bookAppointmentBloc.state;
-                                                if (currentState
-                                                    is GetDoctorAvailabilityLoaded) {
-                                                  final selectedIndex =
+                                      final currentState =
+                                          bookAppointmentBloc.state;
+                                      if (currentState
+                                          is GetDoctorAvailabilityLoaded) {
+                                        final selectedIndex =
                                                       currentState
                                                           .selectedTimeIndex!;
-                                                  final selectedTime =
-                                                      '${doctorAvailabilityModel.startTimes[selectedIndex]} - ${doctorAvailabilityModel.endTimes[selectedIndex]}';
+                                        final selectedTime =
+                                            '${doctorAvailabilityModel.startTimes[selectedIndex]} - ${doctorAvailabilityModel.endTimes[selectedIndex]}';
 
-                                                  debugPrint(
-                                                      'Rescheduling appointment...');
-                                                  appointmentDetailsBloc.add(
-                                                    RescheduleAppointmentEvent(
-                                                      doctor: doctor,
-                                                      appointmentUid:
-                                                          appointmentUidToReschedule!,
-                                                      appointmentDate:
-                                                          bookAppointmentBloc
+                                          debugPrint(
+                                              'Rescheduling appointment...');
+                                          appointmentDetailsBloc.add(
+                                            RescheduleAppointmentEvent(
+                                              doctor: doctor,
+                                              appointmentUid:
+                                                  appointmentUidToReschedule!,
+                                              appointmentDate:
+                                                  bookAppointmentBloc
                                                               .selectedFormattedDate!,
                                                       appointmentTime:
                                                           selectedTime,
-                                                    ),
-                                                  );
+                                            ),
+                                          );
 
-                                                  debugPrint(
-                                                      'Reschedule completed, showing success dialog...');
+                                          debugPrint(
+                                              'Reschedule completed, showing success dialog...');
 
-                                                  showRescheduleAppointmentSuccessDialog(
-                                                    context,
-                                                    appointmentUidToReschedule!,
-                                                    doctor,
-                                                  ).then((_) {
-                                                    Navigator.pushReplacement(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) {
-                                                          return ReviewRescheduledAppointmentScreen(
+                                          showRescheduleAppointmentSuccessDialog(
+                                            context,
+                                            appointmentUidToReschedule!,
+                                            doctor,
+                                          ).then((_) {
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) {
+                                                  return ReviewRescheduledAppointmentScreen(
                                                             doctorDetails:
                                                                 doctor,
-                                                            currentPatient:
-                                                                currentActivePatient!,
-                                                            appointmentModel:
-                                                                appointmentDetailsForReschedule!,
-                                                          );
-                                                        },
-                                                      ),
-                                                    );
-                                                  }).whenComplete(() {
-                                                    isRescheduleMode = false;
-                                                    debugPrint(
-                                                        'isRescheduleMode set to false');
-                                                  });
+                                                    currentPatient:
+                                                        currentActivePatient!,
+                                                    appointmentModel:
+                                                        appointmentDetailsForReschedule!,
+                                                  );
+                                                },
+                                              ),
+                                            );
+                                          }).whenComplete(() {
+                                            isRescheduleMode = false;
+                                            debugPrint(
+                                                'isRescheduleMode set to false');
+                                          });
                                                 }
                                               },
                                               child: Text(
@@ -880,7 +880,7 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                         );
                                       },
                                     );
-                                  } else {
+                                        } else {
                                     return StreamBuilder<DocumentSnapshot>(
                                       stream: FirebaseFirestore.instance
                                           .collection('pending_payments')
@@ -967,42 +967,42 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                               final selectedTime =
                                                   '${doctorAvailabilityModel.startTimes[selectedIndex]} - ${doctorAvailabilityModel.endTimes[selectedIndex]}';
 
-                                              debugPrint(
-                                                  'Booking new appointment...');
+                                          debugPrint(
+                                              'Booking new appointment...');
                                               final tempAppointmentId =
                                                   bookAppointmentBloc
                                                       .tempAppointmentId;
                                               debugPrint(
                                                   'Using tempAppointmentId for booking: $tempAppointmentId');
 
-                                              bookAppointmentBloc.add(
-                                                BookForAnAppointmentEvent(
-                                                  doctorId: doctor.uid,
-                                                  doctorName: doctor.name,
-                                                  doctorClinicAddress:
-                                                      doctor.officeAddress,
-                                                  appointmentDate:
-                                                      bookAppointmentBloc
+                                          bookAppointmentBloc.add(
+                                            BookForAnAppointmentEvent(
+                                              doctorId: doctor.uid,
+                                              doctorName: doctor.name,
+                                              doctorClinicAddress:
+                                                  doctor.officeAddress,
+                                              appointmentDate:
+                                                  bookAppointmentBloc
                                                           .selectedFormattedDate!,
-                                                  appointmentTime: selectedTime,
+                                              appointmentTime: selectedTime,
                                                   appointmentId:
                                                       tempAppointmentId!,
-                                                ),
-                                              );
-                                            }
-                                          },
-                                          child: Text(
-                                            'Book Appointment',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleMedium
-                                                ?.copyWith(
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.white,
-                                                ),
-                                          ),
-                                        );
-                                      },
+                                            ),
+                                          );
+                                    }
+                                  },
+                                  child: Text(
+                                    'Book Appointment',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                ),
+                              ),
+                            );
+                          },
                                     );
                                   }
                                 },

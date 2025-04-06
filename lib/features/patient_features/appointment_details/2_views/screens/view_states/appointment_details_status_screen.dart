@@ -384,144 +384,7 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                   Icons.payment,
                   'Payment Details',
                 ),
-                StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('appointments')
-                      .doc(appointment.appointmentUid)
-                      .collection('payments')
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Text(
-                        'Error loading payment details',
-                        style: valueStyle?.copyWith(color: Colors.red),
-                      );
-                    }
-
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return Text(
-                        'No payment details available',
-                        style: valueStyle?.copyWith(
-                          color: Colors.grey,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      );
-                    }
-
-                    final paymentDoc = snapshot.data!.docs.first;
-                    final paymentData =
-                        paymentDoc.data() as Map<String, dynamic>;
-
-                    return Column(
-                      children: [
-                        const Gap(20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Amount Paid',
-                              style: labelStyle,
-                            ),
-                            Text(
-                              '₱${NumberFormat('#,##0.00').format(paymentData['amount'] ?? 0)}',
-                              style: valueStyle?.copyWith(
-                                color: Colors.green,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Gap(15),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Payment Status',
-                              style: labelStyle,
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: (paymentData['status'] as String?)
-                                            ?.toLowerCase() ==
-                                        'paid'
-                                    ? Colors.green.withOpacity(0.1)
-                                    : Colors.orange.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                (paymentData['status'] as String?)
-                                        ?.toUpperCase() ??
-                                    'PENDING',
-                                style: valueStyle?.copyWith(
-                                  color: (paymentData['status'] as String?)
-                                              ?.toLowerCase() ==
-                                          'paid'
-                                      ? Colors.green
-                                      : Colors.orange,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Gap(15),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Payment Method',
-                              style: labelStyle,
-                            ),
-                            Text(
-                              paymentData['paymentMethod'] ?? 'Xendit',
-                              style: valueStyle?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Gap(15),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Payment Date',
-                              style: labelStyle,
-                            ),
-                            Text(
-                              paymentData['linkedAt'] != null
-                                  ? DateFormat('MMMM d, yyyy h:mm a').format(
-                                      (paymentData['linkedAt'] as Timestamp)
-                                          .toDate())
-                                  : 'N/A',
-                              style: valueStyle,
-                            ),
-                          ],
-                        ),
-                        const Gap(15),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Invoice ID',
-                              style: labelStyle,
-                            ),
-                            Text(
-                              paymentData['invoiceId'] ?? 'N/A',
-                              style: valueStyle?.copyWith(
-                                fontFamily: 'monospace',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                _buildPaymentDetails(appointment),
                 divider,
                 headerWidget(
                   Icons.person_3,
@@ -602,5 +465,201 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Widget _buildPaymentDetails(AppointmentModel appointment) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(appointment.appointmentUid)
+          .collection('payments')
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint('Error loading payment details: ${snapshot.error}');
+          return const SizedBox.shrink();
+        }
+
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          debugPrint('No payment details available');
+          return const SizedBox.shrink();
+        }
+
+        final paymentData = snapshot.data!.docs.first.data() as Map<String, dynamic>;
+        final paymentStatus = paymentData['status'] as String? ?? '';
+        final refundStatus = paymentData['refundStatus'] as String?;
+        final amount = paymentData['amount'] as double? ?? 0.0;
+        final refundAmount = paymentData['refundAmount'] as double?;
+        final paymentMethod = paymentData['paymentMethod'] as String? ?? 'Xendit';
+        final invoiceId = paymentData['invoiceId'] as String?;
+        final linkedAt = paymentData['linkedAt'] as Timestamp?;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Gap(20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Amount Paid',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                ),
+                Text(
+                  '₱${NumberFormat('#,##0.00').format(amount)}',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
+            ),
+            const Gap(15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Payment Status',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _getPaymentStatusColor(paymentStatus).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    paymentStatus.toUpperCase(),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: _getPaymentStatusColor(paymentStatus),
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+              ],
+            ),
+            const Gap(15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Payment Method',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                ),
+                Text(
+                  paymentMethod,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
+            ),
+            const Gap(15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Payment Date',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                ),
+                Text(
+                  linkedAt != null
+                      ? DateFormat('MMMM d, yyyy h:mm a').format(linkedAt.toDate())
+                      : 'N/A',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
+            ),
+            if (refundStatus != null) ...[
+              const Gap(15),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Refund Status',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _getRefundStatusColor(refundStatus).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      refundStatus.toUpperCase(),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: _getRefundStatusColor(refundStatus),
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ),
+                ],
+              ),
+              if (refundAmount != null) ...[
+                const Gap(15),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Refund Amount',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey[600],
+                          ),
+                    ),
+                    Text(
+                      '₱${NumberFormat('#,##0.00').format(refundAmount)}',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.orange,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ],
+        );
+      },
+    );
+  }
+
+  Color _getPaymentStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'paid':
+        return Colors.green;
+      case 'pending':
+        return Colors.orange;
+      case 'failed':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Color _getRefundStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Colors.orange;
+      case 'succeeded':
+        return Colors.green;
+      case 'failed':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
   }
 }

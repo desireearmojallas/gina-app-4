@@ -11,6 +11,7 @@ import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/consultation/0_model/chat_message_model.dart';
+import 'package:gina_app_4/features/patient_features/payment_feature/3_services/patient_payment_service.dart';
 import 'package:intl/intl.dart';
 
 class AppointmentController with ChangeNotifier {
@@ -128,7 +129,8 @@ class AppointmentController with ChangeNotifier {
       // Format the date to MMMM d, yyyy
       if (appointment.appointmentDate != null) {
         try {
-          final date = DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
+          final date =
+              DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
           appointment.appointmentDate = DateFormat('MMMM d, yyyy').format(date);
         } catch (e) {
           debugPrint('Error formatting date: $e');
@@ -165,9 +167,11 @@ class AppointmentController with ChangeNotifier {
 
     for (var appointment in appointments) {
       try {
-        final appointmentDate = DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
+        final appointmentDate =
+            DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
         final appointmentTimes = appointment.appointmentTime!.split(' - ');
-        final appointmentEndTime = DateFormat('hh:mm a').parse(appointmentTimes[1]);
+        final appointmentEndTime =
+            DateFormat('hh:mm a').parse(appointmentTimes[1]);
 
         final appointmentEndDateTime = DateTime(
           appointmentDate.year,
@@ -189,7 +193,8 @@ class AppointmentController with ChangeNotifier {
           appointment.appointmentStatus = AppointmentStatus.declined.index;
         }
       } catch (e) {
-        debugPrint('Error processing appointment ${appointment.appointmentUid}: $e');
+        debugPrint(
+            'Error processing appointment ${appointment.appointmentUid}: $e');
         continue;
       }
     }
@@ -202,9 +207,11 @@ class AppointmentController with ChangeNotifier {
 
     for (var appointment in appointments) {
       try {
-        final appointmentDate = DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
+        final appointmentDate =
+            DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
         final appointmentTimes = appointment.appointmentTime!.split(' - ');
-        final appointmentEndTime = DateFormat('hh:mm a').parse(appointmentTimes[1]);
+        final appointmentEndTime =
+            DateFormat('hh:mm a').parse(appointmentTimes[1]);
 
         final appointmentEndDateTime = DateTime(
           appointmentDate.year,
@@ -216,7 +223,8 @@ class AppointmentController with ChangeNotifier {
 
         if (appointmentEndDateTime.isBefore(now) &&
             appointment.hasVisitedConsultationRoom &&
-            appointment.appointmentStatus == AppointmentStatus.confirmed.index) {
+            appointment.appointmentStatus ==
+                AppointmentStatus.confirmed.index) {
           await firestore
               .collection('appointments')
               .doc(appointment.appointmentUid)
@@ -227,7 +235,8 @@ class AppointmentController with ChangeNotifier {
           appointment.appointmentStatus = AppointmentStatus.completed.index;
         }
       } catch (e) {
-        debugPrint('Error processing appointment ${appointment.appointmentUid}: $e');
+        debugPrint(
+            'Error processing appointment ${appointment.appointmentUid}: $e');
         continue;
       }
     }
@@ -268,10 +277,13 @@ class AppointmentController with ChangeNotifier {
 
     for (var appointment in appointments) {
       try {
-        final appointmentDate = DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
+        final appointmentDate =
+            DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
         final appointmentTimes = appointment.appointmentTime!.split(' - ');
-        final appointmentStartTime = DateFormat('hh:mm a').parse(appointmentTimes[0]);
-        final appointmentEndTime = DateFormat('hh:mm a').parse(appointmentTimes[1]);
+        final appointmentStartTime =
+            DateFormat('hh:mm a').parse(appointmentTimes[0]);
+        final appointmentEndTime =
+            DateFormat('hh:mm a').parse(appointmentTimes[1]);
 
         final appointmentStartDateTime = DateTime(
           appointmentDate.year,
@@ -290,7 +302,8 @@ class AppointmentController with ChangeNotifier {
         );
 
         if (appointmentEndDateTime.isBefore(now) &&
-            appointment.appointmentStatus == AppointmentStatus.confirmed.index &&
+            appointment.appointmentStatus ==
+                AppointmentStatus.confirmed.index &&
             !appointment.hasVisitedConsultationRoom) {
           await firestore
               .collection('appointments')
@@ -302,7 +315,8 @@ class AppointmentController with ChangeNotifier {
           appointment.appointmentStatus = AppointmentStatus.missed.index;
         }
       } catch (e) {
-        debugPrint('Error processing appointment ${appointment.appointmentUid}: $e');
+        debugPrint(
+            'Error processing appointment ${appointment.appointmentUid}: $e');
         continue;
       }
     }
@@ -429,18 +443,157 @@ class AppointmentController with ChangeNotifier {
     required String appointmentUid,
   }) async {
     try {
-      await firestore.collection('appointments').doc(appointmentUid).update({
-        'appointmentStatus': 3,
-      });
+      debugPrint('=== Starting cancelAppointment ===');
+      debugPrint('Appointment ID: $appointmentUid');
 
+      // Get appointment details first
+      final appointmentDoc = await firestore.collection('appointments').doc(appointmentUid).get();
+      if (!appointmentDoc.exists) {
+        debugPrint('Appointment document not found');
+        return Left(Exception('Appointment not found'));
+      }
+
+      final appointmentData = appointmentDoc.data()!;
+      final paymentStatus = appointmentData['paymentStatus'] as String? ?? '';
+      final amount = appointmentData['amount'] as double? ?? 0.0;
+
+      debugPrint('Current payment status: $paymentStatus');
+      debugPrint('Amount: $amount');
+
+      // Get payment details from subcollection
+      final paymentQuery = await firestore
+          .collection('appointments')
+          .doc(appointmentUid)
+          .collection('payments')
+          .get();
+
+      String? invoiceId;
+      if (paymentQuery.docs.isNotEmpty) {
+        final paymentData = paymentQuery.docs.first.data();
+        invoiceId = paymentData['invoiceId'] as String?;
+        debugPrint('Found invoice ID in payments subcollection: $invoiceId');
+      }
+
+      // Initialize refund fields with default values
+      final Map<String, dynamic> updateData = {
+        'appointmentStatus': 3,
+        'cancelledAt': FieldValue.serverTimestamp(),
+        'refundStatus': null,
+        'refundId': null,
+        'refundInitiatedAt': null,
+        'refundUpdatedAt': null,
+        'refundAmount': null,
+      };
+
+      // Only process refund if payment was made and not already refunded
+      if (paymentStatus.toLowerCase() == 'paid' && 
+          invoiceId != null && 
+          amount > 0) {
+        debugPrint('Payment is paid, initiating refund process');
+        final paymentService = PatientPaymentService();
+
+        try {
+          debugPrint('Calling initiateRefund with:');
+          debugPrint('- Invoice ID: $invoiceId');
+          debugPrint('- Amount: $amount');
+          debugPrint('- Reason: Appointment cancellation');
+
+          // Initiate refund
+          final refundResult = await paymentService.initiateRefund(
+            appointmentId: appointmentUid,
+            invoiceId: invoiceId,
+            amount: amount,
+            reason: 'Appointment cancellation',
+          );
+
+          debugPrint('Refund initiated successfully:');
+          debugPrint('Refund ID: ${refundResult['id']}');
+          debugPrint('Refund Status: ${refundResult['status']}');
+
+          // Update refund fields
+          updateData['refundStatus'] = 'PENDING';
+          updateData['refundId'] = refundResult['id'];
+          updateData['refundInitiatedAt'] = FieldValue.serverTimestamp();
+          updateData['refundAmount'] = amount;
+
+          // Start polling for refund status
+          _startRefundStatusPolling(appointmentUid, refundResult['id']);
+        } catch (e) {
+          debugPrint('Error initiating refund: $e');
+          // Continue with cancellation even if refund fails
+        }
+      } else {
+        debugPrint('No refund needed - payment status: $paymentStatus');
+      }
+
+      debugPrint('Updating appointment with data:');
+      debugPrint(updateData.toString());
+
+      // Update appointment with all fields
+      await firestore.collection('appointments').doc(appointmentUid).update(updateData);
+
+      debugPrint('Appointment cancelled successfully');
       return const Right(true);
-    } on FirebaseAuthException catch (e) {
-      debugPrint('FirebaseAuthException: ${e.message}');
-      debugPrint('FirebaseAuthException code: ${e.code}');
-      error = e;
-      notifyListeners();
-      return Left(Exception(e.message));
+    } catch (e) {
+      debugPrint('Error canceling appointment: $e');
+      return Left(Exception(e.toString()));
     }
+  }
+
+  void _startRefundStatusPolling(String appointmentId, String refundId) {
+    final paymentService = PatientPaymentService();
+    Timer.periodic(const Duration(seconds: 30), (timer) async {
+      try {
+        final refundStatus = await paymentService.getRefundStatus(refundId);
+        final status = refundStatus['status'] as String;
+        
+        // Update appointment document
+        await firestore.collection('appointments').doc(appointmentId).update({
+          'refundStatus': status,
+          'refundUpdatedAt': FieldValue.serverTimestamp(),
+        });
+
+        // Update payment records
+        final batch = firestore.batch();
+        
+        // Update payment in pending_payments collection
+        final pendingPaymentQuery = await firestore
+            .collection('pending_payments')
+            .where('appointmentId', isEqualTo: appointmentId)
+            .get();
+            
+        if (pendingPaymentQuery.docs.isNotEmpty) {
+          batch.update(pendingPaymentQuery.docs.first.reference, {
+            'refundStatus': status,
+            'refundUpdatedAt': FieldValue.serverTimestamp(),
+          });
+        }
+
+        // Update payment in appointments/payments subcollection
+        final paymentQuery = await firestore
+            .collection('appointments')
+            .doc(appointmentId)
+            .collection('payments')
+            .get();
+            
+        if (paymentQuery.docs.isNotEmpty) {
+          batch.update(paymentQuery.docs.first.reference, {
+            'refundStatus': status,
+            'refundUpdatedAt': FieldValue.serverTimestamp(),
+          });
+        }
+
+        await batch.commit();
+
+        // Stop polling if refund is completed (success or failed)
+        if (status == 'SUCCEEDED' || status == 'FAILED') {
+          timer.cancel();
+        }
+      } catch (e) {
+        debugPrint('Error checking refund status: $e');
+        // Continue polling on error
+      }
+    });
   }
 
 //-------RESCHEDULE APPOINTMENT-------

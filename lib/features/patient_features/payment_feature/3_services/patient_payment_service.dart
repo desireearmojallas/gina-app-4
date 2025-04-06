@@ -558,4 +558,247 @@ class PatientPaymentService {
       }
     });
   }
+
+  Future<Map<String, dynamic>> initiateRefund({
+    required String appointmentId,
+    required String invoiceId,
+    required double amount,
+    required String reason,
+  }) async {
+    try {
+      debugPrint('=== Initiating Refund ===');
+      debugPrint('Appointment ID: $appointmentId');
+      debugPrint('Invoice ID: $invoiceId');
+      debugPrint('Amount: $amount');
+      debugPrint('Reason: $reason');
+
+      // Call Firebase Function to create refund
+      final url = 'https://initiaterefund-pbiqoneg6a-as.a.run.app';
+      debugPrint('Making request to URL: $url');
+      
+      final requestBody = {
+        'invoiceId': invoiceId,
+        'amount': amount,
+        'reason': reason,
+        'external_id': 'refund_$appointmentId',
+      };
+      debugPrint('Request body: ${jsonEncode(requestBody)}');
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      debugPrint('Response status code: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        debugPrint('Refund initiated successfully: $data');
+
+        // Start a batch write to ensure all updates are atomic
+        final batch = FirebaseFirestore.instance.batch();
+
+        // Update appointment document
+        final appointmentRef = FirebaseFirestore.instance.collection('appointments').doc(appointmentId);
+        batch.update(appointmentRef, {
+          'refundStatus': 'PENDING',
+          'refundId': data['id'],
+          'refundInitiatedAt': FieldValue.serverTimestamp(),
+          'refundAmount': amount,
+        });
+
+        // Update payment in pending_payments collection
+        final pendingPaymentQuery = await FirebaseFirestore.instance
+            .collection('pending_payments')
+            .where('invoiceId', isEqualTo: invoiceId)
+            .limit(1)
+            .get();
+
+        if (!pendingPaymentQuery.docs.isEmpty) {
+          final pendingPaymentRef = pendingPaymentQuery.docs.first.reference;
+          batch.update(pendingPaymentRef, {
+            'refundStatus': 'PENDING',
+            'refundId': data['id'],
+            'refundInitiatedAt': FieldValue.serverTimestamp(),
+            'refundAmount': amount,
+          });
+        }
+
+        // Update payment in appointments/payments subcollection
+        final appointmentPaymentQuery = await FirebaseFirestore.instance
+            .collection('appointments')
+            .doc(appointmentId)
+            .collection('payments')
+            .where('invoiceId', isEqualTo: invoiceId)
+            .limit(1)
+            .get();
+
+        if (!appointmentPaymentQuery.docs.isEmpty) {
+          final appointmentPaymentRef = appointmentPaymentQuery.docs.first.reference;
+          batch.update(appointmentPaymentRef, {
+            'refundStatus': 'PENDING',
+            'refundId': data['id'],
+            'refundInitiatedAt': FieldValue.serverTimestamp(),
+            'refundAmount': amount,
+          });
+        }
+
+        // Create refund record in appointments/refunds subcollection
+        final refundRef = FirebaseFirestore.instance
+            .collection('appointments')
+            .doc(appointmentId)
+            .collection('refunds')
+            .doc(data['id']);
+
+        batch.set(refundRef, {
+          'refundId': data['id'],
+          'invoiceId': invoiceId,
+          'amount': amount,
+          'reason': reason,
+          'status': 'PENDING',
+          'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+
+        // Commit the batch
+        await batch.commit();
+        debugPrint('Successfully updated all Firestore documents');
+
+        return data;
+      } else {
+        debugPrint('Error response from server:');
+        debugPrint('Status code: ${response.statusCode}');
+        debugPrint('Response body: ${response.body}');
+        debugPrint('Response headers: ${response.headers}');
+        throw Exception('Failed to initiate refund: ${response.body}');
+      }
+    } catch (e) {
+      debugPrint('Error in initiateRefund:');
+      debugPrint('Error type: ${e.runtimeType}');
+      debugPrint('Error message: ${e.toString()}');
+      if (e is http.ClientException) {
+        debugPrint('HTTP Client Exception details:');
+        debugPrint('Message: ${e.message}');
+        debugPrint('Uri: ${e.uri}');
+      }
+      throw Exception('Failed to initiate refund: $e');
+    }
+  }
+
+  Future<void> handleRefundWebhook(Map<String, dynamic> webhookData) async {
+    try {
+      debugPrint('=== Processing Refund Webhook ===');
+      debugPrint('Webhook data: $webhookData');
+
+      final refundId = webhookData['id'];
+      final status = webhookData['status'];
+      final invoiceId = webhookData['invoice_id'];
+      final amount = webhookData['amount'];
+
+      // Find the appointment with this refund
+      final querySnapshot = await FirebaseFirestore.instance
+          .collectionGroup('refunds')
+          .where('refundId', isEqualTo: refundId)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        debugPrint('No matching refund record found');
+        return;
+      }
+
+      final refundDoc = querySnapshot.docs.first;
+      final appointmentId = refundDoc.reference.parent.parent!.id;
+
+      // Update refund status in appointments/refunds
+      await refundDoc.reference.update({
+        'status': status,
+        'updatedAt': FieldValue.serverTimestamp(),
+        'webhookData': webhookData,
+      });
+
+      // Find the payment in pending_payments collection
+      final pendingPaymentQuery = await FirebaseFirestore.instance
+          .collection('pending_payments')
+          .where('invoiceId', isEqualTo: invoiceId)
+          .get();
+
+      if (!pendingPaymentQuery.docs.isEmpty) {
+        final pendingPaymentDoc = pendingPaymentQuery.docs.first;
+        await pendingPaymentDoc.reference.update({
+          'status': 'refunded',
+          'refundStatus': status,
+          'refundId': refundId,
+          'refundAmount': amount,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      // Find the payment in appointments/payments subcollection
+      final appointmentPaymentQuery = await FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(appointmentId)
+          .collection('payments')
+          .where('invoiceId', isEqualTo: invoiceId)
+          .get();
+
+      if (!appointmentPaymentQuery.docs.isEmpty) {
+        final appointmentPaymentDoc = appointmentPaymentQuery.docs.first;
+        await appointmentPaymentDoc.reference.update({
+          'status': 'refunded',
+          'refundStatus': status,
+          'refundId': refundId,
+          'refundAmount': amount,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      // Update appointment status if refund is successful
+      if (status == 'SUCCESS') {
+        await FirebaseFirestore.instance
+            .collection('appointments')
+            .doc(appointmentId)
+            .update({
+          'refundStatus': 'COMPLETED',
+          'refundAmount': amount,
+          'refundCompletedAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      debugPrint('Refund webhook processed successfully');
+    } catch (e) {
+      debugPrint('Error processing refund webhook: $e');
+      throw Exception('Failed to process refund webhook: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> getRefundStatus(String refundId) async {
+    try {
+      debugPrint('=== Checking Refund Status ===');
+      debugPrint('Refund ID: $refundId');
+
+      final response = await http.get(
+        Uri.parse('https://api.xendit.co/v2/refunds/$refundId'),
+        headers: {
+          'Authorization': 'Basic ${base64Encode(utf8.encode('$secretKey:'))}',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        debugPrint('Refund status: $data');
+        return data;
+      } else {
+        debugPrint('Error checking refund status: ${response.body}');
+        throw Exception('Failed to check refund status: ${response.body}');
+      }
+    } catch (e) {
+      debugPrint('Error in getRefundStatus: $e');
+      throw Exception('Failed to check refund status: $e');
+    }
+  }
 }

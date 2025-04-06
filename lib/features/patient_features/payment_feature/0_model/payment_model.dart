@@ -16,6 +16,11 @@ class PaymentModel {
   final bool isLinkedToAppointment;
   final DateTime? linkedAt;
   final String paymentMethod;
+  final String? refundStatus;
+  final String? refundId;
+  final DateTime? refundInitiatedAt;
+  final DateTime? refundUpdatedAt;
+  final double? refundAmount;
 
   PaymentModel({
     required this.paymentId,
@@ -33,6 +38,11 @@ class PaymentModel {
     required this.isLinkedToAppointment,
     this.linkedAt,
     this.paymentMethod = 'Xendit',
+    this.refundStatus,
+    this.refundId,
+    this.refundInitiatedAt,
+    this.refundUpdatedAt,
+    this.refundAmount,
   });
 
   factory PaymentModel.fromMap(Map<String, dynamic> map, String id) {
@@ -56,6 +66,15 @@ class PaymentModel {
           ? (map['linkedAt'] as Timestamp).toDate()
           : null,
       paymentMethod: map['paymentMethod'] ?? 'Xendit',
+      refundStatus: map['refundStatus'],
+      refundId: map['refundId'],
+      refundInitiatedAt: map['refundInitiatedAt'] != null
+          ? (map['refundInitiatedAt'] as Timestamp).toDate()
+          : null,
+      refundUpdatedAt: map['refundUpdatedAt'] != null
+          ? (map['refundUpdatedAt'] as Timestamp).toDate()
+          : null,
+      refundAmount: map['refundAmount']?.toDouble(),
     );
   }
 
@@ -75,6 +94,15 @@ class PaymentModel {
       'isLinkedToAppointment': isLinkedToAppointment,
       'linkedAt': linkedAt != null ? FieldValue.serverTimestamp() : null,
       'paymentMethod': paymentMethod,
+      'refundStatus': refundStatus,
+      'refundId': refundId,
+      'refundInitiatedAt': refundInitiatedAt != null
+          ? Timestamp.fromDate(refundInitiatedAt!)
+          : null,
+      'refundUpdatedAt': refundUpdatedAt != null
+          ? Timestamp.fromDate(refundUpdatedAt!)
+          : null,
+      'refundAmount': refundAmount,
     };
   }
 
@@ -94,6 +122,11 @@ class PaymentModel {
     bool? isLinkedToAppointment,
     DateTime? linkedAt,
     String? paymentMethod,
+    String? refundStatus,
+    String? refundId,
+    DateTime? refundInitiatedAt,
+    DateTime? refundUpdatedAt,
+    double? refundAmount,
   }) {
     return PaymentModel(
       paymentId: paymentId ?? this.paymentId,
@@ -111,6 +144,11 @@ class PaymentModel {
       isLinkedToAppointment: isLinkedToAppointment ?? this.isLinkedToAppointment,
       linkedAt: linkedAt ?? this.linkedAt,
       paymentMethod: paymentMethod ?? this.paymentMethod,
+      refundStatus: refundStatus ?? this.refundStatus,
+      refundId: refundId ?? this.refundId,
+      refundInitiatedAt: refundInitiatedAt ?? this.refundInitiatedAt,
+      refundUpdatedAt: refundUpdatedAt ?? this.refundUpdatedAt,
+      refundAmount: refundAmount ?? this.refundAmount,
     );
   }
 } 

@@ -49,7 +49,8 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     on<ChooseImageEvent>(chooseImageEvent);
     on<RemoveImageEvent>(removeImageEvent);
     on<UploadPrescriptionEvent>(uploadPrescriptionEvent);
-    on<CancelAppointmentInAppointmentTabsEvent>(cancelAppointmentEvent);
+    on<CancelAppointmentInAppointmentTabsEvent>(
+        cancelAppointmentInAppointmentTabsEvent);
     on<AppointmentTabChangedEvent>(appointmentTabChangedEvent);
   }
 
@@ -294,27 +295,49 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     );
   }
 
-  FutureOr<void> cancelAppointmentEvent(
+  FutureOr<void> cancelAppointmentInAppointmentTabsEvent(
       CancelAppointmentInAppointmentTabsEvent event,
       Emitter<AppointmentState> emit) async {
     emit(CancelAppointmentLoading());
 
-    final result = await appointmentController.cancelAppointment(
-      appointmentUid: event.appointmentUid,
-    );
+    try {
+      final result = await appointmentController.cancelAppointment(
+        appointmentUid: event.appointmentUid,
+      );
 
-    result.fold(
-      (failure) {
-        emit(CancelAppointmentError(errorMessage: failure.toString()));
-      },
-      (appointment) {
-        emit(CancelAppointmentState());
-        emit(GetAppointmentsLoaded(
-          appointments: storedAppointments,
-          chatRooms: chatMessages,
-        ));
-      },
-    );
+      await result.fold(
+        (failure) {
+          emit(CancelAppointmentError(errorMessage: failure.toString()));
+        },
+        (success) async {
+          // Get the latest appointment details to check refund status
+          final appointmentDetails =
+              await appointmentController.getAppointmentDetails(
+            appointmentUid: event.appointmentUid,
+          );
+
+          await appointmentDetails.fold(
+            (failure) {
+              emit(CancelAppointmentError(errorMessage: failure.toString()));
+            },
+            (appointment) {
+              if (appointment.refundStatus != null) {
+                emit(CancelAppointmentWithRefundState(
+                  refundStatus: appointment.refundStatus!,
+                  refundId: appointment.refundId,
+                  refundInitiatedAt: appointment.refundInitiatedAt,
+                  refundAmount: appointment.refundAmount,
+                ));
+              } else {
+                emit(CancelAppointmentState());
+              }
+            },
+          );
+        },
+      );
+    } catch (e) {
+      emit(CancelAppointmentError(errorMessage: e.toString()));
+    }
   }
 
   FutureOr<void> appointmentTabChangedEvent(
