@@ -8,6 +8,8 @@ import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/bloc/period_tracker_bloc.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/screens/view_states/period_tracker_edit_dates_screen.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/screens/view_states/period_tracker_initial_screen.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/2_views/screens/widgets/period_alert_dialog.dart';
+import 'package:intl/intl.dart';
 
 class PeriodTrackerScreenProvider extends StatelessWidget {
   const PeriodTrackerScreenProvider({super.key});
@@ -19,6 +21,7 @@ class PeriodTrackerScreenProvider extends StatelessWidget {
         final periodTrackerBloc = sl<PeriodTrackerBloc>();
         periodDates.clear();
         periodTrackerBloc.add(GetFirstMenstrualPeriodDatesEvent());
+        periodTrackerBloc.add(DisplayDialogUpcomingPeriodEvent());
         return periodTrackerBloc;
       },
       child: const PeriodTrackerScreen(),
@@ -93,6 +96,13 @@ class PeriodTrackerScreen extends StatelessWidget {
                       ),
                     );
                   },
+                );
+              } else if (state is DisplayDialogUpcomingPeriodState) {
+                PeriodAlertDialog.showPeriodAlertDialog(
+                  context,
+                  state.startDate,
+                  periodTrackerBloc,
+                  state.periodTrackerModel,
                 );
               }
             },

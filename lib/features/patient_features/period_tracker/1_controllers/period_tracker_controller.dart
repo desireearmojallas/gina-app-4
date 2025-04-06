@@ -604,4 +604,55 @@ class PeriodTrackerController with ChangeNotifier {
       );
     }
   }
+
+  Future<Map<String, dynamic>> isThreeDaysBeforePrediction() async {
+    try {
+      final periodPredictionsCollection = firestore
+          .collection('patients')
+          .doc(currentUser!.uid)
+          .collection('periodPredictions');
+
+      final predictionsSnapshot = await periodPredictionsCollection.get();
+
+      if (predictionsSnapshot.docs.isEmpty) {
+        debugPrint('No period predictions found.');
+        return {
+          'isWithinRange': false,
+          'predictedStartDate': null,
+        };
+      }
+
+      // Get the nearest prediction
+      final nearestPrediction = predictionsSnapshot.docs.first;
+      final predictionData = nearestPrediction.data();
+      final DateTime predictedStartDate =
+          (predictionData['startDate'] as Timestamp).toDate();
+
+      // Check if today is within the range of 3 days before and the predicted start date
+      final DateTime today = DateTime.now();
+      final DateTime threeDaysBefore =
+          predictedStartDate.subtract(const Duration(days: 3));
+
+      final bool isWithinRange = today.isAtSameMomentAs(threeDaysBefore) ||
+          today.isAfter(threeDaysBefore) &&
+              today.isBefore(predictedStartDate.add(const Duration(days: 1)));
+
+      debugPrint('Today: $today');
+      debugPrint('Predicted Start Date: $predictedStartDate');
+      debugPrint('Three Days Before: $threeDaysBefore');
+      debugPrint(
+          'Is it within the range (3 days before to the predicted day)? $isWithinRange');
+
+      return {
+        'isWithinRange': isWithinRange,
+        'predictedStartDate': predictedStartDate,
+      };
+    } catch (e) {
+      debugPrint('Error checking if it is 3 days before prediction: $e');
+      return {
+        'isWithinRange': false,
+        'predictedStartDate': null,
+      };
+    }
+  }
 }
