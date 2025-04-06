@@ -43,22 +43,88 @@ class _ConsultationOnGoingAppointmentScreenState
 
   @override
   void initState() {
+    debugPrint('InitState - Initial isDisabled value: $isDisabled');
     super.initState();
     chatController.getChatRoom(
         chatController.generateRoomId(selectedDoctorUid), selectedDoctorUid);
+
+    bool initialAppointmentStatus = isAppointmentFinished;
+    debugPrint('Initial appointment status: $initialAppointmentStatus');
+
+    chatController.addListener(() {
+      if (isAppointmentFinished && mounted && !initialAppointmentStatus) {
+        debugPrint('Appointment finished, closing consultation screen');
+        _showConsultationEndedDialog();
+        initialAppointmentStatus = true;
+      }
+    });
+
     chatController.addListener(scrollToBottom);
     messageFN.addListener(scrollToBottom);
     checkIfDoctorMessagedFirst();
+
+    // Listen to the stream for real-time updates
+    chatController.messageStream.listen((messages) {
+      debugPrint('MessageStream - Received ${messages.length} messages');
+      debugPrint('MessageStream - Message content: $messages');
+      updateIsDisabled(messages);
+    });
+  }
+
+  void _showConsultationEndedDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Consultation Ended'),
+          content: const Text(
+            'The doctor has ended this consultation. You can still view the messages, but no new messages can be sent.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Continue Reading'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop(); // Close the consultation screen
+              },
+              child: const Text('Leave Consultation'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> checkIfDoctorMessagedFirst() async {
+    debugPrint('CheckIfDoctorMessagedFirst - Starting check...');
     final messages = await chatController.getMessagesForSpecificAppointment(
       chatroom,
       appointment.appointmentUid!,
     );
+    debugPrint(
+        'CheckIfDoctorMessagedFirst - Found ${messages.length} messages');
+    debugPrint('CheckIfDoctorMessagedFirst - Messages content: $messages');
+    updateIsDisabled(messages);
+  }
+
+  void updateIsDisabled(List<dynamic> messages) {
+    debugPrint('UpdateIsDisabled - Current isDisabled value: $isDisabled');
+    debugPrint(
+        'UpdateIsDisabled - Checking messages from doctorUid: $selectedDoctorUid');
+
+    bool hasDocMessage =
+        messages.any((message) => message.authorUid == selectedDoctorUid);
+    debugPrint('UpdateIsDisabled - Doctor has messaged: $hasDocMessage');
+
     setState(() {
-      isDisabled =
-          !messages.any((message) => message.authorUid == selectedDoctorUid);
+      isDisabled = !hasDocMessage;
+      debugPrint('UpdateIsDisabled - New isDisabled value: $isDisabled');
     });
   }
 
@@ -130,6 +196,7 @@ class _ConsultationOnGoingAppointmentScreenState
                       },
                       appointment: appointment,
                       disabled: isDisabled,
+                      chatController: chatController,
                     );
                   } else if (snapshot.data == 'empty') {
                     debugPrint(
@@ -147,7 +214,7 @@ class _ConsultationOnGoingAppointmentScreenState
                       },
                       appointment: appointment,
                       // disabled: true,
-                      disabled: isDisabled,
+                      disabled: isDisabled, chatController: chatController,
                     );
                   }
                 } else if (snapshot.hasError) {
@@ -212,5 +279,15 @@ class _ConsultationOnGoingAppointmentScreenState
         debugPrint(e.toString());
       }
     }
+  }
+
+  @override
+  void dispose() {
+    chatController.removeListener(scrollToBottom);
+    messageFN.removeListener(scrollToBottom);
+    messageController.dispose();
+    messageFN.dispose();
+    scrollController.dispose();
+    super.dispose();
   }
 }

@@ -25,6 +25,10 @@ class ChatMessageController with ChangeNotifier {
   List<ChatMessageModel> messages = [];
   Map<String, List<ChatMessageModel>> appointmentMessages = {};
   Map<String, Map<String, dynamic>> appointmentTimes = {};
+  final StreamController<List<dynamic>> _messageStreamController =
+      StreamController<List<dynamic>>.broadcast();
+  Stream<List<dynamic>> get messageStream => _messageStreamController.stream;
+  StreamSubscription? _appointmentStatusSubscription;
 
   bool _isDisposed = false;
 
@@ -53,6 +57,8 @@ class ChatMessageController with ChangeNotifier {
     authStream.cancel();
     controller.close();
     chatSub.cancel();
+    _messageStreamController.close();
+    _appointmentStatusSubscription?.cancel();
     super.dispose();
   }
 
@@ -215,6 +221,12 @@ class ChatMessageController with ChangeNotifier {
       String appointmentId = entry.key;
       sortedMessages[appointmentId] = allMessages[appointmentId]!;
       sortedTimes[appointmentId] = allTimes[appointmentId]!;
+    }
+
+    if (appointmentMessages.isNotEmpty) {
+      String latestAppointmentId = sortedEntries.last.key;
+      _messageStreamController
+          .add(appointmentMessages[latestAppointmentId] ?? []);
     }
 
     appointmentMessages = sortedMessages;
@@ -471,19 +483,27 @@ class ChatMessageController with ChangeNotifier {
   //------------------------Monitor Appointment Status------------------------
   void monitorAppointmentStatus(String appointmentId) {
     if (_isDisposed) return;
-    debugPrint(
-        'Monitoring appointment status for appointment ID: $appointmentId');
-    firestore
-        .collection('appointments') // Top-level collection
-        .doc(appointmentId) // Appointment document
+    debugPrint('Monitoring appointment status for ID: $appointmentId');
+
+    // Cancel any existing subscription
+    _appointmentStatusSubscription?.cancel();
+
+    _appointmentStatusSubscription = firestore
+        .collection('appointments')
+        .doc(appointmentId)
         .snapshots()
         .listen((snapshot) async {
       if (snapshot.exists) {
         var data = snapshot.data()!;
-        debugPrint('Appointment data: $data');
+        debugPrint('Appointment status update received: $data');
+
         // Check if the status matches "completed"
         if (data['appointmentStatus'] == AppointmentStatus.completed.index) {
-          debugPrint('Appointment status is completed');
+          debugPrint('Appointment status changed to completed');
+          isAppointmentFinished = true;
+          notifyListeners(); // Notify listeners about the status change
+
+          // Still update the end time as before
           await _updateEndTime(
               appointmentId, data['appointmentDate'], data['appointmentTime']);
         }

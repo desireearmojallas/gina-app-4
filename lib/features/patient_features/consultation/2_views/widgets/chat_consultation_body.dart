@@ -9,6 +9,7 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/consultation/1_controllers/chat_message_controllers.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/bloc/consultation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/consultation/2_views/widgets/chat_input_message_field.dart';
 import 'package:intl/intl.dart';
@@ -22,6 +23,7 @@ class ChatConsultationBody extends StatefulWidget {
   final Function(bool) onChatWaitingChanged;
   final AppointmentModel appointment;
   final bool disabled;
+  final ChatMessageController chatController;
   const ChatConsultationBody({
     super.key,
     required this.messageFN,
@@ -32,6 +34,7 @@ class ChatConsultationBody extends StatefulWidget {
     required this.onChatWaitingChanged,
     required this.appointment,
     required this.disabled,
+    required this.chatController,
   });
 
   @override
@@ -41,13 +44,20 @@ class ChatConsultationBody extends StatefulWidget {
 class _ChatConsultationBodyState extends State<ChatConsultationBody> {
   late Timer _timer;
   bool _isLoading = false;
+  bool _isAppointmentFinished = false;
 
   AppointmentModel get appointment => widget.appointment;
   bool get disabled => widget.disabled;
+  ChatMessageController get chatController => widget.chatController;
 
   @override
   void initState() {
     super.initState();
+
+    _isAppointmentFinished = isAppointmentFinished;
+
+    chatController.addListener(_handleControllerChanges);
+
     _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
       final currentTime = DateFormat('hh:mm a').format(DateTime.now());
       final appointmentStartTime = storedAppointmentTime!.split(' - ')[0];
@@ -86,9 +96,21 @@ class _ChatConsultationBodyState extends State<ChatConsultationBody> {
     });
   }
 
+  void _handleControllerChanges() {
+    // Update local state when controller changes
+    if (mounted && _isAppointmentFinished != isAppointmentFinished) {
+      setState(() {
+        _isAppointmentFinished = isAppointmentFinished;
+      });
+      debugPrint(
+          'Appointment finished status updated: $_isAppointmentFinished');
+    }
+  }
+
   @override
   void dispose() {
     _timer.cancel();
+    chatController.removeListener(_handleControllerChanges);
     super.dispose();
   }
 
@@ -111,8 +133,8 @@ class _ChatConsultationBodyState extends State<ChatConsultationBody> {
               ],
             ),
           ],
-          if ((isFromChatRoomLists && isAppointmentFinished) ||
-              isAppointmentFinished)
+          if ((isFromChatRoomLists && _isAppointmentFinished) ||
+              _isAppointmentFinished)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20.0),
               child: Container(
