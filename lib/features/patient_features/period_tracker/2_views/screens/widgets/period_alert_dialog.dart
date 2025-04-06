@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/bloc/period_tracker_bloc.dart';
@@ -13,7 +14,19 @@ class PeriodAlertDialog {
     List<PeriodTrackerModel> periodTrackerModel,
   ) {
     final random = Random();
-    final int daysUntilPeriod = startDate.difference(DateTime.now()).inDays;
+    final int daysUntilPeriod = DateTime(
+      startDate.year,
+      startDate.month,
+      startDate.day,
+    )
+        .difference(
+          DateTime(
+            DateTime.now().year,
+            DateTime.now().month,
+            DateTime.now().day,
+          ),
+        )
+        .inDays;
 
     // Messages for each day before the period
     List<String> messages = [
@@ -93,20 +106,20 @@ class PeriodAlertDialog {
                     color: GinaAppTheme.lightTertiaryContainer,
                     size: 24,
                   ),
-                  const SizedBox(
-                      width: 10), // Space between icon and title text
-                  SizedBox(
-                    width: 200,
-                    child: Flexible(
-                      child: Text(
-                        periodReminder, // Use periodReminder as the title
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: GinaAppTheme.lightTertiaryContainer,
-                        ),
-                      ),
+                  const Gap(10), // Space between the icon and the text
+                  Text(
+                    periodReminder, // Use periodReminder as the title
+                    style: TextStyle(
+                      fontSize: (daysUntilPeriod == 3 ||
+                              daysUntilPeriod == 2 ||
+                              daysUntilPeriod == 1)
+                          ? 19
+                          : 20, // Adjust font size
+                      fontWeight: FontWeight.bold,
+                      color: GinaAppTheme.lightTertiaryContainer,
                     ),
+                    overflow:
+                        TextOverflow.ellipsis, // Ensure text stays on one line
                   ),
                 ],
               ),

@@ -125,26 +125,30 @@ class PeriodTrackerBloc extends Bloc<PeriodTrackerEvent, PeriodTrackerState> {
       );
 
       // Uncomment this block for real implementation
-      /*
-      final result = await periodTrackerController.isThreeDaysBeforePrediction();
-      final bool isWithinRange = result['isWithinRange'];
-      final DateTime? predictedStartDate = result['predictedStartDate'];
-  
-      if (isWithinRange && predictedStartDate != null) {
-        emit(
-          DisplayDialogUpcomingPeriodState(
-            startDate: predictedStartDate,
-            periodTrackerModel: fetchedPeriodTrackerModel, // Pass the model
-          ),
-        );
-      }
-      */
+
+      // final result =
+      //     await periodTrackerController.isThreeDaysBeforePrediction();
+      // final bool isWithinRange = result['isWithinRange'];
+      // final DateTime? predictedStartDate = result['predictedStartDate'];
+
+      // if (isWithinRange && predictedStartDate != null) {
+      //   emit(
+      //     DisplayDialogUpcomingPeriodState(
+      //       startDate: predictedStartDate,
+      //       periodTrackerModel: fetchedPeriodTrackerModel, // Pass the model
+      //     ),
+      //   );
+      // }
+
+      //------------------------------------------------------------------------
 
       // Dummy data for testing
-      final DateTime dummyStartDate =
-          DateTime.now().add(const Duration(days: 3));
 
-      // final DateTime dummyStartDate = DateTime.now();
+      // final DateTime dummyStartDate =
+      //     DateTime.now().add(const Duration(days: 3));
+
+      final DateTime dummyStartDate = DateTime.now();
+
       emit(
         DisplayDialogUpcomingPeriodState(
           startDate: dummyStartDate,

@@ -77,7 +77,7 @@ Map<String, WidgetBuilder> ginaAppRoutes() {
     '/forumsCreatePost': (context) => CreatePostScreenState(),
     '/myForumsPost': (context) => const MyForumsScreenProvider(),
     '/appointments': (context) => const AppointmentScreenProvider(),
-    '/periodTracker': (context) => const PeriodTrackerScreenProvider(),
+    '/periodTracker': (context) => PeriodTrackerScreenProvider(),
 
     // Doctor Routes
     '/doctorBottomNavigation': (context) =>

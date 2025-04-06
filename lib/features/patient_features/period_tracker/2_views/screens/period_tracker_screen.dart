@@ -5,6 +5,7 @@ import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/gina_patient_app_bar/gina_patient_app_bar.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
+import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/bloc/period_tracker_bloc.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/screens/view_states/period_tracker_edit_dates_screen.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/2_views/screens/view_states/period_tracker_initial_screen.dart';
@@ -12,16 +13,29 @@ import 'package:gina_app_4/features/patient_features/period_tracker/2_views/scre
 import 'package:intl/intl.dart';
 
 class PeriodTrackerScreenProvider extends StatelessWidget {
-  const PeriodTrackerScreenProvider({super.key});
+  final bool shouldTriggerEdit;
+  List<PeriodTrackerModel> periodTrackerModel = [];
+
+  PeriodTrackerScreenProvider({
+    super.key,
+    this.shouldTriggerEdit = false,
+    this.periodTrackerModel = const [],
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<PeriodTrackerBloc>(
       create: (context) {
         final periodTrackerBloc = sl<PeriodTrackerBloc>();
-        periodDates.clear();
-        periodTrackerBloc.add(GetFirstMenstrualPeriodDatesEvent());
-        periodTrackerBloc.add(DisplayDialogUpcomingPeriodEvent());
+
+        if (shouldTriggerEdit) {
+          periodTrackerBloc.add(NavigateToPeriodTrackerEditDatesEvent(
+            periodTrackerModel: periodTrackerModel,
+          ));
+        } else {
+          periodTrackerBloc.add(GetFirstMenstrualPeriodDatesEvent());
+        }
+
         return periodTrackerBloc;
       },
       child: const PeriodTrackerScreen(),
@@ -97,13 +111,13 @@ class PeriodTrackerScreen extends StatelessWidget {
                     );
                   },
                 );
-              } else if (state is DisplayDialogUpcomingPeriodState) {
-                PeriodAlertDialog.showPeriodAlertDialog(
-                  context,
-                  state.startDate,
-                  periodTrackerBloc,
-                  state.periodTrackerModel,
-                );
+                // } else if (state is DisplayDialogUpcomingPeriodState) {
+                //   PeriodAlertDialog.showPeriodAlertDialog(
+                //     context,
+                //     state.startDate,
+                //     periodTrackerBloc,
+                //     state.periodTrackerModel,
+                //   );
               }
             },
             builder: (context, state) {
