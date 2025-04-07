@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/approved_state/screens/view_states/approved_request_details_screen_state.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
@@ -70,17 +72,71 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
         GestureDetector(
           onTap: () async {
             if (upcomingAppointment?.appointmentUid != null) {
+              // Show loading indicator
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const Center(
+                  child: CustomLoadingIndicator(
+                    colors: [Colors.white],
+                  ),
+                ),
+              );
+
+              // Fetch patient periods directly
+              List<PeriodTrackerModel> fetchedPeriods = [];
+              if (upcomingAppointment!.patientUid != null) {
+                final patientPeriodsResult = await homeDashboardBloc
+                    .doctorHomeDashboardController
+                    .getPatientPeriods(upcomingAppointment!.patientUid!);
+
+                patientPeriodsResult.fold(
+                  (failure) {
+                    debugPrint('Failed to fetch patient periods: $failure');
+                  },
+                  (periods) {
+                    fetchedPeriods = periods;
+                    debugPrint(
+                        'Successfully fetched ${periods.length} patient periods for upcoming appointment');
+
+                    // Store in global variable for potential use elsewhere
+                    patientPeriodsForPatientDataMenu = periods;
+
+                    // Debug log to inspect periods data
+                    if (periods.isNotEmpty) {
+                      debugPrint(
+                          'First period: startDate=${periods.first.startDate}, endDate=${periods.first.endDate}');
+                    }
+                  },
+                );
+              }
+
               // Fetch completed appointments
               final completedAppointmentsResult = await homeDashboardBloc
                   .doctorHomeDashboardController
                   .getCompletedAppointments();
 
+              // Close loading dialog
+              Navigator.pop(context);
+
               completedAppointmentsResult.fold(
                 (failure) {
                   debugPrint(
                       'Failed to fetch completed appointments: $failure');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text('Error loading appointments: $failure')),
+                  );
                 },
                 (completedAppointments) {
+                  // Use the freshly fetched periods instead of the prop
+                  final periodsToUse = fetchedPeriods.isNotEmpty
+                      ? fetchedPeriods
+                      : patientPeriods;
+
+                  debugPrint(
+                      'Navigating with ${periodsToUse.length} patient periods');
+
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return ApprovedRequestDetailsScreenState(
                       appointment: upcomingAppointment!,
@@ -89,7 +145,7 @@ class UpcomingAppointmentsNavigationWidget extends StatelessWidget {
                       completedAppointments: completedAppointments.values
                           .expand((appointments) => appointments)
                           .toList(),
-                      patientPeriods: patientPeriods,
+                      patientPeriods: periodsToUse,
                     );
                   }));
                 },

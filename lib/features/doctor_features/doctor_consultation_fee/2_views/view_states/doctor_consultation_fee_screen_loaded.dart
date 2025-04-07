@@ -6,6 +6,8 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/bloc/doctor_consultation_fee_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_name_widget.dart';
+import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/doctor_manage_xendit_account.dart';
+import 'package:intl/intl.dart';
 
 class ToggleValue extends ValueNotifier<bool> {
   ToggleValue(super.value);
@@ -35,7 +37,29 @@ class DoctorConsultationFeeScreenLoaded extends StatelessWidget {
       child: Column(
         children: [
           doctorNameWidget(size, ginaTheme, doctorData),
-          const Gap(5),
+
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.fromLTRB(10, 15, 10, 10),
+                  child: Text(
+                    'Create/Manage Xendit account to receive payments from patients.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: GinaAppTheme.lightOutline,
+                    ),
+                  ),
+                ),
+                Gap(5),
+                DoctorManageXenditAccount(),
+              ],
+            ),
+          ),
+          const Gap(20),
+
           Container(
             decoration: const BoxDecoration(
               color: Colors.white,
@@ -129,7 +153,7 @@ class DoctorConsultationFeeScreenLoaded extends StatelessWidget {
                                       Text(
                                         doctorData.f2fInitialConsultationPrice !=
                                                 null
-                                            ? '₱${doctorData.f2fInitialConsultationPrice?.toStringAsFixed(2)}'
+                                            ? '₱${NumberFormat('#,##0.00').format(doctorData.f2fInitialConsultationPrice!)}'
                                             : '₱0.00',
                                         style: ginaTheme.bodyMedium?.copyWith(
                                           fontWeight: FontWeight.bold,
@@ -157,7 +181,7 @@ class DoctorConsultationFeeScreenLoaded extends StatelessWidget {
                                       Text(
                                         doctorData.f2fFollowUpConsultationPrice !=
                                                 null
-                                            ? '₱${doctorData.olInitialConsultationPrice?.toStringAsFixed(2)}'
+                                            ? '₱${NumberFormat('#,##0.00').format(doctorData.olInitialConsultationPrice!)}'
                                             : '₱0.00',
                                         style: ginaTheme.bodyMedium?.copyWith(
                                           fontWeight: FontWeight.bold,
@@ -170,111 +194,14 @@ class DoctorConsultationFeeScreenLoaded extends StatelessWidget {
                             ),
                           ],
                         ),
-
-                        const Gap(300),
-
-                        // const Gap(10),
-                        // Column(
-                        //   children: [
-                        //     Container(
-                        //       alignment: Alignment.centerLeft,
-                        //       padding: const EdgeInsets.symmetric(
-                        //           horizontal: 30.0, vertical: 10.0),
-                        //       child: Text(
-                        //         'Online Consultation'.toUpperCase(),
-                        //         style: ginaTheme.titleMedium?.copyWith(
-                        //           fontWeight: FontWeight.bold,
-                        //           fontSize: 11,
-                        //         ),
-                        //       ),
-                        //     ),
-                        //     Container(
-                        //       height: size.height * 0.15,
-                        //       width: size.width * 0.92,
-                        //       padding: const EdgeInsets.all(30.0),
-                        //       decoration: BoxDecoration(
-                        //         color: Colors.white,
-                        //         borderRadius: BorderRadius.circular(10),
-                        //       ),
-                        //       child: Column(
-                        //         crossAxisAlignment: CrossAxisAlignment.center,
-                        //         mainAxisAlignment: MainAxisAlignment.center,
-                        //         children: [
-                        //           Row(
-                        //             mainAxisAlignment: MainAxisAlignment
-                        //                 .spaceBetween, //space evenly
-                        //             children: [
-                        //               Text(
-                        //                 'Initial consultation',
-                        //                 style: ginaTheme.bodyMedium?.copyWith(
-                        //                   fontWeight: FontWeight.w500,
-                        //                   color: GinaAppTheme.lightOutline,
-                        //                 ),
-                        //               ),
-                        //               Text(
-                        //                 doctorData.olInitialConsultationPrice !=
-                        //                         null
-                        //                     ? '₱${doctorData.olInitialConsultationPrice?.toStringAsFixed(2)}'
-                        //                     : '₱0.00',
-                        //                 style: ginaTheme.bodyMedium?.copyWith(
-                        //                   fontWeight: FontWeight.bold,
-                        //                 ),
-                        //               ),
-                        //             ],
-                        //           ),
-                        //           const Gap(10),
-                        //           const Divider(
-                        //             thickness: 0.5,
-                        //             color: GinaAppTheme.lightOutline,
-                        //           ),
-                        //           const Gap(10),
-                        //           Row(
-                        //             mainAxisAlignment: MainAxisAlignment
-                        //                 .spaceBetween, //space evenly
-                        //             children: [
-                        //               Text(
-                        //                 'Follow-up consultation',
-                        //                 style: ginaTheme.bodyMedium?.copyWith(
-                        //                   fontWeight: FontWeight.w500,
-                        //                   color: GinaAppTheme.lightOutline,
-                        //                 ),
-                        //               ),
-                        //               Text(
-                        //                 doctorData.olFollowUpConsultationPrice !=
-                        //                         null
-                        //                     ? '₱${doctorData.olFollowUpConsultationPrice?.toStringAsFixed(2)}'
-                        //                     : '₱0.00',
-                        //                 style: ginaTheme.bodyMedium?.copyWith(
-                        //                   fontWeight: FontWeight.bold,
-                        //                 ),
-                        //               ),
-                        //             ],
-                        //           ),
-                        //         ],
-                        //       ),
-                        //     ),
-                        //   ],
-                        // ),
-                        // const Gap(5),
-                        // Padding(
-                        //   padding: const EdgeInsets.symmetric(
-                        //       vertical: 20.0, horizontal: 35.0),
-                        //   child: Text(
-                        //     'Please note that the price list is for information only and there will be no payment handling inside the app.',
-                        //     textAlign: TextAlign.center,
-                        //     style: ginaTheme.bodySmall?.copyWith(
-                        //       color: GinaAppTheme.lightOutline,
-                        //     ),
-                        //   ),
-                        // ),
-                        // const Gap(10),
+                        const Gap(180),
                       ],
                     )
                   : Column(
                       children: [
                         Image.asset(
                           Images.hiddenConsultationFeeIllustration,
-                          width: size.width * 0.65,
+                          width: size.width * 0.5,
                         ),
                         const Gap(20),
                         Text(
@@ -292,11 +219,12 @@ class DoctorConsultationFeeScreenLoaded extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const Gap(55),
+                        const Gap(45),
                       ],
                     );
             }),
           ),
+
           SizedBox(
             height: size.height * 0.06,
             width: size.width * 0.9,

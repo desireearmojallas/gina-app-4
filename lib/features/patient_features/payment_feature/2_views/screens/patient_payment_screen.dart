@@ -15,7 +15,7 @@ class PatientPaymentScreenProvider extends StatelessWidget {
   final String patientName;
   final String modeOfAppointment;
   final double amount;
-  final DateTime appointmentDate;
+  final String appointmentDate;
 
   const PatientPaymentScreenProvider({
     super.key,
@@ -52,7 +52,7 @@ class PatientPaymentScreen extends StatelessWidget {
   final String patientName;
   final String modeOfAppointment;
   final double amount;
-  final DateTime appointmentDate;
+  final String appointmentDate;
 
   const PatientPaymentScreen({
     super.key,

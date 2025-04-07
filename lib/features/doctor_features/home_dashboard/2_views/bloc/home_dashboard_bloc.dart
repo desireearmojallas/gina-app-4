@@ -198,6 +198,7 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
         },
         (periods) {
           patientPeriods = periods;
+          debugPrint('Home Dashboard Bloc - Fetched patient periods: $periods');
         },
       );
     }

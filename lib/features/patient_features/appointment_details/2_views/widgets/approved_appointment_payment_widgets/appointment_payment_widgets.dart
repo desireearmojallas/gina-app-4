@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/approved_appointment_payment_widgets/upload_payment_receipt_widgets/upload_payment_receipt_screen.dart';
-import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/approved_appointment_payment_widgets/view_bank_details_widgets/view_bank_details_screen.dart';
 import 'package:gina_app_4/features/patient_features/payment_feature/2_views/screens/patient_payment_screen.dart';
 
 class AppointmentPaymentWidgets extends StatelessWidget {
@@ -11,7 +10,7 @@ class AppointmentPaymentWidgets extends StatelessWidget {
   final String patientName;
   final String consultationType;
   final double amount;
-  final DateTime appointmentDate;
+  final String appointmentDate;
 
   const AppointmentPaymentWidgets({
     super.key,

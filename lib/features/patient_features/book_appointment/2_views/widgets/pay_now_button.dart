@@ -17,7 +17,7 @@ class PayNowButton extends StatelessWidget {
   final String patientName;
   final int modeOfAppointment;
   final double amount;
-  final DateTime appointmentDate;
+  final String appointmentDate;
   final Function(String)? onPaymentCreated;
 
   const PayNowButton({
@@ -192,7 +192,7 @@ class PayNowButton extends StatelessWidget {
                           const Gap(8),
                           _buildReceiptRow(
                             'Date',
-                            DateFormat('MMMM d, yyyy').format(appointmentDate),
+                            appointmentDate,
                             context,
                           ),
                           const Gap(8),

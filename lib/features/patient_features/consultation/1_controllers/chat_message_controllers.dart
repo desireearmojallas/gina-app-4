@@ -589,4 +589,28 @@ class ChatMessageController with ChangeNotifier {
 
     return messages;
   }
+
+  // Add this method to the ChatMessageController class
+  Stream<AppointmentModel> getAppointmentStatusStream(String appointmentId) {
+    if (_isDisposed) return Stream.empty();
+    debugPrint(
+        'Patient: Starting appointment status stream for ID: $appointmentId');
+
+    return firestore
+        .collection('appointments')
+        .doc(appointmentId)
+        .snapshots()
+        .map((snapshot) {
+      if (!snapshot.exists) {
+        debugPrint('Patient: Appointment not found in stream: $appointmentId');
+        throw Exception('Appointment not found');
+      }
+
+      var data = snapshot.data()!;
+      debugPrint(
+          'Patient: Real-time appointment update received: Status=${data['appointmentStatus']}');
+
+      return AppointmentModel.fromDocumentSnap(snapshot);
+    });
+  }
 }

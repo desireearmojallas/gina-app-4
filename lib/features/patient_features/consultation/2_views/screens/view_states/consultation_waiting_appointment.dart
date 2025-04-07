@@ -45,6 +45,9 @@ class ConsultationWaitingAppointmentScreen extends StatelessWidget {
                       size: size,
                       appointment: appointment,
                       ginaTheme: ginaTheme,
+                      doctorConsultationBloc: doctorConsultationBloc,
+                      patientConsultationBloc: patientConsultationBloc,
+                      isDoctor: isDoctor!,
                     ),
                     GinaDivider(
                       space: 3,
@@ -253,11 +256,17 @@ class AppointmentCard extends StatelessWidget {
     required this.size,
     required this.appointment,
     required this.ginaTheme,
+    required this.isDoctor,
+    required this.doctorConsultationBloc,
+    required this.patientConsultationBloc,
   });
 
   final Size size;
   final AppointmentModel appointment;
   final TextTheme ginaTheme;
+  final bool isDoctor;
+  final DoctorConsultationBloc doctorConsultationBloc;
+  final ConsultationBloc patientConsultationBloc;
 
   @override
   Widget build(BuildContext context) {
@@ -304,8 +313,40 @@ class AppointmentCard extends StatelessWidget {
                       ],
                     ),
                     const Spacer(),
-                    AppointmentStatusContainer(
-                      appointmentStatus: appointment.appointmentStatus!,
+                    StreamBuilder<AppointmentModel>(
+                      stream: isDoctor
+                          ? doctorConsultationBloc.doctorAppointmentStream(
+                              appointment.appointmentUid!)
+                          : patientConsultationBloc.patientAppointmentStream(
+                              appointment.appointmentUid!),
+                      initialData: appointment,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const SizedBox(
+                            height: 25,
+                            width: 25,
+                            child: CircularProgressIndicator.adaptive(
+                                strokeWidth: 2),
+                          );
+                        }
+
+                        if (snapshot.hasError) {
+                          debugPrint(
+                              'Error in appointment stream: ${snapshot.error}');
+                          // Fallback to the original status if there's an error
+                          return AppointmentStatusContainer(
+                            appointmentStatus: appointment.appointmentStatus!,
+                          );
+                        }
+
+                        // Use the updated appointment status from the stream
+                        final updatedAppointment = snapshot.data!;
+                        return AppointmentStatusContainer(
+                          appointmentStatus:
+                              updatedAppointment.appointmentStatus!,
+                        );
+                      },
                     ),
                   ],
                 ),

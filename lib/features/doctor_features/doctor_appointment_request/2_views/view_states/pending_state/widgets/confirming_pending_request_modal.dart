@@ -6,6 +6,7 @@ import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/approved_state/screens/view_states/approved_request_details_screen_state.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/declined_state/screens/view_states/declined_request_details_screen_state.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/pending_state/bloc/pending_request_state_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
@@ -20,20 +21,22 @@ Future<dynamic> showConfirmingPendingRequestDialog(
   required List<AppointmentModel> completedAppointments,
   required List<PeriodTrackerModel> patientPeriods,
 }) {
+  // Capture the blocs immediately to avoid context issues later
   final pendingRequestStateBloc = context.read<PendingRequestStateBloc>();
   final homeDashboardBloc = context.read<HomeDashboardBloc>();
 
+  // Also fetch the periods immediately before showing the dialog
+  final directPatientUid = appointment.patientUid;
+  // We'll use this to get fresh periods data
+
   // Debug prints to check the values of patientData
   debugPrint('Parent Patient Name: ${patientData.name}');
-  debugPrint('Parent Patient Date of Birth: ${patientData.dateOfBirth}');
-  debugPrint('Parent Patient Gender: ${patientData.gender}');
-  debugPrint('Parent Patient Address: ${patientData.address}');
-  debugPrint('Parent Patient Email: ${patientData.email}');
-  debugPrint('Updating Firebase for Appointment ID: $appointmentId');
+  debugPrint('Parent Patient UID: ${directPatientUid}');
+  debugPrint('Periods count being passed: ${patientPeriods.length}');
 
   return showDialog(
     context: context,
-    builder: (context) => AlertDialog(
+    builder: (dialogContext) => AlertDialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
@@ -52,7 +55,7 @@ Future<dynamic> showConfirmingPendingRequestDialog(
             Text(
               'Please confirm your action.',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              style: Theme.of(dialogContext).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
@@ -63,18 +66,20 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                   const Gap(30),
                   Text(
                     '• Approving the appointment request will add it to your schedule.',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: GinaAppTheme.lightOutline,
-                        ),
+                    style:
+                        Theme.of(dialogContext).textTheme.labelMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: GinaAppTheme.lightOutline,
+                            ),
                   ),
                   const Gap(10),
                   Text(
                     '• Declining will inform the patient that their request has been cancelled.',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: GinaAppTheme.lightOutline,
-                        ),
+                    style:
+                        Theme.of(dialogContext).textTheme.labelMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: GinaAppTheme.lightOutline,
+                            ),
                   ),
                 ],
               ),
@@ -82,7 +87,7 @@ Future<dynamic> showConfirmingPendingRequestDialog(
             const Gap(40),
             SizedBox(
               height: 45,
-              width: MediaQuery.of(context).size.width * 0.7,
+              width: MediaQuery.of(dialogContext).size.width * 0.7,
               child: OutlinedButton(
                 style: ButtonStyle(
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -92,24 +97,49 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                   ),
                 ),
                 onPressed: () async {
+                  // Store these values for later use
                   storedAppointment = appointment;
                   storedPatientData = patientData;
 
+                  // First close the dialog to avoid context issues
+                  Navigator.of(dialogContext).pop();
+
+                  // Add the approval event
                   pendingRequestStateBloc.add(
                       ApproveAppointmentEvent(appointmentId: appointmentId));
 
-                  if (isFromHomePendingRequest == true) {
-                    final completedAppointmentsResult = await homeDashboardBloc
-                        .doctorHomeDashboardController
-                        .getCompletedAppointments();
+                  // Fetch fresh completed appointments - after the dialog is closed
+                  final completedAppointmentsResult = await homeDashboardBloc
+                      .doctorHomeDashboardController
+                      .getCompletedAppointments();
 
-                    completedAppointmentsResult.fold(
-                      (failure) {
-                        debugPrint(
-                            'Failed to fetch completed appointments: $failure');
-                      },
-                      (completedAppointments) {
-                        Navigator.pushReplacement(context,
+                  // Fetch fresh periods data
+                  List<PeriodTrackerModel> freshPatientPeriods = patientPeriods;
+                  if (directPatientUid != null) {
+                    final periodsResult = await homeDashboardBloc
+                        .doctorHomeDashboardController
+                        .getPatientPeriods(directPatientUid);
+
+                    periodsResult.fold((failure) {
+                      debugPrint('Failed to fetch fresh periods: $failure');
+                    }, (periods) {
+                      debugPrint('Fresh periods fetched: ${periods.length}');
+                      freshPatientPeriods = periods;
+                      // Update global variable
+                      patientPeriodsForPatientDataMenu = periods;
+                    });
+                  }
+
+                  completedAppointmentsResult.fold(
+                    (failure) {
+                      debugPrint(
+                          'Failed to fetch completed appointments: $failure');
+                    },
+                    (completedAppointments) {
+                      // Handle navigation with the fresh data
+                      if (isFromHomePendingRequest == true) {
+                        // If we came from home screen, use pushReplacement and refresh home after
+                        Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
                           return ApprovedRequestDetailsScreenState(
                             appointment: appointment,
@@ -118,24 +148,16 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                             completedAppointments: completedAppointments.values
                                 .expand((appointments) => appointments)
                                 .toList(),
-                            patientPeriods: patientPeriods,
+                            patientPeriods: freshPatientPeriods,
                           );
-                        })).then((value) =>
-                            homeDashboardBloc.add(const HomeInitialEvent()));
-                      },
-                    );
-                  } else {
-                    Navigator.pop(context);
-                    final completedAppointmentsResult = await homeDashboardBloc
-                        .doctorHomeDashboardController
-                        .getCompletedAppointments();
-
-                    completedAppointmentsResult.fold(
-                      (failure) {
-                        debugPrint(
-                            'Failed to fetch completed appointments: $failure');
-                      },
-                      (completedAppointments) {
+                        })).then((_) {
+                          // Only add the event if the context is still valid
+                          if (context.mounted) {
+                            homeDashboardBloc.add(const HomeInitialEvent());
+                          }
+                        });
+                      } else {
+                        // Regular flow - just push the new screen
                         Navigator.pushReplacement(context,
                             MaterialPageRoute(builder: (context) {
                           return ApprovedRequestDetailsScreenState(
@@ -145,25 +167,26 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                             completedAppointments: completedAppointments.values
                                 .expand((appointments) => appointments)
                                 .toList(),
-                            patientPeriods: patientPeriods,
+                            patientPeriods: freshPatientPeriods,
                           );
                         }));
-                      },
-                    );
-                  }
+                      }
+                    },
+                  );
                 },
                 child: Text(
                   'Approve',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                  style:
+                      Theme.of(dialogContext).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                 ),
               ),
             ),
             const Gap(15),
             SizedBox(
               height: 45,
-              width: MediaQuery.of(context).size.width * 0.7,
+              width: MediaQuery.of(dialogContext).size.width * 0.7,
               child: OutlinedButton(
                 style: ButtonStyle(
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -176,6 +199,10 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                   storedAppointment = appointment;
                   storedPatientData = patientData;
 
+                  // First close the dialog
+                  Navigator.of(dialogContext).pop();
+
+                  // Then handle the decline action
                   pendingRequestStateBloc.add(
                       DeclineAppointmentEvent(appointmentId: appointmentId));
 
@@ -188,10 +215,13 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                           appointmentStatus: 4,
                         );
                       },
-                    )).then((value) =>
-                        homeDashboardBloc.add(const HomeInitialEvent()));
+                    )).then((value) {
+                      // Only add the event if the context is still valid
+                      if (context.mounted) {
+                        homeDashboardBloc.add(const HomeInitialEvent());
+                      }
+                    });
                   } else {
-                    Navigator.pop(context);
                     Navigator.pushReplacement(context, MaterialPageRoute(
                       builder: (context) {
                         return DeclinedRequestDetailsScreenState(
@@ -205,9 +235,10 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                 },
                 child: Text(
                   'Decline',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                  style:
+                      Theme.of(dialogContext).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                 ),
               ),
             ),

@@ -24,6 +24,7 @@ bool isF2FSession = false;
 bool f2fAppointmentStarted = false;
 bool f2fAppointmentEnded = false;
 List<AppointmentModel>? completedAppointmentsForPatientDataMenu;
+List<PeriodTrackerModel>? patientPeriodsForPatientDataMenu;
 
 class DoctorConsultationBloc
     extends Bloc<DoctorConsultationEvent, DoctorConsultationState> {
@@ -207,6 +208,10 @@ class DoctorConsultationBloc
 
   FutureOr<void> navigateToPatientDataEvent(NavigateToPatientDataEvent event,
       Emitter<DoctorConsultationState> emit) async {
+    debugPrint(
+        'PERIODS TRACE: NavigateToPatientData handler received periods: ${event.patientPeriods.length}');
+
+    // Fetch patient data which may contain periods
     final patientData = await doctorAppointmentRequestController
         .getDoctorPatients(patientUid: event.appointment.patientUid!);
 
@@ -225,15 +230,76 @@ class DoctorConsultationBloc
           emit(DoctorConsultationErrorAppointmentState(
               message: failure.toString()));
         }, (completedAppointments) {
+          // Determine which periods data to use
+          List<PeriodTrackerModel> periodsToUse = [];
+
+          // Check if periods came from the consultation menu
+          if (event.patientPeriods.isNotEmpty) {
+            // Use periods from the event (consultation menu path)
+            debugPrint(
+                'PERIODS TRACE: Using periods from event: ${event.patientPeriods.length}');
+            periodsToUse = event.patientPeriods;
+          }
+          // Check if periods exist in patientData
+          else if (patientData.patientPeriods.isNotEmpty) {
+            // Use periods from patientData (e-consult path)
+            debugPrint(
+                'PERIODS TRACE: Using periods from patientData: ${patientData.patientPeriods.length}');
+            periodsToUse = patientData.patientPeriods;
+          }
+          // Use global variable as last resort
+          else if (patientPeriodsForPatientDataMenu != null &&
+              patientPeriodsForPatientDataMenu!.isNotEmpty) {
+            debugPrint(
+                'PERIODS TRACE: Using global periods: ${patientPeriodsForPatientDataMenu!.length}');
+            periodsToUse = patientPeriodsForPatientDataMenu!;
+          }
+          // If all else fails, try fetching periods directly
+          else {
+            debugPrint(
+                'PERIODS TRACE: All periods sources empty, will fetch directly');
+            // Store for potential async fetch - will be empty initially
+            periodsToUse = [];
+
+            // Start an async fetch that doesn't block navigation
+            _fetchPeriodsForPatientAsync(event.appointment.patientUid!);
+          }
+
+          // Update the global variable for future reference
+          patientPeriodsForPatientDataMenu = periodsToUse;
+
+          debugPrint(
+              'PERIODS TRACE: Final periods count for navigation: ${periodsToUse.length}');
+
           emit(NavigateToPatientDataState(
             patientData: event.patientData,
             appointment: event.appointment,
-            patientPeriods: patientData.patientPeriods,
+            patientPeriods: periodsToUse,
             patientAppointments: completedAppointments,
           ));
         });
       },
     );
+  }
+
+  // Helper method to fetch periods asynchronously without blocking navigation
+  Future<void> _fetchPeriodsForPatientAsync(String patientUid) async {
+    debugPrint('PERIODS TRACE: Attempting to fetch periods asynchronously');
+    try {
+      final periodsResult = await doctorAppointmentRequestController
+          .getPatientPeriods(patientUid);
+
+      periodsResult.fold((failure) {
+        debugPrint('PERIODS TRACE: Async fetch failed: $failure');
+      }, (periods) {
+        debugPrint(
+            'PERIODS TRACE: Async fetch succeeded: ${periods.length} periods');
+        // Update global variable for future use
+        patientPeriodsForPatientDataMenu = periods;
+      });
+    } catch (e) {
+      debugPrint('PERIODS TRACE: Exception during async periods fetch: $e');
+    }
   }
 
   FutureOr<void> checkStatusEvent(DoctorConsultationCheckStatusEvent event,
@@ -294,5 +360,10 @@ class DoctorConsultationBloc
         emit(DoctorConsultationF2FSessionEndedState());
       },
     );
+  }
+
+  Stream<AppointmentModel> doctorAppointmentStream(String appointmentId) {
+    return doctorChatMessageController
+        .getAppointmentStatusStream(appointmentId);
   }
 }

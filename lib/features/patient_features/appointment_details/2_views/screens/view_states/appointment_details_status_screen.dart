@@ -81,18 +81,16 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                         ],
                       ),
 
-                [1].contains(appointment.appointmentStatus!)
-                    ? AppointmentPaymentWidgets(
-                        appointmentId: appointment.appointmentUid ?? '',
-                        doctorName: doctorDetails.name,
-                        patientName: appointment.patientName ?? '',
-                        consultationType: appointment.consultationType ?? '',
-                        amount: appointment.amount ?? 0.0,
-                        appointmentDate:
-                            appointment.appointmentDate as DateTime? ??
-                                DateTime.now(),
-                      )
-                    : const SizedBox.shrink(),
+                // [1].contains(appointment.appointmentStatus!)
+                //     ? AppointmentPaymentWidgets(
+                //         appointmentId: appointment.appointmentUid ?? '',
+                //         doctorName: doctorDetails.name,
+                //         patientName: appointment.patientName ?? '',
+                //         consultationType: appointment.consultationType ?? '',
+                //         amount: appointment.amount ?? 0.0,
+                //         appointmentDate: appointment.appointmentDate!,
+                //       )
+                //     : const SizedBox.shrink(),
 
                 appointmentDetailsContent(
                   labelStyle,
@@ -384,7 +382,11 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                   Icons.payment,
                   'Payment Details',
                 ),
-                _buildPaymentDetails(appointment),
+                _buildPaymentDetails(
+                  appointment,
+                  labelStyle!,
+                  valueStyle!,
+                ),
                 divider,
                 headerWidget(
                   Icons.person_3,
@@ -467,7 +469,11 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPaymentDetails(AppointmentModel appointment) {
+  Widget _buildPaymentDetails(
+    AppointmentModel appointment,
+    TextStyle labelStyle,
+    TextStyle valueStyle,
+  ) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('appointments')
@@ -485,12 +491,14 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        final paymentData = snapshot.data!.docs.first.data() as Map<String, dynamic>;
+        final paymentData =
+            snapshot.data!.docs.first.data() as Map<String, dynamic>;
         final paymentStatus = paymentData['status'] as String? ?? '';
         final refundStatus = paymentData['refundStatus'] as String?;
         final amount = paymentData['amount'] as double? ?? 0.0;
         final refundAmount = paymentData['refundAmount'] as double?;
-        final paymentMethod = paymentData['paymentMethod'] as String? ?? 'Xendit';
+        final paymentMethod =
+            paymentData['paymentMethod'] as String? ?? 'Xendit';
         final invoiceId = paymentData['invoiceId'] as String?;
         final linkedAt = paymentData['linkedAt'] as Timestamp?;
 
@@ -503,9 +511,7 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
               children: [
                 Text(
                   'Amount Paid',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                  style: labelStyle,
                 ),
                 Text(
                   '₱${NumberFormat('#,##0.00').format(amount)}',
@@ -522,9 +528,7 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
               children: [
                 Text(
                   'Payment Status',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                  style: labelStyle,
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -532,7 +536,8 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: _getPaymentStatusColor(paymentStatus).withOpacity(0.1),
+                    color:
+                        _getPaymentStatusColor(paymentStatus).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -551,13 +556,13 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
               children: [
                 Text(
                   'Payment Method',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                  style: labelStyle,
                 ),
                 Text(
                   paymentMethod,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: valueStyle.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -567,15 +572,14 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
               children: [
                 Text(
                   'Payment Date',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                  style: labelStyle,
                 ),
                 Text(
                   linkedAt != null
-                      ? DateFormat('MMMM d, yyyy h:mm a').format(linkedAt.toDate())
+                      ? DateFormat('MMMM d, yyyy h:mm a')
+                          .format(linkedAt.toDate())
                       : 'N/A',
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: valueStyle,
                 ),
               ],
             ),
@@ -586,9 +590,7 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                 children: [
                   Text(
                     'Refund Status',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
-                        ),
+                    style: labelStyle,
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -596,7 +598,8 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: _getRefundStatusColor(refundStatus).withOpacity(0.1),
+                      color:
+                          _getRefundStatusColor(refundStatus).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -616,9 +619,7 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                   children: [
                     Text(
                       'Refund Amount',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                      style: labelStyle,
                     ),
                     Text(
                       '₱${NumberFormat('#,##0.00').format(refundAmount)}',

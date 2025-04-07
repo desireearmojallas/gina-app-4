@@ -5,6 +5,7 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/bloc/doctor_consultation_fee_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_name_widget.dart';
+import 'package:intl/intl.dart';
 
 class EditDoctorConsultationFeeScreenLoaded extends StatelessWidget {
   final DoctorModel doctorData;
@@ -25,7 +26,8 @@ class EditDoctorConsultationFeeScreenLoaded extends StatelessWidget {
     final TextEditingController f2fInitialConsultationPriceController =
         TextEditingController(
             text: doctorData.f2fInitialConsultationPrice != null
-                ? doctorData.f2fInitialConsultationPrice?.toStringAsFixed(2)
+                ? NumberFormat('#,##0.00')
+                    .format(doctorData.f2fInitialConsultationPrice!)
                 : '0.00');
     final TextEditingController f2fFollowUpConsultationPriceController =
         TextEditingController(
@@ -35,7 +37,8 @@ class EditDoctorConsultationFeeScreenLoaded extends StatelessWidget {
     final TextEditingController onlineInitialConsultationPriceController =
         TextEditingController(
             text: doctorData.olInitialConsultationPrice != null
-                ? doctorData.olInitialConsultationPrice?.toStringAsFixed(2)
+                ? NumberFormat('#,##0.00')
+                    .format(doctorData.olInitialConsultationPrice!)
                 : '0.00');
     final TextEditingController onlineFollowUpConsultationPriceController =
         TextEditingController(

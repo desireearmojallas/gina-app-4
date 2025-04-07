@@ -87,7 +87,7 @@ class PatientPaymentService {
     required String doctorName,
     required String patientName,
     required double amount,
-    required DateTime appointmentDate,
+    required String appointmentDate,
     required String consultationType,
   }) async {
     try {
@@ -167,7 +167,7 @@ class PatientPaymentService {
         'invoiceUrl': invoiceUrl,
         'amount': amount,
         'appointmentId': appointmentId,
-        'appointmentDate': appointmentDate.toIso8601String(),
+        'appointmentDate': appointmentDate,
         'consultationType': consultationType,
         'status': 'pending',
         'isLinkedToAppointment': false,
@@ -219,7 +219,7 @@ class PatientPaymentService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         debugPrint('Firebase Function response: $data');
-      return {
+        return {
           'invoiceUrl': data['invoiceUrl'],
           'invoiceId': data['invoiceId'] ?? appointmentId,
         };
@@ -575,7 +575,7 @@ class PatientPaymentService {
       // Call Firebase Function to create refund
       final url = 'https://initiaterefund-pbiqoneg6a-as.a.run.app';
       debugPrint('Making request to URL: $url');
-      
+
       final requestBody = {
         'invoiceId': invoiceId,
         'amount': amount,
@@ -603,7 +603,9 @@ class PatientPaymentService {
         final batch = FirebaseFirestore.instance.batch();
 
         // Update appointment document
-        final appointmentRef = FirebaseFirestore.instance.collection('appointments').doc(appointmentId);
+        final appointmentRef = FirebaseFirestore.instance
+            .collection('appointments')
+            .doc(appointmentId);
         batch.update(appointmentRef, {
           'refundStatus': 'PENDING',
           'refundId': data['id'],
@@ -638,7 +640,8 @@ class PatientPaymentService {
             .get();
 
         if (!appointmentPaymentQuery.docs.isEmpty) {
-          final appointmentPaymentRef = appointmentPaymentQuery.docs.first.reference;
+          final appointmentPaymentRef =
+              appointmentPaymentQuery.docs.first.reference;
           batch.update(appointmentPaymentRef, {
             'refundStatus': 'PENDING',
             'refundId': data['id'],

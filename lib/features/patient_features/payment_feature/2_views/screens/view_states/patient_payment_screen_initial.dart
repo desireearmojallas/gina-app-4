@@ -17,7 +17,7 @@ class PatientPaymentScreenInitial extends StatefulWidget {
   final String patientName;
   final int modeOfAppointment;
   final double amount;
-  final DateTime appointmentDate;
+  final String appointmentDate;
   final String? existingInvoiceUrl;
   final bool showReceipt;
 
@@ -417,20 +417,20 @@ class _PatientPaymentScreenInitialState
       notchRadius: 15,
       notchOffsetY: 6,
       child: SingleChildScrollView(
-      child: Padding(
+        child: Padding(
           padding: const EdgeInsets.all(24.0),
-        child: Column(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
+            children: [
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Column(
-                    children: [
-                      Text(
+                child: Column(
+                  children: [
+                    Text(
                       'Payment Receipt',
                       style: ginaTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.bold,
                         color: GinaAppTheme.lightTertiaryContainer,
                       ),
                     ),
@@ -455,8 +455,8 @@ class _PatientPaymentScreenInitialState
                 child: Column(
                   children: [
                     Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         Text(
                           'Doctor',
                           style: ginaTheme.bodyMedium?.copyWith(
@@ -473,8 +473,8 @@ class _PatientPaymentScreenInitialState
                     ),
                     const Gap(12),
                     Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         Text(
                           'Patient',
                           style: ginaTheme.bodyMedium?.copyWith(
@@ -486,13 +486,13 @@ class _PatientPaymentScreenInitialState
                           style: ginaTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w500,
                           ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
+                    ),
                     const Gap(12),
                     Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         Text(
                           'Date',
                           style: ginaTheme.bodyMedium?.copyWith(
@@ -500,19 +500,18 @@ class _PatientPaymentScreenInitialState
                           ),
                         ),
                         Text(
-                          DateFormat('MMMM d, yyyy')
-                              .format(widget.appointmentDate),
+                          widget.appointmentDate,
                           style: ginaTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w500,
                           ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
+                    ),
                     const Gap(12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
                           'Mode',
                           style: ginaTheme.bodyMedium?.copyWith(
                             color: Colors.grey[600],
@@ -534,14 +533,14 @@ class _PatientPaymentScreenInitialState
                               fontWeight: FontWeight.w500,
                               color: GinaAppTheme.lightTertiaryContainer,
                             ),
-                            ),
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const Gap(24),
+              const Gap(24),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -672,8 +671,8 @@ class _PatientPaymentScreenInitialState
           padding: const EdgeInsets.all(16.0),
           child: Center(
             child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 if (widget.showReceipt) ...[
                   _buildPaymentReceiptCard(context),
                 ] else if (_isLoading)
@@ -703,7 +702,7 @@ class _PatientPaymentScreenInitialState
                         Icon(Icons.error_outline,
                             color: Colors.red[700], size: 48),
                         const Gap(16),
-        Text(
+                        Text(
                           'Payment Error',
                           style: ginaTheme.titleMedium?.copyWith(
                             color: Colors.red[900],
@@ -744,9 +743,9 @@ class _PatientPaymentScreenInitialState
                           style: ginaTheme.titleMedium,
                         ),
                         const Gap(8),
-        Text(
+                        Text(
                           'Invoice Number: $_invoiceNumber',
-          style: ginaTheme.bodyMedium?.copyWith(
+                          style: ginaTheme.bodyMedium?.copyWith(
                             color: Colors.grey[600],
                           ),
                         ),

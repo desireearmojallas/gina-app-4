@@ -55,6 +55,9 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
     final ginaTheme = Theme.of(context);
     final homeDashboardBloc = context.read<HomeDashboardBloc>();
 
+    debugPrint(
+        'Doctor Home Dashboard Screen Loaded Patient Periods: $patientPeriods');
+
     return RefreshIndicator(
       onRefresh: () async {
         try {
@@ -269,7 +272,7 @@ class DoctorHomeScreenDashboardLoaded extends StatelessWidget {
                   ),
                 ),
                 const Gap(20),
-                DoctorManageXenditAccount(),
+                const DoctorManageXenditAccount(),
                 const Gap(10),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,

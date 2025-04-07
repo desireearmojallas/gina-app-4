@@ -211,6 +211,7 @@ class DoctorConsultationScreen extends StatelessWidget {
                 } else if (state is NavigateToPatientDataState) {
                   completedAppointmentsForPatientDataMenu =
                       state.patientAppointments;
+                  patientPeriodsForPatientDataMenu = state.patientPeriods;
                   return ViewPatientDataScreen(
                     patient: state.patientData,
                     patientAppointment: state.appointment,

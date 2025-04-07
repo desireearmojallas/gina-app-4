@@ -145,4 +145,8 @@ class ConsultationBloc extends Bloc<ConsultationEvent, ConsultationState> {
       appointment: selectedDoctorAppointmentModel!,
     );
   }
+
+  Stream<AppointmentModel> patientAppointmentStream(String appointmentId) {
+    return chatMessageController.getAppointmentStatusStream(appointmentId);
+  }
 }

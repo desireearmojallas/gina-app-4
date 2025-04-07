@@ -61,6 +61,8 @@ class DoctorHomeScreenDashboard extends StatelessWidget {
             debugPrint('Patient Data: ${state.patientData}');
             debugPrint(
                 'Completed Appointments from HomeDashboardInitial: ${state.completedAppointmentsForPatientData}');
+            debugPrint(
+                'Doctor Home Dashboard Screen Patient Periods: ${state.patientPeriods}');
             return DoctorHomeScreenDashboardLoaded(
               pendingRequests: state.pendingAppointments,
               confirmedAppointments: state.confirmedAppointments,

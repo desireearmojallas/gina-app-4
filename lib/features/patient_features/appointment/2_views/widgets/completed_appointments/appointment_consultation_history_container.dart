@@ -11,10 +11,12 @@ import 'package:intl/intl.dart';
 class AppointmentConsultationHistoryContainer extends StatelessWidget {
   final AppointmentModel appointment;
   final bool? isDoctor;
+  final bool? isLatest;
   const AppointmentConsultationHistoryContainer({
     super.key,
     required this.appointment,
     this.isDoctor = false,
+    this.isLatest = false,
   });
 
   @override

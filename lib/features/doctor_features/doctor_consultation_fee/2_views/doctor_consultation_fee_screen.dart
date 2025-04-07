@@ -8,14 +8,28 @@ import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_vi
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/view_states/edit_doctor_consultation_fee_screen_loaded.dart';
 
 class DoctorConsultationFeeScreenProvider extends StatelessWidget {
-  const DoctorConsultationFeeScreenProvider({super.key});
+  final bool isSetUpXenditAccountMode;
+  const DoctorConsultationFeeScreenProvider({
+    super.key,
+    this.isSetUpXenditAccountMode = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<DoctorConsultationFeeBloc>(
       create: (context) {
         final doctorProfileBloc = sl<DoctorConsultationFeeBloc>();
-        doctorProfileBloc.add(GetDoctorConsultationFeeEvent());
+
+        if (isSetUpXenditAccountMode) {
+          doctorProfileBloc.add(
+            NavigateToEditDoctorConsultationFeeEvent(),
+          );
+        } else {
+          doctorProfileBloc.add(
+            GetDoctorConsultationFeeEvent(),
+          );
+        }
+
         return doctorProfileBloc;
       },
       child: const DoctorConsultationFeeScreen(),
