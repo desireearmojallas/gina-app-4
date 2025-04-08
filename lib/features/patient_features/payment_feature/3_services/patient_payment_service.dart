@@ -1197,30 +1197,1078 @@ class PatientPaymentService {
 
   Future<Map<String, dynamic>> _processXenditRefund({
     required String invoiceId,
+    required String appointmentId,
     required double amount,
     required String reason,
   }) async {
-    debugPrint('=== Processing Patient Xendit Refund ===');
+    debugPrint('=== Processing Xendit Refund ===');
     debugPrint('Invoice ID: $invoiceId');
     debugPrint('Amount: $amount');
     debugPrint('Reason: $reason');
 
     try {
-      if (_isSimulationMode) {
-        debugPrint('Using simulation mode for refund');
-        return _simulateRefund(
+      // First, get the payment document to retrieve the external_id and doctor's Xendit ID
+      // Find the temp ID (document ID) in the pending_payments collection
+      // We need to query by invoiceId to find the corresponding document
+      final pendingPaymentsQuery = await FirebaseFirestore.instance
+          .collection('pending_payments')
+          .where('invoiceId', isEqualTo: invoiceId)
+          .limit(1)
+          .get();
+
+      String? externalId;
+      String? doctorXenditAccountId;
+
+      if (pendingPaymentsQuery.docs.isNotEmpty) {
+        // The document ID is the temp ID we need
+        externalId = pendingPaymentsQuery.docs.first.id;
+        final paymentData = pendingPaymentsQuery.docs.first.data();
+        doctorXenditAccountId = paymentData['doctorXenditAccountId'] as String?;
+        debugPrint('Found external ID in pending_payments: $externalId');
+        debugPrint('Found doctor Xendit account ID: $doctorXenditAccountId');
+      } else {
+        // If not found by invoiceId, try to find by appointmentId
+        final pendingPaymentDoc = await FirebaseFirestore.instance
+            .collection('pending_payments')
+            .doc(appointmentId)
+            .get();
+
+        if (pendingPaymentDoc.exists) {
+          externalId = pendingPaymentDoc.id;
+          final paymentData = pendingPaymentDoc.data();
+          doctorXenditAccountId =
+              paymentData?['doctorXenditAccountId'] as String?;
+          debugPrint('Found external ID using appointmentId: $externalId');
+          debugPrint('Found doctor Xendit account ID: $doctorXenditAccountId');
+        } else {
+          debugPrint(
+              'Warning: No pending_payments document found for invoice: $invoiceId or appointment: $appointmentId');
+          // Use the appointmentId as fallback
+          externalId = appointmentId;
+
+          // Try to get doctor's Xendit account ID from the appointment document
+          final appointmentDoc = await FirebaseFirestore.instance
+              .collection('appointments')
+              .doc(appointmentId)
+              .get();
+
+          if (appointmentDoc.exists) {
+            final appointmentData = appointmentDoc.data();
+            doctorXenditAccountId =
+                appointmentData?['doctorXenditAccountId'] as String?;
+            debugPrint(
+                'Found doctor Xendit account ID from appointment: $doctorXenditAccountId');
+          }
+        }
+      }
+
+      debugPrint('Using external ID for refund: $externalId');
+
+      // Map the reason to Xendit's allowed values
+      final xenditReason = _mapToXenditReason(reason);
+      debugPrint('Mapped reason to Xendit format: $xenditReason');
+
+      // Generate a unique idempotency key
+      final idempotencyKey = 'refund_${DateTime.now().millisecondsSinceEpoch}';
+      debugPrint('Generated idempotency key: $idempotencyKey');
+
+      // First try with invoice_id
+      try {
+        debugPrint('Attempting refund with invoice_id approach');
+        final response = await _dio.post(
+          'https://api.xendit.co/refunds',
+          data: {
+            "invoice_id": invoiceId,
+            "amount": amount,
+            "reason": xenditReason,
+            "idempotency_key": idempotencyKey
+          },
+          options: Options(
+            headers: {
+              'Authorization':
+                  'Basic ${base64Encode(utf8.encode('$secretKey:'))}',
+              'Content-Type': 'application/json',
+            },
+          ),
+        );
+
+        debugPrint('Refund with invoice_id successful: ${response.data}');
+        return _handleSuccessfulRefund(
+          response: response,
+          appointmentId: appointmentId,
           invoiceId: invoiceId,
+          externalId: externalId,
           amount: amount,
           reason: reason,
         );
+      } on DioException catch (invoiceError) {
+        // If invoice_id fails with 400 error, try with external_id
+        if (invoiceError.response?.statusCode == 400) {
+          debugPrint(
+              'Invoice ID approach failed with 400 error, trying external_id approach');
+          debugPrint('Error details: ${invoiceError.response?.data}');
+
+          try {
+            final response = await _dio.post(
+              'https://api.xendit.co/refunds',
+              data: {
+                "external_id": externalId,
+                "amount": amount,
+                "reason": xenditReason,
+                "idempotency_key": idempotencyKey
+              },
+              options: Options(
+                headers: {
+                  'Authorization':
+                      'Basic ${base64Encode(utf8.encode('$secretKey:'))}',
+                  'Content-Type': 'application/json',
+                },
+              ),
+            );
+
+            debugPrint('Refund with external_id successful: ${response.data}');
+            return _handleSuccessfulRefund(
+              response: response,
+              appointmentId: appointmentId,
+              invoiceId: invoiceId,
+              externalId: externalId,
+              amount: amount,
+              reason: reason,
+            );
+          } catch (externalIdError) {
+            debugPrint('External ID approach also failed: $externalIdError');
+            return _handleFailedRefund(
+              error: externalIdError,
+              appointmentId: appointmentId,
+              invoiceId: invoiceId,
+              amount: amount,
+              reason: reason,
+            );
+          }
+        } else {
+          // If it's not a 400 error, rethrow to be caught by the outer catch
+          debugPrint(
+              'Invoice ID approach failed with non-400 error: ${invoiceError.response?.statusCode}');
+          return _handleFailedRefund(
+            error: invoiceError,
+            appointmentId: appointmentId,
+            invoiceId: invoiceId,
+            amount: amount,
+            reason: reason,
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Error processing refund: $e');
+      return _handleFailedRefund(
+        error: e,
+        appointmentId: appointmentId,
+        invoiceId: invoiceId,
+        amount: amount,
+        reason: reason,
+      );
+    }
+  }
+
+  /// Helper method to handle successful refunds
+  Future<Map<String, dynamic>> _handleSuccessfulRefund({
+    required Response response,
+    required String appointmentId,
+    required String invoiceId,
+    required String externalId,
+    required double amount,
+    required String reason,
+  }) async {
+    debugPrint('=== Handling Successful Refund ===');
+    debugPrint('Appointment ID: $appointmentId');
+    debugPrint('Invoice ID: $invoiceId');
+    debugPrint('External ID: $externalId');
+    debugPrint('Amount: $amount');
+    debugPrint('Reason: $reason');
+    debugPrint('Refund ID: ${response.data['id']}');
+
+    try {
+      // Start a batch write to ensure all updates are atomic
+      final batch = FirebaseFirestore.instance.batch();
+
+      // Update the pending_payments document with refund details
+      final pendingPaymentsQuery = await FirebaseFirestore.instance
+          .collection('pending_payments')
+          .where('invoiceId', isEqualTo: invoiceId)
+          .limit(1)
+          .get();
+
+      if (pendingPaymentsQuery.docs.isNotEmpty) {
+        final pendingPaymentDoc = pendingPaymentsQuery.docs.first;
+        debugPrint(
+            'Found pending_payments document by invoiceId: ${pendingPaymentDoc.id}');
+
+        batch.update(pendingPaymentDoc.reference, {
+          'refundStatus': 'COMPLETED',
+          'refundAmount': amount,
+          'refundReason': reason,
+          'refundId': response.data['id'],
+          'refundExternalId': externalId,
+          'refundedAt': FieldValue.serverTimestamp(),
+          'status': 'refunded',
+        });
+      } else {
+        // Try to update using appointmentId
+        final pendingPaymentRef = FirebaseFirestore.instance
+            .collection('pending_payments')
+            .doc(appointmentId);
+
+        final pendingPaymentDoc = await pendingPaymentRef.get();
+
+        if (pendingPaymentDoc.exists) {
+          debugPrint(
+              'Found pending_payments document by appointmentId: $appointmentId');
+
+          batch.update(pendingPaymentRef, {
+            'refundStatus': 'COMPLETED',
+            'refundAmount': amount,
+            'refundReason': reason,
+            'refundId': response.data['id'],
+            'refundExternalId': externalId,
+            'refundedAt': FieldValue.serverTimestamp(),
+            'status': 'refunded',
+          });
+        } else {
+          debugPrint(
+              'Warning: No pending_payments document found for ID: $appointmentId');
+        }
       }
 
-      // Make the API request to create a refund
+      // Also update the payment document in the appointments/payments subcollection
+      final paymentQuery = await FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(appointmentId)
+          .collection('payments')
+          .where('invoiceId', isEqualTo: invoiceId)
+          .limit(1)
+          .get();
+
+      if (paymentQuery.docs.isNotEmpty) {
+        final paymentDoc = paymentQuery.docs.first;
+        debugPrint('Found payment document in subcollection: ${paymentDoc.id}');
+
+        batch.update(paymentDoc.reference, {
+          'refundStatus': 'COMPLETED',
+          'refundAmount': amount,
+          'refundReason': reason,
+          'refundId': response.data['id'],
+          'refundExternalId': externalId,
+          'refundedAt': FieldValue.serverTimestamp(),
+        });
+      } else {
+        // Try to find by appointmentId
+        final paymentRef = FirebaseFirestore.instance
+            .collection('appointments')
+            .doc(appointmentId)
+            .collection('payments')
+            .doc(invoiceId);
+
+        final paymentDoc = await paymentRef.get();
+
+        if (paymentDoc.exists) {
+          debugPrint(
+              'Found payment document in subcollection by direct ID: $invoiceId');
+
+          batch.update(paymentRef, {
+            'refundStatus': 'COMPLETED',
+            'refundAmount': amount,
+            'refundReason': reason,
+            'refundId': response.data['id'],
+            'refundExternalId': externalId,
+            'refundedAt': FieldValue.serverTimestamp(),
+          });
+        } else {
+          debugPrint(
+              'Warning: No payment document found in subcollection with ID: $invoiceId');
+        }
+      }
+
+      // Create a refund record in the appointments/refunds subcollection
+      final refundRef = FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(appointmentId)
+          .collection('refunds')
+          .doc(response.data['id']);
+
+      batch.set(refundRef, {
+        'refundId': response.data['id'],
+        'invoiceId': invoiceId,
+        'amount': amount,
+        'reason': reason,
+        'status': 'COMPLETED',
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      // Update the main appointment document
+      final appointmentRef = FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(appointmentId);
+
+      batch.update(appointmentRef, {
+        'refundStatus': 'COMPLETED',
+        'refundId': response.data['id'],
+        'refundAmount': amount,
+        'refundReason': reason,
+        'refundedAt': FieldValue.serverTimestamp(),
+        'status': 'cancelled',
+        'cancelledAt': FieldValue.serverTimestamp(),
+        'cancelledBy': 'patient',
+      });
+
+      // Then deduct from doctor's Xendit balance
+      final appointmentDoc = await FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(appointmentId)
+          .get();
+
+      if (appointmentDoc.exists) {
+        final doctorId = appointmentDoc.data()?['doctorUid'];
+        if (doctorId != null) {
+          debugPrint('Found doctor ID: $doctorId, fetching Xendit account ID');
+
+          final doctorDoc = await FirebaseFirestore.instance
+              .collection('doctors')
+              .doc(doctorId)
+              .get();
+
+          if (doctorDoc.exists) {
+            final doctorXenditId = doctorDoc.data()?['xenditAccountId'];
+            if (doctorXenditId != null) {
+              debugPrint(
+                  'Found doctor Xendit ID: $doctorXenditId, creating reverse transfer');
+
+              await _createReverseTransfer(
+                fromDoctorId: doctorXenditId,
+                amount: amount,
+                appointmentId: appointmentId,
+                invoiceId: invoiceId,
+              );
+            } else {
+              debugPrint('Warning: Doctor has no Xendit account ID');
+            }
+          } else {
+            debugPrint('Warning: Doctor document not found');
+          }
+        } else {
+          debugPrint('Warning: Appointment has no doctor ID');
+        }
+      } else {
+        debugPrint('Warning: Appointment document not found');
+      }
+
+      // Commit all updates atomically
+      await batch.commit();
+      debugPrint('Successfully updated all documents with refund information');
+
+      return {
+        'success': true,
+        'refundId': response.data['id'],
+        'amount': amount,
+        'status': 'COMPLETED',
+      };
+    } catch (updateError) {
+      debugPrint(
+          'Error updating documents after successful refund: $updateError');
+      // Still return success since the refund was processed
+      return {
+        'success': true,
+        'refundId': response.data['id'],
+        'amount': amount,
+        'status': 'COMPLETED',
+        'warning': 'Refund processed but document updates failed: $updateError',
+      };
+    }
+  }
+
+  /// Helper method to handle failed refunds
+  Map<String, dynamic> _handleFailedRefund({
+    required dynamic error,
+    required String appointmentId,
+    required String invoiceId,
+    required double amount,
+    required String reason,
+  }) {
+    debugPrint('Handling failed refund');
+
+    // Check if it's a DioException to extract more details
+    if (error is DioException) {
+      debugPrint('DioException details:');
+      debugPrint('Status code: ${error.response?.statusCode}');
+      debugPrint('Response data: ${error.response?.data}');
+
+      // Try to extract the error message from the response
+      String errorMessage = 'Unknown error';
+      if (error.response?.data != null && error.response?.data is Map) {
+        final errorData = error.response?.data as Map;
+        errorMessage = errorData['message'] ?? 'Unknown error';
+
+        if (errorData['errors'] != null && errorData['errors'] is List) {
+          final errors = errorData['errors'] as List;
+          if (errors.isNotEmpty && errors[0] is Map) {
+            final firstError = errors[0] as Map;
+            errorMessage += ': ${firstError['message'] ?? ''}';
+          }
+        }
+      }
+
+      debugPrint('Xendit API error response: ${error.response?.data}');
+
+      // Update the payment document with the error
+      _updatePaymentDocumentWithError(
+        appointmentId: appointmentId,
+        invoiceId: invoiceId,
+        amount: amount,
+        reason: reason,
+        errorMessage: errorMessage,
+      );
+
+      return {
+        'success': false,
+        'refundId': null,
+        'amount': amount,
+        'status': 'FAILED',
+        'error': errorMessage,
+      };
+    } else {
+      // For non-DioException errors
+      debugPrint('Non-DioException error: $error');
+
+      // Update the payment document with the error
+      _updatePaymentDocumentWithError(
+        appointmentId: appointmentId,
+        invoiceId: invoiceId,
+        amount: amount,
+        reason: reason,
+        errorMessage: error.toString(),
+      );
+
+      return {
+        'success': false,
+        'refundId': null,
+        'amount': amount,
+        'status': 'FAILED',
+        'error': error.toString(),
+      };
+    }
+  }
+
+  // Helper method to update payment document with error
+  Future<void> _updatePaymentDocumentWithError({
+    required String appointmentId,
+    required String invoiceId,
+    required double amount,
+    required String reason,
+    required String errorMessage,
+  }) async {
+    try {
+      final paymentDoc = await FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(appointmentId)
+          .collection('payments')
+          .doc(invoiceId)
+          .get();
+
+      if (paymentDoc.exists) {
+        debugPrint(
+            'Updating payment document in subcollection with ID: $invoiceId');
+        await paymentDoc.reference.update({
+          'refund_status': 'failed',
+          'refund_amount': amount,
+          'refund_reason': reason,
+          'refund_error': errorMessage,
+          'refund_created_at': DateTime.now().toIso8601String(),
+        });
+        debugPrint(
+            'Successfully updated payment document in subcollection with error');
+      } else {
+        debugPrint(
+            'Warning: No payment document found in subcollection with ID: $invoiceId');
+      }
+    } catch (updateError) {
+      debugPrint('Error updating payment document with error: $updateError');
+    }
+  }
+
+  /// Map common refund reasons to Xendit's allowed values
+  String _mapToXenditReason(String reason) {
+    final lowercaseReason = reason.toLowerCase();
+
+    if (lowercaseReason.contains('cancel')) {
+      return 'CANCELLATION';
+    } else if (lowercaseReason.contains('duplicate') ||
+        lowercaseReason.contains('double')) {
+      return 'DUPLICATE';
+    } else if (lowercaseReason.contains('fraud') ||
+        lowercaseReason.contains('scam')) {
+      return 'FRAUDULENT';
+    } else if (lowercaseReason.contains('request') ||
+        lowercaseReason.contains('customer')) {
+      return 'REQUESTED_BY_CUSTOMER';
+    } else {
+      // Default to REQUESTED_BY_CUSTOMER if no match
+      return 'REQUESTED_BY_CUSTOMER';
+    }
+  }
+
+  Future<Map<String, dynamic>> processRefundForAppointment({
+    required String appointmentId,
+    required String reason,
+  }) async {
+    debugPrint('=== Processing Refund from Patient Side ===');
+    debugPrint('Appointment ID: $appointmentId');
+    debugPrint('Reason: $reason');
+
+    try {
+      // Get appointment details first to get doctor's Xendit account ID
+      final appointmentDoc = await FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(appointmentId)
+          .get();
+
+      if (!appointmentDoc.exists) {
+        debugPrint('Appointment document not found');
+        return {
+          'success': false,
+          'message': 'Appointment not found',
+        };
+      }
+
+      final appointmentData = appointmentDoc.data();
+      final doctorXenditAccountId =
+          appointmentData?['doctorXenditAccountId'] as String?;
+      debugPrint('Doctor Xendit Account ID: $doctorXenditAccountId');
+
+      // Get payment details from the appointment's payments subcollection
+      final paymentQuery = await FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(appointmentId)
+          .collection('payments')
+          .get();
+
+      String? invoiceId;
+      double amount = 0.0;
+      String paymentStatus = '';
+      String? refundStatus;
+      String? paymentDocId;
+
+      if (paymentQuery.docs.isNotEmpty) {
+        final paymentData = paymentQuery.docs.first.data();
+        paymentDocId = paymentQuery.docs.first.id;
+        invoiceId = paymentData['invoiceId'] as String?;
+        amount = paymentData['amount'] as double? ?? 0.0;
+        paymentStatus = paymentData['status'] as String? ?? '';
+        refundStatus = paymentData['refundStatus'] as String?;
+
+        debugPrint('Found payment in subcollection:');
+        debugPrint('- Invoice ID: $invoiceId');
+        debugPrint('- Amount: $amount');
+        debugPrint('- Status: $paymentStatus');
+        debugPrint('- Refund Status: $refundStatus');
+        debugPrint('- Payment Doc ID: $paymentDocId');
+      } else {
+        debugPrint('No payment document found in subcollection');
+      }
+
+      // If no payment details in subcollection, check pending_payments collection
+      if (invoiceId == null) {
+        debugPrint('Checking pending_payments collection...');
+        final pendingPaymentQuery = await FirebaseFirestore.instance
+            .collection('pending_payments')
+            .doc(appointmentId)
+            .get();
+
+        if (pendingPaymentQuery.exists) {
+          final pendingPaymentData = pendingPaymentQuery.data();
+          if (pendingPaymentData != null) {
+            invoiceId = pendingPaymentData['invoiceId'] as String?;
+            amount = pendingPaymentData['amount'] as double? ?? 0.0;
+            paymentStatus = pendingPaymentData['status'] as String? ?? '';
+            refundStatus = pendingPaymentData['refundStatus'] as String?;
+
+            debugPrint('Found payment details in pending_payments:');
+            debugPrint('- Invoice ID: $invoiceId');
+            debugPrint('- Amount: $amount');
+            debugPrint('- Payment Status: $paymentStatus');
+            debugPrint('- Refund Status: $refundStatus');
+          }
+        } else {
+          debugPrint('No payment document found in pending_payments');
+        }
+      }
+
+      // Only process refund if payment was made and not already refunded
+      if (paymentStatus.toLowerCase() == 'paid' &&
+          invoiceId != null &&
+          amount > 0 &&
+          (refundStatus == null || refundStatus.toLowerCase() != 'completed')) {
+        debugPrint('=== Processing Patient Xendit Refund ===');
+        debugPrint('Invoice ID: $invoiceId');
+        debugPrint('Amount: $amount');
+        debugPrint('Reason: $reason');
+
+        try {
+          // Process the refund
+          final refundResult = await _processXenditRefund(
+            invoiceId: invoiceId,
+            appointmentId: appointmentId,
+            amount: amount,
+            reason: reason,
+          );
+
+          if (!refundResult['success']) {
+            debugPrint('Refund processing failed: ${refundResult['message']}');
+            return refundResult;
+          }
+
+          final refundId = refundResult['refundId'];
+
+          // Start a batch write to ensure all updates are atomic
+          final batch = FirebaseFirestore.instance.batch();
+
+          // Update the payment document in subcollection if it exists
+          if (paymentDocId != null) {
+            debugPrint(
+                'Updating payment document in subcollection with ID: $paymentDocId');
+            final paymentRef = FirebaseFirestore.instance
+                .collection('appointments')
+                .doc(appointmentId)
+                .collection('payments')
+                .doc(paymentDocId);
+
+            batch.update(paymentRef, {
+              'refundStatus': 'COMPLETED',
+              'refundAmount': amount,
+              'refundReason': reason,
+              'refundId': refundId,
+              'refundedAt': FieldValue.serverTimestamp(),
+            });
+          }
+
+          // Update pending_payments document if it exists
+          final pendingPaymentRef = FirebaseFirestore.instance
+              .collection('pending_payments')
+              .doc(appointmentId);
+
+          final pendingPaymentDoc = await pendingPaymentRef.get();
+          if (pendingPaymentDoc.exists) {
+            debugPrint('Updating pending_payments document');
+            batch.update(pendingPaymentRef, {
+              'refundStatus': 'COMPLETED',
+              'refundAmount': amount,
+              'refundReason': reason,
+              'refundId': refundId,
+              'refundedAt': FieldValue.serverTimestamp(),
+            });
+          }
+
+          // Create refund record in appointments/refunds subcollection
+          final refundRef = FirebaseFirestore.instance
+              .collection('appointments')
+              .doc(appointmentId)
+              .collection('refunds')
+              .doc(refundId);
+
+          batch.set(refundRef, {
+            'refundId': refundId,
+            'invoiceId': invoiceId,
+            'amount': amount,
+            'reason': reason,
+            'status': 'COMPLETED',
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+
+          // If we have the doctor's Xendit account ID, create a reverse transfer
+          if (doctorXenditAccountId != null) {
+            debugPrint(
+                'Creating reverse transfer to doctor: $doctorXenditAccountId');
+            try {
+              // Calculate the doctor's share (typically 80% of the refund amount)
+              final doctorShare = amount * 0.8;
+
+              // Create a reverse transfer to deduct from doctor's balance
+              final transferResponse = await _dio.post(
+                'https://api.xendit.co/transfers',
+                data: {
+                  "reference": "reverse_$refundId",
+                  "amount": doctorShare,
+                  "currency": "PHP",
+                  "destination": doctorXenditAccountId,
+                  "description": "Reverse transfer for refund $refundId",
+                },
+                options: Options(
+                  headers: {
+                    'Authorization':
+                        'Basic ${base64Encode(utf8.encode('$secretKey:'))}',
+                    'Content-Type': 'application/json',
+                  },
+                ),
+              );
+
+              debugPrint('Reverse transfer created: ${transferResponse.data}');
+
+              // Add the reverse transfer details to the refund record
+              batch.update(refundRef, {
+                'reverseTransferId': transferResponse.data['id'],
+                'reverseTransferAmount': doctorShare,
+                'reverseTransferStatus': 'COMPLETED',
+                'reverseTransferedAt': FieldValue.serverTimestamp(),
+              });
+            } catch (transferError) {
+              debugPrint('Error creating reverse transfer: $transferError');
+              // Continue with the refund process even if reverse transfer fails
+              // We'll log the error but still complete the refund
+              batch.update(refundRef, {
+                'reverseTransferStatus': 'FAILED',
+                'reverseTransferError': transferError.toString(),
+                'reverseTransferFailedAt': FieldValue.serverTimestamp(),
+              });
+            }
+          } else {
+            debugPrint(
+                'No doctor Xendit account ID found, skipping reverse transfer');
+          }
+
+          // Update the main appointment document
+          final appointmentRef = FirebaseFirestore.instance
+              .collection('appointments')
+              .doc(appointmentId);
+
+          batch.update(appointmentRef, {
+            'refundStatus': 'COMPLETED',
+            'refundId': refundId,
+            'refundAmount': amount,
+            'refundReason': reason,
+            'refundedAt': FieldValue.serverTimestamp(),
+            'status': 'cancelled',
+            'cancelledAt': FieldValue.serverTimestamp(),
+            'cancelledBy': 'patient',
+          });
+
+          // Commit all updates atomically
+          await batch.commit();
+          debugPrint(
+              'Successfully updated all documents with refund information');
+
+          return {
+            'success': true,
+            'refundId': refundId,
+            'amount': amount,
+            'status': 'COMPLETED',
+          };
+        } catch (e) {
+          debugPrint('Error processing refund: $e');
+          return {
+            'success': false,
+            'message': 'Error processing refund: $e',
+          };
+        }
+      } else {
+        debugPrint('No refund needed or already refunded:');
+        debugPrint('- Payment Status: $paymentStatus');
+        debugPrint('- Invoice ID: $invoiceId');
+        debugPrint('- Amount: $amount');
+        debugPrint('- Refund Status: $refundStatus');
+
+        return {
+          'success': true,
+          'message': 'No refund needed or already refunded',
+        };
+      }
+    } catch (e) {
+      debugPrint('Error processing refund: $e');
+      return {
+        'success': false,
+        'message': 'Error processing refund: $e',
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> processRefundForCancellation({
+    required String appointmentId,
+    required String reason,
+  }) async {
+    debugPrint('=== Processing Refund from Patient Cancellation ===');
+    debugPrint('Appointment ID: $appointmentId');
+    debugPrint('Reason: $reason');
+
+    try {
+      // Get payment details from the appointment's payments subcollection
+      final paymentQuery = await FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(appointmentId)
+          .collection('payments')
+          .get();
+
+      String? invoiceId;
+      double amount = 0.0;
+      String paymentStatus = '';
+      String? refundStatus;
+      String? paymentDocId;
+
+      if (paymentQuery.docs.isNotEmpty) {
+        final paymentData = paymentQuery.docs.first.data();
+        paymentDocId = paymentQuery.docs.first.id;
+        invoiceId = paymentData['invoiceId'] as String?;
+        amount = paymentData['amount'] as double? ?? 0.0;
+        paymentStatus = paymentData['status'] as String? ?? '';
+        refundStatus = paymentData['refundStatus'] as String?;
+
+        debugPrint('Found payment in subcollection:');
+        debugPrint('- Invoice ID: $invoiceId');
+        debugPrint('- Amount: $amount');
+        debugPrint('- Status: $paymentStatus');
+        debugPrint('- Refund Status: $refundStatus');
+        debugPrint('- Payment Doc ID: $paymentDocId');
+      } else {
+        debugPrint('No payment document found in subcollection');
+      }
+
+      // If no payment details in subcollection, check pending_payments collection
+      if (invoiceId == null) {
+        debugPrint('Checking pending_payments collection...');
+        final pendingPaymentQuery = await FirebaseFirestore.instance
+            .collection('pending_payments')
+            .doc(appointmentId)
+            .get();
+
+        if (pendingPaymentQuery.exists) {
+          final pendingPaymentData = pendingPaymentQuery.data();
+          if (pendingPaymentData != null) {
+            invoiceId = pendingPaymentData['invoiceId'] as String?;
+            amount = pendingPaymentData['amount'] as double? ?? 0.0;
+            paymentStatus = pendingPaymentData['status'] as String? ?? '';
+            refundStatus = pendingPaymentData['refundStatus'] as String?;
+
+            debugPrint('Found payment details in pending_payments:');
+            debugPrint('- Invoice ID: $invoiceId');
+            debugPrint('- Amount: $amount');
+            debugPrint('- Payment Status: $paymentStatus');
+            debugPrint('- Refund Status: $refundStatus');
+          }
+        } else {
+          debugPrint('No payment document found in pending_payments');
+        }
+      }
+
+      // Only process refund if payment was made and not already refunded
+      if (paymentStatus.toLowerCase() == 'paid' &&
+          invoiceId != null &&
+          amount > 0 &&
+          (refundStatus == null || refundStatus.toLowerCase() != 'completed')) {
+        debugPrint('=== Processing Patient Xendit Refund ===');
+        debugPrint('Invoice ID: $invoiceId');
+        debugPrint('Amount: $amount');
+        debugPrint('Reason: $reason');
+
+        try {
+          // Process the refund
+          final refundResult = await _processXenditRefund(
+            invoiceId: invoiceId,
+            appointmentId: appointmentId,
+            amount: amount,
+            reason: reason,
+          );
+
+          if (!refundResult['success']) {
+            debugPrint('Refund processing failed: ${refundResult['message']}');
+            return refundResult;
+          }
+
+          final refundData = refundResult['data'];
+          final refundId = refundData['id'];
+
+          // Start a batch write to ensure all updates are atomic
+          final batch = FirebaseFirestore.instance.batch();
+
+          // Update the payment document in subcollection if it exists
+          if (paymentDocId != null) {
+            debugPrint(
+                'Updating payment document in subcollection with ID: $paymentDocId');
+            final paymentRef = FirebaseFirestore.instance
+                .collection('appointments')
+                .doc(appointmentId)
+                .collection('payments')
+                .doc(paymentDocId);
+
+            batch.update(paymentRef, {
+              'refundStatus': 'COMPLETED',
+              'refundAmount': amount,
+              'refundReason': reason,
+              'refundId': refundId,
+              'refundedAt': FieldValue.serverTimestamp(),
+            });
+          }
+
+          // Update pending_payments document if it exists
+          final pendingPaymentRef = FirebaseFirestore.instance
+              .collection('pending_payments')
+              .doc(appointmentId);
+
+          final pendingPaymentDoc = await pendingPaymentRef.get();
+          if (pendingPaymentDoc.exists) {
+            debugPrint('Updating pending_payments document');
+            batch.update(pendingPaymentRef, {
+              'refundStatus': 'COMPLETED',
+              'refundAmount': amount,
+              'refundReason': reason,
+              'refundId': refundId,
+              'refundedAt': FieldValue.serverTimestamp(),
+            });
+          }
+
+          // Create refund record in appointments/refunds subcollection
+          final refundRef = FirebaseFirestore.instance
+              .collection('appointments')
+              .doc(appointmentId)
+              .collection('refunds')
+              .doc(refundId);
+
+          batch.set(refundRef, {
+            'refundId': refundId,
+            'invoiceId': invoiceId,
+            'amount': amount,
+            'reason': reason,
+            'status': 'COMPLETED',
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+
+          // If we have the doctor's Xendit account ID, create a reverse transfer
+          // if (doctorXenditAccountId != null) {
+          //   debugPrint(
+          //       'Creating reverse transfer to doctor: $doctorXenditAccountId');
+          //   try {
+          //     // Calculate the doctor's share (typically 80% of the refund amount)
+          //     final doctorShare = amount * 0.8;
+
+          //     // Create a reverse transfer to deduct from doctor's balance
+          //     final transferResponse = await _dio.post(
+          //       'https://api.xendit.co/transfers',
+          //       data: {
+          //         "reference": "reverse_${refundId}",
+          //         "amount": doctorShare,
+          //         "currency": "PHP",
+          //         "destination": doctorXenditAccountId,
+          //         "description": "Reverse transfer for refund $refundId",
+          //       },
+          //       options: Options(
+          //         headers: {
+          //           'Authorization':
+          //               'Basic ${base64Encode(utf8.encode('$secretKey:'))}',
+          //           'Content-Type': 'application/json',
+          //         },
+          //       ),
+          //     );
+
+          //     debugPrint('Reverse transfer created: ${transferResponse.data}');
+
+          //     // Add the reverse transfer details to the refund record
+          //     batch.update(refundRef, {
+          //       'reverseTransferId': transferResponse.data['id'],
+          //       'reverseTransferAmount': doctorShare,
+          //       'reverseTransferStatus': 'COMPLETED',
+          //       'reverseTransferedAt': FieldValue.serverTimestamp(),
+          //     });
+          //   } catch (transferError) {
+          //     debugPrint('Error creating reverse transfer: $transferError');
+          //     // Continue with the refund process even if reverse transfer fails
+          //     // We'll log the error but still complete the refund
+          //     batch.update(refundRef, {
+          //       'reverseTransferStatus': 'FAILED',
+          //       'reverseTransferError': transferError.toString(),
+          //       'reverseTransferFailedAt': FieldValue.serverTimestamp(),
+          //     });
+          //   }
+          // } else {
+          //   debugPrint(
+          //       'No doctor Xendit account ID found, skipping reverse transfer');
+          // }
+
+          // Update the main appointment document
+          final appointmentRef = FirebaseFirestore.instance
+              .collection('appointments')
+              .doc(appointmentId);
+
+          batch.update(appointmentRef, {
+            'refundStatus': 'COMPLETED',
+            'refundId': refundId,
+            'refundAmount': amount,
+            'refundReason': reason,
+            'refundedAt': FieldValue.serverTimestamp(),
+            'status': 'cancelled',
+            'cancelledAt': FieldValue.serverTimestamp(),
+            'cancelledBy': 'patient',
+          });
+
+          // Commit all updates atomically
+          await batch.commit();
+          debugPrint(
+              'Successfully updated all documents with refund information');
+
+          return {
+            'success': true,
+            'refundId': refundId,
+            'amount': amount,
+            'status': 'COMPLETED',
+          };
+        } catch (e) {
+          debugPrint('Error processing refund: $e');
+          return {
+            'success': false,
+            'message': 'Error processing refund: $e',
+          };
+        }
+      } else {
+        debugPrint('No refund needed or already refunded:');
+        debugPrint('- Payment Status: $paymentStatus');
+        debugPrint('- Invoice ID: $invoiceId');
+        debugPrint('- Amount: $amount');
+        debugPrint('- Refund Status: $refundStatus');
+
+        return {
+          'success': true,
+          'message': 'No refund needed or already refunded',
+        };
+      }
+    } catch (e) {
+      debugPrint('Error processing refund: $e');
+      return {
+        'success': false,
+        'message': 'Error processing refund: $e',
+      };
+    }
+  }
+
+  // Helper method to create a reverse transfer from doctor to platform
+  Future<void> _createReverseTransfer({
+    required String fromDoctorId,
+    required double amount,
+    required String appointmentId,
+    required String invoiceId,
+  }) async {
+    try {
+      debugPrint('Creating reverse transfer from doctor');
+      debugPrint('From Doctor ID: $fromDoctorId');
+      debugPrint('Amount: $amount');
+      debugPrint('Appointment ID: $appointmentId');
+      debugPrint('Invoice ID: $invoiceId');
+
       final response = await _dio.post(
-        '$_baseUrl/v2/invoices/$invoiceId/refunds',
+        'https://api.xendit.co/transfers',
         data: {
-          'amount': amount,
-          'reason': reason,
+          "reference": "refund-$appointmentId-$invoiceId",
+          "source_user_id": fromDoctorId,
+          "destination_user_id": dotenv.env['XENDIT_SOURCE_USER_ID'],
+          "amount": amount,
+          "currency": "PHP",
+          "description": "Refund reversal for appointment $appointmentId"
         },
         options: Options(
           headers: {
@@ -1231,156 +2279,27 @@ class PatientPaymentService {
         ),
       );
 
-      debugPrint('Refund response: ${response.data}');
+      debugPrint('Reverse transfer successful: ${response.data}');
 
-      // We don't update the payment document here anymore
-      // This is handled in the processRefundForAppointment method
-
-      return {
-        'success': true,
-        'message': 'Refund processed successfully',
-        'data': response.data,
-      };
+      // Update doctor's balance in Firestore
+      await FirebaseFirestore.instance
+          .collection('doctors')
+          .where('xenditAccountId', isEqualTo: fromDoctorId)
+          .get()
+          .then((query) {
+        if (query.docs.isNotEmpty) {
+          final doctorDoc = query.docs.first;
+          final currentBalance = doctorDoc.data()['balance'] ?? 0.0;
+          return doctorDoc.reference.update({
+            'balance': currentBalance - amount,
+            'last_balance_update': FieldValue.serverTimestamp(),
+          });
+        }
+      });
     } catch (e) {
-      debugPrint('Error processing Xendit refund: $e');
-
-      // We don't update the payment document here anymore
-      // This is handled in the processRefundForAppointment method
-
-      return {
-        'success': false,
-        'message': 'Error processing refund: $e',
-      };
-    }
-  }
-
-  Future<Map<String, dynamic>> _simulateRefund({
-    required String invoiceId,
-    required double amount,
-    required String reason,
-  }) async {
-    debugPrint('=== Simulating Refund ===');
-    debugPrint('Invoice ID: $invoiceId');
-    debugPrint('Amount: $amount');
-    debugPrint('Reason: $reason');
-
-    // Simulate API delay
-    await Future.delayed(const Duration(seconds: 1));
-
-    // Generate a random refund ID
-    final refundId = 'ref_${DateTime.now().millisecondsSinceEpoch}';
-
-    return {
-      'success': true,
-      'id': refundId,
-      'invoice_id': invoiceId,
-      'amount': amount,
-      'reason': reason,
-      'status': 'COMPLETED',
-      'created_at': DateTime.now().toIso8601String(),
-    };
-  }
-
-  Future<Map<String, dynamic>> processRefundForAppointment({
-    required String appointmentId,
-    required String reason,
-  }) async {
-    debugPrint('=== Processing Refund from Doctor Side ===');
-    debugPrint('Appointment ID: $appointmentId');
-    debugPrint('Reason: $reason');
-
-    try {
-      // First, get the payment details from the appointment's payments subcollection
-      final paymentSnapshot = await FirebaseFirestore.instance
-          .collection('appointments')
-          .doc(appointmentId)
-          .collection('payments')
-          .get();
-
-      if (paymentSnapshot.docs.isEmpty) {
-        debugPrint('No payment documents found in subcollection');
-        return {
-          'success': false,
-          'message': 'No payment documents found for this appointment',
-        };
-      }
-
-      final paymentDoc = paymentSnapshot.docs.first;
-      final paymentData = paymentDoc.data();
-      final paymentDocId = paymentDoc.id;
-
-      debugPrint('Found payment in subcollection:');
-      debugPrint('- Invoice ID: ${paymentData['invoiceId']}');
-      debugPrint('- Amount: ${paymentData['amount']}');
-      debugPrint('- Status: ${paymentData['status']}');
-      debugPrint('- Refund Status: ${paymentData['refundStatus']}');
-      debugPrint('- Payment Doc ID: $paymentDocId');
-
-      // Check if payment is already refunded
-      if (paymentData['refundStatus'] == 'COMPLETED' ||
-          paymentData['refundStatus'] == 'SUCCEEDED') {
-        debugPrint('Payment already refunded');
-        return {
-          'success': true,
-          'message': 'Payment already refunded',
-        };
-      }
-
-      // Process the refund with Xendit
-      final refundResult = await _processXenditRefund(
-        invoiceId: paymentData['invoiceId'],
-        amount: paymentData['amount'],
-        reason: reason,
-      );
-
-      debugPrint('Refund result: $refundResult');
-
-      if (refundResult['success'] == true) {
-        // Update the payment document with refund status
-        // IMPORTANT: Use the correct document path with the payment document ID
-        await FirebaseFirestore.instance
-            .collection('appointments')
-            .doc(appointmentId)
-            .collection('payments')
-            .doc(
-                paymentDocId) // Use the actual payment document ID, not the invoice ID
-            .update({
-          'refundStatus': 'COMPLETED',
-          'refundAmount': paymentData['amount'],
-          'refundReason': reason,
-          'refundedAt': FieldValue.serverTimestamp(),
-        });
-
-        debugPrint('Payment document updated with refund status');
-
-        // Also update the appointment document
-        await FirebaseFirestore.instance
-            .collection('appointments')
-            .doc(appointmentId)
-            .update({
-          'refundStatus': 'COMPLETED',
-          'refundAmount': paymentData['amount'],
-          'refundReason': reason,
-          'refundedAt': FieldValue.serverTimestamp(),
-        });
-
-        debugPrint('Appointment document updated with refund status');
-
-        return {
-          'success': true,
-          'message': 'Refund processed successfully',
-          'data': refundResult['data'],
-        };
-      } else {
-        debugPrint('Refund processing failed: ${refundResult['message']}');
-        return refundResult;
-      }
-    } catch (e) {
-      debugPrint('Error processing refund: $e');
-      return {
-        'success': false,
-        'message': 'Error processing refund: $e',
-      };
+      debugPrint('Error creating reverse transfer: $e');
+      // You may want to implement retry logic or manual reconciliation
+      throw Exception('Failed to deduct from doctor balance: $e');
     }
   }
 }

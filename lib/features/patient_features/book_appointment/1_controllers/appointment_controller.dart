@@ -447,7 +447,8 @@ class AppointmentController with ChangeNotifier {
       debugPrint('Appointment ID: $appointmentUid');
 
       // Get appointment details first
-      final appointmentDoc = await firestore.collection('appointments').doc(appointmentUid).get();
+      final appointmentDoc =
+          await firestore.collection('appointments').doc(appointmentUid).get();
       if (!appointmentDoc.exists) {
         debugPrint('Appointment document not found');
         return Left(Exception('Appointment not found'));
@@ -463,16 +464,20 @@ class AppointmentController with ChangeNotifier {
       String? invoiceId;
       double amount = 0.0;
       String paymentStatus = '';
+      String? refundStatus;
 
       if (paymentQuery.docs.isNotEmpty) {
         final paymentData = paymentQuery.docs.first.data();
         invoiceId = paymentData['invoiceId'] as String?;
         amount = paymentData['amount'] as double? ?? 0.0;
         paymentStatus = paymentData['status'] as String? ?? '';
+        refundStatus = paymentData['refundStatus'] as String?;
+
         debugPrint('Found payment details in subcollection:');
         debugPrint('Invoice ID: $invoiceId');
         debugPrint('Amount: $amount');
         debugPrint('Payment Status: $paymentStatus');
+        debugPrint('- Refund Status: $refundStatus');
       } else {
         debugPrint('No payment document found in subcollection');
       }
@@ -500,7 +505,7 @@ class AppointmentController with ChangeNotifier {
 
       // Initialize update data with default values
       final Map<String, dynamic> updateData = {
-        'appointmentStatus': 3,
+        'appointmentStatus': AppointmentStatus.cancelled.index,
         'cancelledAt': FieldValue.serverTimestamp(),
         'refundStatus': null,
         'refundId': null,
@@ -509,11 +514,20 @@ class AppointmentController with ChangeNotifier {
         'refundAmount': null,
       };
 
+      // Check if refund is already processed
+      if (refundStatus != null && refundStatus.toLowerCase() == 'completed') {
+        debugPrint('Refund already processed with status: $refundStatus');
+        updateData['refundStatus'] = refundStatus;
+        updateData['refundAmount'] = amount;
+      }
+
       // Only process refund if payment was made and not already refunded
-      if (paymentStatus.toLowerCase() == 'paid' && 
-          invoiceId != null && 
+      else if (paymentStatus.toLowerCase() == 'paid' &&
+          invoiceId != null &&
           amount > 0) {
         debugPrint('Payment is paid, initiating refund process');
+        debugPrint('- Invoice ID: $invoiceId');
+        debugPrint('- Amount: $amount');
         final paymentService = PatientPaymentService();
 
         try {
@@ -522,35 +536,70 @@ class AppointmentController with ChangeNotifier {
           debugPrint('- Reason: Appointment cancellation');
 
           // Process automatic refund
-          await paymentService.processAutomaticRefund(
+          final refundResult = await paymentService.processRefundForAppointment(
             appointmentId: appointmentUid,
             reason: 'Appointment cancellation',
           );
 
-          debugPrint('Automatic refund processed successfully');
-          
-          // Update refund fields
-          updateData['refundStatus'] = 'COMPLETED';
-          updateData['refundAmount'] = amount;
+          debugPrint('Refund result: $refundResult');
+
+          if (refundResult['success'] == true) {
+            debugPrint('Refund processed successfully');
+
+            // Update refund fields
+            updateData['refundStatus'] = 'COMPLETED';
+            updateData['refundAmount'] = amount;
+            updateData['refundReason'] = 'Appointment declined by doctor';
+            updateData['refundedAt'] = FieldValue.serverTimestamp();
+          } else {
+            debugPrint('Refund processing failed: ${refundResult['message']}');
+
+            // Update refund fields with failed status
+            updateData['refundStatus'] = 'FAILED';
+            updateData['refundError'] = refundResult['message'];
+            updateData['refundAttemptedAt'] = FieldValue.serverTimestamp();
+          }
         } catch (e) {
-          debugPrint('Error processing automatic refund: $e');
-          // Continue with cancellation even if refund fails
+          debugPrint('ERROR: Failed to process refund: $e');
+          debugPrint('ERROR: Stack trace: ${StackTrace.current}');
+
+          // Update refund fields with failed status
+          updateData['refundStatus'] = 'FAILED';
+          updateData['refundError'] = e.toString();
+          updateData['refundAttemptedAt'] = FieldValue.serverTimestamp();
         }
       } else {
-        debugPrint('No refund needed - payment status: $paymentStatus');
+        debugPrint('No refund needed:');
+        debugPrint('- Payment Status: $paymentStatus');
+        debugPrint('- Invoice ID: $invoiceId');
+        debugPrint('- Amount: $amount');
       }
 
       debugPrint('Updating appointment with data:');
       debugPrint(updateData.toString());
 
       // Update appointment with all fields
-      await firestore.collection('appointments').doc(appointmentUid).update(updateData);
+      await firestore
+          .collection('appointments')
+          .doc(appointmentUid)
+          .update(updateData);
 
       debugPrint('Appointment cancelled successfully');
+      debugPrint('===== CANCEL APPOINTMENT COMPLETED =====');
       return const Right(true);
+    } on FirebaseAuthException catch (e) {
+      debugPrint('ERROR: FirebaseAuthException: ${e.message}');
+      debugPrint('ERROR: FirebaseAuthException code: ${e.code}');
+      debugPrint('ERROR: Stack trace: ${StackTrace.current}');
+      error = e;
+      notifyListeners();
+      debugPrint('===== DECLINE APPOINTMENT FAILED =====');
+      return Left(Exception(e.message));
     } catch (e) {
-      debugPrint('Error canceling appointment: $e');
-      return Left(Exception(e.toString()));
+      debugPrint('ERROR: Unexpected error: $e');
+      debugPrint('ERROR: Stack trace: ${StackTrace.current}');
+      debugPrint('===== DECLINE APPOINTMENT FAILED =====');
+      return Left(Exception('Failed to decline appointment: $e'));
     }
   }
 
@@ -560,7 +609,7 @@ class AppointmentController with ChangeNotifier {
       try {
         final refundStatus = await paymentService.getRefundStatus(refundId);
         final status = refundStatus['status'] as String;
-        
+
         // Update appointment document
         await firestore.collection('appointments').doc(appointmentId).update({
           'refundStatus': status,
@@ -569,13 +618,13 @@ class AppointmentController with ChangeNotifier {
 
         // Update payment records
         final batch = firestore.batch();
-        
+
         // Update payment in pending_payments collection
         final pendingPaymentQuery = await firestore
             .collection('pending_payments')
             .where('appointmentId', isEqualTo: appointmentId)
             .get();
-            
+
         if (pendingPaymentQuery.docs.isNotEmpty) {
           batch.update(pendingPaymentQuery.docs.first.reference, {
             'refundStatus': status,
@@ -589,7 +638,7 @@ class AppointmentController with ChangeNotifier {
             .doc(appointmentId)
             .collection('payments')
             .get();
-            
+
         if (paymentQuery.docs.isNotEmpty) {
           batch.update(paymentQuery.docs.first.reference, {
             'refundStatus': status,
@@ -986,7 +1035,8 @@ class AppointmentController with ChangeNotifier {
     debugPrint('Declining appointment with ID: $appointmentId');
     try {
       // Get appointment details first
-      final appointmentDoc = await firestore.collection('appointments').doc(appointmentId).get();
+      final appointmentDoc =
+          await firestore.collection('appointments').doc(appointmentId).get();
       if (!appointmentDoc.exists) {
         debugPrint('Appointment document not found');
         return Left(Exception('Appointment not found'));
@@ -1025,8 +1075,8 @@ class AppointmentController with ChangeNotifier {
       };
 
       // Only process refund if payment was made and not already refunded
-      if (paymentStatus.toLowerCase() == 'paid' && 
-          invoiceId != null && 
+      if (paymentStatus.toLowerCase() == 'paid' &&
+          invoiceId != null &&
           amount > 0) {
         debugPrint('Payment is paid, initiating refund process');
         final paymentService = PatientPaymentService();
@@ -1043,7 +1093,7 @@ class AppointmentController with ChangeNotifier {
           );
 
           debugPrint('Automatic refund processed successfully');
-          
+
           // Update refund fields
           updateData['refundStatus'] = 'COMPLETED';
           updateData['refundAmount'] = amount;
@@ -1059,7 +1109,10 @@ class AppointmentController with ChangeNotifier {
       debugPrint(updateData.toString());
 
       // Update appointment with all fields
-      await firestore.collection('appointments').doc(appointmentId).update(updateData);
+      await firestore
+          .collection('appointments')
+          .doc(appointmentId)
+          .update(updateData);
 
       debugPrint('Appointment declined successfully');
       return const Right(true);
