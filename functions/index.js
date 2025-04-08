@@ -59,23 +59,44 @@ function verifyXenditSignature(req) {
  * Export all functions
  */
 exports.createPayment = onRequest({timeoutSeconds: 60}, async (req, res) => {
-  const {amount, description, customerEmail, external_id} = req.body;
+  const {amount, description, customerEmail, external_id, doctorXenditAccountId} = req.body;
 
   try {
+    console.log("Creating payment with data:", {
+      amount,
+      description,
+      customerEmail,
+      external_id,
+      doctorXenditAccountId: doctorXenditAccountId ? "Present" : "Not provided",
+    });
+
+    // Prepare the request payload
+    const payload = {
+      external_id: external_id || `order_${Date.now()}`,
+      amount,
+      description,
+      payer_email: customerEmail,
+      success_redirect_url: "https://example.com/payment-success",
+      failure_redirect_url: "https://example.com/payment-failed",
+    };
+
+    // If doctorXenditAccountId is provided, add it to the payload
+    if (doctorXenditAccountId) {
+      payload.recipient = {
+        account_id: doctorXenditAccountId,
+      };
+      console.log("Setting recipient account ID:", doctorXenditAccountId);
+    }
+
     const response = await axios.post(
       "https://api.xendit.co/v2/invoices",
-      {
-        external_id: external_id || `order_${Date.now()}`,
-        amount,
-        description,
-        payer_email: customerEmail,
-        success_redirect_url: "https://example.com/payment-success",
-        failure_redirect_url: "https://example.com/payment-failed",
-      },
+      payload,
       {
         auth: {username: xenditSecretKey, password: ""},
       },
     );
+
+    console.log("Payment created successfully:", response.data);
 
     res.json({
       invoiceUrl: response.data.invoice_url,
@@ -83,6 +104,9 @@ exports.createPayment = onRequest({timeoutSeconds: 60}, async (req, res) => {
     });
   } catch (error) {
     console.error("Payment creation failed:", error);
+    if (error.response) {
+      console.error("Error response:", error.response.data);
+    }
     res.status(500).send("Failed to create payment");
   }
 });
@@ -842,5 +866,106 @@ exports.retryFailedWebhooks = onRequest(async (req, res) => {
   } catch (error) {
     console.error("Error retrying webhook:", error);
     res.status(500).send("Error retrying webhook");
+  }
+});
+
+/**
+ * Process Refund (HTTP Request - 2nd Gen)
+ * This function processes a refund for a paid invoice
+ */
+exports.processRefund = onRequest({timeoutSeconds: 60}, async (req, res) => {
+  try {
+    console.log("=== Processing Refund ===");
+    console.log("Request body:", JSON.stringify(req.body, null, 2));
+
+    const {invoiceId, amount, reason, external_id} = req.body;
+
+    // Validate required fields
+    if (!invoiceId || !amount || !reason) {
+      console.error("Missing required fields for refund");
+      return res.status(400).send({
+        error: "Missing required fields: invoiceId, amount, and reason are required",
+      });
+    }
+
+    // Call Xendit API to create refund
+    const response = await axios.post(
+      `https://api.xendit.co/v2/invoices/${invoiceId}/refunds`,
+      {
+        amount: amount,
+        reason: reason,
+        external_id: external_id || `refund_${Date.now()}`,
+      },
+      {
+        auth: {username: xenditSecretKey, password: ""},
+      },
+    );
+
+    console.log("Refund created successfully:", response.data);
+
+    // Store initial refund record in Firestore
+    const refundId = response.data.id;
+    const appointmentId = external_id?.replace("refund_", "");
+
+    if (appointmentId) {
+      // Create refund record in appointments/refunds subcollection
+      await db.collection("appointments")
+        .doc(appointmentId)
+        .collection("refunds")
+        .doc(refundId)
+        .set({
+          refundId: refundId,
+          invoiceId: invoiceId,
+          amount: amount,
+          reason: reason,
+          status: "PENDING",
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+
+      // Update appointment with initial refund status
+      await db.collection("appointments").doc(appointmentId).update({
+        refundStatus: "PENDING",
+        refundId: refundId,
+        refundInitiatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      // Update payment in pending_payments collection
+      const pendingPaymentQuery = await db
+        .collection("pending_payments")
+        .where("invoiceId", "==", invoiceId)
+        .limit(1)
+        .get();
+
+      if (!pendingPaymentQuery.empty) {
+        const pendingPaymentRef = pendingPaymentQuery.docs[0].ref;
+        await pendingPaymentRef.update({
+          refundStatus: "PENDING",
+          refundId: refundId,
+          refundInitiatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          refundAmount: amount,
+          refundReason: reason,
+        });
+      }
+    }
+
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error("Error processing refund:", error);
+    
+    // Log the error for debugging
+    await db.collection("webhook_logs").add({
+      type: "refund_processing",
+      event: req.body,
+      receivedAt: admin.firestore.FieldValue.serverTimestamp(),
+      processed: false,
+      error: error.message || "Unknown error",
+      stackTrace: error.stack,
+    });
+
+    res.status(500).send({
+      error: "Failed to process refund",
+      details: error.message || "Unknown error",
+    });
   }
 });

@@ -272,7 +272,8 @@ class BookAppointmentBloc
 
         final paymentService = PatientPaymentService();
         await paymentService.linkPaymentToAppointment(
-            appointmentId, event.appointmentId);
+            event.appointmentId, appointmentId,
+            doctorId: event.doctorId);
 
         debugPrint('Appointment created and payment linked successfully');
 

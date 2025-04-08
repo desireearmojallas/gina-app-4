@@ -13,7 +13,7 @@ class XenditPaymentService {
   String publicKey = '';
   String? _cachedAccountId;
   String? _currentDoctorId;
-  bool _isSimulationMode = true; // Default to simulation mode
+  final bool _isSimulationMode = true; // Default to simulation mode
 
   // Test bank account details for Philippine banks
   final Map<String, Map<String, dynamic>> _testBankAccounts = {
@@ -210,7 +210,7 @@ class XenditPaymentService {
       }
 
       final Map<String, dynamic> activationData = {
-        'type': 'MANAGED',
+        'type': 'OWNED',
         'email': email.trim().toLowerCase(),
         'for_user_verification': false,
         'profile': {
@@ -500,11 +500,11 @@ class XenditPaymentService {
           try {
             final transactionDate = DateTime.parse(
                 transaction['created_at'] ?? transaction['created']);
-          if (transactionDate.isBefore(startDate)) continue;
+            if (transactionDate.isBefore(startDate)) continue;
 
-          final date = transactionDate.toIso8601String().split('T')[0];
-          final amount = (transaction['amount'] as num).toDouble();
-          final type = transaction['type'] as String;
+            final date = transactionDate.toIso8601String().split('T')[0];
+            final amount = (transaction['amount'] as num).toDouble();
+            final type = transaction['type'] as String;
 
             // Add individual transaction instead of daily totals
             result.add({
@@ -602,12 +602,13 @@ class XenditPaymentService {
       }
 
       // 1. Validate inputs
-    if (secretKey.isEmpty) {
+      if (secretKey.isEmpty) {
         debugPrint('Error: Secret key is empty');
-      throw Exception('Xendit API key not configured');
-    }
+        throw Exception('Xendit API key not configured');
+      }
 
-      debugPrint('Starting withdrawal with bank: $bankCode, account: $accountNumber');
+      debugPrint(
+          'Starting withdrawal with bank: $bankCode, account: $accountNumber');
 
       // 2. Generate unique IDs
       final externalId = 'disb-${DateTime.now().millisecondsSinceEpoch}';
@@ -641,11 +642,13 @@ class XenditPaymentService {
         data: requestData,
         options: Options(
           headers: {
-            'Authorization': 'Basic ${base64Encode(utf8.encode('$secretKey:'))}',
+            'Authorization':
+                'Basic ${base64Encode(utf8.encode('$secretKey:'))}',
             'Content-Type': 'application/json',
             'X-IDEMPOTENCY-KEY': idempotencyKey,
           },
-          validateStatus: (status) => status! < 500, // Accept any status code less than 500
+          validateStatus: (status) =>
+              status! < 500, // Accept any status code less than 500
         ),
       );
 
@@ -655,7 +658,7 @@ class XenditPaymentService {
 
       // 7. Handle response
       if (response.statusCode == 200 || response.statusCode == 201) {
-      return response.data;
+        return response.data;
       } else {
         _handleXenditError(response);
         throw Exception('Failed to process disbursement');
@@ -675,7 +678,7 @@ class XenditPaymentService {
   }) async {
     try {
       debugPrint('Starting simulated withdrawal...');
-      
+
       // 1. Validate inputs
       if (amount <= 0) {
         throw Exception('Amount must be greater than 0');
@@ -689,15 +692,17 @@ class XenditPaymentService {
       // 3. Validate amount against bank limits
       final bankLimits = _testBankAccounts[bankCode]!;
       if (amount < bankLimits['minAmount']) {
-        throw Exception('Amount below minimum limit of ₱${bankLimits['minAmount']}');
+        throw Exception(
+            'Amount below minimum limit of ₱${bankLimits['minAmount']}');
       }
       if (amount > bankLimits['maxAmount']) {
-        throw Exception('Amount above maximum limit of ₱${bankLimits['maxAmount']}');
+        throw Exception(
+            'Amount above maximum limit of ₱${bankLimits['maxAmount']}');
       }
 
       // 4. Generate unique transaction ID
       final transactionId = 'sim-${DateTime.now().millisecondsSinceEpoch}';
-      
+
       // 5. Simulate processing delay
       await Future.delayed(const Duration(seconds: 2));
 
@@ -712,7 +717,8 @@ class XenditPaymentService {
         'account_holder_name': accountHolderName,
         'description': description ?? 'Simulated withdrawal',
         'created_at': DateTime.now().toIso8601String(),
-        'estimated_arrival': DateTime.now().add(const Duration(days: 1)).toIso8601String(),
+        'estimated_arrival':
+            DateTime.now().add(const Duration(days: 1)).toIso8601String(),
         'simulated': true,
       };
 
@@ -732,7 +738,7 @@ class XenditPaymentService {
       if (response != null) {
         debugPrint('Xendit API Error: ${response.statusCode}');
         debugPrint('Response: ${response.data}');
-        
+
         if (response.statusCode == 404) {
           throw Exception('''
 Xendit endpoint not found. Please verify:
@@ -740,7 +746,7 @@ Xendit endpoint not found. Please verify:
 2. Your account has disbursement permissions enabled
 3. You're using an Indonesian test bank account''');
         }
-        
+
         final errorData = response.data;
         if (errorData is Map<String, dynamic>) {
           final errorMessage = errorData['message'] as String?;

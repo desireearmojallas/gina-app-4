@@ -10,15 +10,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class PayNowButton extends StatelessWidget {
+class PayNowButton extends StatefulWidget {
   final String appointmentId;
   final String doctorName;
   final String patientName;
   final int modeOfAppointment;
   final double amount;
   final String appointmentDate;
-  final Function(String)? onPaymentCreated;
+  final String doctorId;
+  final Function(String) onPaymentCreated;
 
   const PayNowButton({
     super.key,
@@ -28,8 +30,61 @@ class PayNowButton extends StatelessWidget {
     required this.modeOfAppointment,
     required this.amount,
     required this.appointmentDate,
-    this.onPaymentCreated,
+    required this.doctorId,
+    required this.onPaymentCreated,
   });
+
+  @override
+  State<PayNowButton> createState() => _PayNowButtonState();
+}
+
+class _PayNowButtonState extends State<PayNowButton> {
+  final PatientPaymentService _paymentService = PatientPaymentService();
+  bool _isLoading = false;
+  String? _invoiceUrl;
+
+  Future<void> _createPayment() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final result = await _paymentService.createPaymentInvoice(
+        appointmentId: widget.appointmentId,
+        doctorName: widget.doctorName,
+        patientName: widget.patientName,
+        amount: widget.amount,
+        appointmentDate: widget.appointmentDate,
+        consultationType: widget.modeOfAppointment == 0
+            ? 'Online Consultation'
+            : 'Face-to-Face',
+        doctorId: widget.doctorId,
+      );
+
+      setState(() {
+        _invoiceUrl = result['invoiceUrl'];
+        _isLoading = false;
+      });
+
+      widget.onPaymentCreated(_invoiceUrl!);
+
+      if (_invoiceUrl != null) {
+        if (!mounted) return;
+        await launchUrl(Uri.parse(_invoiceUrl!));
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error creating payment: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   Future<String> _checkPaymentStatus(
       BuildContext context, String tempAppointmentId) async {
@@ -96,12 +151,12 @@ class PayNowButton extends StatelessWidget {
               final bookAppointmentBloc = context.read<BookAppointmentBloc>();
               HapticFeedback.mediumImpact();
               debugPrint('Pay Now button clicked');
-              debugPrint('Appointment ID: $appointmentId');
-              debugPrint('Amount: $amount');
+              debugPrint('Appointment ID: ${widget.appointmentId}');
+              debugPrint('Amount: ${widget.amount}');
 
               // First check if we're in reschedule mode by looking for existing payment
-              final pendingPayment =
-                  await bookAppointmentBloc.fetchPendingPayment(appointmentId);
+              final pendingPayment = await bookAppointmentBloc
+                  .fetchPendingPayment(widget.appointmentId);
               if (pendingPayment != null) {
                 debugPrint('Found existing payment in reschedule mode');
                 final status = pendingPayment['status'] as String? ?? 'pending';
@@ -113,12 +168,13 @@ class PayNowButton extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => PatientPaymentScreenInitial(
-                        appointmentId: appointmentId,
-                        doctorName: doctorName,
-                        patientName: patientName,
-                        modeOfAppointment: modeOfAppointment,
-                        amount: amount,
-                        appointmentDate: appointmentDate,
+                        appointmentId: widget.appointmentId,
+                        doctorId: widget.doctorId,
+                        doctorName: widget.doctorName,
+                        patientName: widget.patientName,
+                        modeOfAppointment: widget.modeOfAppointment,
+                        amount: widget.amount,
+                        appointmentDate: widget.appointmentDate,
                         existingInvoiceUrl: pendingPayment['invoiceUrl'],
                         showReceipt: true,
                       ),
@@ -130,7 +186,7 @@ class PayNowButton extends StatelessWidget {
 
               // If not in reschedule mode or payment not found/not paid, proceed with normal flow
               final paymentStatus =
-                  await _checkPaymentStatus(context, appointmentId);
+                  await _checkPaymentStatus(context, widget.appointmentId);
               debugPrint('Current payment status: $paymentStatus');
 
               if (paymentStatus == 'paid') {
@@ -172,19 +228,19 @@ class PayNowButton extends StatelessWidget {
                         children: [
                           _buildReceiptRow(
                             'Doctor',
-                            'Dr. $doctorName',
+                            'Dr. ${widget.doctorName}',
                             context,
                           ),
                           const Gap(8),
                           _buildReceiptRow(
                             'Patient',
-                            patientName,
+                            widget.patientName,
                             context,
                           ),
                           const Gap(8),
                           _buildReceiptRow(
                             'Amount',
-                            '₱${NumberFormat('#,##0.00').format(amount)}',
+                            '₱${NumberFormat('#,##0.00').format(widget.amount)}',
                             context,
                             valueColor: Colors.green,
                             valueBold: true,
@@ -192,13 +248,13 @@ class PayNowButton extends StatelessWidget {
                           const Gap(8),
                           _buildReceiptRow(
                             'Date',
-                            appointmentDate,
+                            widget.appointmentDate,
                             context,
                           ),
                           const Gap(8),
                           _buildReceiptRow(
                             'Mode',
-                            modeOfAppointment == 0
+                            widget.modeOfAppointment == 0
                                 ? 'Online Consultation'
                                 : 'Face-to-Face Consultation',
                             context,
@@ -252,12 +308,13 @@ class PayNowButton extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (context) => PatientPaymentScreenInitial(
-                                appointmentId: appointmentId,
-                                doctorName: doctorName,
-                                patientName: patientName,
-                                modeOfAppointment: modeOfAppointment,
-                                amount: amount,
-                                appointmentDate: appointmentDate,
+                                appointmentId: widget.appointmentId,
+                                doctorId: widget.doctorId,
+                                doctorName: widget.doctorName,
+                                patientName: widget.patientName,
+                                modeOfAppointment: widget.modeOfAppointment,
+                                amount: widget.amount,
+                                appointmentDate: widget.appointmentDate,
                                 existingInvoiceUrl: context
                                     .read<BookAppointmentBloc>()
                                     .currentInvoiceUrl,
@@ -285,12 +342,13 @@ class PayNowButton extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => PatientPaymentScreenInitial(
-                      appointmentId: appointmentId,
-                      doctorName: doctorName,
-                      patientName: patientName,
-                      modeOfAppointment: modeOfAppointment,
-                      amount: amount,
-                      appointmentDate: appointmentDate,
+                      appointmentId: widget.appointmentId,
+                      doctorId: widget.doctorId,
+                      doctorName: widget.doctorName,
+                      patientName: widget.patientName,
+                      modeOfAppointment: widget.modeOfAppointment,
+                      amount: widget.amount,
+                      appointmentDate: widget.appointmentDate,
                       existingInvoiceUrl: bookAppointmentBloc.currentInvoiceUrl,
                     ),
                   ),
@@ -298,45 +356,7 @@ class PayNowButton extends StatelessWidget {
                 return;
               }
 
-              final paymentService = PatientPaymentService();
-              try {
-                final invoice = await paymentService.createPaymentInvoice(
-                  appointmentId: appointmentId,
-                  doctorName: doctorName,
-                  patientName: patientName,
-                  consultationType:
-                      modeOfAppointment == 0 ? 'Online' : 'Face-to-Face',
-                  amount: amount,
-                  appointmentDate: appointmentDate,
-                );
-
-                if (onPaymentCreated != null) {
-                  onPaymentCreated!(invoice['invoiceUrl']);
-                }
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PatientPaymentScreenInitial(
-                      appointmentId: appointmentId,
-                      doctorName: doctorName,
-                      patientName: patientName,
-                      modeOfAppointment: modeOfAppointment,
-                      amount: amount,
-                      appointmentDate: appointmentDate,
-                      existingInvoiceUrl: invoice['invoiceUrl'],
-                    ),
-                  ),
-                );
-              } catch (e) {
-                debugPrint('Error creating payment: $e');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Error creating payment: $e'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
+              await _createPayment();
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),

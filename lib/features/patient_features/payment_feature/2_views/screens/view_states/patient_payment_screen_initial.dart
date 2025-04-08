@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 
 class PatientPaymentScreenInitial extends StatefulWidget {
   final String appointmentId;
+  final String doctorId;
   final String doctorName;
   final String patientName;
   final int modeOfAppointment;
@@ -24,6 +25,7 @@ class PatientPaymentScreenInitial extends StatefulWidget {
   const PatientPaymentScreenInitial({
     super.key,
     required this.appointmentId,
+    required this.doctorId,
     required this.doctorName,
     required this.patientName,
     required this.modeOfAppointment,
@@ -85,6 +87,7 @@ class _PatientPaymentScreenInitialState
             widget.modeOfAppointment == 0 ? 'Face-to-face' : 'Online',
         amount: widget.amount,
         appointmentDate: widget.appointmentDate,
+        doctorId: widget.doctorId,
       );
 
       debugPrint('Received invoice data: $invoice');

@@ -6,6 +6,7 @@ import 'package:gina_app_4/features/patient_features/payment_feature/2_views/scr
 
 class AppointmentPaymentWidgets extends StatelessWidget {
   final String appointmentId;
+  final String doctorId;
   final String doctorName;
   final String patientName;
   final String consultationType;
@@ -15,6 +16,7 @@ class AppointmentPaymentWidgets extends StatelessWidget {
   const AppointmentPaymentWidgets({
     super.key,
     required this.appointmentId,
+    required this.doctorId,
     required this.doctorName,
     required this.patientName,
     required this.consultationType,
@@ -36,6 +38,7 @@ class AppointmentPaymentWidgets extends StatelessWidget {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return PatientPaymentScreenProvider(
                   appointmentId: appointmentId,
+                  doctorId: doctorId,
                   doctorName: doctorName,
                   patientName: patientName,
                   modeOfAppointment: consultationType,

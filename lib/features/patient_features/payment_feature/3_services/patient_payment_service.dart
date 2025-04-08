@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -7,10 +5,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
-import 'package:gina_app_4/features/patient_features/payment_feature/0_model/patient_payment_model.dart';
 import 'package:gina_app_4/features/patient_features/payment_feature/0_model/payment_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:uuid/uuid.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'dart:async';
@@ -22,6 +18,7 @@ class PatientPaymentService {
   String publicKey = '';
   UserModel? _currentPatient;
   final FirebaseFunctions _functions = FirebaseFunctions.instance;
+  bool _isSimulationMode = false;
 
   PatientPaymentService() {
     secretKey = dotenv.env['SECRET_KEY'] ?? '';
@@ -89,6 +86,7 @@ class PatientPaymentService {
     required double amount,
     required String appointmentDate,
     required String consultationType,
+    required String doctorId,
   }) async {
     try {
       debugPrint('=== Starting createPaymentInvoice ===');
@@ -139,6 +137,24 @@ class PatientPaymentService {
         }
       }
 
+      // Get doctor's Xendit account ID
+      final doctorDoc = await FirebaseFirestore.instance
+          .collection('doctors')
+          .doc(doctorId)
+          .get();
+
+      if (!doctorDoc.exists) {
+        throw Exception('Doctor document not found');
+      }
+
+      final doctorData = doctorDoc.data();
+      if (doctorData == null || doctorData['xenditAccountId'] == null) {
+        throw Exception('Xendit account ID not found for this doctor');
+      }
+
+      final doctorXenditAccountId = doctorData['xenditAccountId'] as String;
+      debugPrint('Doctor Xendit Account ID: $doctorXenditAccountId');
+
       // Create new payment invoice using Firebase Function
       debugPrint('=== Creating new payment invoice via Firebase Function ===');
       debugPrint('Current patient initialized: ${_currentPatient?.email}');
@@ -151,6 +167,7 @@ class PatientPaymentService {
         amount: amount,
         description: 'Appointment with $doctorName - $consultationType',
         customerEmail: patient.email,
+        doctorXenditAccountId: doctorXenditAccountId,
       );
 
       debugPrint('Firebase Function Response: $result');
@@ -174,6 +191,7 @@ class PatientPaymentService {
         'createdAt': FieldValue.serverTimestamp(),
         'patientId': patient.uid,
         'patientName': patientName,
+        'doctorId': doctorId,
         'doctorName': doctorName,
         'lastCheckedAt': FieldValue.serverTimestamp(),
         'paymentMethod': 'Xendit',
@@ -198,6 +216,7 @@ class PatientPaymentService {
     required double amount,
     required String description,
     required String customerEmail,
+    required String doctorXenditAccountId,
   }) async {
     try {
       debugPrint('Calling Firebase Function createPayment...');
@@ -213,6 +232,7 @@ class PatientPaymentService {
           'description': description,
           'customerEmail': customerEmail,
           'external_id': appointmentId,
+          'doctorXenditAccountId': doctorXenditAccountId,
         }),
       );
 
@@ -270,75 +290,406 @@ class PatientPaymentService {
 
   // Add a method to link payment to appointment
   Future<void> linkPaymentToAppointment(
-      String appointmentId, String tempAppointmentId) async {
-    try {
-      debugPrint('=== Linking Payment to Appointment ===');
-      debugPrint('New Appointment ID: $appointmentId');
-      debugPrint('Temp Appointment ID: $tempAppointmentId');
+    String tempAppointmentId,
+    String finalAppointmentId, {
+    String? doctorId,
+  }) async {
+    debugPrint('=== Starting Payment Linking Process ===');
+    debugPrint('Temp Appointment ID: $tempAppointmentId');
+    debugPrint('Final Appointment ID: $finalAppointmentId');
+    debugPrint('Doctor ID: $doctorId');
 
-      // Find the payment document using the temp appointment ID
+    try {
+      // Get the payment document from pending_payments collection
       final paymentDoc = await FirebaseFirestore.instance
           .collection('pending_payments')
           .doc(tempAppointmentId)
           .get();
 
       if (!paymentDoc.exists) {
-        throw Exception(
-            'No payment record found for temp appointment ID: $tempAppointmentId');
+        debugPrint('No payment document found for temp ID: $tempAppointmentId');
+        throw Exception('Payment document not found');
       }
 
-      final payment = PaymentModel.fromMap(
-        paymentDoc.data()!,
-        paymentDoc.id,
+      final paymentData = paymentDoc.data();
+      if (paymentData == null) {
+        debugPrint('Payment document exists but has no data');
+        throw Exception('Payment document has no data');
+      }
+
+      debugPrint('Payment document found, parsing data...');
+      final invoiceId = paymentData['invoiceId'] as String?;
+      final status = paymentData['status'] as String?;
+      final amount = paymentData['amount'] as double? ?? 0.0;
+      final paymentMethod = paymentData['paymentMethod'] as String? ?? 'Xendit';
+
+      if (invoiceId == null) {
+        debugPrint('ERROR: Invoice ID is null in payment document');
+        throw Exception('Invoice ID is null in payment document');
+      }
+
+      if (status != 'paid') {
+        debugPrint('ERROR: Payment is not marked as paid (status: $status)');
+        throw Exception('Payment is not marked as paid');
+      }
+
+      debugPrint('Found paid payment with ID: $invoiceId');
+      debugPrint('Payment Amount: ₱$amount');
+      debugPrint('Payment Method: $paymentMethod');
+
+      // Get the appointment document
+      debugPrint('Fetching appointment document...');
+      final appointmentDoc = await FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(finalAppointmentId)
+          .get();
+
+      if (!appointmentDoc.exists) {
+        debugPrint('ERROR: Appointment document not found');
+        throw Exception('Appointment document not found');
+      }
+
+      final appointmentData = appointmentDoc.data();
+      if (appointmentData == null) {
+        debugPrint('ERROR: Appointment document exists but has no data');
+        throw Exception('Appointment document has no data');
+      }
+
+      debugPrint('Appointment data: $appointmentData');
+
+      // Use the provided doctorId or try to get it from the appointment document
+      final appointmentDoctorId = appointmentData['doctorUid'] as String?;
+      final effectiveDoctorId = doctorId ?? appointmentDoctorId;
+
+      if (effectiveDoctorId == null) {
+        debugPrint('ERROR: Doctor ID is null in appointment document');
+        throw Exception('Doctor ID is null in appointment document');
+      }
+
+      // Get doctor's Xendit account ID
+      final doctorDoc = await FirebaseFirestore.instance
+          .collection('doctors')
+          .doc(effectiveDoctorId)
+          .get();
+
+      if (!doctorDoc.exists) {
+        throw Exception('Doctor document not found');
+      }
+
+      final doctorData = doctorDoc.data();
+      if (doctorData == null || doctorData['xenditAccountId'] == null) {
+        throw Exception('Xendit account ID not found for this doctor');
+      }
+
+      final doctorXenditAccountId = doctorData['xenditAccountId'] as String;
+      debugPrint('Doctor Xendit Account ID: $doctorXenditAccountId');
+
+      // Create direct transfer to doctor's account
+      debugPrint('Creating direct transfer to doctor...');
+      final transferResult = await _createDirectTransfer(
+        recipientId: doctorXenditAccountId,
+        amount: amount,
+        description: 'Payment for appointment $finalAppointmentId',
       );
 
-      if (payment.status.toLowerCase() != 'paid') {
-        throw Exception('Payment is not in paid status');
+      debugPrint('Transfer Result: $transferResult');
+
+      // Create a payment record in the appointments/payments subcollection
+      debugPrint(
+          'Creating payment record in appointments/payments subcollection...');
+      await FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(finalAppointmentId)
+          .collection('payments')
+          .doc(invoiceId)
+          .set({
+        'invoiceId': invoiceId,
+        'amount': amount,
+        'status': status,
+        'paymentMethod': paymentMethod,
+        'linkedAt': FieldValue.serverTimestamp(),
+        'transferId': transferResult['id'],
+        'transferStatus': transferResult['status'],
+      });
+
+      // Update the appointment with payment information
+      debugPrint('Updating appointment with payment information...');
+      await FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(finalAppointmentId)
+          .update({
+        'paymentStatus': status,
+        'paymentMethod': paymentMethod,
+        'paymentAmount': amount,
+        'paymentUpdatedAt': FieldValue.serverTimestamp(),
+        'transferId': transferResult['id'],
+        'transferStatus': transferResult['status'],
+      });
+
+      // Update the doctor's document with the payment information
+      debugPrint('Updating doctor document with payment information...');
+      await FirebaseFirestore.instance
+          .collection('doctors')
+          .doc(effectiveDoctorId)
+          .collection('payments')
+          .doc(invoiceId)
+          .set({
+        'invoiceId': invoiceId,
+        'appointmentId': finalAppointmentId,
+        'amount': amount,
+        'status': status,
+        'paymentMethod': paymentMethod,
+        'linkedAt': FieldValue.serverTimestamp(),
+        'transferId': transferResult['id'],
+        'transferStatus': transferResult['status'],
+      });
+
+      // Delete the temporary payment document
+      debugPrint('Deleting temporary payment document...');
+      await FirebaseFirestore.instance
+          .collection('pending_payments')
+          .doc(tempAppointmentId)
+          .delete();
+
+      debugPrint('=== Payment Successfully Linked to Appointment ===');
+    } catch (e) {
+      debugPrint('Error linking payment to appointment: $e');
+      throw Exception('Failed to link payment to appointment: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> _createDirectTransfer({
+    required String recipientId,
+    required double amount,
+    required String description,
+  }) async {
+    try {
+      debugPrint('Creating direct transfer to doctor...');
+      debugPrint('Recipient ID: $recipientId');
+      debugPrint('Amount: $amount');
+      debugPrint('Description: $description');
+
+      // Reload environment variables
+      await dotenv.load();
+
+      // Get the source account ID from environment variables
+      final sourceAccountId = dotenv.env['XENDIT_SOURCE_ACCOUNT_ID'];
+      debugPrint('All environment variables: ${dotenv.env}');
+      debugPrint('XENDIT_SOURCE_ACCOUNT_ID from env: ${dotenv.env['XENDIT_SOURCE_ACCOUNT_ID']}');
+      debugPrint('XENDIT_SOURCE_USER_ID from env: ${dotenv.env['XENDIT_SOURCE_USER_ID']}');
+
+      if (sourceAccountId == null || sourceAccountId.isEmpty) {
+        throw Exception(
+            'XENDIT_SOURCE_ACCOUNT_ID is not configured in .env file');
+      }
+      debugPrint('Source Account ID: $sourceAccountId');
+
+      // For simulation mode, use the simulation endpoint
+      if (_isSimulationMode) {
+        debugPrint('Using simulation mode for direct transfer');
+        return _simulateDirectTransfer(
+          recipientId: recipientId,
+          amount: amount,
+          description: description,
+        );
       }
 
-      debugPrint('Found paid payment with ID: ${payment.invoiceId}');
-      debugPrint('Linking to appointment ID: $appointmentId');
+      // Make the API request to create a direct transfer
+      final response = await _dio.post(
+        '$_baseUrl/transfers',
+        data: {
+          'reference': 'transfer-${DateTime.now().millisecondsSinceEpoch}',
+          'source_user_id': dotenv.env['XENDIT_SOURCE_USER_ID'],
+          'destination_user_id': recipientId,
+          'amount': amount,
+          'currency': 'PHP',
+          'description': description,
+        },
+        options: Options(
+          headers: {
+            'Authorization':
+                'Basic ${base64Encode(utf8.encode('$secretKey:'))}',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
 
-      // Create payment subcollection in appointment
+      debugPrint('Direct transfer response: ${response.data}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response.data;
+      } else {
+        throw Exception('Failed to create direct transfer: ${response.data}');
+      }
+    } catch (e) {
+      debugPrint('Error creating direct transfer: $e');
+      if (e is DioException) {
+        debugPrint('DioError details:');
+        debugPrint('  Status code: ${e.response?.statusCode}');
+        debugPrint('  Response data: ${e.response?.data}');
+        debugPrint('  Error message: ${e.message}');
+        throw Exception(
+            'Failed to create direct transfer: ${e.response?.data ?? e.message}');
+      }
+      throw Exception('Failed to create direct transfer: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> _simulateDirectTransfer({
+    required String recipientId,
+    required double amount,
+    required String description,
+  }) async {
+    debugPrint('Simulating direct transfer...');
+
+    // Simulate a delay
+    await Future.delayed(const Duration(seconds: 1));
+
+    // Generate a unique transfer ID
+    final transferId = 'sim-transfer-${DateTime.now().millisecondsSinceEpoch}';
+
+    // Return simulated response
+    return {
+      'id': transferId,
+      'source_account_id': dotenv.env['XENDIT_SOURCE_ACCOUNT_ID'],
+      'destination_account_id': recipientId,
+      'amount': amount,
+      'description': description,
+      'status': 'COMPLETED',
+      'created_at': DateTime.now().toIso8601String(),
+      'simulated': true,
+    };
+  }
+
+  Future<void> _startTransferStatusPolling({
+    required String transferId,
+    required String appointmentId,
+    required String paymentId,
+    int maxAttempts = 30, // 5 minutes with 10-second intervals
+    int intervalSeconds = 10,
+  }) async {
+    int attempts = 0;
+    String lastStatus = 'pending';
+
+    debugPrint('=== Starting Transfer Status Polling ===');
+    debugPrint('Transfer ID: $transferId');
+    debugPrint('Appointment ID: $appointmentId');
+
+    Timer.periodic(Duration(seconds: intervalSeconds), (timer) async {
+      attempts++;
+      debugPrint('Polling attempt $attempts of $maxAttempts');
+
+      try {
+        final transferStatus = await _checkTransferStatus(transferId);
+        debugPrint('Current transfer status: $transferStatus');
+
+        if (transferStatus != lastStatus) {
+          debugPrint(
+              'Transfer status changed from $lastStatus to $transferStatus');
+          lastStatus = transferStatus;
+
+          // Update transfer status in Firestore
+          await _updateTransferStatus(
+            appointmentId: appointmentId,
+            paymentId: paymentId,
+            transferId: transferId,
+            status: transferStatus,
+          );
+
+          // If transfer is successful or failed, stop polling
+          if (transferStatus == 'SUCCESS' || transferStatus == 'FAILED') {
+            debugPrint('Transfer completed with status: $transferStatus');
+            timer.cancel();
+          }
+        }
+
+        // If we've reached the maximum number of attempts, stop polling
+        if (attempts >= maxAttempts) {
+          debugPrint('Reached maximum polling attempts, stopping');
+          timer.cancel();
+        }
+      } catch (e) {
+        debugPrint('Error checking transfer status: $e');
+        // Don't stop polling on error, just log it and continue
+      }
+    });
+  }
+
+  Future<String> _checkTransferStatus(String transferId) async {
+    try {
+      debugPrint('Checking transfer status for ID: $transferId');
+      final response = await _dio.get(
+        '$_baseUrl/transfers/$transferId',
+        options: Options(
+          headers: {
+            'Authorization':
+                'Basic ${base64Encode(utf8.encode('$secretKey:'))}',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      debugPrint('Transfer status response: ${response.statusCode}');
+      debugPrint('Transfer status body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.data);
+        return data['status'] as String;
+      } else {
+        throw Exception('Failed to check transfer status: ${response.data}');
+      }
+    } catch (e) {
+      debugPrint('Error checking transfer status: $e');
+      throw Exception('Failed to check transfer status: $e');
+    }
+  }
+
+  Future<void> _updateTransferStatus({
+    required String appointmentId,
+    required String paymentId,
+    required String transferId,
+    required String status,
+  }) async {
+    try {
+      debugPrint('=== Updating Transfer Status ===');
+      debugPrint('Appointment ID: $appointmentId');
+      debugPrint('Payment ID: $paymentId');
+      debugPrint('Transfer ID: $transferId');
+      debugPrint('New Status: $status');
+
+      // Update appointment document
+      await FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(appointmentId)
+          .update({
+        'transferStatus': status,
+        'transferUpdatedAt': FieldValue.serverTimestamp(),
+      });
+
+      // Update payment in appointments/payments subcollection
       await FirebaseFirestore.instance
           .collection('appointments')
           .doc(appointmentId)
           .collection('payments')
-          .doc(payment.invoiceId)
-          .set(payment
-              .copyWith(
-                isLinkedToAppointment: true,
-                linkedAt: DateTime.now(),
-                paymentMethod: payment.paymentMethod,
-              )
-              .toMap());
-
-      // Update appointment document with payment status
-      await FirebaseFirestore.instance
-          .collection('appointments')
-          .doc(appointmentId)
+          .doc(paymentId)
           .update({
-        'paymentStatus': payment.status,
-        'paymentUpdatedAt': FieldValue.serverTimestamp(),
-        'amount': payment.amount,
-        'consultationType': payment.consultationType,
-        'paymentMethod': payment.paymentMethod,
+        'transferStatus': status,
+        'transferUpdatedAt': FieldValue.serverTimestamp(),
       });
 
-      // Update the pending payment to mark it as linked
+      // Update pending payment
       await FirebaseFirestore.instance
           .collection('pending_payments')
-          .doc(tempAppointmentId)
+          .doc(appointmentId)
           .update({
-        'isLinkedToAppointment': true,
-        'linkedAt': FieldValue.serverTimestamp(),
-        'linkedAppointmentId': appointmentId,
+        'transferStatus': status,
+        'transferUpdatedAt': FieldValue.serverTimestamp(),
       });
 
-      debugPrint('Successfully linked payment to appointment');
+      debugPrint('Successfully updated transfer status in all documents');
     } catch (e) {
-      debugPrint('Error linking payment to appointment: $e');
-      throw Exception('Failed to link payment to appointment: $e');
+      debugPrint('Error updating transfer status: $e');
+      throw Exception('Failed to update transfer status: $e');
     }
   }
 
@@ -377,7 +728,7 @@ class PatientPaymentService {
         if (data['payment_channel'] != null) {
           paymentChannel = data['payment_channel'] as String;
           if (data['payment_method'] != null) {
-            paymentChannel = '${paymentChannel} - ${data['payment_method']}';
+            paymentChannel = '$paymentChannel - ${data['payment_method']}';
           }
         } else if (data['payment_method'] != null) {
           paymentChannel = data['payment_method'] as String;
@@ -427,51 +778,6 @@ class PatientPaymentService {
     } catch (e) {
       debugPrint('Error checking payment status: $e');
       throw Exception('Failed to check payment status: $e');
-    }
-  }
-
-  Future<void> _updatePaymentStatus(String invoiceId, String status) async {
-    try {
-      debugPrint('Attempting to update payment status in Firebase...');
-      debugPrint('Invoice ID: $invoiceId');
-      debugPrint('New Status: $status');
-
-      // Find the payment document by invoice ID
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('pending_payments')
-          .where('invoiceId', isEqualTo: invoiceId)
-          .limit(1)
-          .get();
-
-      debugPrint(
-          'Found ${querySnapshot.docs.length} matching payment documents');
-
-      if (querySnapshot.docs.isEmpty) {
-        debugPrint('No payment document found for invoice ID: $invoiceId');
-        throw Exception('Payment record not found');
-      }
-
-      final paymentDoc = querySnapshot.docs.first;
-      final paymentData = paymentDoc.data();
-      debugPrint('Current payment status: ${paymentData['status']}');
-      debugPrint('Payment document ID: ${paymentDoc.id}');
-      debugPrint('Temporary appointment ID: ${paymentData['appointmentId']}');
-
-      // Update the payment status in pending_payments
-      await FirebaseFirestore.instance
-          .collection('pending_payments')
-          .doc(paymentDoc.id)
-          .update({
-        'status': status.toLowerCase(),
-        'updatedAt': FieldValue.serverTimestamp(),
-        'lastCheckedAt': FieldValue.serverTimestamp(),
-      });
-
-      debugPrint(
-          'Successfully updated payment status in pending_payments to: ${status.toLowerCase()}');
-    } catch (e) {
-      debugPrint('Error updating payment status: $e');
-      throw Exception('Failed to update payment status: $e');
     }
   }
 
@@ -573,7 +879,7 @@ class PatientPaymentService {
       debugPrint('Reason: $reason');
 
       // Call Firebase Function to create refund
-      final url = 'https://initiaterefund-pbiqoneg6a-as.a.run.app';
+      const url = 'https://initiaterefund-pbiqoneg6a-as.a.run.app';
       debugPrint('Making request to URL: $url');
 
       final requestBody = {
@@ -620,7 +926,7 @@ class PatientPaymentService {
             .limit(1)
             .get();
 
-        if (!pendingPaymentQuery.docs.isEmpty) {
+        if (pendingPaymentQuery.docs.isNotEmpty) {
           final pendingPaymentRef = pendingPaymentQuery.docs.first.reference;
           batch.update(pendingPaymentRef, {
             'refundStatus': 'PENDING',
@@ -639,7 +945,7 @@ class PatientPaymentService {
             .limit(1)
             .get();
 
-        if (!appointmentPaymentQuery.docs.isEmpty) {
+        if (appointmentPaymentQuery.docs.isNotEmpty) {
           final appointmentPaymentRef =
               appointmentPaymentQuery.docs.first.reference;
           batch.update(appointmentPaymentRef, {
@@ -729,7 +1035,7 @@ class PatientPaymentService {
           .where('invoiceId', isEqualTo: invoiceId)
           .get();
 
-      if (!pendingPaymentQuery.docs.isEmpty) {
+      if (pendingPaymentQuery.docs.isNotEmpty) {
         final pendingPaymentDoc = pendingPaymentQuery.docs.first;
         await pendingPaymentDoc.reference.update({
           'status': 'refunded',
@@ -748,7 +1054,7 @@ class PatientPaymentService {
           .where('invoiceId', isEqualTo: invoiceId)
           .get();
 
-      if (!appointmentPaymentQuery.docs.isEmpty) {
+      if (appointmentPaymentQuery.docs.isNotEmpty) {
         final appointmentPaymentDoc = appointmentPaymentQuery.docs.first;
         await appointmentPaymentDoc.reference.update({
           'status': 'refunded',
@@ -802,6 +1108,88 @@ class PatientPaymentService {
     } catch (e) {
       debugPrint('Error in getRefundStatus: $e');
       throw Exception('Failed to check refund status: $e');
+    }
+  }
+
+  /// Processes an automatic refund when an appointment is cancelled or declined
+  /// This method will be called by the appointment service when an appointment is cancelled or declined
+  Future<void> processAutomaticRefund({
+    required String appointmentId,
+    required String reason,
+  }) async {
+    try {
+      debugPrint('=== Processing Automatic Refund ===');
+      debugPrint('Appointment ID: $appointmentId');
+      debugPrint('Reason: $reason');
+
+      // Find the payment document
+      final paymentDoc = await FirebaseFirestore.instance
+          .collection('pending_payments')
+          .doc(appointmentId)
+          .get();
+
+      if (!paymentDoc.exists) {
+        debugPrint('No payment found for appointment: $appointmentId');
+        return;
+      }
+
+      final paymentData = paymentDoc.data()!;
+      final invoiceId = paymentData['invoiceId'] as String;
+      final amount = paymentData['amount'] as double;
+      final status = paymentData['status'] as String? ?? 'pending';
+
+      // Only process refund if payment is already paid
+      if (status.toLowerCase() != 'paid') {
+        debugPrint('Payment is not in paid status, skipping refund');
+        return;
+      }
+
+      debugPrint('Found payment with invoice ID: $invoiceId');
+      debugPrint('Amount: $amount');
+      debugPrint('Current status: $status');
+
+      // Call Firebase Function to process refund
+      final response = await http.post(
+        Uri.parse(
+            'https://asia-southeast1-gina-app-4.cloudfunctions.net/processRefund'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'invoiceId': invoiceId,
+          'amount': amount,
+          'reason': reason,
+          'external_id': 'refund_$appointmentId',
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        debugPrint('Refund processed successfully: $data');
+
+        // Update payment status in Firestore
+        await FirebaseFirestore.instance
+            .collection('pending_payments')
+            .doc(appointmentId)
+            .update({
+          'status': 'refunded',
+          'refundStatus': 'COMPLETED',
+          'refundId': data['id'],
+          'refundAmount': amount,
+          'refundReason': reason,
+          'refundedAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+
+        debugPrint('Payment status updated to refunded');
+      } else {
+        debugPrint(
+            'Error processing refund: ${response.statusCode} - ${response.body}');
+        throw Exception('Failed to process refund: ${response.body}');
+      }
+    } catch (e) {
+      debugPrint('Error processing automatic refund: $e');
+      throw Exception('Failed to process automatic refund: $e');
     }
   }
 }

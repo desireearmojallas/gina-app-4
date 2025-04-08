@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class PaymentModel {
   final String paymentId;
@@ -21,6 +22,8 @@ class PaymentModel {
   final DateTime? refundInitiatedAt;
   final DateTime? refundUpdatedAt;
   final double? refundAmount;
+  final String? transferId;
+  final String? transferStatus;
 
   PaymentModel({
     required this.paymentId,
@@ -43,9 +46,30 @@ class PaymentModel {
     this.refundInitiatedAt,
     this.refundUpdatedAt,
     this.refundAmount,
+    this.transferId,
+    this.transferStatus,
   });
 
   factory PaymentModel.fromMap(Map<String, dynamic> map, String id) {
+    DateTime parseAppointmentDate(String dateStr) {
+      try {
+        // First try parsing as ISO format
+        return DateTime.parse(dateStr);
+      } catch (e) {
+        try {
+          // Try parsing the format "Friday, 11 of April 2025"
+          final dateFormat = DateFormat("EEEE, d 'of' MMMM y");
+          return dateFormat.parse(dateStr);
+        } catch (e) {
+          // If both fail, try parsing as Timestamp
+          if (dateStr is Timestamp) {
+            return (dateStr as Timestamp).toDate();
+          }
+          throw FormatException('Invalid date format: $dateStr');
+        }
+      }
+    }
+
     return PaymentModel(
       paymentId: id,
       appointmentId: map['appointmentId'] ?? '',
@@ -59,7 +83,7 @@ class PaymentModel {
       consultationType: map['consultationType'] ?? '',
       appointmentDate: (map['appointmentDate'] is Timestamp)
           ? (map['appointmentDate'] as Timestamp).toDate()
-          : DateTime.parse(map['appointmentDate'] as String),
+          : parseAppointmentDate(map['appointmentDate'] as String),
       createdAt: (map['createdAt'] as Timestamp).toDate(),
       isLinkedToAppointment: map['isLinkedToAppointment'] ?? false,
       linkedAt: map['linkedAt'] != null
@@ -75,6 +99,8 @@ class PaymentModel {
           ? (map['refundUpdatedAt'] as Timestamp).toDate()
           : null,
       refundAmount: map['refundAmount']?.toDouble(),
+      transferId: map['transferId'],
+      transferStatus: map['transferStatus'],
     );
   }
 
@@ -90,9 +116,9 @@ class PaymentModel {
       'doctorName': doctorName,
       'consultationType': consultationType,
       'appointmentDate': appointmentDate.toIso8601String(),
-      'createdAt': FieldValue.serverTimestamp(),
+      'createdAt': Timestamp.fromDate(createdAt),
       'isLinkedToAppointment': isLinkedToAppointment,
-      'linkedAt': linkedAt != null ? FieldValue.serverTimestamp() : null,
+      'linkedAt': linkedAt != null ? Timestamp.fromDate(linkedAt!) : null,
       'paymentMethod': paymentMethod,
       'refundStatus': refundStatus,
       'refundId': refundId,
@@ -103,6 +129,8 @@ class PaymentModel {
           ? Timestamp.fromDate(refundUpdatedAt!)
           : null,
       'refundAmount': refundAmount,
+      'transferId': transferId,
+      'transferStatus': transferStatus,
     };
   }
 
@@ -127,6 +155,8 @@ class PaymentModel {
     DateTime? refundInitiatedAt,
     DateTime? refundUpdatedAt,
     double? refundAmount,
+    String? transferId,
+    String? transferStatus,
   }) {
     return PaymentModel(
       paymentId: paymentId ?? this.paymentId,
@@ -149,6 +179,8 @@ class PaymentModel {
       refundInitiatedAt: refundInitiatedAt ?? this.refundInitiatedAt,
       refundUpdatedAt: refundUpdatedAt ?? this.refundUpdatedAt,
       refundAmount: refundAmount ?? this.refundAmount,
+      transferId: transferId ?? this.transferId,
+      transferStatus: transferStatus ?? this.transferStatus,
     );
   }
 } 

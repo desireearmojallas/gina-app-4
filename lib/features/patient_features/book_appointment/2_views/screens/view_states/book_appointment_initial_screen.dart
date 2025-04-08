@@ -659,6 +659,7 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                     ? appointmentDetailsForReschedule!
                                         .appointmentUid!
                                     : bookAppointmentBloc.tempAppointmentId!,
+                                doctorId: doctor.uid,
                                 doctorName: doctor.name,
                                 patientName: currentActivePatient!.name,
                                 modeOfAppointment: isRescheduleMode
