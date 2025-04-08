@@ -445,11 +445,11 @@ class PatientPaymentService {
       });
 
       // Delete the temporary payment document
-      debugPrint('Deleting temporary payment document...');
-      await FirebaseFirestore.instance
-          .collection('pending_payments')
-          .doc(tempAppointmentId)
-          .delete();
+      // debugPrint('Deleting temporary payment document...');
+      // await FirebaseFirestore.instance
+      //     .collection('pending_payments')
+      //     .doc(tempAppointmentId)
+      //     .delete();
 
       debugPrint('=== Payment Successfully Linked to Appointment ===');
     } catch (e) {
@@ -475,8 +475,10 @@ class PatientPaymentService {
       // Get the source account ID from environment variables
       final sourceAccountId = dotenv.env['XENDIT_SOURCE_ACCOUNT_ID'];
       debugPrint('All environment variables: ${dotenv.env}');
-      debugPrint('XENDIT_SOURCE_ACCOUNT_ID from env: ${dotenv.env['XENDIT_SOURCE_ACCOUNT_ID']}');
-      debugPrint('XENDIT_SOURCE_USER_ID from env: ${dotenv.env['XENDIT_SOURCE_USER_ID']}');
+      debugPrint(
+          'XENDIT_SOURCE_ACCOUNT_ID from env: ${dotenv.env['XENDIT_SOURCE_ACCOUNT_ID']}');
+      debugPrint(
+          'XENDIT_SOURCE_USER_ID from env: ${dotenv.env['XENDIT_SOURCE_USER_ID']}');
 
       if (sourceAccountId == null || sourceAccountId.isEmpty) {
         throw Exception(
@@ -498,7 +500,7 @@ class PatientPaymentService {
       final response = await _dio.post(
         '$_baseUrl/transfers',
         data: {
-          'reference': 'transfer-${DateTime.now().millisecondsSinceEpoch}',
+          'reference': 'payment-${DateTime.now().millisecondsSinceEpoch}',
           'source_user_id': dotenv.env['XENDIT_SOURCE_USER_ID'],
           'destination_user_id': recipientId,
           'amount': amount,
@@ -1190,6 +1192,195 @@ class PatientPaymentService {
     } catch (e) {
       debugPrint('Error processing automatic refund: $e');
       throw Exception('Failed to process automatic refund: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> _processXenditRefund({
+    required String invoiceId,
+    required double amount,
+    required String reason,
+  }) async {
+    debugPrint('=== Processing Patient Xendit Refund ===');
+    debugPrint('Invoice ID: $invoiceId');
+    debugPrint('Amount: $amount');
+    debugPrint('Reason: $reason');
+
+    try {
+      if (_isSimulationMode) {
+        debugPrint('Using simulation mode for refund');
+        return _simulateRefund(
+          invoiceId: invoiceId,
+          amount: amount,
+          reason: reason,
+        );
+      }
+
+      // Make the API request to create a refund
+      final response = await _dio.post(
+        '$_baseUrl/v2/invoices/$invoiceId/refunds',
+        data: {
+          'amount': amount,
+          'reason': reason,
+        },
+        options: Options(
+          headers: {
+            'Authorization':
+                'Basic ${base64Encode(utf8.encode('$secretKey:'))}',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      debugPrint('Refund response: ${response.data}');
+
+      // We don't update the payment document here anymore
+      // This is handled in the processRefundForAppointment method
+
+      return {
+        'success': true,
+        'message': 'Refund processed successfully',
+        'data': response.data,
+      };
+    } catch (e) {
+      debugPrint('Error processing Xendit refund: $e');
+
+      // We don't update the payment document here anymore
+      // This is handled in the processRefundForAppointment method
+
+      return {
+        'success': false,
+        'message': 'Error processing refund: $e',
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> _simulateRefund({
+    required String invoiceId,
+    required double amount,
+    required String reason,
+  }) async {
+    debugPrint('=== Simulating Refund ===');
+    debugPrint('Invoice ID: $invoiceId');
+    debugPrint('Amount: $amount');
+    debugPrint('Reason: $reason');
+
+    // Simulate API delay
+    await Future.delayed(const Duration(seconds: 1));
+
+    // Generate a random refund ID
+    final refundId = 'ref_${DateTime.now().millisecondsSinceEpoch}';
+
+    return {
+      'success': true,
+      'id': refundId,
+      'invoice_id': invoiceId,
+      'amount': amount,
+      'reason': reason,
+      'status': 'COMPLETED',
+      'created_at': DateTime.now().toIso8601String(),
+    };
+  }
+
+  Future<Map<String, dynamic>> processRefundForAppointment({
+    required String appointmentId,
+    required String reason,
+  }) async {
+    debugPrint('=== Processing Refund from Doctor Side ===');
+    debugPrint('Appointment ID: $appointmentId');
+    debugPrint('Reason: $reason');
+
+    try {
+      // First, get the payment details from the appointment's payments subcollection
+      final paymentSnapshot = await FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(appointmentId)
+          .collection('payments')
+          .get();
+
+      if (paymentSnapshot.docs.isEmpty) {
+        debugPrint('No payment documents found in subcollection');
+        return {
+          'success': false,
+          'message': 'No payment documents found for this appointment',
+        };
+      }
+
+      final paymentDoc = paymentSnapshot.docs.first;
+      final paymentData = paymentDoc.data();
+      final paymentDocId = paymentDoc.id;
+
+      debugPrint('Found payment in subcollection:');
+      debugPrint('- Invoice ID: ${paymentData['invoiceId']}');
+      debugPrint('- Amount: ${paymentData['amount']}');
+      debugPrint('- Status: ${paymentData['status']}');
+      debugPrint('- Refund Status: ${paymentData['refundStatus']}');
+      debugPrint('- Payment Doc ID: $paymentDocId');
+
+      // Check if payment is already refunded
+      if (paymentData['refundStatus'] == 'COMPLETED' ||
+          paymentData['refundStatus'] == 'SUCCEEDED') {
+        debugPrint('Payment already refunded');
+        return {
+          'success': true,
+          'message': 'Payment already refunded',
+        };
+      }
+
+      // Process the refund with Xendit
+      final refundResult = await _processXenditRefund(
+        invoiceId: paymentData['invoiceId'],
+        amount: paymentData['amount'],
+        reason: reason,
+      );
+
+      debugPrint('Refund result: $refundResult');
+
+      if (refundResult['success'] == true) {
+        // Update the payment document with refund status
+        // IMPORTANT: Use the correct document path with the payment document ID
+        await FirebaseFirestore.instance
+            .collection('appointments')
+            .doc(appointmentId)
+            .collection('payments')
+            .doc(
+                paymentDocId) // Use the actual payment document ID, not the invoice ID
+            .update({
+          'refundStatus': 'COMPLETED',
+          'refundAmount': paymentData['amount'],
+          'refundReason': reason,
+          'refundedAt': FieldValue.serverTimestamp(),
+        });
+
+        debugPrint('Payment document updated with refund status');
+
+        // Also update the appointment document
+        await FirebaseFirestore.instance
+            .collection('appointments')
+            .doc(appointmentId)
+            .update({
+          'refundStatus': 'COMPLETED',
+          'refundAmount': paymentData['amount'],
+          'refundReason': reason,
+          'refundedAt': FieldValue.serverTimestamp(),
+        });
+
+        debugPrint('Appointment document updated with refund status');
+
+        return {
+          'success': true,
+          'message': 'Refund processed successfully',
+          'data': refundResult['data'],
+        };
+      } else {
+        debugPrint('Refund processing failed: ${refundResult['message']}');
+        return refundResult;
+      }
+    } catch (e) {
+      debugPrint('Error processing refund: $e');
+      return {
+        'success': false,
+        'message': 'Error processing refund: $e',
+      };
     }
   }
 }

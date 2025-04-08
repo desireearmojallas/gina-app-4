@@ -8,8 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_payment_feature/3_services/xendit_payment_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patients/0_models/user_appointment_period_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:gina_app_4/features/patient_features/payment_feature/3_services/patient_payment_service.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 import 'package:intl/intl.dart';
 
@@ -435,22 +437,150 @@ class DoctorAppointmentRequestController with ChangeNotifier {
   Future<Either<Exception, bool>> declinePendingPatientRequest({
     required String appointmentId,
   }) async {
-    debugPrint('Declining appointment with ID: $appointmentId');
+    debugPrint('===== DECLINING APPOINTMENT =====');
+    debugPrint('Appointment ID: $appointmentId');
+    debugPrint('Timestamp: ${DateTime.now().toIso8601String()}');
+
     try {
+      // Get appointment details first
+      final appointmentDoc =
+          await firestore.collection('appointments').doc(appointmentId).get();
+
+      if (!appointmentDoc.exists) {
+        debugPrint('ERROR: Appointment document not found');
+        return Left(Exception('Appointment not found'));
+      }
+
+      final appointmentData = appointmentDoc.data();
+      debugPrint('Appointment data:');
+      debugPrint('- Status: ${appointmentData?['appointmentStatus']}');
+      debugPrint('- Amount: ${appointmentData?['amount']}');
+      debugPrint('- Patient: ${appointmentData?['patientName']}');
+
+      // Get payment details from payments subcollection first
+      debugPrint('Checking payments subcollection...');
+      final paymentQuery = await firestore
+          .collection('appointments')
+          .doc(appointmentId)
+          .collection('payments')
+          .get();
+
+      String? invoiceId;
+      double amount = 0.0;
+      String paymentStatus = '';
+      String? refundStatus;
+
+      if (paymentQuery.docs.isNotEmpty) {
+        final paymentData = paymentQuery.docs.first.data();
+        invoiceId = paymentData['invoiceId'] as String?;
+        amount = paymentData['amount'] as double? ?? 0.0;
+        paymentStatus = paymentData['status'] as String? ?? '';
+        refundStatus = paymentData['refundStatus'] as String?;
+
+        debugPrint('Found payment details in subcollection:');
+        debugPrint('- Invoice ID: $invoiceId');
+        debugPrint('- Amount: $amount');
+        debugPrint('- Payment Status: $paymentStatus');
+        debugPrint('- Refund Status: $refundStatus');
+      } else {
+        debugPrint('No payment document found in subcollection');
+      }
+
+      final Map<String, dynamic> updateData = {
+        'appointmentStatus': AppointmentStatus.declined.index,
+        'declinedAt': FieldValue.serverTimestamp(),
+        'refundStatus': null,
+        'refundId': null,
+        'refundInitiatedAt': null,
+        'refundUpdatedAt': null,
+        'refundAmount': null,
+      };
+
+      // Check if refund is already processed
+      if (refundStatus != null && refundStatus.toLowerCase() == 'completed') {
+        debugPrint('Refund already processed with status: $refundStatus');
+        updateData['refundStatus'] = refundStatus;
+        updateData['refundAmount'] = amount;
+      }
+      // Only process refund if payment was made and not already refunded
+      else if (paymentStatus.toLowerCase() == 'paid' &&
+          invoiceId != null &&
+          amount > 0) {
+        debugPrint('Payment is paid, initiating refund process');
+        debugPrint('- Invoice ID: $invoiceId');
+        debugPrint('- Amount: $amount');
+
+        // Use XenditPaymentService instead of PatientPaymentService
+        final xenditPaymentService = XenditPaymentService();
+
+        try {
+          debugPrint('Calling processRefundForAppointment with:');
+          debugPrint('- Appointment ID: $appointmentId');
+          debugPrint('- Reason: Appointment declined by doctor');
+
+          // Process refund using XenditPaymentService
+          final refundResult =
+              await xenditPaymentService.processRefundForAppointment(
+            appointmentId: appointmentId,
+            reason: 'Appointment declined by doctor',
+          );
+
+          debugPrint('Refund result: $refundResult');
+
+          if (refundResult['success'] == true) {
+            debugPrint('Refund processed successfully');
+
+            // Update refund fields
+            updateData['refundStatus'] = 'COMPLETED';
+            updateData['refundAmount'] = amount;
+            updateData['refundReason'] = 'Appointment declined by doctor';
+            updateData['refundedAt'] = FieldValue.serverTimestamp();
+          } else {
+            debugPrint('Refund processing failed: ${refundResult['message']}');
+
+            // Update refund fields with failed status
+            updateData['refundStatus'] = 'FAILED';
+            updateData['refundError'] = refundResult['message'];
+            updateData['refundAttemptedAt'] = FieldValue.serverTimestamp();
+          }
+        } catch (e) {
+          debugPrint('ERROR: Failed to process refund: $e');
+          debugPrint('ERROR: Stack trace: ${StackTrace.current}');
+
+          // Update refund fields with failed status
+          updateData['refundStatus'] = 'FAILED';
+          updateData['refundError'] = e.toString();
+          updateData['refundAttemptedAt'] = FieldValue.serverTimestamp();
+        }
+      } else {
+        debugPrint('No refund needed:');
+        debugPrint('- Payment Status: $paymentStatus');
+        debugPrint('- Invoice ID: $invoiceId');
+        debugPrint('- Amount: $amount');
+      }
+
+      // Update the appointment document
       await firestore
           .collection('appointments')
           .doc(appointmentId)
-          .update({'appointmentStatus': AppointmentStatus.declined.index});
-      debugPrint('Appointment declined successfully');
+          .update(updateData);
 
+      debugPrint('Appointment declined successfully');
+      debugPrint('===== DECLINE APPOINTMENT COMPLETED =====');
       return const Right(true);
     } on FirebaseAuthException catch (e) {
-      debugPrint('FirebaseAuthException: ${e.message}');
-      debugPrint('FirebaseAuthException code: ${e.code}');
+      debugPrint('ERROR: FirebaseAuthException: ${e.message}');
+      debugPrint('ERROR: FirebaseAuthException code: ${e.code}');
+      debugPrint('ERROR: Stack trace: ${StackTrace.current}');
       error = e;
       notifyListeners();
-      debugPrint('Error declining appointment: $e');
+      debugPrint('===== DECLINE APPOINTMENT FAILED =====');
       return Left(Exception(e.message));
+    } catch (e) {
+      debugPrint('ERROR: Unexpected error: $e');
+      debugPrint('ERROR: Stack trace: ${StackTrace.current}');
+      debugPrint('===== DECLINE APPOINTMENT FAILED =====');
+      return Left(Exception('Failed to decline appointment: $e'));
     }
   }
 

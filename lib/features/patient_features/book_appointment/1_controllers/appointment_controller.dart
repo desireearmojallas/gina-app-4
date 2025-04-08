@@ -453,14 +453,7 @@ class AppointmentController with ChangeNotifier {
         return Left(Exception('Appointment not found'));
       }
 
-      final appointmentData = appointmentDoc.data()!;
-      final paymentStatus = appointmentData['paymentStatus'] as String? ?? '';
-      final amount = appointmentData['amount'] as double? ?? 0.0;
-
-      debugPrint('Current payment status: $paymentStatus');
-      debugPrint('Amount: $amount');
-
-      // Get payment details from subcollection
+      // Get payment details from payments subcollection first
       final paymentQuery = await firestore
           .collection('appointments')
           .doc(appointmentUid)
@@ -468,13 +461,44 @@ class AppointmentController with ChangeNotifier {
           .get();
 
       String? invoiceId;
+      double amount = 0.0;
+      String paymentStatus = '';
+
       if (paymentQuery.docs.isNotEmpty) {
         final paymentData = paymentQuery.docs.first.data();
         invoiceId = paymentData['invoiceId'] as String?;
-        debugPrint('Found invoice ID in payments subcollection: $invoiceId');
+        amount = paymentData['amount'] as double? ?? 0.0;
+        paymentStatus = paymentData['status'] as String? ?? '';
+        debugPrint('Found payment details in subcollection:');
+        debugPrint('Invoice ID: $invoiceId');
+        debugPrint('Amount: $amount');
+        debugPrint('Payment Status: $paymentStatus');
+      } else {
+        debugPrint('No payment document found in subcollection');
       }
 
-      // Initialize refund fields with default values
+      // If no payment details in subcollection, check pending_payments collection
+      if (invoiceId == null) {
+        final pendingPaymentQuery = await firestore
+            .collection('pending_payments')
+            .doc(appointmentUid)
+            .get();
+
+        if (pendingPaymentQuery.exists) {
+          final pendingPaymentData = pendingPaymentQuery.data();
+          if (pendingPaymentData != null) {
+            invoiceId = pendingPaymentData['invoiceId'] as String?;
+            amount = pendingPaymentData['amount'] as double? ?? 0.0;
+            paymentStatus = pendingPaymentData['status'] as String? ?? '';
+            debugPrint('Found payment details in pending_payments:');
+            debugPrint('Invoice ID: $invoiceId');
+            debugPrint('Amount: $amount');
+            debugPrint('Payment Status: $paymentStatus');
+          }
+        }
+      }
+
+      // Initialize update data with default values
       final Map<String, dynamic> updateData = {
         'appointmentStatus': 3,
         'cancelledAt': FieldValue.serverTimestamp(),
@@ -493,33 +517,23 @@ class AppointmentController with ChangeNotifier {
         final paymentService = PatientPaymentService();
 
         try {
-          debugPrint('Calling initiateRefund with:');
-          debugPrint('- Invoice ID: $invoiceId');
-          debugPrint('- Amount: $amount');
+          debugPrint('Calling processAutomaticRefund with:');
+          debugPrint('- Appointment ID: $appointmentUid');
           debugPrint('- Reason: Appointment cancellation');
 
-          // Initiate refund
-          final refundResult = await paymentService.initiateRefund(
+          // Process automatic refund
+          await paymentService.processAutomaticRefund(
             appointmentId: appointmentUid,
-            invoiceId: invoiceId,
-            amount: amount,
             reason: 'Appointment cancellation',
           );
 
-          debugPrint('Refund initiated successfully:');
-          debugPrint('Refund ID: ${refundResult['id']}');
-          debugPrint('Refund Status: ${refundResult['status']}');
-
+          debugPrint('Automatic refund processed successfully');
+          
           // Update refund fields
-          updateData['refundStatus'] = 'PENDING';
-          updateData['refundId'] = refundResult['id'];
-          updateData['refundInitiatedAt'] = FieldValue.serverTimestamp();
+          updateData['refundStatus'] = 'COMPLETED';
           updateData['refundAmount'] = amount;
-
-          // Start polling for refund status
-          _startRefundStatusPolling(appointmentUid, refundResult['id']);
         } catch (e) {
-          debugPrint('Error initiating refund: $e');
+          debugPrint('Error processing automatic refund: $e');
           // Continue with cancellation even if refund fails
         }
       } else {
@@ -964,5 +978,101 @@ class AppointmentController with ChangeNotifier {
     }
 
     debugPrint('Ongoing appointment data reset completed.');
+  }
+
+  Future<Either<Exception, bool>> declinePendingPatientRequest({
+    required String appointmentId,
+  }) async {
+    debugPrint('Declining appointment with ID: $appointmentId');
+    try {
+      // Get appointment details first
+      final appointmentDoc = await firestore.collection('appointments').doc(appointmentId).get();
+      if (!appointmentDoc.exists) {
+        debugPrint('Appointment document not found');
+        return Left(Exception('Appointment not found'));
+      }
+
+      final appointmentData = appointmentDoc.data()!;
+      final paymentStatus = appointmentData['paymentStatus'] as String? ?? '';
+      final amount = appointmentData['amount'] as double? ?? 0.0;
+
+      debugPrint('Current payment status: $paymentStatus');
+      debugPrint('Amount: $amount');
+
+      // Get payment details from subcollection
+      final paymentQuery = await firestore
+          .collection('appointments')
+          .doc(appointmentId)
+          .collection('payments')
+          .get();
+
+      String? invoiceId;
+      if (paymentQuery.docs.isNotEmpty) {
+        final paymentData = paymentQuery.docs.first.data();
+        invoiceId = paymentData['invoiceId'] as String?;
+        debugPrint('Found invoice ID in payments subcollection: $invoiceId');
+      }
+
+      // Initialize update data with default values
+      final Map<String, dynamic> updateData = {
+        'appointmentStatus': AppointmentStatus.declined.index,
+        'declinedAt': FieldValue.serverTimestamp(),
+        'refundStatus': null,
+        'refundId': null,
+        'refundInitiatedAt': null,
+        'refundUpdatedAt': null,
+        'refundAmount': null,
+      };
+
+      // Only process refund if payment was made and not already refunded
+      if (paymentStatus.toLowerCase() == 'paid' && 
+          invoiceId != null && 
+          amount > 0) {
+        debugPrint('Payment is paid, initiating refund process');
+        final paymentService = PatientPaymentService();
+
+        try {
+          debugPrint('Calling processAutomaticRefund with:');
+          debugPrint('- Appointment ID: $appointmentId');
+          debugPrint('- Reason: Appointment declined by doctor');
+
+          // Process automatic refund
+          await paymentService.processAutomaticRefund(
+            appointmentId: appointmentId,
+            reason: 'Appointment declined by doctor',
+          );
+
+          debugPrint('Automatic refund processed successfully');
+          
+          // Update refund fields
+          updateData['refundStatus'] = 'COMPLETED';
+          updateData['refundAmount'] = amount;
+        } catch (e) {
+          debugPrint('Error processing automatic refund: $e');
+          // Continue with declining even if refund fails
+        }
+      } else {
+        debugPrint('No refund needed - payment status: $paymentStatus');
+      }
+
+      debugPrint('Updating appointment with data:');
+      debugPrint(updateData.toString());
+
+      // Update appointment with all fields
+      await firestore.collection('appointments').doc(appointmentId).update(updateData);
+
+      debugPrint('Appointment declined successfully');
+      return const Right(true);
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException code: ${e.code}');
+      error = e;
+      notifyListeners();
+      debugPrint('Error declining appointment: $e');
+      return Left(Exception(e.message));
+    } catch (e) {
+      debugPrint('Error declining appointment: $e');
+      return Left(Exception(e.toString()));
+    }
   }
 }

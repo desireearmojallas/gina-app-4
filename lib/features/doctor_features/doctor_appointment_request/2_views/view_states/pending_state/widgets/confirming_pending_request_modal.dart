@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
@@ -25,13 +26,56 @@ Future<dynamic> showConfirmingPendingRequestDialog(
   final pendingRequestStateBloc = context.read<PendingRequestStateBloc>();
   final homeDashboardBloc = context.read<HomeDashboardBloc>();
 
+  debugPrint(
+      'Opening confirming pending request dialog for appointment: $appointmentId');
+  debugPrint('Appointment details:');
+  debugPrint('Patient Name: ${appointment.patientName}');
+  debugPrint('Amount: ${appointment.amount}');
+  debugPrint('Status: ${appointment.appointmentStatus}');
+
+  // Check payments subcollection
+  FirebaseFirestore.instance
+      .collection('appointments')
+      .doc(appointmentId)
+      .collection('payments')
+      .get()
+      .then((paymentSnapshot) {
+    if (paymentSnapshot.docs.isNotEmpty) {
+      final paymentData = paymentSnapshot.docs.first.data();
+      debugPrint('Payment data from subcollection:');
+      debugPrint('Invoice ID: ${paymentData['invoiceId']}');
+      debugPrint('Status: ${paymentData['status']}');
+      debugPrint('Amount: ${paymentData['amount']}');
+      debugPrint('Refund Status: ${paymentData['refundStatus']}');
+    } else {
+      debugPrint('No payment documents found in subcollection');
+    }
+  });
+
+  // Check pending_payments collection
+  FirebaseFirestore.instance
+      .collection('pending_payments')
+      .doc(appointmentId)
+      .get()
+      .then((pendingPaymentSnapshot) {
+    if (pendingPaymentSnapshot.exists) {
+      final pendingPaymentData = pendingPaymentSnapshot.data();
+      debugPrint('Pending payment data:');
+      debugPrint('Invoice ID: ${pendingPaymentData?['invoiceId']}');
+      debugPrint('Status: ${pendingPaymentData?['status']}');
+      debugPrint('Amount: ${pendingPaymentData?['amount']}');
+    } else {
+      debugPrint('No pending payment document found');
+    }
+  });
+
   // Also fetch the periods immediately before showing the dialog
   final directPatientUid = appointment.patientUid;
   // We'll use this to get fresh periods data
 
   // Debug prints to check the values of patientData
   debugPrint('Parent Patient Name: ${patientData.name}');
-  debugPrint('Parent Patient UID: ${directPatientUid}');
+  debugPrint('Parent Patient UID: $directPatientUid');
   debugPrint('Periods count being passed: ${patientPeriods.length}');
 
   return showDialog(
@@ -97,6 +141,7 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                   ),
                 ),
                 onPressed: () async {
+                  debugPrint('Doctor approved the appointment request');
                   // Store these values for later use
                   storedAppointment = appointment;
                   storedPatientData = patientData;
@@ -138,6 +183,7 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                     (completedAppointments) {
                       // Handle navigation with the fresh data
                       if (isFromHomePendingRequest == true) {
+                        debugPrint('Navigating from home screen');
                         // If we came from home screen, use pushReplacement and refresh home after
                         Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
@@ -157,6 +203,7 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                           }
                         });
                       } else {
+                        debugPrint('Navigating from regular flow');
                         // Regular flow - just push the new screen
                         Navigator.pushReplacement(context,
                             MaterialPageRoute(builder: (context) {
@@ -196,6 +243,7 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                   ),
                 ),
                 onPressed: () {
+                  debugPrint('Doctor declined the appointment request');
                   storedAppointment = appointment;
                   storedPatientData = patientData;
 
@@ -207,6 +255,7 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                       DeclineAppointmentEvent(appointmentId: appointmentId));
 
                   if (isFromHomePendingRequest == true) {
+                    debugPrint('Navigating to declined screen from home');
                     Navigator.pushReplacement(context, MaterialPageRoute(
                       builder: (context) {
                         return DeclinedRequestDetailsScreenState(
@@ -222,6 +271,8 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                       }
                     });
                   } else {
+                    debugPrint(
+                        'Navigating to declined screen from regular flow');
                     Navigator.pushReplacement(context, MaterialPageRoute(
                       builder: (context) {
                         return DeclinedRequestDetailsScreenState(

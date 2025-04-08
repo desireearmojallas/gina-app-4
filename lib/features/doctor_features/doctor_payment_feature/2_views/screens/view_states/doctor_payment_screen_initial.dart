@@ -621,6 +621,9 @@ class _DoctorPaymentScreenInitialState
                             case 'WITHDRAWAL':
                               transactionType = 'Withdrawal';
                               break;
+                            case 'REFUND':
+                              transactionType = 'Refund';
+                              break;
                           }
 
                           return Container(

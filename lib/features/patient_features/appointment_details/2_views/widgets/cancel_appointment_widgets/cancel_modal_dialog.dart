@@ -16,6 +16,8 @@ Future<dynamic> showCancelModalDialog(
   final appointmentDetailBloc = context.read<AppointmentDetailsBloc>();
   final appointmentBloc = context.read<AppointmentBloc>();
 
+  debugPrint('Opening cancel modal dialog for appointment: $appointmentId');
+
   return showDialog(
     context: context,
     builder: (context) => AlertDialog(
@@ -38,6 +40,7 @@ Future<dynamic> showCancelModalDialog(
               .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
+              debugPrint('No appointment data available yet');
               return const Center(child: CustomLoadingIndicator());
             }
 
@@ -45,6 +48,46 @@ Future<dynamic> showCancelModalDialog(
             final paymentStatus = data['paymentStatus'] as String? ?? '';
             final refundStatus = data['refundStatus'] as String?;
             final amount = data['amount'] as double? ?? 0.0;
+
+            debugPrint('Appointment data in cancel dialog:');
+            debugPrint('Payment Status: $paymentStatus');
+            debugPrint('Refund Status: $refundStatus');
+            debugPrint('Amount: $amount');
+
+            // Check payments subcollection
+            FirebaseFirestore.instance
+                .collection('appointments')
+                .doc(appointmentId)
+                .collection('payments')
+                .get()
+                .then((paymentSnapshot) {
+              if (paymentSnapshot.docs.isNotEmpty) {
+                final paymentData = paymentSnapshot.docs.first.data();
+                debugPrint('Payment data from subcollection:');
+                debugPrint('Invoice ID: ${paymentData['invoiceId']}');
+                debugPrint('Status: ${paymentData['status']}');
+                debugPrint('Amount: ${paymentData['amount']}');
+              } else {
+                debugPrint('No payment documents found in subcollection');
+              }
+            });
+
+            // Check pending_payments collection
+            FirebaseFirestore.instance
+                .collection('pending_payments')
+                .doc(appointmentId)
+                .get()
+                .then((pendingPaymentSnapshot) {
+              if (pendingPaymentSnapshot.exists) {
+                final pendingPaymentData = pendingPaymentSnapshot.data();
+                debugPrint('Pending payment data:');
+                debugPrint('Invoice ID: ${pendingPaymentData?['invoiceId']}');
+                debugPrint('Status: ${pendingPaymentData?['status']}');
+                debugPrint('Amount: ${pendingPaymentData?['amount']}');
+              } else {
+                debugPrint('No pending payment document found');
+              }
+            });
 
             return Column(
               mainAxisSize: MainAxisSize.min,
@@ -100,8 +143,10 @@ Future<dynamic> showCancelModalDialog(
                       ),
                     ),
                     onPressed: () {
+                      debugPrint('User confirmed cancellation');
                       HapticFeedback.mediumImpact();
                       if (isFromAppointmentTabs) {
+                        debugPrint('Cancelling from appointment tabs');
                         isFromAppointmentTabs = false;
                         appointmentBloc.add(
                           CancelAppointmentInAppointmentTabsEvent(
@@ -115,6 +160,7 @@ Future<dynamic> showCancelModalDialog(
                           arguments: {'initialIndex': 2},
                         );
                       } else {
+                        debugPrint('Cancelling from appointment details');
                         appointmentDetailBloc.add(
                           CancelAppointmentEvent(appointmentUid: appointmentId),
                         );
@@ -147,6 +193,7 @@ Future<dynamic> showCancelModalDialog(
                       ),
                     ),
                     onPressed: () {
+                      debugPrint('User cancelled the operation');
                       HapticFeedback.mediumImpact();
                       Navigator.of(context).pop();
                     },
