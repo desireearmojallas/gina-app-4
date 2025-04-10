@@ -46,10 +46,12 @@ class FindController {
     }
   }
 
-  Future<Either<Exception, List<DoctorModel>>> getDoctorsNearMe() async {
+  Future<Either<Exception, List<DoctorModel>>> getDoctorsNearMe({
+    required double radius,
+  }) async {
     try {
-      // 25km radius of the user's current location
-      const double maxDistance = 25000;
+      // Convert radius from kilometers to meters for the distance calculation
+      final double maxDistance = radius * 1000; // Convert km to meters
 
       final doctorSnapshot = await firestore
           .collection('doctors')
@@ -67,15 +69,17 @@ class FindController {
               final distance = geo.Geodesy().distanceBetweenTwoGeoPoints(
                   storePatientCurrentGeoLatLng!, officeLatLng);
 
+              // Use dynamic radius value here instead of hardcoded 25000
               if (distance <= maxDistance) {
                 return DoctorModel.fromJson(doctorData);
               } else {
-                null;
+                return null; // Fixed the return null statement
               }
             })
             .where((doctor) => doctor != null)
             .toList();
 
+        // Sort logic remains the same
         doctorList.sort((a, b) {
           // First compare by averageRating (descending order - highest rating first)
           double ratingA = a!.averageRating ?? 0.0;
@@ -111,13 +115,8 @@ class FindController {
       } else {
         return const Right([]);
       }
-    } on FirebaseAuthException catch (e) {
-      debugPrint(e.message);
-      debugPrint(e.code);
-      working = false;
-      error = e;
-      return Left(Exception(e.message));
     } catch (e) {
+      // Error handling remains the same
       debugPrint(e.toString());
       working = false;
       error = FirebaseAuthException(code: 'error', message: e.toString());

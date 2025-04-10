@@ -21,13 +21,14 @@ class FindBloc extends Bloc<FindEvent, FindState> {
 
   FindBloc({
     required this.findController,
-  }) : super(FindInitial()) {
+  }) : super(const FindInitial()) {
     on<FindInitialEvent>(findInitialEvent);
     on<GetDoctorsNearMeEvent>(getDoctorsNearMe);
     on<FindNavigateToDoctorDetailsEvent>(navigateToDoctorDetails);
     on<GetDoctorsInTheNearestCityEvent>(getDoctorsInTheNearestCity);
     on<GetAllDoctorsEvent>(getAllDoctorsEvent);
     on<ToggleOtherCitiesVisibilityEvent>(toggleOtherCitiesVisibilityEvent);
+    on<SetSearchRadiusEvent>(setSearchRadius);
   }
 
   FutureOr<void> findInitialEvent(
@@ -37,19 +38,21 @@ class FindBloc extends Bloc<FindEvent, FindState> {
 
   FutureOr<void> getDoctorsNearMe(
       GetDoctorsNearMeEvent event, Emitter<FindState> emit) async {
-    emit(GetDoctorNearMeLoadingState());
+    emit(const GetDoctorNearMeLoadingState());
 
-    final doctorLists = await findController.getDoctorsNearMe();
+    final doctorLists =
+        await findController.getDoctorsNearMe(radius: state.searchRadius);
 
     doctorLists.fold(
       (failure) {
-        emit(GetDoctorNearMeFailedState(errorMessage: failure.toString()));
+        emit(GetDoctorNearMeFailedState(
+            errorMessage: failure.toString(),
+            searchRadius: state.searchRadius));
       },
       (doctorLists) {
         doctorNearMeLists = doctorLists;
         emit(GetDoctorNearMeSuccessState(
-          doctorLists: doctorLists,
-        ));
+            doctorLists: doctorLists, searchRadius: state.searchRadius));
         emit(GetDoctorsInTheNearestCitySuccessState(
             citiesWithDoctors: storedCitiesWithDoctors ?? {}));
       },
@@ -105,17 +108,64 @@ class FindBloc extends Bloc<FindEvent, FindState> {
       ToggleOtherCitiesVisibilityEvent event, Emitter<FindState> emit) async {
     showDoctorsFromOtherCities = !showDoctorsFromOtherCities;
     if (showDoctorsFromOtherCities) {
-      // emit(OtherCitiesVisibleState());
       try {
-        await getDoctorsInTheNearestCity(
-            GetDoctorsInTheNearestCityEvent(), emit);
+        // This is an intermediate state
+        emit(GetDoctorsInTheNearestCityLoadingState(
+            searchRadius: state.searchRadius));
+
+        final citiesWithDoctors = await findController.getDoctorInCities();
+
+        citiesWithDoctors.fold(
+          (failure) {
+            emit(GetDoctorsInTheNearestCityFailedState(
+                errorMessage: failure.toString(),
+                searchRadius: state.searchRadius // Preserve radius
+                ));
+          },
+          (citiesWithDoctors) {
+            emit(GetDoctorsInTheNearestCitySuccessState(
+                citiesWithDoctors: citiesWithDoctors,
+                searchRadius: state.searchRadius // Preserve radius
+                ));
+          },
+        );
       } catch (e) {
         showDoctorsFromOtherCities = false; // Revert toggle
-        emit(
-            ToggleOtherCitiesVisibilityFailedState(errorMessage: e.toString()));
+        emit(ToggleOtherCitiesVisibilityFailedState(
+            errorMessage: e.toString(),
+            searchRadius: state.searchRadius // Preserve radius
+            ));
       }
     } else {
-      emit(OtherCitiesHiddenState());
+      emit(OtherCitiesHiddenState(
+          searchRadius: state.searchRadius)); // Preserve radius
     }
+  }
+
+  FutureOr<void> setSearchRadius(
+      SetSearchRadiusEvent event, Emitter<FindState> emit) async {
+    // First emit a loading state with the new radius
+    emit(GetDoctorNearMeLoadingState(searchRadius: event.radius));
+
+    // Then fetch doctors with the new radius
+    final doctorLists =
+        await findController.getDoctorsNearMe(radius: event.radius);
+
+    doctorLists.fold(
+      (failure) {
+        emit(GetDoctorNearMeFailedState(
+            errorMessage: failure.toString(),
+            searchRadius: event.radius // Important: maintain the radius here
+            ));
+      },
+      (doctorLists) {
+        doctorNearMeLists = doctorLists;
+        emit(GetDoctorNearMeSuccessState(
+            doctorLists: doctorLists,
+            searchRadius: event.radius // Important: maintain the radius here
+            ));
+        // Don't emit another state here as it can override your radius state
+      },
+    );
   }
 }
