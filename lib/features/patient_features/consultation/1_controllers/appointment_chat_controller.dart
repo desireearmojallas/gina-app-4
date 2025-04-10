@@ -22,6 +22,7 @@ class AppointmentChatController with ChangeNotifier {
       final String appointmentTime = appointmentData['appointmentTime'];
       final int appointmentStatus = appointmentData['appointmentStatus'];
       final int modeOfAppointment = appointmentData['modeOfAppointment'];
+      debugPrint('Appointment status: $appointmentStatus');
 
       storedAppointmentTime = appointmentTime;
 

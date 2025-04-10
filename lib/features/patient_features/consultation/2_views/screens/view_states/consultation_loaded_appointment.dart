@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/core/resources/images.dart';
@@ -45,8 +47,15 @@ class _ConsultationOnGoingAppointmentScreenState
   void initState() {
     debugPrint('InitState - Initial isDisabled value: $isDisabled');
     super.initState();
+
+    // Set up chatroom
     chatController.getChatRoom(
         chatController.generateRoomId(selectedDoctorUid), selectedDoctorUid);
+
+    // Start polling for new chatroom creation
+    Future.delayed(const Duration(milliseconds: 500), () {
+      startChatroomPolling();
+    });
 
     bool initialAppointmentStatus = isAppointmentFinished;
     debugPrint('Initial appointment status: $initialAppointmentStatus');
@@ -59,15 +68,83 @@ class _ConsultationOnGoingAppointmentScreenState
       }
     });
 
+    chatController.stream.listen((status) {
+      debugPrint('STREAM STATUS CHANGED: $status');
+      if (status == 'success' && mounted) {
+        // Force UI update if needed
+        setState(() {});
+      }
+    });
+
     chatController.addListener(scrollToBottom);
     messageFN.addListener(scrollToBottom);
     checkIfDoctorMessagedFirst();
 
-    // Listen to the stream for real-time updates
+    // Enhanced listener for first-time message detection
     chatController.messageStream.listen((messages) {
       debugPrint('MessageStream - Received ${messages.length} messages');
-      debugPrint('MessageStream - Message content: $messages');
-      updateIsDisabled(messages);
+
+      if (messages.isNotEmpty) {
+        // Check if this is the first message from doctor (transition from empty to active chat)
+        bool wasDisabled = isDisabled;
+        updateIsDisabled(messages);
+
+        if (wasDisabled && !isDisabled) {
+          debugPrint('First doctor message detected! Transitioning UI state');
+
+          // Force scroll to bottom when first message appears
+          Future.delayed(const Duration(milliseconds: 300), () {
+            scrollToBottom();
+          });
+        }
+      }
+    });
+  }
+
+  void startChatroomPolling() {
+    debugPrint('Starting chatroom polling for first-time creation');
+
+    // Create a local variable to track current state
+    String? currentState;
+    StreamSubscription? stateSubscription;
+
+    // Set up a subscription to track state changes
+    Timer? timer; // Declare timer before its first use
+    stateSubscription = chatController.stream.listen((state) {
+      currentState = state;
+
+      // Cancel polling if state changes from empty
+      if (state != 'empty' && timer != null) {
+        debugPrint('State changed to $state - stopping polling');
+        timer?.cancel(); // Replace ?. with .
+        stateSubscription?.cancel();
+      }
+    });
+
+    // Wait briefly to allow initial state to be set
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (currentState != 'empty' || !mounted) {
+        debugPrint('No need for polling: chat state is $currentState');
+        stateSubscription?.cancel();
+        return;
+      }
+
+      debugPrint('Chat state is empty, starting periodic polling');
+      // Check every 5 seconds if the chatroom was created
+      timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+        if (currentState != 'empty' || !mounted) {
+          debugPrint('Stopping polling: chat state changed to $currentState');
+          timer.cancel();
+          stateSubscription?.cancel();
+          return;
+        }
+
+        debugPrint('Polling: re-checking for chatroom creation');
+        // Re-trigger chatroom check
+        chatController.getChatRoom(
+            chatController.generateRoomId(selectedDoctorUid),
+            selectedDoctorUid);
+      });
     });
   }
 
@@ -103,29 +180,48 @@ class _ConsultationOnGoingAppointmentScreenState
 
   Future<void> checkIfDoctorMessagedFirst() async {
     debugPrint('CheckIfDoctorMessagedFirst - Starting check...');
-    final messages = await chatController.getMessagesForSpecificAppointment(
-      chatroom,
-      appointment.appointmentUid!,
-    );
-    debugPrint(
-        'CheckIfDoctorMessagedFirst - Found ${messages.length} messages');
-    debugPrint('CheckIfDoctorMessagedFirst - Messages content: $messages');
-    updateIsDisabled(messages);
+
+    // This handles both existing appointments and potential new ones
+    try {
+      final messages = await chatController.getMessagesForSpecificAppointment(
+        chatroom,
+        appointment.appointmentUid!,
+      );
+
+      debugPrint(
+          'CheckIfDoctorMessagedFirst - Found ${messages.length} messages');
+
+      if (messages.isNotEmpty) {
+        updateIsDisabled(messages);
+      } else {
+        // No messages yet - ensure we're listening for updates
+        debugPrint('No messages yet - ensuring listener is active');
+      }
+    } catch (e) {
+      // This might happen if the appointment document doesn't exist yet
+      debugPrint('Error checking first messages: $e');
+    }
   }
 
   void updateIsDisabled(List<dynamic> messages) {
     debugPrint('UpdateIsDisabled - Current isDisabled value: $isDisabled');
-    debugPrint(
-        'UpdateIsDisabled - Checking messages from doctorUid: $selectedDoctorUid');
+
+    // Only process if we have messages
+    if (messages.isEmpty) {
+      return;
+    }
 
     bool hasDocMessage =
         messages.any((message) => message.authorUid == selectedDoctorUid);
+
     debugPrint('UpdateIsDisabled - Doctor has messaged: $hasDocMessage');
 
-    setState(() {
-      isDisabled = !hasDocMessage;
-      debugPrint('UpdateIsDisabled - New isDisabled value: $isDisabled');
-    });
+    if (isDisabled && hasDocMessage) {
+      debugPrint('Doctor sent first message - enabling patient replies');
+      setState(() {
+        isDisabled = false;
+      });
+    }
   }
 
   @override

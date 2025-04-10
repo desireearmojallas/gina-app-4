@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/gina_divider.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
@@ -326,8 +327,7 @@ class AppointmentCard extends StatelessWidget {
                           return const SizedBox(
                             height: 25,
                             width: 25,
-                            child: CircularProgressIndicator.adaptive(
-                                strokeWidth: 2),
+                            child: CustomLoadingIndicator(),
                           );
                         }
 

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
@@ -387,7 +388,7 @@ class ConsultationHistoryDetailScreen extends StatelessWidget {
           return const Center(
             child: Padding(
               padding: EdgeInsets.all(20.0),
-              child: CircularProgressIndicator(),
+              child: CustomLoadingIndicator(),
             ),
           );
         }
