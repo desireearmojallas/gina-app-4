@@ -149,31 +149,84 @@ class _ConsultationOnGoingAppointmentScreenState
   }
 
   void _showConsultationEndedDialog() {
+    // Track the selected rating
+    int selectedRating = 0;
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Consultation Ended'),
-          content: const Text(
-            'The doctor has ended this consultation. You can still view the messages, but no new messages can be sent.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: const Text('Continue Reading'),
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Consultation Ended'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  'The doctor has ended this consultation. You can still view the messages, but no new messages can be sent.',
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'How would you rate this consultation?',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(5, (index) {
+                    return IconButton(
+                      icon: Icon(
+                        index < selectedRating ? Icons.star : Icons.star_border,
+                        color:
+                            index < selectedRating ? Colors.amber : Colors.grey,
+                        size: 30,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          selectedRating = index + 1;
+                        });
+                      },
+                    );
+                  }),
+                ),
+                Text(
+                  selectedRating > 0
+                      ? '$selectedRating ${selectedRating == 1 ? 'star' : 'stars'}'
+                      : 'Tap to rate',
+                  style: TextStyle(
+                    color: selectedRating > 0 ? Colors.amber : Colors.grey,
+                  ),
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                Navigator.of(context).pop(); // Close the consultation screen
-              },
-              child: const Text('Leave Consultation'),
-            ),
-          ],
-        );
+            actions: [
+              TextButton(
+                onPressed: () {
+                  // Submit rating if selected
+                  if (selectedRating > 0) {
+                    chatController.submitRating(
+                        selectedRating, appointment, selectedDoctorUid);
+                  }
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: const Text('Continue Reading'),
+              ),
+              TextButton(
+                onPressed: () {
+                  // Submit rating if selected
+                  if (selectedRating > 0) {
+                    chatController.submitRating(
+                        selectedRating, appointment, selectedDoctorUid);
+                  }
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop(); // Close the consultation screen
+                },
+                child: const Text('Leave Consultation'),
+              ),
+            ],
+          );
+        });
       },
     );
   }

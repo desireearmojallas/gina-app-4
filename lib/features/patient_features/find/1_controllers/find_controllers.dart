@@ -77,18 +77,33 @@ class FindController {
             .toList();
 
         doctorList.sort((a, b) {
-          if (a!.doctorRatingId == 4 && b!.doctorRatingId != 4) {
-            return 1; // Place doctors with rating 4 at the end
-          } else if (a.doctorRatingId != 4 && b?.doctorRatingId == 4) {
-            return -1; // Place doctors with rating 4 at the end
+          // First compare by averageRating (descending order - highest rating first)
+          double ratingA = a!.averageRating ?? 0.0;
+          double ratingB = b!.averageRating ?? 0.0;
+          int averageRatingComparison =
+              ratingB.compareTo(ratingA); // descending
+          if (averageRatingComparison != 0) {
+            return averageRatingComparison;
+          }
+
+          // If averageRating is the same, compare by distance from user
+          double distanceA =
+              double.parse(calculateDistanceToDoctor(a.officeLatLngAddress));
+          double distanceB =
+              double.parse(calculateDistanceToDoctor(b.officeLatLngAddress));
+          int distanceComparison = distanceA.compareTo(distanceB); // ascending
+          if (distanceComparison != 0) {
+            return distanceComparison;
+          }
+
+          // If everything else is equal, compare by doctorRatingId
+          // (keeping doctorRatingId=4 at the end)
+          if (a.doctorRatingId == 4 && b.doctorRatingId != 4) {
+            return 1;
+          } else if (a.doctorRatingId != 4 && b.doctorRatingId == 4) {
+            return -1;
           } else {
-            int ratingComparison = b!.doctorRatingId
-                .compareTo(a.doctorRatingId); // Descending order
-            if (ratingComparison != 0) {
-              return ratingComparison;
-            } else {
-              return a.officeLatLngAddress.compareTo(b.officeLatLngAddress);
-            }
+            return b.doctorRatingId.compareTo(a.doctorRatingId); // descending
           }
         });
 

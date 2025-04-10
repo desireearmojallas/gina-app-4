@@ -44,6 +44,8 @@ class DoctorModel extends Equatable {
   String? xenditAccountId;
   bool? xenditAccountActivated;
   Timestamp? xenditAccountCreated;
+  List<int> doctorRatings;
+  double? averageRating;
 
   DoctorModel({
     required this.uid,
@@ -87,6 +89,8 @@ class DoctorModel extends Equatable {
     this.xenditAccountId,
     this.xenditAccountActivated,
     this.xenditAccountCreated,
+    this.doctorRatings = const <int>[],
+    this.averageRating,
   });
 
   static DoctorModel fromDocumentSnap(DocumentSnapshot snap) {
@@ -144,6 +148,10 @@ class DoctorModel extends Equatable {
       xenditAccountId: json['xenditAccountId'],
       xenditAccountActivated: json['xenditAccountActivated'] ?? false,
       xenditAccountCreated: json['xenditAccountCreated'],
+      doctorRatings: json['doctorRatings'] != null
+          ? List<int>.from(json['doctorRatings'])
+          : <int>[],
+      averageRating: json['averageRating'] ?? 0,
     );
   }
 
@@ -198,6 +206,10 @@ class DoctorModel extends Equatable {
       xenditAccountId: json['xenditAccountId'],
       xenditAccountActivated: json['xenditAccountActivated'] ?? false,
       xenditAccountCreated: json['xenditAccountCreated'],
+      doctorRatings: json['doctorRatings'] != null
+          ? List<int>.from(json['doctorRatings'])
+          : <int>[],
+      averageRating: json['averageRating'] ?? 0,
     );
   }
 
@@ -249,6 +261,8 @@ class DoctorModel extends Equatable {
         'xenditAccountId': xenditAccountId,
         'xenditAccountActivated': xenditAccountActivated,
         'xenditAccountCreated': xenditAccountCreated,
+        'doctorRatings': doctorRatings,
+        'averageRating': averageRating,
       };
 
   @override
@@ -287,6 +301,7 @@ class DoctorModel extends Equatable {
         xenditAccountId,
         xenditAccountActivated,
         xenditAccountCreated,
+        doctorRatings,
+        averageRating,
       ];
 }
-

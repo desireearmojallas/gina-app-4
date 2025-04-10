@@ -792,20 +792,22 @@ class ChatMessageController with ChangeNotifier {
     });
   }
 
-  // Add this method to save the rating to Firestore
   Future<void> submitRating(int rating, AppointmentModel appointment,
       String selectedDoctorUid) async {
     try {
-      // Update the appointment with the rating
+      debugPrint(
+          'Submitting $rating star rating for doctor: $selectedDoctorUid');
+
+      // 1. Update the appointment with the rating - using field name "doctorRating"
       await FirebaseFirestore.instance
           .collection('appointments')
           .doc(appointment.appointmentUid)
           .update({
-        'rating': rating,
+        'doctorRating': rating, // Using your existing field name
         'ratedAt': FieldValue.serverTimestamp(),
       });
 
-      // Optionally, add to a separate ratings collection for easier querying
+      // 2. Store rating in separate collection for analytics
       await FirebaseFirestore.instance.collection('doctor-ratings').add({
         'doctorUid': selectedDoctorUid,
         'patientUid': FirebaseAuth.instance.currentUser!.uid,
@@ -814,7 +816,44 @@ class ChatMessageController with ChangeNotifier {
         'timestamp': FieldValue.serverTimestamp(),
       });
 
-      debugPrint('Rating submitted: $rating stars');
+      // 3. Update the doctor's document - using field name "doctorRating" (List)
+      DocumentReference doctorRef = FirebaseFirestore.instance
+          .collection('doctors')
+          .doc(selectedDoctorUid);
+
+      // Use a transaction to safely update the ratings array and average
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        DocumentSnapshot doctorSnapshot = await transaction.get(doctorRef);
+
+        if (!doctorSnapshot.exists) {
+          throw Exception("Doctor document does not exist!");
+        }
+
+        // Get current data
+        Map<String, dynamic> doctorData =
+            doctorSnapshot.data() as Map<String, dynamic>;
+
+        // Get existing ratings array or create new one - using your field name "doctorRating"
+        List<dynamic> ratings =
+            List<dynamic>.from(doctorData['doctorRating'] ?? []);
+
+        // Add new rating
+        ratings.add(rating);
+
+        // Calculate new average (rounded to 1 decimal place)
+        double average = ratings.reduce((a, b) => a + b) / ratings.length;
+        // double roundedAverage = (average * 10).round() / 10;
+
+        // Update the doctor document
+        transaction.update(doctorRef, {
+          'doctorRating': ratings, // Using your existing field name
+          'averageRating': average, // Add calculated average for convenience
+          'ratingsCount': ratings.length, // Add count for convenience
+          'lastRatedAt': FieldValue.serverTimestamp(),
+        });
+      });
+
+      debugPrint('Rating submitted successfully: $rating stars');
     } catch (e) {
       debugPrint('Error submitting rating: $e');
     }

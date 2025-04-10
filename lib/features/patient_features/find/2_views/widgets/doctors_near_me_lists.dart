@@ -89,8 +89,47 @@ class DoctorsNearMe extends StatelessWidget {
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          DoctorRatingBadge(
-                                            doctorRating: doctor.doctorRatingId,
+                                          SizedBox(
+                                            // Set a fixed width that matches the parent width
+                                            width: width -
+                                                160, // Adjust this value based on your layout
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                DoctorRatingBadge(
+                                                  doctorRating:
+                                                      doctor.doctorRatingId,
+                                                ),
+                                                // Star rating display
+                                                Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.star_rounded,
+                                                      color: Colors.yellow[800],
+                                                      size: 14,
+                                                    ),
+                                                    const Gap(3),
+                                                    Text(
+                                                      doctor.averageRating
+                                                          .toString(),
+                                                      style: ginaTheme
+                                                          .textTheme.bodySmall
+                                                          ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.w700,
+                                                        color:
+                                                            Colors.yellow[800],
+                                                      ),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                    const Gap(10),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                           const Gap(5),
                                           Row(

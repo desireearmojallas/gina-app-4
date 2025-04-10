@@ -34,6 +34,7 @@ class AppointmentModel extends Equatable {
   final DateTime? refundInitiatedAt;
   final DateTime? refundUpdatedAt;
   final double? refundAmount;
+  int? doctorRating;
 
   AppointmentModel({
     this.appointmentUid,
@@ -65,6 +66,7 @@ class AppointmentModel extends Equatable {
     this.refundInitiatedAt,
     this.refundUpdatedAt,
     this.refundAmount,
+    this.doctorRating,
   });
 
   static AppointmentModel fromDocumentSnap(DocumentSnapshot snap) {
@@ -112,6 +114,7 @@ class AppointmentModel extends Equatable {
           ? (json['refundUpdatedAt'] as Timestamp).toDate()
           : null,
       refundAmount: json['refundAmount']?.toDouble(),
+      doctorRating: json['doctorRating']?.toInt(),
     );
   }
 
@@ -159,6 +162,7 @@ class AppointmentModel extends Equatable {
           ? (json['refundUpdatedAt'] as Timestamp).toDate()
           : null,
       refundAmount: json['refundAmount']?.toDouble(),
+      doctorRating: json['doctorRating']?.toInt(),
     );
   }
 
@@ -195,10 +199,10 @@ class AppointmentModel extends Equatable {
       'refundInitiatedAt': refundInitiatedAt != null
           ? Timestamp.fromDate(refundInitiatedAt!)
           : null,
-      'refundUpdatedAt': refundUpdatedAt != null
-          ? Timestamp.fromDate(refundUpdatedAt!)
-          : null,
+      'refundUpdatedAt':
+          refundUpdatedAt != null ? Timestamp.fromDate(refundUpdatedAt!) : null,
       'refundAmount': refundAmount,
+      'doctorRating': doctorRating,
     };
   }
 
@@ -233,6 +237,7 @@ class AppointmentModel extends Equatable {
         refundInitiatedAt,
         refundUpdatedAt,
         refundAmount,
+        doctorRating,
       ];
 
   AppointmentModel copyWith({
@@ -265,6 +270,7 @@ class AppointmentModel extends Equatable {
     DateTime? refundInitiatedAt,
     DateTime? refundUpdatedAt,
     double? refundAmount,
+    int? doctorRating,
   }) {
     return AppointmentModel(
       appointmentUid: appointmentUid ?? this.appointmentUid,
@@ -302,6 +308,7 @@ class AppointmentModel extends Equatable {
       refundInitiatedAt: refundInitiatedAt ?? this.refundInitiatedAt,
       refundUpdatedAt: refundUpdatedAt ?? this.refundUpdatedAt,
       refundAmount: refundAmount ?? this.refundAmount,
+      doctorRating: doctorRating ?? this.doctorRating,
     );
   }
 }
