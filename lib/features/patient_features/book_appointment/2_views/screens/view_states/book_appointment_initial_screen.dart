@@ -830,7 +830,7 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                           appointmentUidToReschedule!,
                                                       appointmentDate:
                                                           bookAppointmentBloc
-                                                              .selectedFormattedDate!,
+                                                              .selectedFormattedDate,
                                                       appointmentTime:
                                                           selectedTime,
                                                     ),
@@ -985,7 +985,7 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                       doctor.officeAddress,
                                                   appointmentDate:
                                                       bookAppointmentBloc
-                                                          .selectedFormattedDate!,
+                                                          .selectedFormattedDate,
                                                   appointmentTime: selectedTime,
                                                   appointmentId:
                                                       tempAppointmentId!,

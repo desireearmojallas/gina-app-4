@@ -14,6 +14,7 @@ Map<String, List<DoctorModel>>? storedCitiesWithDoctors;
 List<DoctorModel>? getAllDoctors;
 DoctorModel? doctorDetails;
 AppointmentModel? appointmentForNearbyDocLatestAppointment;
+double? searchRadiusGlobal;
 
 class FindBloc extends Bloc<FindEvent, FindState> {
   final FindController findController;
@@ -22,6 +23,7 @@ class FindBloc extends Bloc<FindEvent, FindState> {
   FindBloc({
     required this.findController,
   }) : super(const FindInitial()) {
+    searchRadiusGlobal = state.searchRadius;
     on<FindInitialEvent>(findInitialEvent);
     on<GetDoctorsNearMeEvent>(getDoctorsNearMe);
     on<FindNavigateToDoctorDetailsEvent>(navigateToDoctorDetails);
@@ -42,6 +44,7 @@ class FindBloc extends Bloc<FindEvent, FindState> {
 
     final doctorLists =
         await findController.getDoctorsNearMe(radius: state.searchRadius);
+    searchRadiusGlobal = state.searchRadius;
 
     doctorLists.fold(
       (failure) {
@@ -71,7 +74,9 @@ class FindBloc extends Bloc<FindEvent, FindState> {
       GetDoctorsInTheNearestCityEvent event, Emitter<FindState> emit) async {
     emit(GetDoctorsInTheNearestCityLoadingState());
 
-    final citiesWithDoctors = await findController.getDoctorInCities();
+    final citiesWithDoctors = await findController.getDoctorInCities(
+      radius: searchRadiusGlobal!,
+    );
 
     citiesWithDoctors.fold(
       (failure) {
@@ -113,7 +118,9 @@ class FindBloc extends Bloc<FindEvent, FindState> {
         emit(GetDoctorsInTheNearestCityLoadingState(
             searchRadius: state.searchRadius));
 
-        final citiesWithDoctors = await findController.getDoctorInCities();
+        final citiesWithDoctors = await findController.getDoctorInCities(
+          radius: searchRadiusGlobal!,
+        );
 
         citiesWithDoctors.fold(
           (failure) {

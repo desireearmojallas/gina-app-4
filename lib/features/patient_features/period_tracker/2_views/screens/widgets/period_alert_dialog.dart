@@ -113,8 +113,8 @@ class PeriodAlertDialog {
                       fontSize: (daysUntilPeriod == 3 ||
                               daysUntilPeriod == 2 ||
                               daysUntilPeriod == 1)
-                          ? 19
-                          : 20, // Adjust font size
+                          ? 18
+                          : 19, // Adjust font size
                       fontWeight: FontWeight.bold,
                       color: GinaAppTheme.lightTertiaryContainer,
                     ),

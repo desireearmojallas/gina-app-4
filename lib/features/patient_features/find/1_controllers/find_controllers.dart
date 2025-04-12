@@ -5,6 +5,7 @@ import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:math' as math;
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:geodesy/geodesy.dart' as geo;
 import 'package:gina_app_4/features/patient_features/find/0_model/city_model.dart';
@@ -79,36 +80,65 @@ class FindController {
             .where((doctor) => doctor != null)
             .toList();
 
-        // Sort logic remains the same
+        double getBadgeScore(int doctorRatingId) {
+          switch (doctorRatingId) {
+            case 0:
+              return 0.2; // newDoctor
+            case 1:
+              return 0.4; // contributingDoctor
+            case 2:
+              return 0.6; // activeDoctor
+            case 3:
+              return 1.0; // topDoctor
+            case 4:
+              return 0.0; // inactiveDoctor
+            default:
+              return 0.0; // fallback
+          }
+        }
+
         doctorList.sort((a, b) {
-          // First compare by averageRating (descending order - highest rating first)
+          // --- Get values ---
           double ratingA = a!.averageRating ?? 0.0;
           double ratingB = b!.averageRating ?? 0.0;
-          int averageRatingComparison =
-              ratingB.compareTo(ratingA); // descending
-          if (averageRatingComparison != 0) {
-            return averageRatingComparison;
-          }
 
-          // If averageRating is the same, compare by distance from user
           double distanceA =
               double.parse(calculateDistanceToDoctor(a.officeLatLngAddress));
           double distanceB =
               double.parse(calculateDistanceToDoctor(b.officeLatLngAddress));
-          int distanceComparison = distanceA.compareTo(distanceB); // ascending
-          if (distanceComparison != 0) {
-            return distanceComparison;
-          }
 
-          // If everything else is equal, compare by doctorRatingId
-          // (keeping doctorRatingId=4 at the end)
-          if (a.doctorRatingId == 4 && b.doctorRatingId != 4) {
-            return 1;
-          } else if (a.doctorRatingId != 4 && b.doctorRatingId == 4) {
-            return -1;
-          } else {
-            return b.doctorRatingId.compareTo(a.doctorRatingId); // descending
-          }
+          double badgeScoreA = getBadgeScore(a.doctorRatingId);
+          double badgeScoreB = getBadgeScore(b.doctorRatingId);
+
+          // --- Normalize values ---
+          double normalizedRatingA = ratingA / 5.0;
+          double normalizedRatingB = ratingB / 5.0;
+
+          double normalizedDistanceA = 1 -
+              (math.log(1 + distanceA) / math.log(1 + maxDistance))
+                  .clamp(0.0, 1.0);
+          double normalizedDistanceB = 1 -
+              (math.log(1 + distanceB) / math.log(1 + maxDistance))
+                  .clamp(0.0, 1.0);
+
+          // --- Calculate final scores ---
+          double scoreA = (normalizedRatingA * 0.5) +
+              (normalizedDistanceA * 0.4) +
+              (badgeScoreA * 0.1);
+
+          double scoreB = (normalizedRatingB * 0.5) +
+              (normalizedDistanceB * 0.4) +
+              (badgeScoreB * 0.1);
+
+          debugPrint('Max Distance: $maxDistance');
+
+          debugPrint(
+              "Doctor ${a.name}: Rating=$ratingA ($normalizedRatingA), Distance=${distanceA}km ($normalizedDistanceA), Badge=${a.doctorRatingId} ($badgeScoreA)");
+          debugPrint(
+              "Formula components: Rating=${normalizedRatingA * 0.5}, Distance=${normalizedDistanceA * 0.4}, Badge=${badgeScoreA * 0.1}");
+
+          // --- Compare by score (descending) ---
+          return scoreB.compareTo(scoreA);
         });
 
         return Right(doctorList.cast<DoctorModel>());
@@ -151,9 +181,12 @@ class FindController {
     return cities;
   }
 
-  Future<Either<Exception, Map<String, List<DoctorModel>>>>
-      getDoctorInCities() async {
+  Future<Either<Exception, Map<String, List<DoctorModel>>>> getDoctorInCities({
+    required double radius, // Add this parameter to match getDoctorsNearMe
+  }) async {
     try {
+      final double maxDistance = radius * 1000;
+
       final cities = await getCitiesInPhilippines();
       final doctorSnapshot = await firestore
           .collection('doctors')
@@ -167,36 +200,74 @@ class FindController {
         final officeMapsLocationAddress =
             doctorData['officeMapsLocationAddress'];
 
-        //check if the officeMapsLocationAddress contains the name of any city
+        // Check if the officeMapsLocationAddress contains the name of any city
         for (final city in cities) {
           if (officeMapsLocationAddress.contains(city.name)) {
-            //if the city already exists
             if (doctorsInCities.containsKey(city.name)) {
               doctorsInCities[city.name]!.add(DoctorModel.fromJson(doctorData));
-            }
-            //if the city doesnt exist yet
-            else {
+            } else {
               doctorsInCities[city.name] = [DoctorModel.fromJson(doctorData)];
             }
           }
         }
       }
 
+      // Apply the sorting formula to each city's doctor list
       doctorsInCities.forEach((city, doctors) {
         doctors.sort((a, b) {
-          if (a.doctorRatingId == 4 && b.doctorRatingId != 4) {
-            return 1; // Place doctors with rating 4 at the end
-          } else if (a.doctorRatingId != 4 && b.doctorRatingId == 4) {
-            return -1; // Place doctors with rating 4 at the end
-          } else {
-            int ratingComparison = b.doctorRatingId
-                .compareTo(a.doctorRatingId); // Descending order
-            if (ratingComparison != 0) {
-              return ratingComparison;
-            } else {
-              return a.officeLatLngAddress.compareTo(b.officeLatLngAddress);
+          double getBadgeScore(int doctorRatingId) {
+            switch (doctorRatingId) {
+              case 0:
+                return 0.2; // newDoctor
+              case 1:
+                return 0.4; // contributingDoctor
+              case 2:
+                return 0.6; // activeDoctor
+              case 3:
+                return 1.0; // topDoctor
+              case 4:
+                return 0.0; // inactiveDoctor
+              default:
+                return 0.0; // fallback
             }
           }
+
+          // --- Get values ---
+          double ratingA = a.averageRating ?? 0.0;
+          double ratingB = b.averageRating ?? 0.0;
+
+          // Calculate distances using the same method as getDoctorsNearMe
+          double distanceA =
+              double.parse(calculateDistanceToDoctor(a.officeLatLngAddress));
+          double distanceB =
+              double.parse(calculateDistanceToDoctor(b.officeLatLngAddress));
+
+          double badgeScoreA = getBadgeScore(a.doctorRatingId);
+          double badgeScoreB = getBadgeScore(b.doctorRatingId);
+
+          // --- Normalize values ---
+          double normalizedRatingA = ratingA / 5.0;
+          double normalizedRatingB = ratingB / 5.0;
+
+          // CHANGED: Using the logarithmic distance normalization from getDoctorsNearMe
+          double normalizedDistanceA = 1 -
+              (math.log(1 + distanceA) / math.log(1 + maxDistance))
+                  .clamp(0.0, 1.0);
+          double normalizedDistanceB = 1 -
+              (math.log(1 + distanceB) / math.log(1 + maxDistance))
+                  .clamp(0.0, 1.0);
+
+          // --- Calculate final scores with the same formula as getDoctorsNearMe ---
+          double scoreA = (normalizedRatingA * 0.5) +
+              (normalizedDistanceA * 0.4) +
+              (badgeScoreA * 0.1);
+
+          double scoreB = (normalizedRatingB * 0.5) +
+              (normalizedDistanceB * 0.4) +
+              (badgeScoreB * 0.1);
+
+          // --- Compare by score (descending) ---
+          return scoreB.compareTo(scoreA);
         });
       });
 
