@@ -47,6 +47,23 @@ class FindController {
     }
   }
 
+  double getBadgeScore(int doctorRatingId) {
+    switch (doctorRatingId) {
+      case 0:
+        return 0.2; // newDoctor
+      case 1:
+        return 0.4; // contributingDoctor
+      case 2:
+        return 0.6; // activeDoctor
+      case 3:
+        return 1.0; // topDoctor
+      case 4:
+        return 0.0; // inactiveDoctor
+      default:
+        return 0.0; // fallback
+    }
+  }
+
   Future<Either<Exception, List<DoctorModel>>> getDoctorsNearMe({
     required double radius,
   }) async {
@@ -79,23 +96,6 @@ class FindController {
             })
             .where((doctor) => doctor != null)
             .toList();
-
-        double getBadgeScore(int doctorRatingId) {
-          switch (doctorRatingId) {
-            case 0:
-              return 0.2; // newDoctor
-            case 1:
-              return 0.4; // contributingDoctor
-            case 2:
-              return 0.6; // activeDoctor
-            case 3:
-              return 1.0; // topDoctor
-            case 4:
-              return 0.0; // inactiveDoctor
-            default:
-              return 0.0; // fallback
-          }
-        }
 
         doctorList.sort((a, b) {
           // --- Get values ---
@@ -212,31 +212,12 @@ class FindController {
         }
       }
 
-      // Apply the sorting formula to each city's doctor list
       doctorsInCities.forEach((city, doctors) {
         doctors.sort((a, b) {
-          double getBadgeScore(int doctorRatingId) {
-            switch (doctorRatingId) {
-              case 0:
-                return 0.2; // newDoctor
-              case 1:
-                return 0.4; // contributingDoctor
-              case 2:
-                return 0.6; // activeDoctor
-              case 3:
-                return 1.0; // topDoctor
-              case 4:
-                return 0.0; // inactiveDoctor
-              default:
-                return 0.0; // fallback
-            }
-          }
-
           // --- Get values ---
           double ratingA = a.averageRating ?? 0.0;
           double ratingB = b.averageRating ?? 0.0;
 
-          // Calculate distances using the same method as getDoctorsNearMe
           double distanceA =
               double.parse(calculateDistanceToDoctor(a.officeLatLngAddress));
           double distanceB =
@@ -249,7 +230,6 @@ class FindController {
           double normalizedRatingA = ratingA / 5.0;
           double normalizedRatingB = ratingB / 5.0;
 
-          // CHANGED: Using the logarithmic distance normalization from getDoctorsNearMe
           double normalizedDistanceA = 1 -
               (math.log(1 + distanceA) / math.log(1 + maxDistance))
                   .clamp(0.0, 1.0);
@@ -257,7 +237,7 @@ class FindController {
               (math.log(1 + distanceB) / math.log(1 + maxDistance))
                   .clamp(0.0, 1.0);
 
-          // --- Calculate final scores with the same formula as getDoctorsNearMe ---
+          // --- Calculate final scores ---
           double scoreA = (normalizedRatingA * 0.5) +
               (normalizedDistanceA * 0.4) +
               (badgeScoreA * 0.1);
