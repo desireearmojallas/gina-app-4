@@ -418,7 +418,11 @@ class DoctorAppointmentRequestController with ChangeNotifier {
       await firestore
           .collection('appointments')
           .doc(appointmentId)
-          .update({'appointmentStatus': AppointmentStatus.confirmed.index});
+          .update({
+        'appointmentStatus': AppointmentStatus.confirmed.index,
+        'lastUpdatedAt': FieldValue.serverTimestamp(),
+        'isViewed': false,
+      });
       debugPrint('Appointment approved successfully');
 
       return const Right(true);

@@ -113,7 +113,11 @@ class DoctorHomeDashboardController extends ChangeNotifier {
           await firestore
               .collection('appointments')
               .doc(doc.id)
-              .update({'appointmentStatus': AppointmentStatus.missed.index});
+              .update({
+            'appointmentStatus': AppointmentStatus.missed.index,
+            'lastUpdatedAt': FieldValue.serverTimestamp(),
+            'isViewed': false,
+          });
         }
       }
     } on FirebaseAuthException catch (e) {
@@ -206,7 +210,11 @@ class DoctorHomeDashboardController extends ChangeNotifier {
           await firestore
               .collection('appointments')
               .doc(doc.id)
-              .update({'appointmentStatus': AppointmentStatus.declined.index});
+              .update({
+            'appointmentStatus': AppointmentStatus.declined.index,
+            'lastUpdatedAt': FieldValue.serverTimestamp(),
+            'isViewed': false,
+          });
         }
       }
     } on FirebaseAuthException catch (e) {
