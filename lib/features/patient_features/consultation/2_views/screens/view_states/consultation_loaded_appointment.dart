@@ -151,6 +151,7 @@ class _ConsultationOnGoingAppointmentScreenState
   void _showConsultationEndedDialog() {
     // Track the selected rating
     int selectedRating = 0;
+    bool isOnlineConsultation = appointment.modeOfAppointment == 0;
 
     showDialog(
       context: context,
@@ -163,14 +164,17 @@ class _ConsultationOnGoingAppointmentScreenState
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Text(
-                  'The doctor has ended this consultation. You can still view the messages, but no new messages can be sent.',
+                Text(
+                  isOnlineConsultation
+                      ? 'The doctor has ended this consultation. You can still view the messages, but no new messages can be sent.'
+                      : 'Your face-to-face consultation with the doctor has ended.',
                 ),
                 const SizedBox(height: 20),
                 const Text(
                   'How would you rate this consultation?',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
+                // Rating stars code remains the same
                 const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -201,17 +205,18 @@ class _ConsultationOnGoingAppointmentScreenState
               ],
             ),
             actions: [
-              TextButton(
-                onPressed: () {
-                  // Submit rating if selected
-                  if (selectedRating > 0) {
-                    chatController.submitRating(
-                        selectedRating, appointment, selectedDoctorUid);
-                  }
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-                child: const Text('Continue Reading'),
-              ),
+              if (isOnlineConsultation)
+                TextButton(
+                  onPressed: () {
+                    // Submit rating if selected
+                    if (selectedRating > 0) {
+                      chatController.submitRating(
+                          selectedRating, appointment, selectedDoctorUid);
+                    }
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: const Text('Continue Reading'),
+                ),
               TextButton(
                 onPressed: () {
                   // Submit rating if selected

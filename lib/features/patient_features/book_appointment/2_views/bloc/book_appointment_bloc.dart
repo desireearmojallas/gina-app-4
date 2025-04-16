@@ -222,24 +222,26 @@ class BookAppointmentBloc
       isBookAppointmentClicked = true;
       debugPrint('Book Appointment button clicked');
       debugPrint('Event appointment ID: ${event.appointmentId}');
-      debugPrint('Current temp appointment ID: $tempAppointmentId');
-      debugPrint('Current invoice URL: $currentInvoiceUrl');
 
-      debugPrint('Checking payment status...');
-      final paymentStatus = await _checkPaymentStatus(event.appointmentId);
-      debugPrint('Payment status check result: $paymentStatus');
+      //TODO: move this after doctor approval later
+      // debugPrint('Current temp appointment ID: $tempAppointmentId');
+      // debugPrint('Current invoice URL: $currentInvoiceUrl');
 
-      if (paymentStatus != 'paid') {
-        debugPrint('Payment not completed. Status: $paymentStatus');
-        emit(BookAppointmentError(
-          errorMessage: paymentStatus == 'expired'
-              ? 'Payment has expired. Please try again.'
-              : 'Please complete the payment before booking the appointment.',
-        ));
-        return;
-      }
+      // debugPrint('Checking payment status...');
+      // final paymentStatus = await _checkPaymentStatus(event.appointmentId);
+      // debugPrint('Payment status check result: $paymentStatus');
 
-      debugPrint('Payment verified as paid, proceeding with booking...');
+      // if (paymentStatus != 'paid') {
+      //   debugPrint('Payment not completed. Status: $paymentStatus');
+      //   emit(BookAppointmentError(
+      //     errorMessage: paymentStatus == 'expired'
+      //         ? 'Payment has expired. Please try again.'
+      //         : 'Please complete the payment before booking the appointment.',
+      //   ));
+      //   return;
+      // }
+
+      // debugPrint('Payment verified as paid, proceeding with booking...');
       String dateString = dateController.text;
       DateTime parsedDate = DateFormat('EEEE, d of MMMM y').parse(dateString);
       String reformattedDate = DateFormat('MMMM d, yyyy').format(parsedDate);
@@ -255,6 +257,24 @@ class BookAppointmentBloc
       debugPrint('Time: ${event.appointmentTime}');
       debugPrint('Mode: $selectedModeofAppointmentIndex');
 
+      // Get doctor details to calculate amount
+      final doctorDoc = await FirebaseFirestore.instance
+          .collection('doctors')
+          .doc(event.doctorId)
+          .get();
+      final doctorData = doctorDoc.data();
+
+      // Calculate amount based on mode of appointment
+      final amount = selectedModeofAppointmentIndex == 0
+          ? (doctorData != null
+              ? doctorData['olInitialConsultationPrice'] ?? 0.0
+              : 0.0)
+          : (doctorData != null
+              ? doctorData['f2fInitialConsultationPrice'] ?? 0.0
+              : 0.0);
+
+      debugPrint('Calculated amount: $amount');
+
       final result = await appointmentController.requestAnAppointment(
         doctorId: event.doctorId,
         doctorName: event.doctorName,
@@ -262,6 +282,7 @@ class BookAppointmentBloc
         appointmentDate: reformattedDate,
         appointmentTime: event.appointmentTime,
         modeOfAppointment: selectedModeofAppointmentIndex,
+        amount: amount,
       );
 
       if (result.isRight()) {
@@ -270,12 +291,12 @@ class BookAppointmentBloc
           (id) => id,
         );
 
-        final paymentService = PatientPaymentService();
-        await paymentService.linkPaymentToAppointment(
-            event.appointmentId, appointmentId,
-            doctorId: event.doctorId);
+        // final paymentService = PatientPaymentService();
+        // await paymentService.linkPaymentToAppointment(
+        //     event.appointmentId, appointmentId,
+        //     doctorId: event.doctorId);
 
-        debugPrint('Appointment created and payment linked successfully');
+        // debugPrint('Appointment created and payment linked successfully');
 
         emit(GetDoctorAvailabilityLoaded(
           doctorAvailabilityModel: bookDoctorAvailabilityModel!,
@@ -294,6 +315,7 @@ class BookAppointmentBloc
           appointmentDate: reformattedDate,
           appointmentTime: event.appointmentTime,
           modeOfAppointment: selectedModeofAppointmentIndex,
+          amount: amount,
         );
 
         emit(BookForAnAppointmentReview(

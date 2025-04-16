@@ -175,6 +175,8 @@ class PatientPaymentService {
       final invoiceUrl = result['invoiceUrl'];
       final invoiceId = result['invoiceId'];
 
+      debugPrint('Invoice URL: $invoiceUrl');
+
       debugPrint('Storing payment in Firestore...');
       await FirebaseFirestore.instance
           .collection('pending_payments')
@@ -303,11 +305,13 @@ class PatientPaymentService {
       // Get the payment document from pending_payments collection
       final paymentDoc = await FirebaseFirestore.instance
           .collection('pending_payments')
-          .doc(tempAppointmentId)
+          .doc(finalAppointmentId)
           .get();
 
       if (!paymentDoc.exists) {
         debugPrint('No payment document found for temp ID: $tempAppointmentId');
+        debugPrint(
+            'No payment document found for final ID: $finalAppointmentId');
         throw Exception('Payment document not found');
       }
 

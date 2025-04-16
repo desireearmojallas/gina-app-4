@@ -43,6 +43,7 @@ class AppointmentController with ChangeNotifier {
     required String appointmentDate,
     required String appointmentTime,
     required int modeOfAppointment,
+    required double amount,
   }) async {
     try {
       debugPrint('Fetching current user model');
@@ -69,6 +70,7 @@ class AppointmentController with ChangeNotifier {
         'modeOfAppointment': modeOfAppointment,
         'appointmentStatus': 0,
         'hasVisitedConsultationRoom': false,
+        'amount': amount,
       });
 
       debugPrint('Updating patient document');

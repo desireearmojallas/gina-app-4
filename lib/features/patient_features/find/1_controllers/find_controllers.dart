@@ -68,7 +68,6 @@ class FindController {
     required double radius,
   }) async {
     try {
-      // Convert radius from kilometers to meters for the distance calculation
       final double maxDistance = radius * 1000; // Convert km to meters
 
       final doctorSnapshot = await firestore
@@ -87,11 +86,10 @@ class FindController {
               final distance = geo.Geodesy().distanceBetweenTwoGeoPoints(
                   storePatientCurrentGeoLatLng!, officeLatLng);
 
-              // Use dynamic radius value here instead of hardcoded 25000
               if (distance <= maxDistance) {
                 return DoctorModel.fromJson(doctorData);
               } else {
-                return null; // Fixed the return null statement
+                return null;
               }
             })
             .where((doctor) => doctor != null)

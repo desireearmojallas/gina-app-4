@@ -14,6 +14,7 @@ import 'package:gina_app_4/features/patient_features/appointment_details/2_views
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/reschedule_filled_button.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/2_views/widgets/pay_now_button.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -68,6 +69,48 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                 doctorNameWidget(size, ginaTheme, doctorDetails),
                 AppointmentStatusCard(
                   appointmentStatus: appointment.appointmentStatus!,
+                ),
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('appointments')
+                      .doc(appointment.appointmentUid)
+                      .collection('payments')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const SizedBox.shrink();
+                    }
+
+                    final hasPaymentHistory = snapshot.data!.docs.isNotEmpty;
+                    final paymentData = hasPaymentHistory 
+                        ? snapshot.data!.docs.first.data() as Map<String, dynamic>
+                        : null;
+                    final paymentStatus = paymentData?['status'] as String? ?? '';
+                    final wasPreviouslyPaid = paymentStatus.toLowerCase() == 'paid';
+
+                    // Show Pay Now button only if:
+                    // 1. Appointment is approved (status == 1) and no previous payment
+                    // 2. OR if there was a previous payment (show as View Receipt)
+                    if (appointment.appointmentStatus == 1 || wasPreviouslyPaid) {
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
+                        child: PayNowButton(
+                          appointmentId: appointment.appointmentUid ?? '',
+                          doctorId: doctorDetails.uid,
+                          doctorName: doctorDetails.name,
+                          patientName: appointment.patientName ?? '',
+                          modeOfAppointment: appointment.modeOfAppointment!,
+                          amount: appointment.amount ?? 0.0,
+                          appointmentDate: appointment.appointmentDate!,
+                          onPaymentCreated: (invoiceUrl) {
+                            bookAppointmentBloc.currentInvoiceUrl = invoiceUrl;
+                          },
+                        ),
+                      );
+                    }
+
+                    return const SizedBox.shrink();
+                  }
                 ),
                 [2].contains(appointment.appointmentStatus)
                     ? const SizedBox()

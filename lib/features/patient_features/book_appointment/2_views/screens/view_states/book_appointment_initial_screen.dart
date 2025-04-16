@@ -612,6 +612,8 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                         ),
                         const Gap(10),
                         GinaDivider(),
+                        // Commenting out the Pay Now button section - can be uncommented if needed
+                        /*
                         BlocBuilder<BookAppointmentBloc, BookAppointmentState>(
                           builder: (context, state) {
                             // Check if we have all the required selections
@@ -681,7 +683,10 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                             return const SizedBox.shrink();
                           },
                         ),
+                        */
                         const Gap(30),
+                        // Commenting out the payment warning message - can be uncommented if needed
+                        /*
                         if (bookAppointmentBloc.isBookAppointmentClicked)
                           Center(
                             child: Text(
@@ -695,6 +700,7 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                   ),
                             ),
                           ),
+                        */
                         Padding(
                           padding: const EdgeInsets.only(bottom: 30.0),
                           child: Center(
@@ -705,6 +711,15 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                   BookAppointmentState>(
                                 builder: (context, state) {
                                   if (isRescheduleMode) {
+                                    // Check if date and time are selected first
+                                    final hasDate = bookAppointmentBloc.dateController.text.isNotEmpty;
+                                    final hasTime = bookAppointmentBloc.selectedTimeIndex != -1;
+                                    
+                                    // If date and time aren't selected, don't show the button
+                                    if (!hasDate || !hasTime) {
+                                      return const SizedBox.shrink();
+                                    }
+
                                     return StreamBuilder<QuerySnapshot>(
                                       stream: FirebaseFirestore.instance
                                           .collection('appointments')
@@ -713,191 +728,99 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                           .collection('payments')
                                           .snapshots(),
                                       builder: (context, paymentSnapshot) {
-                                        if (!paymentSnapshot.hasData ||
-                                            paymentSnapshot
-                                                .data!.docs.isEmpty) {
-                                          return const SizedBox.shrink();
-                                        }
-
-                                        final paymentData = paymentSnapshot
-                                            .data!.docs.first
-                                            .data() as Map<String, dynamic>;
-                                        final tempAppointmentId =
-                                            paymentData['appointmentId']
-                                                as String?;
-
-                                        if (tempAppointmentId == null) {
-                                          return const SizedBox.shrink();
-                                        }
-
-                                        return StreamBuilder<DocumentSnapshot>(
-                                          stream: FirebaseFirestore.instance
-                                              .collection('pending_payments')
-                                              .doc(tempAppointmentId)
-                                              .snapshots(),
-                                          builder: (context, snapshot) {
-                                            final isPaymentComplete = snapshot
-                                                    .hasData &&
-                                                snapshot.data!.exists &&
-                                                (snapshot.data!.data() as Map<
-                                                            String,
-                                                            dynamic>)['status']
-                                                        ?.toLowerCase() ==
-                                                    'paid';
-
-                                            return FilledButton(
-                                              style: ButtonStyle(
-                                                shape:
-                                                    MaterialStateProperty.all(
-                                                  RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                ),
-                                                backgroundColor:
-                                                    MaterialStateProperty.all(
-                                                  isPaymentComplete
-                                                      ? GinaAppTheme
-                                                          .lightTertiaryContainer
-                                                      : GinaAppTheme
-                                                          .lightSurfaceVariant,
-                                                ),
+                                        // Always show the button in reschedule mode if we have date and time
+                                        return FilledButton(
+                                          style: ButtonStyle(
+                                            shape: MaterialStateProperty.all(
+                                              RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(10),
                                               ),
-                                              onPressed: () {
-                                                if (bookAppointmentBloc
-                                                            .selectedTimeIndex ==
-                                                        -1 ||
-                                                    bookAppointmentBloc
-                                                        .dateController
-                                                        .text
-                                                        .isEmpty) {
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text(
-                                                          'Please select date and time'),
-                                                      backgroundColor:
-                                                          Colors.red,
-                                                    ),
-                                                  );
-                                                  return;
-                                                }
+                                            ),
+                                            backgroundColor: MaterialStateProperty.all(
+                                              GinaAppTheme.lightTertiaryContainer,
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            if (bookAppointmentBloc.selectedTimeIndex == -1 ||
+                                                bookAppointmentBloc.dateController.text.isEmpty) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text('Please select date and time'),
+                                                  backgroundColor: Colors.red,
+                                                ),
+                                              );
+                                              return;
+                                            }
 
-                                                if (!isPaymentComplete) {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder:
-                                                        (BuildContext context) {
-                                                      return AlertDialog(
-                                                        title: const Text(
-                                                            'Payment Required'),
-                                                        content: const Text(
-                                                            'Please complete the payment before booking the appointment.'),
-                                                        actions: <Widget>[
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop();
-                                                            },
-                                                            child: const Text(
-                                                                'OK'),
-                                                          ),
-                                                        ],
+                                            final currentState = bookAppointmentBloc.state;
+                                            if (currentState is GetDoctorAvailabilityLoaded) {
+                                              final selectedIndex = currentState.selectedTimeIndex!;
+                                              final selectedTime =
+                                                  '${doctorAvailabilityModel.startTimes[selectedIndex]} - ${doctorAvailabilityModel.endTimes[selectedIndex]}';
+
+                                              debugPrint('Rescheduling appointment...');
+                                              appointmentDetailsBloc.add(
+                                                RescheduleAppointmentEvent(
+                                                  doctor: doctor,
+                                                  appointmentUid: appointmentUidToReschedule!,
+                                                  appointmentDate: bookAppointmentBloc.selectedFormattedDate,
+                                                  appointmentTime: selectedTime,
+                                                ),
+                                              );
+
+                                              debugPrint('Reschedule completed, showing success dialog...');
+
+                                              showRescheduleAppointmentSuccessDialog(
+                                                context,
+                                                appointmentUidToReschedule!,
+                                                doctor,
+                                              ).then((_) {
+                                                Navigator.pushReplacement(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) {
+                                                      return ReviewRescheduledAppointmentScreen(
+                                                        doctorDetails: doctor,
+                                                        currentPatient: currentActivePatient!,
+                                                        appointmentModel: appointmentDetailsForReschedule!,
                                                       );
                                                     },
-                                                  );
-                                                  return;
-                                                }
-
-                                                final currentState =
-                                                    bookAppointmentBloc.state;
-                                                if (currentState
-                                                    is GetDoctorAvailabilityLoaded) {
-                                                  final selectedIndex =
-                                                      currentState
-                                                          .selectedTimeIndex!;
-                                                  final selectedTime =
-                                                      '${doctorAvailabilityModel.startTimes[selectedIndex]} - ${doctorAvailabilityModel.endTimes[selectedIndex]}';
-
-                                                  debugPrint(
-                                                      'Rescheduling appointment...');
-                                                  appointmentDetailsBloc.add(
-                                                    RescheduleAppointmentEvent(
-                                                      doctor: doctor,
-                                                      appointmentUid:
-                                                          appointmentUidToReschedule!,
-                                                      appointmentDate:
-                                                          bookAppointmentBloc
-                                                              .selectedFormattedDate,
-                                                      appointmentTime:
-                                                          selectedTime,
-                                                    ),
-                                                  );
-
-                                                  debugPrint(
-                                                      'Reschedule completed, showing success dialog...');
-
-                                                  showRescheduleAppointmentSuccessDialog(
-                                                    context,
-                                                    appointmentUidToReschedule!,
-                                                    doctor,
-                                                  ).then((_) {
-                                                    Navigator.pushReplacement(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) {
-                                                          return ReviewRescheduledAppointmentScreen(
-                                                            doctorDetails:
-                                                                doctor,
-                                                            currentPatient:
-                                                                currentActivePatient!,
-                                                            appointmentModel:
-                                                                appointmentDetailsForReschedule!,
-                                                          );
-                                                        },
-                                                      ),
-                                                    );
-                                                  }).whenComplete(() {
-                                                    isRescheduleMode = false;
-                                                    debugPrint(
-                                                        'isRescheduleMode set to false');
-                                                  });
-                                                }
-                                              },
-                                              child: Text(
-                                                'Reschedule Appointment',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .titleMedium
-                                                    ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      color: Colors.white,
-                                                    ),
-                                              ),
-                                            );
+                                                  ),
+                                                );
+                                              }).whenComplete(() {
+                                                isRescheduleMode = false;
+                                                debugPrint('isRescheduleMode set to false');
+                                              });
+                                            }
                                           },
+                                          child: Text(
+                                            'Reschedule Appointment',
+                                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.white,
+                                                ),
+                                          ),
                                         );
                                       },
                                     );
                                   } else {
-                                    return StreamBuilder<DocumentSnapshot>(
-                                      stream: FirebaseFirestore.instance
-                                          .collection('pending_payments')
-                                          .doc(bookAppointmentBloc
-                                              .tempAppointmentId)
-                                          .snapshots(),
-                                      builder: (context, snapshot) {
-                                        final isPaymentComplete =
-                                            snapshot.hasData &&
-                                                snapshot.data!.exists &&
-                                                (snapshot.data!.data() as Map<
-                                                            String,
-                                                            dynamic>)['status']
-                                                        ?.toLowerCase() ==
-                                                    'paid';
+                                    // Modified Book Appointment button logic
+                                    return BlocBuilder<BookAppointmentBloc,
+                                        BookAppointmentState>(
+                                      builder: (context, state) {
+                                        // Check if we have all the required selections
+                                        final hasDate = bookAppointmentBloc
+                                            .dateController.text.isNotEmpty;
+                                        final hasTime = bookAppointmentBloc
+                                                .selectedTimeIndex !=
+                                            -1;
+                                        final hasMode = bookAppointmentBloc
+                                                .selectedModeofAppointmentIndex !=
+                                            -1;
+
+                                        // Button is enabled only if all selections are made
+                                        final isButtonEnabled =
+                                            hasDate && hasTime && hasMode;
 
                                         return FilledButton(
                                           style: ButtonStyle(
@@ -909,90 +832,52 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                             ),
                                             backgroundColor:
                                                 MaterialStateProperty.all(
-                                              isPaymentComplete
+                                              isButtonEnabled
                                                   ? GinaAppTheme
                                                       .lightTertiaryContainer
                                                   : GinaAppTheme
                                                       .lightSurfaceVariant,
                                             ),
                                           ),
-                                          onPressed: () {
-                                            if (bookAppointmentBloc
-                                                        .selectedTimeIndex ==
-                                                    -1 ||
-                                                bookAppointmentBloc
-                                                    .dateController
-                                                    .text
-                                                    .isEmpty) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                      'Please select date and time'),
-                                                  backgroundColor: Colors.red,
-                                                ),
-                                              );
-                                              return;
-                                            }
+                                          onPressed: isButtonEnabled
+                                              ? () {
+                                                  final currentState =
+                                                      bookAppointmentBloc.state;
+                                                  if (currentState
+                                                      is GetDoctorAvailabilityLoaded) {
+                                                    final selectedIndex =
+                                                        currentState
+                                                            .selectedTimeIndex!;
+                                                    final selectedTime =
+                                                        '${doctorAvailabilityModel.startTimes[selectedIndex]} - ${doctorAvailabilityModel.endTimes[selectedIndex]}';
 
-                                            if (!isPaymentComplete) {
-                                              showDialog(
-                                                context: context,
-                                                builder:
-                                                    (BuildContext context) {
-                                                  return AlertDialog(
-                                                    title: const Text(
-                                                        'Payment Required'),
-                                                    content: const Text(
-                                                        'Please complete the payment before booking the appointment.'),
-                                                    actions: <Widget>[
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          Navigator.of(context)
-                                                              .pop();
-                                                        },
-                                                        child: const Text('OK'),
+                                                    debugPrint(
+                                                        'Booking new appointment...');
+                                                    final tempAppointmentId =
+                                                        bookAppointmentBloc
+                                                            .tempAppointmentId;
+                                                    debugPrint(
+                                                        'Using tempAppointmentId for booking: $tempAppointmentId');
+
+                                                    bookAppointmentBloc.add(
+                                                      BookForAnAppointmentEvent(
+                                                        doctorId: doctor.uid,
+                                                        doctorName: doctor.name,
+                                                        doctorClinicAddress:
+                                                            doctor
+                                                                .officeAddress,
+                                                        appointmentDate:
+                                                            bookAppointmentBloc
+                                                                .selectedFormattedDate,
+                                                        appointmentTime:
+                                                            selectedTime,
+                                                        appointmentId:
+                                                            tempAppointmentId!,
                                                       ),
-                                                    ],
-                                                  );
-                                                },
-                                              );
-                                              return;
-                                            }
-
-                                            final currentState =
-                                                bookAppointmentBloc.state;
-                                            if (currentState
-                                                is GetDoctorAvailabilityLoaded) {
-                                              final selectedIndex = currentState
-                                                  .selectedTimeIndex!;
-                                              final selectedTime =
-                                                  '${doctorAvailabilityModel.startTimes[selectedIndex]} - ${doctorAvailabilityModel.endTimes[selectedIndex]}';
-
-                                              debugPrint(
-                                                  'Booking new appointment...');
-                                              final tempAppointmentId =
-                                                  bookAppointmentBloc
-                                                      .tempAppointmentId;
-                                              debugPrint(
-                                                  'Using tempAppointmentId for booking: $tempAppointmentId');
-
-                                              bookAppointmentBloc.add(
-                                                BookForAnAppointmentEvent(
-                                                  doctorId: doctor.uid,
-                                                  doctorName: doctor.name,
-                                                  doctorClinicAddress:
-                                                      doctor.officeAddress,
-                                                  appointmentDate:
-                                                      bookAppointmentBloc
-                                                          .selectedFormattedDate,
-                                                  appointmentTime: selectedTime,
-                                                  appointmentId:
-                                                      tempAppointmentId!,
-                                                ),
-                                              );
-                                            }
-                                          },
+                                                    );
+                                                  }
+                                                }
+                                              : null,
                                           child: Text(
                                             'Book Appointment',
                                             style: Theme.of(context)

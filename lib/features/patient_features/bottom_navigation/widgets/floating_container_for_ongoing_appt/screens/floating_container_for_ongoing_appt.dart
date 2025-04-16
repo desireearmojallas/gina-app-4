@@ -129,6 +129,18 @@ class FloatingContainerForOnGoingAppointment extends StatelessWidget {
         date.day == today.day;
   }
 
+  bool isWithinTimeRange(String appointmentDate, String appointmentTime) {
+    final DateFormat dateTimeFormat = DateFormat('MMMM d, yyyy h:mm a');
+    final DateTime now = DateTime.now();
+    final DateTime appointmentStartTime = dateTimeFormat
+        .parse('$appointmentDate ${appointmentTime.split('-')[0].trim()}');
+    final DateTime appointmentEndTime = dateTimeFormat
+        .parse('$appointmentDate ${appointmentTime.split('-')[1].trim()}');
+
+    return now.isAfter(appointmentStartTime) &&
+        now.isBefore(appointmentEndTime);
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -223,9 +235,11 @@ class FloatingContainerForOnGoingAppointment extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      appointment.modeOfAppointment == 0
-                                          ? 'Ongoing Online Consultation'
-                                          : 'Ongoing Face-to-Face Consultation',
+                                      isWithinTimeRange(
+                                              appointment.appointmentDate!,
+                                              appointment.appointmentTime!)
+                                          ? 'Ongoing ${appointment.modeOfAppointment == 0 ? 'Online' : 'Face-to-Face'} Consultation'
+                                          : 'Upcoming ${appointment.modeOfAppointment == 0 ? 'Online' : 'Face-to-Face'} Consultation',
                                       style: const TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,

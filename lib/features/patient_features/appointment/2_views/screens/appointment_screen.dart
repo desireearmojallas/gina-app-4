@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -133,6 +134,104 @@ class AppointmentScreen extends StatelessWidget {
                         heroTag: 'consultation',
                         icon: MingCute.message_3_fill,
                         onPressed: () async {
+                          debugPrint(
+                              'Appointment Screen consultation button clicked');
+
+                          // Get the appointment ID based on the state
+                          final String appointmentId =
+                              state is AppointmentDetailsState
+                                  ? state.appointment.appointmentUid!
+                                  : state is ConsultationHistoryState
+                                      ? state.appointment.appointmentUid!
+                                      : '';
+
+                          // Check both payment collections
+                          final pendingPaymentDoc = await FirebaseFirestore
+                              .instance
+                              .collection('pending_payments')
+                              .doc(appointmentId)
+                              .get();
+
+                          final appointmentPaymentsSnapshot =
+                              await FirebaseFirestore.instance
+                                  .collection('appointments')
+                                  .doc(appointmentId)
+                                  .collection('payments')
+                                  .get();
+
+                          bool isPaid = false;
+
+                          // Check pending_payments first
+                          if (pendingPaymentDoc.exists) {
+                            final status = pendingPaymentDoc.data()?['status']
+                                    as String? ??
+                                '';
+                            isPaid = status.toLowerCase() == 'paid';
+                          }
+
+                          // If not found in pending_payments, check appointments/payments
+                          if (!isPaid &&
+                              appointmentPaymentsSnapshot.docs.isNotEmpty) {
+                            final status = appointmentPaymentsSnapshot
+                                    .docs.first
+                                    .data()['status'] as String? ??
+                                '';
+                            isPaid = status.toLowerCase() == 'paid';
+                          }
+
+                          if (!isPaid) {
+                            // Show payment required dialog
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.warning_amber_rounded,
+                                        color: Colors.orange,
+                                        size: 24,
+                                      ),
+                                      const Gap(8),
+                                      Text(
+                                        'Payment Required',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleLarge
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color: GinaAppTheme
+                                                  .lightOnPrimaryColor,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                  content: const Text(
+                                    'Please complete the payment for this appointment before accessing the consultation room.',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: Text(
+                                        'OK',
+                                        style: TextStyle(
+                                          color: Theme.of(context).primaryColor,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                            return;
+                          }
+
+                          // If paid, proceed with consultation
                           await appointmentBloc.handleConsultationNavigation(
                               state, context);
                         },
