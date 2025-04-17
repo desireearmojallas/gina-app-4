@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 import 'package:intl/intl.dart';
@@ -94,141 +95,146 @@ class LastCycleDatesContainer extends StatelessWidget {
                       const Gap(10),
                       LimitedBox(
                         maxHeight: MediaQuery.of(context).size.height * 0.46,
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              // Display periods grouped by year
-                              for (final year in years) ...[
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(0, 5, 0, 15),
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      year.toString(),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                            color: GinaAppTheme.lightOutline
-                                                .withOpacity(0.4),
-                                          ),
+                        child: ScrollbarCustom(
+                          child: SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            child: Column(
+                              children: [
+                                // Display periods grouped by year
+                                for (final year in years) ...[
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(0, 5, 0, 15),
+                                    child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        year.toString(),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleLarge
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color: GinaAppTheme.lightOutline
+                                                  .withOpacity(0.4),
+                                            ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                                for (int i = 0;
-                                    i < cyclesByYear[year]!.length;
-                                    i++) ...[
-                                  Builder(
-                                    builder: (context) {
-                                      final cycle = cyclesByYear[year]![i];
-                                      final startDate = DateFormat('MMM d')
-                                          .format(cycle.startDate);
-                                      final endDate = DateFormat('MMM d')
-                                          .format(cycle.endDate);
-                                      final cycleDays = cycle.cycleLength;
+                                  for (int i = 0;
+                                      i < cyclesByYear[year]!.length;
+                                      i++) ...[
+                                    Builder(
+                                      builder: (context) {
+                                        final cycle = cyclesByYear[year]![i];
+                                        final startDate = DateFormat('MMM d')
+                                            .format(cycle.startDate);
+                                        final endDate = DateFormat('MMM d')
+                                            .format(cycle.endDate);
+                                        final cycleDays = cycle.cycleLength;
 
-                                      // Check if this is the earliest log overall
-                                      final isEarliestLog = (year ==
-                                              years.last &&
-                                          i == cyclesByYear[year]!.length - 1);
+                                        // Check if this is the earliest log overall
+                                        final isEarliestLog = (year ==
+                                                years.last &&
+                                            i ==
+                                                cyclesByYear[year]!.length - 1);
 
-                                      // Check if this is the latest log overall
-                                      final isLatestLog =
-                                          (year == years.first && i == 0);
+                                        // Check if this is the latest log overall
+                                        final isLatestLog =
+                                            (year == years.first && i == 0);
 
-                                      // Check if this is the last item in the current year group
-                                      final isLastInYear =
-                                          i == cyclesByYear[year]!.length - 1;
+                                        // Check if this is the last item in the current year group
+                                        final isLastInYear =
+                                            i == cyclesByYear[year]!.length - 1;
 
-                                      return Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Text(
-                                                ' $startDate - $endDate',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .titleLarge
-                                                    ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                      color: GinaAppTheme
-                                                          .lightSecondary,
-                                                    ),
-                                              ),
-                                              if (isLatestLog)
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 8.0),
-                                                  child: Container(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 8,
-                                                        vertical: 2),
-                                                    decoration: BoxDecoration(
-                                                      color: GinaAppTheme
-                                                          .lightPrimaryContainer
-                                                          .withOpacity(0.5),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              4),
-                                                    ),
-                                                    child: Text(
-                                                      'Latest',
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .bodySmall
-                                                          ?.copyWith(
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            color: GinaAppTheme
-                                                                .lightSecondary,
-                                                            fontSize: 10,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                          const Gap(10),
-                                          if (!isEarliestLog && cycleDays > 0)
+                                        return Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
                                             Row(
                                               children: [
-                                                const Icon(
-                                                  Icons.calendar_today,
-                                                  size: 18,
-                                                  color:
-                                                      GinaAppTheme.lightOutline,
-                                                ),
-                                                const Gap(5),
                                                 Text(
-                                                  '$cycleDays day cycle',
+                                                  ' $startDate - $endDate',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .titleLarge
+                                                      ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        color: GinaAppTheme
+                                                            .lightSecondary,
+                                                      ),
                                                 ),
+                                                if (isLatestLog)
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 8.0),
+                                                    child: Container(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 8,
+                                                          vertical: 2),
+                                                      decoration: BoxDecoration(
+                                                        color: GinaAppTheme
+                                                            .lightPrimaryContainer
+                                                            .withOpacity(0.5),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(4),
+                                                      ),
+                                                      child: Text(
+                                                        'Latest',
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .bodySmall
+                                                            ?.copyWith(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                              color: GinaAppTheme
+                                                                  .lightSecondary,
+                                                              fontSize: 10,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                  ),
                                               ],
                                             ),
-                                          const Gap(5),
-                                          isLastInYear
-                                              ? const Gap(15)
-                                              : const Divider(
-                                                  thickness: 0.5,
-                                                  color:
-                                                      GinaAppTheme.lightOutline,
-                                                ),
-                                          isLastInYear && year != years.last
-                                              ? const Gap(5)
-                                              : const SizedBox.shrink(),
-                                        ],
-                                      );
-                                    },
-                                  ),
+                                            const Gap(10),
+                                            if (!isEarliestLog && cycleDays > 0)
+                                              Row(
+                                                children: [
+                                                  const Icon(
+                                                    Icons.calendar_today,
+                                                    size: 18,
+                                                    color: GinaAppTheme
+                                                        .lightOutline,
+                                                  ),
+                                                  const Gap(5),
+                                                  Text(
+                                                    '$cycleDays day cycle',
+                                                  ),
+                                                ],
+                                              ),
+                                            const Gap(5),
+                                            isLastInYear
+                                                ? const Gap(15)
+                                                : const Divider(
+                                                    thickness: 0.5,
+                                                    color: GinaAppTheme
+                                                        .lightOutline,
+                                                  ),
+                                            isLastInYear && year != years.last
+                                                ? const Gap(5)
+                                                : const SizedBox.shrink(),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                  ],
                                 ],
                               ],
-                            ],
+                            ),
                           ),
                         ),
                       ),

@@ -3,9 +3,13 @@
 import 'package:crystal_navigation_bar/crystal_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/bloc/bottom_navigation_bloc.dart';
+import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/alert_dialog_for_approved_appointments_payment/screens/floating_payment_reminder_widget.dart';
+import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/floating_container_for_ongoing_appt/bloc/floating_container_for_ongoing_appt_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/floating_container_for_ongoing_appt/screens/floating_container_for_ongoing_appt.dart';
+import 'package:gina_app_4/features/patient_features/home/2_views/screens/home_screen.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class BottomNavigationProvider extends StatelessWidget {
@@ -20,11 +24,32 @@ class BottomNavigationProvider extends StatelessWidget {
   }
 }
 
-class BottomNavigation extends StatelessWidget {
+class BottomNavigation extends StatefulWidget {
   const BottomNavigation({super.key});
 
   @override
+  State<BottomNavigation> createState() => _BottomNavigationState();
+}
+
+class _BottomNavigationState extends State<BottomNavigation> {
+  @override
+  void initState() {
+    super.initState();
+
+    // Add delay to ensure bloc is ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        debugPrint('💬 NAVIGATION: Dispatching CheckOngoingAppointments event');
+        context.read<FloatingContainerForOngoingApptBloc>().add(
+              CheckOngoingAppointments(),
+            );
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Your existing build method from the StatelessWidget
     return WillPopScope(
       onWillPop: () async {
         final currentIndex =
@@ -96,8 +121,58 @@ class BottomNavigation extends StatelessWidget {
                 return state.selectedScreen;
               },
             ),
-            // const FloatingContainerForOnGoingAppointment(),
-            const FloatingContainerForOnGoingAppointmentProvider(),
+            Positioned(
+              bottom: MediaQuery.of(context).padding.bottom + 90,
+              left: 0,
+              right: 0,
+              child: BlocBuilder<FloatingContainerForOngoingApptBloc,
+                  FloatingContainerForOngoingApptState>(
+                builder: (context, state) {
+                  final hasOngoingAppointment =
+                      state is OngoingAppointmentFound;
+
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Payment reminder
+                      ValueListenableBuilder<bool>(
+                        valueListenable: HomeScreen.paymentReminderNotifier,
+                        builder: (context, _, __) {
+                          if (HomeScreen.hasPendingPayment) {
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                FloatingPaymentReminderProvider(
+                                  key: ValueKey(HomeScreen
+                                      .pendingPaymentAppointment
+                                      ?.appointmentUid),
+                                  appointment:
+                                      HomeScreen.pendingPaymentAppointment!,
+                                  approvalTime:
+                                      HomeScreen.pendingPaymentApprovalTime!,
+                                ),
+                                if (hasOngoingAppointment) const Gap(10),
+                              ],
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+
+                      // Ongoing appointment container
+                      if (hasOngoingAppointment)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                          ),
+                          child:
+                              FloatingContainerForOnGoingAppointmentProvider(),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),

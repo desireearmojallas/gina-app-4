@@ -25,6 +25,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final ProfileController profileController;
   final AppointmentController appointmentController;
   final PeriodTrackerController periodTrackerController;
+  late final StreamSubscription<List<AppointmentModel>>
+      _appointmentStreamSubscription;
   HomeBloc({
     required this.profileController,
     required this.appointmentController,
@@ -37,9 +39,40 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<GetPatientCurrentLocationEvent>(getPatientCurrentLocationEvent);
     on<HomeNavigateToFindDoctorEvent>(homeNavigateToFindDoctorEvent);
     on<HomeNavigateToForumEvent>(homeNavigateToForumEvent);
+    on<FetchRecentlyApprovedAppointmentsEvent>(
+        fetchRecentlyApprovedAppointmentsEvent);
+    on<DisplayApprovedAppointmentPaymentDialogEvent>(
+        displayApprovedAppointmentPaymentDialogEvent);
+    on<ResetHomeStateAfterDialogEvent>(resetHomeStateAfterDialogEvent);
     // on<HomeGetPeriodTrackerDataAndConsultationHistoryEvent>(
     //     homeGetPeriodTrackerDataAndConsultationHistoryEvent);
+
+    Future.delayed(Duration.zero, () {
+      _appointmentStreamSubscription = appointmentController
+          .getRecentlyApprovedAppointmentsStream()
+          .listen((appointments) {
+        if (appointments.isNotEmpty) {
+          // Get the most recent approved appointment
+          final mostRecentApproved = appointments.first;
+
+          debugPrint("[HOME_BLOC] New appointment approval detected!");
+          debugPrint("[HOME_BLOC] ID: ${mostRecentApproved.appointmentUid}");
+          debugPrint("[HOME_BLOC] Doctor: ${mostRecentApproved.doctorName}");
+
+          // Trigger the payment dialog event
+          add(DisplayApprovedAppointmentPaymentDialogEvent(
+              appointment: mostRecentApproved));
+        }
+      });
+    });
   }
+
+  @override
+  Future<void> close() {
+    _appointmentStreamSubscription.cancel();
+    return super.close();
+  }
+
   FutureOr<void> homeInitialEvent(
       HomeInitialEvent event, Emitter<HomeState> emit) async {
     final result = await appointmentController.getAllCompletedAppointments();
@@ -159,4 +192,63 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   //         errorMessage: e.toString()));
   //   }
   // }
+
+  FutureOr<void> displayApprovedAppointmentPaymentDialogEvent(
+      DisplayApprovedAppointmentPaymentDialogEvent event,
+      Emitter<HomeState> emit) {
+    emit(DisplayApprovedAppointmentPaymentDialogState(
+        appointment: event.appointment));
+  }
+
+  FutureOr<void> fetchRecentlyApprovedAppointmentsEvent(
+      FetchRecentlyApprovedAppointmentsEvent event,
+      Emitter<HomeState> emit) async {
+    debugPrint("[HOME_BLOC] Fetching recently approved appointments...");
+
+    // Fetch approved appointments that are pending payment
+    final approvedAppointmentsResult =
+        await appointmentController.getRecentlyApprovedAppointments();
+
+    approvedAppointmentsResult.fold(
+      (failure) {
+        // Handle error if needed
+        debugPrint(
+            "[HOME_BLOC] ERROR: Failed to fetch approved appointments: ${failure.toString()}");
+      },
+      (appointments) {
+        // Debug print the number of appointments found
+        debugPrint(
+            "[HOME_BLOC] SUCCESS: Found ${appointments.length} recently approved appointments");
+
+        // If we have any approved appointments waiting for payment
+        if (appointments.isNotEmpty) {
+          // Get the most recent one
+          final mostRecentApproved = appointments.first;
+
+          // Print details of the most recent appointment
+          debugPrint("[HOME_BLOC] Most recent approved appointment details:");
+          debugPrint("[HOME_BLOC] ID: ${mostRecentApproved.appointmentUid}");
+          debugPrint("[HOME_BLOC] Doctor: ${mostRecentApproved.doctorName}");
+          debugPrint("[HOME_BLOC] Date: ${mostRecentApproved.appointmentDate}");
+          debugPrint(
+              "[HOME_BLOC] Status: ${mostRecentApproved.appointmentStatus}");
+
+          // Trigger the payment dialog event
+          add(DisplayApprovedAppointmentPaymentDialogEvent(
+              appointment: mostRecentApproved));
+        } else {
+          debugPrint(
+              "[HOME_BLOC] INFO: No recently approved appointments found that need payment");
+        }
+      },
+    );
+  }
+
+  FutureOr<void> resetHomeStateAfterDialogEvent(
+      ResetHomeStateAfterDialogEvent event, Emitter<HomeState> emit) async {
+    // Reset the state to initial and fetch patient name again
+    emit(HomeInitial(completedAppointments: storedCompletedAppointments));
+    add(GetPatientNameEvent());
+    debugPrint("[HOME_BLOC] State reset after dialog interaction");
+  }
 }

@@ -72,3 +72,12 @@ class GetPatientNameState extends HomeState {
   @override
   List<Object> get props => [patientName];
 }
+
+class DisplayApprovedAppointmentPaymentDialogState extends HomeActionState {
+  final AppointmentModel appointment;
+
+  DisplayApprovedAppointmentPaymentDialogState({required this.appointment});
+
+  @override
+  List<Object> get props => [appointment];
+}

@@ -478,6 +478,8 @@ class AppointmentController with ChangeNotifier {
         'appointmentTime': appointmentTime,
         'appointmentStatus': AppointmentStatus.pending.index,
         'lastUpdatedAt': FieldValue.serverTimestamp(),
+        'isViewed': false,
+        'paymentDialogShown': false,
       });
 
       return const Right(true);
@@ -795,7 +797,8 @@ class AppointmentController with ChangeNotifier {
 
         if (modeOfAppointment == 1) {
           // Face-to-face consultation
-          if (now.isBefore(appointmentEndDateTime)) {
+          if (appointmentDate == today &&
+              now.isBefore(appointmentEndDateTime)) {
             return AppointmentModel.fromDocumentSnap(doc);
           }
         } else {
@@ -933,6 +936,98 @@ class AppointmentController with ChangeNotifier {
       return Left(Exception(e.message));
     } catch (e) {
       debugPrint('Error declining appointment: $e');
+      return Left(Exception(e.toString()));
+    }
+  }
+
+  Stream<List<AppointmentModel>> getRecentlyApprovedAppointmentsStream() {
+    // Check if currentPatient is null and return an empty stream if it is
+    if (currentPatient == null) {
+      debugPrint(
+          "[APPOINTMENT_CONTROLLER] Warning: currentPatient is null, returning empty stream");
+      return Stream.value([]);
+    }
+
+    // Listen to appointments
+    return firestore
+        .collection('appointments')
+        .where('patientUid', isEqualTo: currentPatient!.uid)
+        .snapshots()
+        .asyncMap((snapshot) async {
+      debugPrint(
+          "[APPOINTMENT_CONTROLLER] Received appointments update, document count: ${snapshot.docChanges.length}");
+
+      List<AppointmentModel> approvedAppointments = [];
+
+      // Process document changes
+      for (var change in snapshot.docChanges) {
+        final data = change.doc.data();
+        final currentStatus = data?['appointmentStatus'] as int? ?? -1;
+
+        // Check confirmed appointments that haven't shown payment dialog
+        if (currentStatus == AppointmentStatus.confirmed.index &&
+            data?['paymentDialogShown'] != true) {
+          // Check if the 'payments' subcollection exists and has documents
+          final paymentsCollection = await firestore
+              .collection('appointments')
+              .doc(change.doc.id)
+              .collection('payments')
+              .limit(1)
+              .get();
+
+          // Create the appointment model
+          final appointment = AppointmentModel.fromDocumentSnap(change.doc);
+
+          // Mark appointment with whether it has payments or not
+          if (paymentsCollection.docs.isEmpty) {
+            // New appointment without payment
+            debugPrint(
+                "[APPOINTMENT_CONTROLLER] Found confirmed appointment that needs payment: ${change.doc.id}");
+            appointment.hasPreviousPayment = false;
+          } else {
+            // Rescheduled appointment with previous payment
+            debugPrint(
+                "[APPOINTMENT_CONTROLLER] Found rescheduled confirmed appointment with existing payment: ${change.doc.id}");
+            appointment.hasPreviousPayment = true;
+          }
+
+          // Add to our list
+          approvedAppointments.add(appointment);
+
+          // Mark as shown to avoid showing dialog multiple times
+          firestore
+              .collection('appointments')
+              .doc(change.doc.id)
+              .update({'paymentDialogShown': true})
+              .then((_) => debugPrint(
+                  "[APPOINTMENT_CONTROLLER] Marked dialog as shown for appointment: ${change.doc.id}"))
+              .catchError((error) => debugPrint(
+                  "[APPOINTMENT_CONTROLLER] Error marking dialog as shown: $error"));
+        }
+      }
+
+      return approvedAppointments;
+    });
+  }
+
+  Future<Either<Exception, List<AppointmentModel>>>
+      getRecentlyApprovedAppointments() async {
+    try {
+      // Query for approved appointments that require payment
+      final appointmentsQuery = await firestore
+          .collection('appointments')
+          .where('appointmentStatus',
+              isEqualTo: AppointmentStatus.pending.index)
+          .where('patientUid', isEqualTo: currentPatient!.uid)
+          .get();
+
+      // Convert to appointment models
+      final appointments = appointmentsQuery.docs
+          .map((doc) => AppointmentModel.fromDocumentSnap(doc))
+          .toList();
+
+      return Right(appointments);
+    } catch (e) {
       return Left(Exception(e.toString()));
     }
   }

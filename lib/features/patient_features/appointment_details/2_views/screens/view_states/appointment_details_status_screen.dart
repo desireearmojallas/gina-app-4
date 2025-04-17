@@ -9,7 +9,6 @@ import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_name_widget.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/appointment_status_card.dart';
-import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/approved_appointment_payment_widgets/appointment_payment_widgets.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/cancel_appointment_widgets/cancel_modal_dialog.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/reschedule_filled_button.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
@@ -22,11 +21,13 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
   final DoctorModel doctorDetails;
   final AppointmentModel appointment;
   final UserModel currentPatient;
+  final bool? fromPendingPaymentDialog;
   const AppointmentDetailsStatusScreen({
     super.key,
     required this.doctorDetails,
     required this.appointment,
     required this.currentPatient,
+    this.fromPendingPaymentDialog,
   });
 
   @override
@@ -71,47 +72,51 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                   appointmentStatus: appointment.appointmentStatus!,
                 ),
                 StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('appointments')
-                      .doc(appointment.appointmentUid)
-                      .collection('payments')
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
+                    stream: FirebaseFirestore.instance
+                        .collection('appointments')
+                        .doc(appointment.appointmentUid)
+                        .collection('payments')
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const SizedBox.shrink();
+                      }
+
+                      final hasPaymentHistory = snapshot.data!.docs.isNotEmpty;
+                      final paymentData = hasPaymentHistory
+                          ? snapshot.data!.docs.first.data()
+                              as Map<String, dynamic>
+                          : null;
+                      final paymentStatus =
+                          paymentData?['status'] as String? ?? '';
+                      final wasPreviouslyPaid =
+                          paymentStatus.toLowerCase() == 'paid';
+
+                      // Show Pay Now button only if:
+                      // 1. Appointment is approved (status == 1) and no previous payment
+                      // 2. OR if there was a previous payment (show as View Receipt)
+                      if (appointment.appointmentStatus == 1 ||
+                          wasPreviouslyPaid) {
+                        return Padding(
+                          padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
+                          child: PayNowButton(
+                            appointmentId: appointment.appointmentUid ?? '',
+                            doctorId: doctorDetails.uid,
+                            doctorName: doctorDetails.name,
+                            patientName: appointment.patientName ?? '',
+                            modeOfAppointment: appointment.modeOfAppointment!,
+                            amount: appointment.amount ?? 0.0,
+                            appointmentDate: appointment.appointmentDate!,
+                            onPaymentCreated: (invoiceUrl) {
+                              bookAppointmentBloc.currentInvoiceUrl =
+                                  invoiceUrl;
+                            },
+                          ),
+                        );
+                      }
+
                       return const SizedBox.shrink();
-                    }
-
-                    final hasPaymentHistory = snapshot.data!.docs.isNotEmpty;
-                    final paymentData = hasPaymentHistory 
-                        ? snapshot.data!.docs.first.data() as Map<String, dynamic>
-                        : null;
-                    final paymentStatus = paymentData?['status'] as String? ?? '';
-                    final wasPreviouslyPaid = paymentStatus.toLowerCase() == 'paid';
-
-                    // Show Pay Now button only if:
-                    // 1. Appointment is approved (status == 1) and no previous payment
-                    // 2. OR if there was a previous payment (show as View Receipt)
-                    if (appointment.appointmentStatus == 1 || wasPreviouslyPaid) {
-                      return Padding(
-                        padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
-                        child: PayNowButton(
-                          appointmentId: appointment.appointmentUid ?? '',
-                          doctorId: doctorDetails.uid,
-                          doctorName: doctorDetails.name,
-                          patientName: appointment.patientName ?? '',
-                          modeOfAppointment: appointment.modeOfAppointment!,
-                          amount: appointment.amount ?? 0.0,
-                          appointmentDate: appointment.appointmentDate!,
-                          onPaymentCreated: (invoiceUrl) {
-                            bookAppointmentBloc.currentInvoiceUrl = invoiceUrl;
-                          },
-                        ),
-                      );
-                    }
-
-                    return const SizedBox.shrink();
-                  }
-                ),
+                    }),
                 [2].contains(appointment.appointmentStatus)
                     ? const SizedBox()
                     : Column(
@@ -280,7 +285,8 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
               )
             : appointment.modeOfAppointment == 0 &&
                     appointment.appointmentStatus ==
-                        AppointmentStatus.confirmed.index
+                        AppointmentStatus.confirmed.index &&
+                    fromPendingPaymentDialog != true
                 ? Positioned(
                     bottom: 175.0,
                     right: 70.0,

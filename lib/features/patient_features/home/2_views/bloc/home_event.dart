@@ -20,3 +20,20 @@ class HomeGetPeriodTrackerDataAndConsultationHistoryEvent extends HomeEvent {}
 class GetPatientNameEvent extends HomeEvent {}
 
 class GetPatientCurrentLocationEvent extends HomeEvent {}
+
+class FetchRecentlyApprovedAppointmentsEvent extends HomeEvent {
+  @override
+  List<Object> get props => [];
+}
+
+class DisplayApprovedAppointmentPaymentDialogEvent extends HomeEvent {
+  final AppointmentModel appointment;
+
+  const DisplayApprovedAppointmentPaymentDialogEvent(
+      {required this.appointment});
+
+  @override
+  List<Object> get props => [appointment];
+}
+
+class ResetHomeStateAfterDialogEvent extends HomeEvent {}

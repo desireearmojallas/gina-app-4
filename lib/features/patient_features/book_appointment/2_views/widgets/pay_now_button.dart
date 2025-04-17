@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/patient_features/home/2_views/screens/home_screen.dart';
 import 'package:gina_app_4/features/patient_features/payment_feature/2_views/screens/view_states/patient_payment_screen_initial.dart';
 import 'package:gina_app_4/features/patient_features/payment_feature/3_services/patient_payment_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -127,9 +128,10 @@ class _PayNowButtonState extends State<PayNowButton> {
         final paymentData = paymentDoc.data()!;
         final invoiceId = paymentData['invoiceId'] as String;
         final currentStatus = paymentData['status'] as String? ?? 'pending';
-        
-        debugPrint('Current payment status in pending_payments: $currentStatus');
-        
+
+        debugPrint(
+            'Current payment status in pending_payments: $currentStatus');
+
         // If already marked as paid in Firestore, return paid
         if (currentStatus.toLowerCase() == 'paid') {
           return 'paid';
@@ -138,7 +140,7 @@ class _PayNowButtonState extends State<PayNowButton> {
         final paymentService = PatientPaymentService();
         final xenditStatus =
             await paymentService.checkXenditPaymentStatus(invoiceId);
-        
+
         debugPrint('Xendit payment status: $xenditStatus');
 
         // If Xendit reports paid, update Firestore and return paid
@@ -167,9 +169,10 @@ class _PayNowButtonState extends State<PayNowButton> {
       if (appointmentPaymentsSnapshot.docs.isNotEmpty) {
         final paymentData = appointmentPaymentsSnapshot.docs.first.data();
         final paymentStatus = paymentData['status'] as String? ?? 'pending';
-        
-        debugPrint('Found payment record in appointments/payments: $paymentStatus');
-        
+
+        debugPrint(
+            'Found payment record in appointments/payments: $paymentStatus');
+
         if (paymentStatus.toLowerCase() == 'paid') {
           return 'paid';
         }
@@ -218,10 +221,13 @@ class _PayNowButtonState extends State<PayNowButton> {
           debugPrint(
               'Payment confirmed and linked to appointment successfully');
 
+          HomeScreen.clearPendingPayment();
+
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Payment successful!'),
+              content: Text('Payment successful!',
+                  style: TextStyle(color: Colors.white)),
               backgroundColor: Colors.green,
             ),
           );

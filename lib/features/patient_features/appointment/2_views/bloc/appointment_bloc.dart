@@ -92,98 +92,128 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
   Future<void> navigateToAppointmentDetailsEvent(
       NavigateToAppointmentDetailsEvent event,
       Emitter<AppointmentState> emit) async {
-    debugPrint('NavigateToAppointmentDetailsEvent triggered');
-    emit(AppointmentDetailsLoading());
+    try {
+      debugPrint('===============================================');
+      debugPrint('PROCESSING NavigateToAppointmentDetailsEvent');
+      debugPrint('Appointment UID: ${event.appointmentUid}');
+      debugPrint('Doctor UID: ${event.doctorUid}');
 
-    storedAppointmentUid = event.appointmentUid;
+      emit(AppointmentDetailsLoading());
+      debugPrint('Emitted AppointmentDetailsLoading state');
 
-    debugPrint('Fetching doctor details for UID: ${event.doctorUid}');
-    final getDoctorDetails =
-        await appointmentController.getDoctorDetail(doctorUid: event.doctorUid);
+      storedAppointmentUid = event.appointmentUid;
 
-    DoctorModel? doctorInformation;
+      // Fetch doctor details
+      debugPrint('Fetching doctor details for UID: ${event.doctorUid}');
+      final getDoctorDetails = await appointmentController.getDoctorDetail(
+          doctorUid: event.doctorUid);
 
-    getDoctorDetails.fold(
-      (failure) {
-        debugPrint('Failed to fetch doctor details: $failure');
-      },
-      (getDoctorDetails) {
-        doctorInformation = getDoctorDetails;
-        doctorDetails = getDoctorDetails;
-        debugPrint('Fetched doctor details: $doctorInformation');
-      },
-    );
+      DoctorModel? doctorInformation;
 
-    debugPrint('Fetching patient profile data');
-    final getProfileData = await profileController.getPatientProfile();
-
-    getProfileData.fold(
-      (failure) {
-        debugPrint('Failed to fetch patient profile data: $failure');
-      },
-      (patientData) {
-        currentActivePatient = patientData;
-        debugPrint('Fetched patient profile data: $currentActivePatient');
-      },
-    );
-
-    debugPrint('Fetching appointment details for UID: ${event.appointmentUid}');
-    final result = await appointmentController.getAppointmentDetails(
-        appointmentUid: event.appointmentUid);
-
-    await result.fold(
-      (failure) async {
-        debugPrint('Failed to fetch appointment details: $failure');
-        emit(AppointmentDetailsError(errorMessage: failure.toString()));
-      },
-      (appointment) async {
-        debugPrint('Fetched appointment details: $appointment');
-        if (appointment.appointmentStatus ==
-                AppointmentStatus.completed.index ||
-            appointment.appointmentStatus == 2) {
+      getDoctorDetails.fold(
+        (failure) {
+          debugPrint('FAILED to fetch doctor details: $failure');
+        },
+        (getDoctorDetails) {
+          doctorInformation = getDoctorDetails;
+          doctorDetails = getDoctorDetails;
           debugPrint(
-              'Fetching prescription images for appointment UID: ${event.appointmentUid}');
-          final images = await appointmentController.getPrescriptionImages(
-              appointmentUid: event.appointmentUid);
+              'Successfully fetched doctor details: ${doctorInformation?.name}');
+        },
+      );
 
-          await images.fold(
-            (failure) async {
-              debugPrint('Failed to fetch prescription images: $failure');
-              emit(
-                  GetPrescriptionImagesError(errorMessage: failure.toString()));
-            },
-            (images) async {
-              storedPrescriptionImages = images;
-              debugPrint('Fetched prescription images: $images');
-              if (doctorInformation != null && currentActivePatient != null) {
-                emit(ConsultationHistoryState(
-                  appointment: appointment,
-                  doctorDetails: doctorInformation!,
-                  currentPatient: currentActivePatient!,
-                  prescriptionImages: images,
-                ));
-              } else {
-                emit(const AppointmentDetailsError(
-                    errorMessage:
-                        'Doctor information or patient data is null'));
-              }
-            },
-          );
-        } else {
-          if (doctorInformation != null && currentActivePatient != null) {
-            debugPrint('Emitting AppointmentDetailsState...');
-            emit(AppointmentDetailsState(
-              appointment: appointment,
-              doctorDetails: doctorInformation!,
-              currentPatient: currentActivePatient!,
-            ));
+      // Fetch patient profile
+      debugPrint('Fetching patient profile data');
+      final getProfileData = await profileController.getPatientProfile();
+
+      getProfileData.fold(
+        (failure) {
+          debugPrint('FAILED to fetch patient profile data: $failure');
+        },
+        (patientData) {
+          currentActivePatient = patientData;
+          debugPrint(
+              'Successfully fetched patient profile data: ${currentActivePatient?.name}');
+        },
+      );
+
+      // Fetch appointment details
+      debugPrint(
+          'Fetching appointment details for UID: ${event.appointmentUid}');
+      final result = await appointmentController.getAppointmentDetails(
+          appointmentUid: event.appointmentUid);
+
+      await result.fold(
+        (failure) async {
+          debugPrint('FAILED to fetch appointment details: $failure');
+          emit(AppointmentDetailsError(errorMessage: failure.toString()));
+        },
+        (appointment) async {
+          debugPrint(
+              'Successfully fetched appointment details: ${appointment.appointmentUid}');
+          if (appointment.appointmentStatus ==
+                  AppointmentStatus.completed.index ||
+              appointment.appointmentStatus == 2) {
+            debugPrint(
+                'Fetching prescription images for appointment UID: ${event.appointmentUid}');
+            final images = await appointmentController.getPrescriptionImages(
+                appointmentUid: event.appointmentUid);
+
+            await images.fold(
+              (failure) async {
+                debugPrint('Failed to fetch prescription images: $failure');
+                emit(GetPrescriptionImagesError(
+                    errorMessage: failure.toString()));
+              },
+              (images) async {
+                storedPrescriptionImages = images;
+                debugPrint('Fetched prescription images: $images');
+                if (doctorInformation != null && currentActivePatient != null) {
+                  emit(ConsultationHistoryState(
+                    appointment: appointment,
+                    doctorDetails: doctorInformation!,
+                    currentPatient: currentActivePatient!,
+                    prescriptionImages: images,
+                  ));
+                } else {
+                  emit(const AppointmentDetailsError(
+                      errorMessage:
+                          'Doctor information or patient data is null'));
+                }
+              },
+            );
           } else {
-            emit(const AppointmentDetailsError(
-                errorMessage: 'Doctor information or patient data is null'));
+            if (doctorInformation != null && currentActivePatient != null) {
+              debugPrint(
+                  'All required data available, emitting AppointmentDetailsState');
+              emit(AppointmentDetailsState(
+                appointment: appointment,
+                doctorDetails: doctorInformation!,
+                currentPatient: currentActivePatient!,
+              ));
+              debugPrint('SUCCESSFULLY emitted AppointmentDetailsState');
+            } else {
+              debugPrint(
+                  'ERROR: Missing required data for AppointmentDetailsState');
+              debugPrint(
+                  'Doctor information available: ${doctorInformation != null}');
+              debugPrint(
+                  'Patient data available: ${currentActivePatient != null}');
+              emit(const AppointmentDetailsError(
+                  errorMessage: 'Doctor information or patient data is null'));
+            }
           }
-        }
-      },
-    );
+        },
+      );
+      debugPrint('NavigateToAppointmentDetailsEvent processing completed');
+      debugPrint('===============================================');
+    } catch (e, stackTrace) {
+      debugPrint('===============================================');
+      debugPrint('ERROR in navigateToAppointmentDetailsEvent: $e');
+      debugPrint('Stack trace: $stackTrace');
+      debugPrint('===============================================');
+      emit(AppointmentDetailsError(errorMessage: e.toString()));
+    }
   }
 
   FutureOr<void> navigateToConsultationHistoryEvent(

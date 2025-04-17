@@ -37,6 +37,8 @@ class AppointmentModel extends Equatable {
   int? doctorRating;
   final DateTime? lastUpdatedAt;
   final bool isViewed;
+  final bool paymentDialogShown;
+  bool? hasPreviousPayment;
 
   AppointmentModel({
     this.appointmentUid,
@@ -71,6 +73,8 @@ class AppointmentModel extends Equatable {
     this.doctorRating,
     this.lastUpdatedAt,
     this.isViewed = false,
+    this.paymentDialogShown = false,
+    this.hasPreviousPayment,
   });
 
   static AppointmentModel fromDocumentSnap(DocumentSnapshot snap) {
@@ -123,6 +127,8 @@ class AppointmentModel extends Equatable {
           ? (json['lastUpdatedAt'] as Timestamp).toDate()
           : null,
       isViewed: json['isViewed'] ?? false,
+      paymentDialogShown: json['paymentDialogShown'] ?? false,
+      hasPreviousPayment: json['hasPreviousPayment'] as bool?,
     );
   }
 
@@ -175,6 +181,8 @@ class AppointmentModel extends Equatable {
           ? (json['lastUpdatedAt'] as Timestamp).toDate()
           : null,
       isViewed: json['isViewed'] ?? false,
+      paymentDialogShown: json['paymentDialogShown'] ?? false,
+      hasPreviousPayment: json['hasPreviousPayment'] as bool?,
     );
   }
 
@@ -215,10 +223,11 @@ class AppointmentModel extends Equatable {
           refundUpdatedAt != null ? Timestamp.fromDate(refundUpdatedAt!) : null,
       'refundAmount': refundAmount,
       'doctorRating': doctorRating,
-      'lastUpdatedAt': lastUpdatedAt != null
-          ? Timestamp.fromDate(lastUpdatedAt!)
-          : null,
+      'lastUpdatedAt':
+          lastUpdatedAt != null ? Timestamp.fromDate(lastUpdatedAt!) : null,
       'isViewed': isViewed,
+      'paymentDialogShown': paymentDialogShown,
+      'hasPreviousPayment': hasPreviousPayment,
     };
   }
 
@@ -256,6 +265,8 @@ class AppointmentModel extends Equatable {
         doctorRating,
         lastUpdatedAt,
         isViewed,
+        paymentDialogShown,
+        hasPreviousPayment,
       ];
 
   AppointmentModel copyWith({
@@ -291,6 +302,8 @@ class AppointmentModel extends Equatable {
     int? doctorRating,
     DateTime? lastUpdatedAt,
     bool? isViewed,
+    bool? paymentDialogShown,
+    bool? hasPreviousPayment,
   }) {
     return AppointmentModel(
       appointmentUid: appointmentUid ?? this.appointmentUid,
@@ -331,6 +344,8 @@ class AppointmentModel extends Equatable {
       doctorRating: doctorRating ?? this.doctorRating,
       lastUpdatedAt: lastUpdatedAt ?? this.lastUpdatedAt,
       isViewed: isViewed ?? this.isViewed,
+      paymentDialogShown: paymentDialogShown ?? this.paymentDialogShown,
+      hasPreviousPayment: hasPreviousPayment ?? this.hasPreviousPayment,
     );
   }
 }
