@@ -71,6 +71,66 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                 AppointmentStatusCard(
                   appointmentStatus: appointment.appointmentStatus!,
                 ),
+                const Gap(5),
+                if (appointment.appointmentStatus ==
+                    AppointmentStatus.declined.index)
+                  StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('appointments')
+                        .doc(appointment.appointmentUid)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const SizedBox.shrink();
+                      }
+
+                      final appointmentData =
+                          snapshot.data!.data() as Map<String, dynamic>?;
+                      if (appointmentData == null) {
+                        return const SizedBox.shrink();
+                      }
+
+                      final bool autoDeclined =
+                          appointmentData['autoDeclined'] == true;
+                      final String declinedReason =
+                          appointmentData['declinedReason'] as String? ?? '';
+
+                      if (autoDeclined && declinedReason.isNotEmpty) {
+                        return Container(
+                          margin: const EdgeInsets.fromLTRB(15, 8, 15, 0),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border:
+                                Border.all(color: Colors.red.withOpacity(0.3)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.timer_off,
+                                color: Colors.red,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  declinedReason,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      return const SizedBox.shrink();
+                    },
+                  ),
                 StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
                         .collection('appointments')

@@ -134,6 +134,16 @@ class _BottomNavigationState extends State<BottomNavigation> {
                   return Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // Ongoing appointment container
+                      if (hasOngoingAppointment)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                          ),
+                          child:
+                              FloatingContainerForOnGoingAppointmentProvider(),
+                        ),
+
                       // Payment reminder
                       ValueListenableBuilder<bool>(
                         valueListenable: HomeScreen.paymentReminderNotifier,
@@ -151,23 +161,13 @@ class _BottomNavigationState extends State<BottomNavigation> {
                                   approvalTime:
                                       HomeScreen.pendingPaymentApprovalTime!,
                                 ),
-                                if (hasOngoingAppointment) const Gap(10),
+                                // if (hasOngoingAppointment) const Gap(10),
                               ],
                             );
                           }
                           return const SizedBox.shrink();
                         },
                       ),
-
-                      // Ongoing appointment container
-                      if (hasOngoingAppointment)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                          ),
-                          child:
-                              FloatingContainerForOnGoingAppointmentProvider(),
-                        ),
                     ],
                   );
                 },

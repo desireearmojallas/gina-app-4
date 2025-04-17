@@ -182,8 +182,8 @@ class FloatingContainerForOnGoingAppointment extends StatelessWidget {
                 context, appointment, appointmentController, appointmentsBloc),
             child: Container(
               width: double.infinity, // Use full width given by parent
-              height: 68,
-              margin: const EdgeInsets.only(bottom: 8.0),
+              height: 60,
+              margin: const EdgeInsets.only(bottom: 12.0),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(40),
                 color: Colors.white.withOpacity(0.9),

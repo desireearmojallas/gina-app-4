@@ -42,7 +42,7 @@ class AlertDialogForApprovedAppointmentsPaymentProvider
     );
   }
 
-  // Static method to show the dialog as an overlay
+// Static method to show the dialog as an overlay
   static void show(BuildContext context,
       {required AppointmentModel appointment}) {
     // Get the navigator context that will be used later
@@ -55,10 +55,23 @@ class AlertDialogForApprovedAppointmentsPaymentProvider
     // Get HomeBloc for state reset
     final HomeBloc homeBloc = BlocProvider.of<HomeBloc>(context);
 
+    // Check if the appointment has already timed out (more than 1 hour since lastUpdatedAt)
+    final DateTime now = DateTime.now();
+    final DateTime approvalTime = appointment.lastUpdatedAt ?? now;
+    final int secondsElapsed = now.difference(approvalTime).inSeconds;
+
+    // If more than 1 hour has passed (3600 seconds), show the Time's Up dialog directly
+    if (secondsElapsed >= 3600) {
+      _showTimesUpDialogStatic(context, appointment);
+      return;
+    }
+
+    // Otherwise, show the regular payment dialog
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
+        // Rest of the dialog building code remains the same
         return MultiBlocProvider(
           providers: [
             BlocProvider<AlertDialogForApprovedAppointmentsBloc>(
@@ -84,6 +97,108 @@ class AlertDialogForApprovedAppointmentsPaymentProvider
       HomeScreen.resetPaymentDialogShown();
       homeBloc.add(ResetHomeStateAfterDialogEvent());
     });
+  }
+
+  // Static version of the _showTimesUpDialog method
+  static void _showTimesUpDialogStatic(
+      BuildContext context, AppointmentModel appointment) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          contentPadding: const EdgeInsets.all(20),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Warning Icon
+              const Icon(
+                Icons.timer_off,
+                color: Colors.red,
+                size: 70,
+              ),
+              const SizedBox(height: 20),
+
+              // Time's Up Text
+              const Text(
+                "Time's Up!",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+
+              // Explanation Text
+              const Text(
+                "The appointment has been automatically declined due to payment timeout.",
+                style: TextStyle(
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+
+              // OK Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    // Close this dialog
+                    Navigator.of(dialogContext).pop();
+
+                    // Trigger auto-decline for this specific appointment
+                    if (appointment.appointmentUid != null) {
+                      try {
+                        debugPrint(
+                            'Auto-declining unpaid appointment from dialog: ${appointment.appointmentUid}');
+                        await FirebaseFirestore.instance
+                            .collection('appointments')
+                            .doc(appointment.appointmentUid)
+                            .update({
+                          'appointmentStatus': AppointmentStatus.declined.index,
+                          'lastUpdatedAt': FieldValue.serverTimestamp(),
+                          'autoDeclined': true,
+                          'declinedReason':
+                              'Auto-declined due to payment timeout',
+                        });
+                        debugPrint('Appointment auto-declined successfully');
+                      } catch (e) {
+                        debugPrint('Error auto-declining appointment: $e');
+                      }
+                    }
+
+                    // Reset dialog shown flag
+                    HomeScreen.resetPaymentDialogShown();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: GinaAppTheme.lightOutline,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    "I Understand",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -143,7 +258,7 @@ class _AlertDialogForApprovedAppointmentsState
       }
 
       debugPrint(
-          '⭐ DIALOG: Appointment ${appointmentId} payment status: ${isPaid ? 'PAID' : 'NOT PAID'}');
+          '⭐ DIALOG: Appointment $appointmentId payment status: ${isPaid ? 'PAID' : 'NOT PAID'}');
       return isPaid;
     } catch (e) {
       debugPrint('⭐ DIALOG: Error checking payment status: $e');
@@ -175,8 +290,7 @@ class _AlertDialogForApprovedAppointmentsState
           _timer.cancel();
           // Auto-close dialog when time expires
           Navigator.of(context).pop();
-          // You could show another dialog or notification here
-          // indicating that the appointment was auto-declined
+          _showTimesUpDialog();
         }
       });
     });
@@ -186,6 +300,107 @@ class _AlertDialogForApprovedAppointmentsState
     debugPrint('Current time: $now');
     debugPrint('Seconds elapsed since approval: $secondsElapsed');
     debugPrint('Remaining seconds: $_remainingSeconds');
+  }
+
+  void _showTimesUpDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          contentPadding: const EdgeInsets.all(20),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Warning Icon
+              const Icon(
+                Icons.timer_off,
+                color: Colors.red,
+                size: 70,
+              ),
+              const SizedBox(height: 20),
+
+              // Time's Up Text
+              const Text(
+                "Time's Up!",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+
+              // Explanation Text
+              const Text(
+                "The appointment has been automatically declined due to payment timeout.",
+                style: TextStyle(
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+
+              // OK Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    // Close this dialog and the parent dialog
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+
+                    // Trigger auto-decline for this specific appointment
+                    if (widget.appointment.appointmentUid != null) {
+                      try {
+                        debugPrint(
+                            'Auto-declining unpaid appointment from dialog: ${widget.appointment.appointmentUid}');
+                        await FirebaseFirestore.instance
+                            .collection('appointments')
+                            .doc(widget.appointment.appointmentUid)
+                            .update({
+                          'appointmentStatus': AppointmentStatus.declined.index,
+                          'lastUpdatedAt': FieldValue.serverTimestamp(),
+                          'autoDeclined': true,
+                          'declinedReason':
+                              'Auto-declined due to payment timeout',
+                        });
+                        debugPrint('Appointment auto-declined successfully');
+                      } catch (e) {
+                        debugPrint('Error auto-declining appointment: $e');
+                      }
+                    }
+
+                    // Reset dialog shown flag
+                    HomeScreen.resetPaymentDialogShown();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: GinaAppTheme.lightOutline,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    "I Understand",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override

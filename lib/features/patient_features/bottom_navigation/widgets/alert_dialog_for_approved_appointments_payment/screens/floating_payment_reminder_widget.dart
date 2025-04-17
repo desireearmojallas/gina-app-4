@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/alert_dialog_for_approved_appointments_payment/screens/alert_dialog_for_approved_appointments_payment.dart';
+import 'package:gina_app_4/features/patient_features/home/2_views/screens/home_screen.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class FloatingPaymentReminderProvider extends StatelessWidget {
@@ -47,11 +50,14 @@ class _FloatingPaymentReminderState extends State<FloatingPaymentReminder> {
   // Remaining seconds will be calculated based on approval time
   late int _remainingSeconds;
   late Timer _timer;
+  late Timer _statusCheckTimer;
+  bool _isAppointmentCancelled = false;
 
   @override
   void initState() {
     super.initState();
     _startCountdown();
+    _startStatusCheck();
     debugPrint(
         'FloatingPaymentReminder initialized for appointment: ${widget.appointment.appointmentUid}');
   }
@@ -72,19 +78,64 @@ class _FloatingPaymentReminderState extends State<FloatingPaymentReminder> {
 
     // Start the countdown timer
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
       setState(() {
         if (_remainingSeconds > 0) {
           _remainingSeconds--;
         } else {
           _timer.cancel();
+          // If time's up, reset the reminder in HomeScreen
+          HomeScreen.resetPaymentDialogShown();
         }
       });
     });
   }
 
+  // Check if the appointment status has been changed to cancelled or declined
+  void _startStatusCheck() {
+    final appointmentId = widget.appointment.appointmentUid;
+    if (appointmentId == null) return;
+
+    // Check immediately once
+    _checkAppointmentStatus(appointmentId);
+
+    // Then set up periodic checks
+    _statusCheckTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      _checkAppointmentStatus(appointmentId);
+    });
+  }
+
+  Future<void> _checkAppointmentStatus(String appointmentId) async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(appointmentId)
+          .get();
+
+      if (!doc.exists) return;
+
+      final status = doc.data()?['appointmentStatus'] as int?;
+
+      if (status == AppointmentStatus.cancelled.index ||
+          status == AppointmentStatus.declined.index) {
+        if (mounted) {
+          setState(() {
+            _isAppointmentCancelled = true;
+          });
+
+          // If appointment was cancelled/declined, hide this widget
+          HomeScreen.resetPaymentDialogShown();
+        }
+      }
+    } catch (e) {
+      debugPrint('Error checking appointment status: $e');
+    }
+  }
+
   @override
   void dispose() {
     _timer.cancel();
+    _statusCheckTimer.cancel();
     debugPrint('FloatingPaymentReminder disposed');
     super.dispose();
   }
@@ -100,129 +151,142 @@ class _FloatingPaymentReminderState extends State<FloatingPaymentReminder> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('Building FloatingPaymentReminder widget');
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 5.0, left: 16.0, right: 16.0),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {
-              debugPrint('Payment reminder clicked, showing payment dialog');
-              // Show payment dialog when container is clicked
-              AlertDialogForApprovedAppointmentsPaymentProvider.show(context,
-                  appointment: widget.appointment);
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    GinaAppTheme.lightTertiaryContainer,
-                    GinaAppTheme.lightTertiaryContainer.withOpacity(0.9),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                // color: GinaAppTheme.lightTertiaryContainer.withOpacity(0.95),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    spreadRadius: 1,
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
+    // If appointment is cancelled or declined, don't show the widget
+    if (_isAppointmentCancelled) {
+      debugPrint('💰 PAYMENT REMINDER: Appointment cancelled, not showing');
+      return const SizedBox.shrink();
+    }
+
+    // Check for zero remaining time
+    if (_remainingSeconds <= 0) {
+      debugPrint('💰 PAYMENT REMINDER: Time expired, not showing');
+      HomeScreen.resetPaymentDialogShown();
+      return const SizedBox.shrink();
+    }
+
+    debugPrint(
+        '💰 PAYMENT REMINDER: Building with ${_remainingSeconds}s remaining');
+
+    // Use a simpler container structure to avoid layout issues
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            debugPrint('💰 PAYMENT REMINDER: Clicked, showing payment dialog');
+            AlertDialogForApprovedAppointmentsPaymentProvider.show(
+              context,
+              appointment: widget.appointment,
+            );
+          },
+          borderRadius: BorderRadius.circular(40),
+          child: Container(
+            height: 60,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  GinaAppTheme.lightTertiaryContainer,
+                  GinaAppTheme.lightTertiaryContainer.withOpacity(0.9),
                 ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.payment_rounded,
-                      color: Colors.white,
-                      size: 22,
-                    ),
+              borderRadius: BorderRadius.circular(40),
+              boxShadow: [
+                BoxShadow(
+                  color: GinaAppTheme.lightOutline.withOpacity(0.2),
+                  blurRadius: 8,
+                  spreadRadius: 3,
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    shape: BoxShape.circle,
                   ),
-                  const Gap(12),
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Pending Payment",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const Gap(2),
-                        Text(
-                          "Dr. ${widget.appointment.doctorName} • ${widget.appointment.appointmentDate}",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.white.withOpacity(0.9),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
+                  child: const Icon(
+                    Icons.payment_rounded,
+                    color: Colors.white,
+                    size: 22,
                   ),
-                  const Gap(12),
-                  Column(
+                ),
+                const Gap(12),
+                Expanded(
+                  child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.timer,
-                              color: Colors.white,
-                              size: 12,
-                            ),
-                            const Gap(4),
-                            Text(
-                              _formatTimeRemaining(),
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
+                      const Text(
+                        "Pending Payment",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
-                      const Gap(4),
+                      const Gap(2),
                       Text(
-                        "Tap to pay",
+                        "Dr. ${widget.appointment.doctorName} • ${widget.appointment.appointmentDate}",
                         style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 12,
+                          color: Colors.white.withOpacity(0.9),
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                const Gap(12),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.timer,
+                            color: Colors.white,
+                            size: 12,
+                          ),
+                          const Gap(4),
+                          Text(
+                            _formatTimeRemaining(),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Gap(4),
+                    Text(
+                      "Tap to pay",
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.white.withOpacity(0.8),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),

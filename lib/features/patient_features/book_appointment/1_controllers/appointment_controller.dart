@@ -31,6 +31,7 @@ class AppointmentController with ChangeNotifier {
   AppointmentController() {
     authStream = auth.authStateChanges().listen((User? user) {
       currentPatient = user;
+      autoDeclineUnpaidAppointments();
       notifyListeners();
     });
   }
@@ -122,6 +123,8 @@ class AppointmentController with ChangeNotifier {
     if (currentUser == null) {
       return Left(Exception('User not authenticated'));
     }
+
+    await autoDeclineUnpaidAppointments();
 
     final querySnapshot = await firestore
         .collection('appointments')
@@ -480,6 +483,8 @@ class AppointmentController with ChangeNotifier {
         'lastUpdatedAt': FieldValue.serverTimestamp(),
         'isViewed': false,
         'paymentDialogShown': false,
+        'autoDeclined': FieldValue.delete(),
+        'declinedReason': FieldValue.delete(),
       });
 
       return const Right(true);
@@ -964,9 +969,8 @@ class AppointmentController with ChangeNotifier {
         final data = change.doc.data();
         final currentStatus = data?['appointmentStatus'] as int? ?? -1;
 
-        // Check confirmed appointments that haven't shown payment dialog
-        if (currentStatus == AppointmentStatus.confirmed.index &&
-            data?['paymentDialogShown'] != true) {
+        // Check confirmed appointments
+        if (currentStatus == AppointmentStatus.confirmed.index) {
           // Check if the 'payments' subcollection exists and has documents
           final paymentsCollection = await firestore
               .collection('appointments')
@@ -977,32 +981,38 @@ class AppointmentController with ChangeNotifier {
 
           // Create the appointment model
           final appointment = AppointmentModel.fromDocumentSnap(change.doc);
+          final bool hasPreviousPayment = paymentsCollection.docs.isNotEmpty;
 
           // Mark appointment with whether it has payments or not
-          if (paymentsCollection.docs.isEmpty) {
-            // New appointment without payment
+          if (!hasPreviousPayment) {
+            // New appointment without payment - needs to show dialog
             debugPrint(
                 "[APPOINTMENT_CONTROLLER] Found confirmed appointment that needs payment: ${change.doc.id}");
             appointment.hasPreviousPayment = false;
+
+            // Add to our list only if payment is needed
+            approvedAppointments.add(appointment);
+
+            // Don't mark as shown since payment hasn't been made yet
+            // This ensures the dialog will be shown again
           } else {
-            // Rescheduled appointment with previous payment
+            // Payment exists, mark as already paid
             debugPrint(
-                "[APPOINTMENT_CONTROLLER] Found rescheduled confirmed appointment with existing payment: ${change.doc.id}");
+                "[APPOINTMENT_CONTROLLER] Found confirmed appointment with existing payment: ${change.doc.id}");
             appointment.hasPreviousPayment = true;
+
+            // Mark as shown since payment has been made
+            if (data?['paymentDialogShown'] != true) {
+              firestore
+                  .collection('appointments')
+                  .doc(change.doc.id)
+                  .update({'paymentDialogShown': true})
+                  .then((_) => debugPrint(
+                      "[APPOINTMENT_CONTROLLER] Marked dialog as shown for paid appointment: ${change.doc.id}"))
+                  .catchError((error) => debugPrint(
+                      "[APPOINTMENT_CONTROLLER] Error marking dialog as shown: $error"));
+            }
           }
-
-          // Add to our list
-          approvedAppointments.add(appointment);
-
-          // Mark as shown to avoid showing dialog multiple times
-          firestore
-              .collection('appointments')
-              .doc(change.doc.id)
-              .update({'paymentDialogShown': true})
-              .then((_) => debugPrint(
-                  "[APPOINTMENT_CONTROLLER] Marked dialog as shown for appointment: ${change.doc.id}"))
-              .catchError((error) => debugPrint(
-                  "[APPOINTMENT_CONTROLLER] Error marking dialog as shown: $error"));
         }
       }
 
@@ -1029,6 +1039,65 @@ class AppointmentController with ChangeNotifier {
       return Right(appointments);
     } catch (e) {
       return Left(Exception(e.toString()));
+    }
+  }
+
+  // Add this new method to automatically decline unpaid appointments
+  Future<void> autoDeclineUnpaidAppointments() async {
+    try {
+      debugPrint('Checking for unpaid appointments to auto-decline...');
+
+      // Query approved appointments
+      final querySnapshot = await firestore
+          .collection('appointments')
+          .where('appointmentStatus',
+              isEqualTo: AppointmentStatus.confirmed.index)
+          .get();
+
+      for (var doc in querySnapshot.docs) {
+        final appointmentId = doc.id;
+        final data = doc.data();
+
+        // Check if lastUpdatedAt exists
+        if (!data.containsKey('lastUpdatedAt')) continue;
+
+        final lastUpdatedAt = data['lastUpdatedAt'] as Timestamp;
+        final currentTime = DateTime.now();
+        final lastUpdatedTime = lastUpdatedAt.toDate();
+
+        // Calculate time difference
+        final difference = currentTime.difference(lastUpdatedTime);
+
+        // Check if it's been more than 1 hour
+        if (difference.inHours >= 1) {
+          // Check if payments subcollection exists and has documents
+          final paymentsSnapshot = await firestore
+              .collection('appointments')
+              .doc(appointmentId)
+              .collection('payments')
+              .limit(1)
+              .get();
+
+          // If no payments found, decline the appointment
+          if (paymentsSnapshot.docs.isEmpty) {
+            debugPrint('Auto-declining unpaid appointment: $appointmentId');
+
+            await firestore
+                .collection('appointments')
+                .doc(appointmentId)
+                .update({
+              'appointmentStatus': AppointmentStatus.declined.index,
+              'lastUpdatedAt': FieldValue.serverTimestamp(),
+              'autoDeclined': true,
+              'declinedReason': 'Auto-declined due to payment timeout',
+            });
+
+            debugPrint('Appointment auto-declined successfully');
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error in autoDeclineUnpaidAppointments: $e');
     }
   }
 }
