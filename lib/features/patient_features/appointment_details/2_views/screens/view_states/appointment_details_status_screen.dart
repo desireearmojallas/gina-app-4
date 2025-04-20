@@ -433,6 +433,27 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                   children: [
                     const Gap(20),
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            'Reason for visit',
+                            style: labelStyle,
+                          ),
+                        ),
+                        Expanded(
+                          flex: 3,
+                          child: Text(
+                            appointment.reasonForAppointment ?? 'Not specified',
+                            style: valueStyle,
+                            textAlign: TextAlign.right,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Gap(15),
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(

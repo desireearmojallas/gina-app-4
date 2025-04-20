@@ -27,6 +27,7 @@ class BookAppointmentBloc
   final DoctorAvailabilityController doctorAvailabilityController;
   final AppointmentController appointmentController;
   final ProfileController profileController;
+  final TextEditingController reasonController = TextEditingController();
   int selectedTimeIndex = -1;
   int selectedModeofAppointmentIndex = -1;
   String selectedFormattedDate = '';
@@ -49,6 +50,13 @@ class BookAppointmentBloc
     on<BookForAnAppointmentEvent>(bookForAnAppointmentEvent);
     on<SelectTimeEvent>(selectTimeEvent);
     on<SelectedModeOfAppointmentEvent>(selectModeOfAppointmentEvent);
+  }
+
+  @override
+  Future<void> close() {
+    reasonController.dispose();
+    // Dispose other controllers
+    return super.close();
   }
 
   FutureOr<void> navigateToReviewAppointmentEvent(
@@ -283,6 +291,7 @@ class BookAppointmentBloc
         appointmentTime: event.appointmentTime,
         modeOfAppointment: selectedModeofAppointmentIndex,
         amount: amount,
+        reasonForAppointment: event.reasonForAppointment,
       );
 
       if (result.isRight()) {
@@ -316,6 +325,7 @@ class BookAppointmentBloc
           appointmentTime: event.appointmentTime,
           modeOfAppointment: selectedModeofAppointmentIndex,
           amount: amount,
+          reasonForAppointment: event.reasonForAppointment,
         );
 
         emit(BookForAnAppointmentReview(

@@ -39,6 +39,7 @@ class AppointmentModel extends Equatable {
   final bool isViewed;
   final bool paymentDialogShown;
   bool? hasPreviousPayment;
+  final String? reasonForAppointment;
 
   AppointmentModel({
     this.appointmentUid,
@@ -75,6 +76,7 @@ class AppointmentModel extends Equatable {
     this.isViewed = false,
     this.paymentDialogShown = false,
     this.hasPreviousPayment,
+    this.reasonForAppointment,
   });
 
   static AppointmentModel fromDocumentSnap(DocumentSnapshot snap) {
@@ -129,6 +131,8 @@ class AppointmentModel extends Equatable {
       isViewed: json['isViewed'] ?? false,
       paymentDialogShown: json['paymentDialogShown'] ?? false,
       hasPreviousPayment: json['hasPreviousPayment'] as bool?,
+      reasonForAppointment:
+          json['reasonForAppointment'] ?? json['reason'] ?? '',
     );
   }
 
@@ -183,6 +187,8 @@ class AppointmentModel extends Equatable {
       isViewed: json['isViewed'] ?? false,
       paymentDialogShown: json['paymentDialogShown'] ?? false,
       hasPreviousPayment: json['hasPreviousPayment'] as bool?,
+      reasonForAppointment:
+          json['reasonForAppointment'] ?? json['reason'] ?? '',
     );
   }
 
@@ -228,6 +234,7 @@ class AppointmentModel extends Equatable {
       'isViewed': isViewed,
       'paymentDialogShown': paymentDialogShown,
       'hasPreviousPayment': hasPreviousPayment,
+      'reasonForAppointment': reasonForAppointment,
     };
   }
 
@@ -267,6 +274,7 @@ class AppointmentModel extends Equatable {
         isViewed,
         paymentDialogShown,
         hasPreviousPayment,
+        reasonForAppointment,
       ];
 
   AppointmentModel copyWith({
@@ -304,6 +312,7 @@ class AppointmentModel extends Equatable {
     bool? isViewed,
     bool? paymentDialogShown,
     bool? hasPreviousPayment,
+    String? reasonForAppointment,
   }) {
     return AppointmentModel(
       appointmentUid: appointmentUid ?? this.appointmentUid,
@@ -346,6 +355,7 @@ class AppointmentModel extends Equatable {
       isViewed: isViewed ?? this.isViewed,
       paymentDialogShown: paymentDialogShown ?? this.paymentDialogShown,
       hasPreviousPayment: hasPreviousPayment ?? this.hasPreviousPayment,
+      reasonForAppointment: reasonForAppointment ?? this.reasonForAppointment,
     );
   }
 }

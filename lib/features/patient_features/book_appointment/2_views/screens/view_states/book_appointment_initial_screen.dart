@@ -315,6 +315,21 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                 bookAppointmentBloc.state;
                                             if (currentState
                                                 is GetDoctorAvailabilityLoaded) {
+                                              if (bookAppointmentBloc
+                                                  .dateController
+                                                  .text
+                                                  .isEmpty) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        'Please select a date first'),
+                                                    backgroundColor: Colors.red,
+                                                  ),
+                                                );
+                                                return;
+                                              }
+
                                               final selectedIndex = currentState
                                                   .selectedTimeIndex;
 
@@ -489,6 +504,21 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                   bookAppointmentBloc.state;
                                               if (currentState
                                                   is GetDoctorAvailabilityLoaded) {
+                                                if (bookAppointmentBloc
+                                                    .dateController
+                                                    .text
+                                                    .isEmpty) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                          'Please select a date first'),
+                                                      backgroundColor:
+                                                          Colors.red,
+                                                    ),
+                                                  );
+                                                  return;
+                                                }
                                                 final selectedIndex =
                                                     currentState
                                                         .selectedTimeIndex;
@@ -732,7 +762,8 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                         ),
                                         height: 60,
                                         child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: [
                                             Text(
                                               modeOfAppointmentList[index],
@@ -746,11 +777,14 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                     color: isSelected
                                                         ? Colors.white
                                                         : isAvailable
-                                                            ? GinaAppTheme.lightOnPrimaryColor
-                                                            : GinaAppTheme.lightOutline,
+                                                            ? GinaAppTheme
+                                                                .lightOnPrimaryColor
+                                                            : GinaAppTheme
+                                                                .lightOutline,
                                                   ),
                                             ),
-                                            if (price != null && isAvailable) ...[
+                                            if (price != null &&
+                                                isAvailable) ...[
                                               const Gap(4),
                                               Text(
                                                 '₱${NumberFormat('#,##0.00').format(price)}',
@@ -758,13 +792,16 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                     .textTheme
                                                     .labelSmall
                                                     ?.copyWith(
-                                                      fontWeight: FontWeight.w500,
+                                                      fontWeight:
+                                                          FontWeight.w500,
                                                       fontSize: 10,
                                                       color: isSelected
                                                           ? Colors.white
                                                           : isAvailable
-                                                              ? GinaAppTheme.lightOnPrimaryColor
-                                                              : GinaAppTheme.lightOutline,
+                                                              ? GinaAppTheme
+                                                                  .lightOnPrimaryColor
+                                                              : GinaAppTheme
+                                                                  .lightOutline,
                                                     ),
                                               ),
                                             ],
@@ -778,7 +815,50 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const Gap(10),
+                        const Gap(30),
+                        Text(
+                          'Chief complaint / Reason for visit',
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                        ),
+                        const Gap(15),
+                        Container(
+                          width: size.width * 1,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: GinaAppTheme.lightTertiaryContainer,
+                            ),
+                          ),
+                          child: TextFormField(
+                            controller: bookAppointmentBloc.reasonController,
+                            style: const TextStyle(
+                              fontSize: 12.0,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            maxLines: 3,
+                            decoration: InputDecoration(
+                              hintText:
+                                  'Please describe your symptoms or reason for this visit',
+                              hintStyle: TextStyle(
+                                fontSize: 12.0,
+                                color:
+                                    GinaAppTheme.lightOutline.withOpacity(0.7),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide.none,
+                              ),
+                              contentPadding: const EdgeInsets.all(15),
+                            ),
+                          ),
+                        ),
+                        const Gap(20),
                         GinaDivider(),
                         // Commenting out the Pay Now button section - can be uncommented if needed
                         /*
@@ -1068,6 +1148,11 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                             selectedTime,
                                                         appointmentId:
                                                             tempAppointmentId!,
+                                                        reasonForAppointment:
+                                                            bookAppointmentBloc
+                                                                .reasonController
+                                                                .text
+                                                                .trim(),
                                                       ),
                                                     );
                                                   }

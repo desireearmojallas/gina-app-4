@@ -50,6 +50,9 @@ class ReviewAppointmentInitialScreen extends StatelessWidget {
 
     final bookAppointmentBloc = context.read<BookAppointmentBloc>();
 
+    debugPrint(
+        'Reason for appointment: ${appointmentModel.reasonForAppointment}');
+
     return ScrollbarCustom(
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -95,6 +98,28 @@ class ReviewAppointmentInitialScreen extends StatelessWidget {
                         Column(
                           children: [
                             const Gap(20),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    'Reason for visit',
+                                    style: labelStyle,
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 3,
+                                  child: Text(
+                                    appointmentModel.reasonForAppointment ??
+                                        'Not specified',
+                                    style: valueStyle,
+                                    textAlign: TextAlign.right,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Gap(15),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [

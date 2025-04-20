@@ -65,26 +65,23 @@ class DoctorScheduleController with ChangeNotifier {
           List<Map<String, dynamic>>.from(
               currentSchedule.disabledTimeSlots ?? []);
 
-      // Remove expired disabled slots (older than current week)
-      final now = DateTime.now();
-      var startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-      startOfWeek =
-          startOfWeek.subtract(const Duration(hours: 1)); // Reset to midnight
-
-      updatedDisabledSlots.removeWhere((slot) {
-        if (slot['disabledAt'] == null) return false;
-        final disabledAt = (slot['disabledAt'] as Timestamp).toDate();
-        return disabledAt.isBefore(startOfWeek);
-      });
-
       if (disable) {
-        // Add the time slot to disabled slots with current timestamp
-        updatedDisabledSlots.add({
-          'day': day,
-          'startTime': startTime,
-          'endTime': endTime,
-          'disabledAt': Timestamp.now(),
-        });
+        // Check if this slot is already disabled to avoid duplicates
+        final existingSlotIndex = updatedDisabledSlots.indexWhere((slot) =>
+            slot['day'] == day &&
+            slot['startTime'] == startTime &&
+            slot['endTime'] == endTime);
+
+        if (existingSlotIndex == -1) {
+          // Add the time slot to disabled slots with current timestamp
+          updatedDisabledSlots.add({
+            'day': day,
+            'startTime': startTime,
+            'endTime': endTime,
+            'disabledAt': Timestamp.now(),
+            // Don't include isPermanent field for now
+          });
+        }
       } else {
         // Remove the time slot from disabled slots
         updatedDisabledSlots.removeWhere((slot) =>
@@ -100,18 +97,10 @@ class DoctorScheduleController with ChangeNotifier {
         disabledTimeSlots: updatedDisabledSlots,
       );
 
-      debugPrint(
-          'Disabled slots in new state: ${updatedSchedule.disabledTimeSlots?.map((s) => "${s['day']}-${s['startTime']}-${s['endTime']}").join(", ")}');
-
       // Update Firestore
       await docRef.update({
         'schedule.disabledTimeSlots': updatedDisabledSlots,
       }).then((_) => debugPrint('Firebase update completed'));
-
-      // Return updated schedule model
-      // return Right(currentSchedule.copyWith(
-      //   disabledTimeSlots: updatedDisabledSlots,
-      // ));
 
       return Right(updatedSchedule);
     } catch (e) {
@@ -120,32 +109,54 @@ class DoctorScheduleController with ChangeNotifier {
     }
   }
 
-  // Helper method to clean up expired disabled slots
+  // Updated cleanup method that works with existing data structure
   Future<void> cleanupExpiredDisabledSlots() async {
     try {
       final result = await getDoctorSchedule();
       result.fold(
         (error) => null,
         (schedule) async {
-          if (schedule.disabledTimeSlots == null) return;
+          if (schedule.disabledTimeSlots == null ||
+              schedule.disabledTimeSlots!.isEmpty) return;
 
           final now = DateTime.now();
-          var startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-          startOfWeek = startOfWeek
-              .subtract(const Duration(hours: 1)); // Reset to midnight
+          // Calculate date 1 week ago
+          final oneWeekAgo = now.subtract(const Duration(days: 7));
 
           List<Map<String, dynamic>> currentDisabledSlots =
               List<Map<String, dynamic>>.from(schedule.disabledTimeSlots!);
 
-          currentDisabledSlots.removeWhere((slot) {
-            if (slot['disabledAt'] == null) return false;
-            final disabledAt = (slot['disabledAt'] as Timestamp).toDate();
-            return disabledAt.isBefore(startOfWeek);
-          });
+          // Keep track of removed slots count
+          int removedCount = 0;
+          List<Map<String, dynamic>> slotsToKeep = [];
 
-          await firestore.collection('doctors').doc(currentUser!.uid).update({
-            'schedule.disabledTimeSlots': currentDisabledSlots,
-          });
+          // Process each slot individually
+          for (var slot in currentDisabledSlots) {
+            // Keep the slot if it doesn't have a timestamp
+            // (these are likely manually configured persistent slots)
+            if (slot['disabledAt'] == null) {
+              slotsToKeep.add(slot);
+              continue;
+            }
+
+            // For slots with timestamps, only keep those less than a week old
+            final disabledAt = (slot['disabledAt'] as Timestamp).toDate();
+            if (!disabledAt.isBefore(oneWeekAgo)) {
+              slotsToKeep.add(slot);
+            } else {
+              removedCount++;
+            }
+          }
+
+          // Only update if we actually removed something
+          if (removedCount > 0) {
+            await firestore.collection('doctors').doc(currentUser!.uid).update({
+              'schedule.disabledTimeSlots': slotsToKeep,
+            });
+            debugPrint('Cleaned up $removedCount expired slots');
+          } else {
+            debugPrint('No expired slots to remove');
+          }
         },
       );
     } catch (e) {

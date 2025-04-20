@@ -264,7 +264,37 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            // Add payment information section
+                            const Gap(20),
+                            Container(
+                              width: size.width / 1.12,
+                              padding: const EdgeInsets.all(15),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: GinaAppTheme.lightSurfaceVariant,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Reason for Visit',
+                                    style: ginaTheme.textTheme.titleSmall
+                                        ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Gap(15),
+                                  Text(
+                                    appointment.reasonForAppointment ??
+                                        'Not specified',
+                                    style: labelStyle?.copyWith(
+                                      color: GinaAppTheme.lightOnPrimaryColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             const Gap(20),
                             Container(
                               width: size.width / 1.12,
@@ -280,7 +310,7 @@ class PendingRequestDetailsScreenState extends StatelessWidget {
                                 children: [
                                   Text(
                                     'Payment Information',
-                                    style: ginaTheme.textTheme.titleMedium
+                                    style: ginaTheme.textTheme.titleSmall
                                         ?.copyWith(
                                       fontWeight: FontWeight.bold,
                                     ),

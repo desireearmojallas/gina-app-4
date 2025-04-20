@@ -45,9 +45,11 @@ class AppointmentController with ChangeNotifier {
     required String appointmentTime,
     required int modeOfAppointment,
     required double amount,
+    required String reasonForAppointment,
   }) async {
     try {
       debugPrint('Fetching current user model');
+      debugPrint('Creating appointment with reason: $reasonForAppointment');
       final currentUserModel = await firestore
           .collection('patients')
           .doc(currentPatient!.uid)
@@ -74,6 +76,7 @@ class AppointmentController with ChangeNotifier {
         'amount': amount,
         'lastUpdatedAt': FieldValue.serverTimestamp(),
         'isViewed': false,
+        'reasonForAppointment': reasonForAppointment,
       });
 
       debugPrint('Updating patient document');

@@ -263,80 +263,80 @@ class _DoctorPaymentScreenInitialState
                             color: Colors.white,
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: InkWell(
-                            onTap: _showTimePeriodSelector,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  _selectedTimePeriod,
-                                  style: ginaTheme.bodySmall?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                const Gap(4),
-                                const Icon(
-                                  Icons.arrow_drop_down,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                        // Container(
+                        //   padding: const EdgeInsets.symmetric(
+                        //     horizontal: 8,
+                        //     vertical: 4,
+                        //   ),
+                        //   decoration: BoxDecoration(
+                        //     color: Colors.white.withOpacity(0.3),
+                        //     borderRadius: BorderRadius.circular(12),
+                        //   ),
+                        //   child: InkWell(
+                        //     onTap: _showTimePeriodSelector,
+                        //     child: Row(
+                        //       mainAxisSize: MainAxisSize.min,
+                        //       children: [
+                        //         Text(
+                        //           _selectedTimePeriod,
+                        //           style: ginaTheme.bodySmall?.copyWith(
+                        //             color: Colors.white,
+                        //             fontWeight: FontWeight.w500,
+                        //           ),
+                        //         ),
+                        //         const Gap(4),
+                        //         const Icon(
+                        //           Icons.arrow_drop_down,
+                        //           color: Colors.white,
+                        //           size: 20,
+                        //         ),
+                        //       ],
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
                     const Gap(16),
                     Row(
                       children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (_isLoadingToBeDisbursed)
-                                const SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: CustomLoadingIndicator(
-                                    colors: [Colors.white],
-                                  ),
-                                )
-                              else
-                                FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    '₱${NumberFormat('#,##0.00').format(_toBeDisbursedAmount)}',
-                                    style: ginaTheme.headlineMedium?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              Text(
-                                'To Be Disbursed',
-                                style: ginaTheme.bodySmall?.copyWith(
-                                  color: Colors.white.withOpacity(0.7),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          width: 1,
-                          height: 40,
-                          color: Colors.white.withOpacity(0.3),
-                        ),
-                        const Gap(16),
+                        // Expanded(
+                        //   child: Column(
+                        //     crossAxisAlignment: CrossAxisAlignment.start,
+                        //     children: [
+                        //       if (_isLoadingToBeDisbursed)
+                        //         const SizedBox(
+                        //           height: 24,
+                        //           width: 24,
+                        //           child: CustomLoadingIndicator(
+                        //             colors: [Colors.white],
+                        //           ),
+                        //         )
+                        //       else
+                        //         FittedBox(
+                        //           fit: BoxFit.scaleDown,
+                        //           child: Text(
+                        //             '₱${NumberFormat('#,##0.00').format(_toBeDisbursedAmount)}',
+                        //             style: ginaTheme.headlineMedium?.copyWith(
+                        //               fontWeight: FontWeight.w600,
+                        //               color: Colors.white,
+                        //             ),
+                        //           ),
+                        //         ),
+                        //       Text(
+                        //         'To Be Disbursed',
+                        //         style: ginaTheme.bodySmall?.copyWith(
+                        //           color: Colors.white.withOpacity(0.7),
+                        //         ),
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
+                        // Container(
+                        //   width: 1,
+                        //   height: 40,
+                        //   color: Colors.white.withOpacity(0.3),
+                        // ),
+                        // const Gap(16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -78,31 +80,50 @@ class ApprovedRequestDetailsScreenState extends StatelessWidget {
           onPressed: () {
             HapticFeedback.mediumImpact();
 
-            selectedPatientUid = appointment.patientUid!;
-            debugPrint(
-                'doctor_upcoming_appointments_container selectedPatientUid: $selectedPatientUid');
+            // Check payment status first
+            FirebaseFirestore.instance
+                .collection('appointments')
+                .doc(appointment.appointmentUid)
+                .collection('payments')
+                .get()
+                .then((snapshot) {
+              if (snapshot.docs.isEmpty) {
+                // No payment record found - simplify the message
+                _showPaymentRequiredDialog(context,
+                    "The patient hasn't completed payment for this appointment yet.\n\nChat will be available once payment is received.");
+                return;
+              }
 
-            debugPrint(
-                'doctor_upcoming_appointments_container appointment: ${appointment.appointmentUid}');
+              // If we get here, payment is confirmed - proceed with original logic
+              selectedPatientUid = appointment.patientUid!;
+              debugPrint(
+                  'doctor_upcoming_appointments_container selectedPatientUid: $selectedPatientUid');
+              debugPrint(
+                  'doctor_upcoming_appointments_container appointment: ${appointment.appointmentUid}');
 
-            doctorEConsultBloc
-                .add(GetPatientDataEvent(patientUid: appointment.patientUid!));
+              doctorEConsultBloc.add(
+                  GetPatientDataEvent(patientUid: appointment.patientUid!));
+              isFromChatRoomLists = false;
 
-            isFromChatRoomLists = false;
+              selectedPatientAppointment = appointment.appointmentUid;
+              selectedPatientUid = appointment.patientUid ?? '';
+              selectedPatientName = appointment.patientName ?? '';
+              selectedPatientAppointmentModel = appointment;
 
-            selectedPatientAppointment = appointment.appointmentUid;
-            selectedPatientUid = appointment.patientUid ?? '';
-            selectedPatientName = appointment.patientName ?? '';
-            selectedPatientAppointmentModel = appointment;
+              appointmentDataFromDoctorUpcomingAppointmentsBloc = appointment;
+              debugPrint(
+                  'doctor_upcoming_appointments_container appointmentDataFromDoctorUpcomingAppointmentsBloc: $appointmentDataFromDoctorUpcomingAppointmentsBloc');
 
-            appointmentDataFromDoctorUpcomingAppointmentsBloc = appointment;
-            debugPrint(
-                'doctor_upcoming_appointments_container appointmentDataFromDoctorUpcomingAppointmentsBloc: $appointmentDataFromDoctorUpcomingAppointmentsBloc');
-
-            Navigator.pushNamed(context, '/doctorOnlineConsultChat').then(
-                (value) => context
-                    .read<DoctorEconsultBloc>()
-                    .add(GetRequestedEconsultsDisplayEvent()));
+              Navigator.pushNamed(context, '/doctorOnlineConsultChat').then(
+                  (value) => context
+                      .read<DoctorEconsultBloc>()
+                      .add(GetRequestedEconsultsDisplayEvent()));
+            }).catchError((error) {
+              debugPrint('Error checking payment status: $error');
+              // Show generic error dialog
+              _showPaymentRequiredDialog(context,
+                  "Unable to verify payment status. Please try again later.");
+            });
           },
           backgroundColor: GinaAppTheme.lightTertiaryContainer,
           child: const Icon(
@@ -315,7 +336,37 @@ class ApprovedRequestDetailsScreenState extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            // Add payment information section
+                            const Gap(20),
+                            Container(
+                              width: size.width / 1.12,
+                              padding: const EdgeInsets.all(15),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: GinaAppTheme.lightSurfaceVariant,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Reason for Visit',
+                                    style: ginaTheme.textTheme.titleSmall
+                                        ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Gap(15),
+                                  Text(
+                                    appointment.reasonForAppointment ??
+                                        'Not specified',
+                                    style: labelStyle?.copyWith(
+                                      color: GinaAppTheme.lightOnPrimaryColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             const Gap(20),
                             Container(
                               width: size.width / 1.12,
@@ -620,5 +671,159 @@ class ApprovedRequestDetailsScreenState extends StatelessWidget {
       default:
         return Colors.grey;
     }
+  }
+
+  void _showPaymentRequiredDialog(BuildContext context, String message) {
+    // Get the lastUpdatedAt timestamp from appointment
+    final lastUpdatedAt = appointment.lastUpdatedAt;
+    if (lastUpdatedAt == null) {
+      // No timestamp available, show regular dialog
+      _showRegularPaymentDialog(context, message);
+      return;
+    }
+
+    // Calculate expiry time (48 hours from lastUpdatedAt)
+    final expiryTime = lastUpdatedAt.add(const Duration(hours: 48));
+    final now = DateTime.now();
+
+    // If already expired, show regular dialog with expired message
+    if (now.isAfter(expiryTime)) {
+      _showRegularPaymentDialog(context,
+          "The payment window for this appointment has expired. The appointment will be automatically declined soon.");
+      return;
+    }
+
+    // Show dialog with countdown
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context, setState) {
+          Timer? countdownTimer;
+          Duration remaining = expiryTime.difference(DateTime.now());
+
+          // Start the timer when dialog is shown
+          countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+            if (context.mounted) {
+              setState(() {
+                remaining = expiryTime.difference(DateTime.now());
+                // If time expired during viewing, update message
+                if (remaining.isNegative) {
+                  timer.cancel();
+                }
+              });
+            } else {
+              timer.cancel();
+            }
+          });
+
+          // Format the remaining time
+          String remainingTimeFormatted = _formatDuration(remaining);
+
+          // Dispose timer when dialog is dismissed
+          return WillPopScope(
+            onWillPop: () {
+              countdownTimer?.cancel();
+              return Future.value(true);
+            },
+            child: AlertDialog(
+              title: const Text('Payment Required'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(message),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Time remaining:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: remaining.inHours > 24
+                          ? Colors.green.withOpacity(0.1)
+                          : remaining.inHours > 6
+                              ? Colors.orange.withOpacity(0.1)
+                              : Colors.red.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: Text(
+                        remainingTimeFormatted,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: remaining.inHours > 24
+                              ? Colors.green
+                              : remaining.inHours > 6
+                                  ? Colors.orange
+                                  : Colors.red,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'After this time expires, the appointment will be automatically declined.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    countdownTimer?.cancel();
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        });
+      },
+    );
+  }
+
+  // Helper method for regular dialog without countdown
+  void _showRegularPaymentDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Payment Required'),
+          content: Text(message),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Helper method to format duration nicely
+  String _formatDuration(Duration duration) {
+    if (duration.isNegative) {
+      return "Time expired";
+    }
+
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = duration.inSeconds.remainder(60);
+
+    return "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
   }
 }
