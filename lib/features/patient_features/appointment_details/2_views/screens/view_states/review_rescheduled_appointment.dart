@@ -117,6 +117,30 @@ class ReviewRescheduledAppointmentScreen extends StatelessWidget {
                                 children: [
                                   const Gap(20),
                                   Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        flex: 2,
+                                        child: Text(
+                                          'Reason for visit',
+                                          style: labelStyle,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 3,
+                                        child: Text(
+                                          appointmentModel
+                                                  .reasonForAppointment ??
+                                              'Not specified',
+                                          style: valueStyle,
+                                          textAlign: TextAlign.right,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Gap(15),
+                                  Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
@@ -163,7 +187,8 @@ class ReviewRescheduledAppointmentScreen extends StatelessWidget {
                                             CrossAxisAlignment.end,
                                         children: [
                                           Text(
-                                            _formatDate(updatedAppointmentModel.appointmentDate!),
+                                            _formatDate(updatedAppointmentModel
+                                                .appointmentDate!),
                                             style: valueStyle,
                                           ),
                                           Text(

@@ -269,24 +269,88 @@ class DeclinedRequestDetailsScreenState extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    'Reason for Visit',
-                                    style: ginaTheme.textTheme.titleSmall
-                                        ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.assignment_outlined,
+                                        // color:
+                                        //     GinaAppTheme.lightTertiaryContainer,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Reason for Visit',
+                                        style: ginaTheme.textTheme.titleSmall
+                                            ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   const Gap(15),
                                   Text(
                                     appointment.reasonForAppointment ??
                                         'Not specified',
                                     style: labelStyle?.copyWith(
-                                      color: GinaAppTheme.lightOnPrimaryColor,
+                                      color: GinaAppTheme.lightOnBackground
+                                          .withOpacity(0.7),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
+                            const Gap(20),
+// Decline reason container
+                            appointment.declineReason != null &&
+                                    appointment.declineReason!.isNotEmpty
+                                ? Container(
+                                    width: size.width / 1.12,
+                                    padding: const EdgeInsets.all(15),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                        color: GinaAppTheme.lightSurfaceVariant,
+                                      ),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.cancel_outlined,
+                                              color: GinaAppTheme
+                                                  .declinedTextColor,
+                                              size: 20,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              'Reason for Declining',
+                                              style: ginaTheme
+                                                  .textTheme.titleSmall
+                                                  ?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                                color: GinaAppTheme
+                                                    .declinedTextColor,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const Gap(15),
+                                        Text(
+                                          appointment.declineReason ??
+                                              'Not provided',
+                                          style: labelStyle?.copyWith(
+                                            color: GinaAppTheme
+                                                .lightOnBackground
+                                                .withOpacity(0.7),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
                             const Gap(20),
                             Container(
                               width: size.width / 1.12,

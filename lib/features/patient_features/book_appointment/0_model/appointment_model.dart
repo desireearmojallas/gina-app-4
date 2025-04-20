@@ -40,6 +40,7 @@ class AppointmentModel extends Equatable {
   final bool paymentDialogShown;
   bool? hasPreviousPayment;
   final String? reasonForAppointment;
+  final String? declineReason;
 
   AppointmentModel({
     this.appointmentUid,
@@ -77,6 +78,7 @@ class AppointmentModel extends Equatable {
     this.paymentDialogShown = false,
     this.hasPreviousPayment,
     this.reasonForAppointment,
+    this.declineReason,
   });
 
   static AppointmentModel fromDocumentSnap(DocumentSnapshot snap) {
@@ -133,6 +135,7 @@ class AppointmentModel extends Equatable {
       hasPreviousPayment: json['hasPreviousPayment'] as bool?,
       reasonForAppointment:
           json['reasonForAppointment'] ?? json['reason'] ?? '',
+      declineReason: json['declineReason'] ?? '',
     );
   }
 
@@ -189,6 +192,7 @@ class AppointmentModel extends Equatable {
       hasPreviousPayment: json['hasPreviousPayment'] as bool?,
       reasonForAppointment:
           json['reasonForAppointment'] ?? json['reason'] ?? '',
+      declineReason: json['declineReason'] ?? '',
     );
   }
 
@@ -235,6 +239,7 @@ class AppointmentModel extends Equatable {
       'paymentDialogShown': paymentDialogShown,
       'hasPreviousPayment': hasPreviousPayment,
       'reasonForAppointment': reasonForAppointment,
+      'declineReason': declineReason,
     };
   }
 
@@ -275,6 +280,7 @@ class AppointmentModel extends Equatable {
         paymentDialogShown,
         hasPreviousPayment,
         reasonForAppointment,
+        declineReason,
       ];
 
   AppointmentModel copyWith({
@@ -313,6 +319,7 @@ class AppointmentModel extends Equatable {
     bool? paymentDialogShown,
     bool? hasPreviousPayment,
     String? reasonForAppointment,
+    String? declineReason,
   }) {
     return AppointmentModel(
       appointmentUid: appointmentUid ?? this.appointmentUid,
@@ -356,6 +363,7 @@ class AppointmentModel extends Equatable {
       paymentDialogShown: paymentDialogShown ?? this.paymentDialogShown,
       hasPreviousPayment: hasPreviousPayment ?? this.hasPreviousPayment,
       reasonForAppointment: reasonForAppointment ?? this.reasonForAppointment,
+      declineReason: declineReason ?? this.declineReason,
     );
   }
 }

@@ -231,24 +231,6 @@ class BookAppointmentBloc
       debugPrint('Book Appointment button clicked');
       debugPrint('Event appointment ID: ${event.appointmentId}');
 
-      //TODO: move this after doctor approval later
-      // debugPrint('Current temp appointment ID: $tempAppointmentId');
-      // debugPrint('Current invoice URL: $currentInvoiceUrl');
-
-      // debugPrint('Checking payment status...');
-      // final paymentStatus = await _checkPaymentStatus(event.appointmentId);
-      // debugPrint('Payment status check result: $paymentStatus');
-
-      // if (paymentStatus != 'paid') {
-      //   debugPrint('Payment not completed. Status: $paymentStatus');
-      //   emit(BookAppointmentError(
-      //     errorMessage: paymentStatus == 'expired'
-      //         ? 'Payment has expired. Please try again.'
-      //         : 'Please complete the payment before booking the appointment.',
-      //   ));
-      //   return;
-      // }
-
       // debugPrint('Payment verified as paid, proceeding with booking...');
       String dateString = dateController.text;
       DateTime parsedDate = DateFormat('EEEE, d of MMMM y').parse(dateString);
@@ -299,13 +281,6 @@ class BookAppointmentBloc
           (error) => '',
           (id) => id,
         );
-
-        // final paymentService = PatientPaymentService();
-        // await paymentService.linkPaymentToAppointment(
-        //     event.appointmentId, appointmentId,
-        //     doctorId: event.doctorId);
-
-        // debugPrint('Appointment created and payment linked successfully');
 
         emit(GetDoctorAvailabilityLoaded(
           doctorAvailabilityModel: bookDoctorAvailabilityModel!,

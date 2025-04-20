@@ -99,6 +99,7 @@ class AppointmentDetailsBloc
       appointmentUid: event.appointmentUid,
       appointmentDate: event.appointmentDate,
       appointmentTime: event.appointmentTime,
+      reasonForAppointment: event.reasonForAppointment,
     );
 
     result.fold(
@@ -112,6 +113,7 @@ class AppointmentDetailsBloc
               appointmentDate: event.appointmentDate,
               appointmentTime: event.appointmentTime,
               appointmentStatus: 0, // Reset to pending
+              reasonForAppointment: event.reasonForAppointment,
             ),
           ));
         } else {

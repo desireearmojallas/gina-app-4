@@ -72,6 +72,7 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                   appointmentStatus: appointment.appointmentStatus!,
                 ),
                 const Gap(5),
+
                 if (appointment.appointmentStatus ==
                     AppointmentStatus.declined.index)
                   StreamBuilder<DocumentSnapshot>(
@@ -92,38 +93,52 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
 
                       final bool autoDeclined =
                           appointmentData['autoDeclined'] == true;
-                      final String declinedReason =
-                          appointmentData['declinedReason'] as String? ?? '';
+                      final String declineReason =
+                          appointmentData['declineReason'] as String? ?? '';
 
-                      if (autoDeclined && declinedReason.isNotEmpty) {
+                      if (declineReason.isNotEmpty) {
                         return Container(
+                          width: size.width,
                           margin: const EdgeInsets.fromLTRB(15, 8, 15, 0),
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(15),
                           decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
-                            border:
-                                Border.all(color: Colors.red.withOpacity(0.3)),
+                            color: Colors.white,
                           ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.timer_off,
-                                color: Colors.red,
-                                size: 18,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  declinedReason,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.red,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      autoDeclined
+                                          ? Icons.timer_off
+                                          : Icons.cancel_outlined,
+                                      color: GinaAppTheme.declinedTextColor,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Reason for Declining',
+                                      style: ginaTheme.titleSmall?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: GinaAppTheme.declinedTextColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const Gap(15),
+                                Text(
+                                  declineReason,
+                                  style: ginaTheme.bodySmall?.copyWith(
+                                    color: GinaAppTheme.lightOnBackground
+                                        .withOpacity(0.7),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         );
                       }

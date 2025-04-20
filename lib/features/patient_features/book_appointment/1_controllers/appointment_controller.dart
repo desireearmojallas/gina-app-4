@@ -477,6 +477,7 @@ class AppointmentController with ChangeNotifier {
     required String appointmentUid,
     required String appointmentDate,
     required String appointmentTime,
+    required String reasonForAppointment,
   }) async {
     try {
       await firestore.collection('appointments').doc(appointmentUid).update({
@@ -488,6 +489,9 @@ class AppointmentController with ChangeNotifier {
         'paymentDialogShown': false,
         'autoDeclined': FieldValue.delete(),
         'declinedReason': FieldValue.delete(),
+        'declineReason': FieldValue.delete(),
+        'declinedAt': FieldValue.delete(),
+        'reasonForAppointment': reasonForAppointment,
       });
 
       return const Right(true);

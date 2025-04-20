@@ -1033,6 +1033,10 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                       bookAppointmentBloc
                                                           .selectedFormattedDate,
                                                   appointmentTime: selectedTime,
+                                                  reasonForAppointment:
+                                                      bookAppointmentBloc
+                                                          .reasonController.text
+                                                          .trim(),
                                                 ),
                                               );
 

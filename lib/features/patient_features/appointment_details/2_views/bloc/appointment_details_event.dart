@@ -23,12 +23,14 @@ class RescheduleAppointmentEvent extends AppointmentDetailsEvent {
   final String appointmentUid;
   final String appointmentDate;
   final String appointmentTime;
+  final String reasonForAppointment;
 
   const RescheduleAppointmentEvent({
     required this.doctor,
     required this.appointmentUid,
     required this.appointmentDate,
     required this.appointmentTime,
+    required this.reasonForAppointment,
   });
 
   @override
@@ -37,6 +39,7 @@ class RescheduleAppointmentEvent extends AppointmentDetailsEvent {
         appointmentUid,
         appointmentDate,
         appointmentTime,
+        reasonForAppointment,
       ];
 }
 

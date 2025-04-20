@@ -415,10 +415,7 @@ class DoctorAppointmentRequestController with ChangeNotifier {
   }) async {
     debugPrint('Approving appointment with ID: $appointmentId');
     try {
-      await firestore
-          .collection('appointments')
-          .doc(appointmentId)
-          .update({
+      await firestore.collection('appointments').doc(appointmentId).update({
         'appointmentStatus': AppointmentStatus.confirmed.index,
         'lastUpdatedAt': FieldValue.serverTimestamp(),
         'isViewed': false,
@@ -436,13 +433,13 @@ class DoctorAppointmentRequestController with ChangeNotifier {
     }
   }
 
-  //---------- Decline Doctor Appointment Request -----------
-
   Future<Either<Exception, bool>> declinePendingPatientRequest({
     required String appointmentId,
+    String? declineReason,
   }) async {
     debugPrint('===== DECLINING APPOINTMENT =====');
     debugPrint('Appointment ID: $appointmentId');
+    debugPrint('Decline Reason: ${declineReason ?? "No reason provided"}');
     debugPrint('Timestamp: ${DateTime.now().toIso8601String()}');
 
     try {
@@ -458,110 +455,16 @@ class DoctorAppointmentRequestController with ChangeNotifier {
       final appointmentData = appointmentDoc.data();
       debugPrint('Appointment data:');
       debugPrint('- Status: ${appointmentData?['appointmentStatus']}');
-      debugPrint('- Amount: ${appointmentData?['amount']}');
       debugPrint('- Patient: ${appointmentData?['patientName']}');
 
-      // Get payment details from payments subcollection first
-      debugPrint('Checking payments subcollection...');
-      final paymentQuery = await firestore
-          .collection('appointments')
-          .doc(appointmentId)
-          .collection('payments')
-          .get();
-
-      String? invoiceId;
-      double amount = 0.0;
-      String paymentStatus = '';
-      String? refundStatus;
-
-      if (paymentQuery.docs.isNotEmpty) {
-        final paymentData = paymentQuery.docs.first.data();
-        invoiceId = paymentData['invoiceId'] as String?;
-        amount = paymentData['amount'] as double? ?? 0.0;
-        paymentStatus = paymentData['status'] as String? ?? '';
-        refundStatus = paymentData['refundStatus'] as String?;
-
-        debugPrint('Found payment details in subcollection:');
-        debugPrint('- Invoice ID: $invoiceId');
-        debugPrint('- Amount: $amount');
-        debugPrint('- Payment Status: $paymentStatus');
-        debugPrint('- Refund Status: $refundStatus');
-      } else {
-        debugPrint('No payment document found in subcollection');
-      }
-
+      // Update appointment status and add decline reason
       final Map<String, dynamic> updateData = {
         'appointmentStatus': AppointmentStatus.declined.index,
         'declinedAt': FieldValue.serverTimestamp(),
-        'refundStatus': null,
-        'refundId': null,
-        'refundInitiatedAt': null,
-        'refundUpdatedAt': null,
-        'refundAmount': null,
+        'declineReason': declineReason ?? '',
+        'lastUpdatedAt': FieldValue.serverTimestamp(),
+        'isViewed': false,
       };
-
-      // Check if refund is already processed
-      if (refundStatus != null && refundStatus.toLowerCase() == 'completed') {
-        debugPrint('Refund already processed with status: $refundStatus');
-        updateData['refundStatus'] = refundStatus;
-        updateData['refundAmount'] = amount;
-      }
-      // Only process refund if payment was made and not already refunded
-      else if (paymentStatus.toLowerCase() == 'paid' &&
-          invoiceId != null &&
-          amount > 0) {
-        debugPrint('Payment is paid, initiating refund process');
-        debugPrint('- Invoice ID: $invoiceId');
-        debugPrint('- Amount: $amount');
-
-        // Use XenditPaymentService instead of PatientPaymentService
-        final xenditPaymentService = XenditPaymentService();
-
-        try {
-          debugPrint('Calling processRefundForAppointment with:');
-          debugPrint('- Appointment ID: $appointmentId');
-          debugPrint('- Reason: Appointment declined by doctor');
-
-          // Process refund using XenditPaymentService
-          final refundResult =
-              await xenditPaymentService.processRefundForAppointment(
-            appointmentId: appointmentId,
-            reason: 'Appointment declined by doctor',
-          );
-
-          debugPrint('Refund result: $refundResult');
-
-          if (refundResult['success'] == true) {
-            debugPrint('Refund processed successfully');
-
-            // Update refund fields
-            updateData['refundStatus'] = 'COMPLETED';
-            updateData['refundAmount'] = amount;
-            updateData['refundReason'] = 'Appointment declined by doctor';
-            updateData['refundedAt'] = FieldValue.serverTimestamp();
-          } else {
-            debugPrint('Refund processing failed: ${refundResult['message']}');
-
-            // Update refund fields with failed status
-            updateData['refundStatus'] = 'FAILED';
-            updateData['refundError'] = refundResult['message'];
-            updateData['refundAttemptedAt'] = FieldValue.serverTimestamp();
-          }
-        } catch (e) {
-          debugPrint('ERROR: Failed to process refund: $e');
-          debugPrint('ERROR: Stack trace: ${StackTrace.current}');
-
-          // Update refund fields with failed status
-          updateData['refundStatus'] = 'FAILED';
-          updateData['refundError'] = e.toString();
-          updateData['refundAttemptedAt'] = FieldValue.serverTimestamp();
-        }
-      } else {
-        debugPrint('No refund needed:');
-        debugPrint('- Payment Status: $paymentStatus');
-        debugPrint('- Invoice ID: $invoiceId');
-        debugPrint('- Amount: $amount');
-      }
 
       // Update the appointment document
       await firestore

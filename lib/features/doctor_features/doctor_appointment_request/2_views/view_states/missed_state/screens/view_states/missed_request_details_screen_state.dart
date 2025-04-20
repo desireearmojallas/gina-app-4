@@ -276,19 +276,31 @@ class MissedRequestDetailsScreenState extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    'Reason for Visit',
-                                    style: ginaTheme.textTheme.titleSmall
-                                        ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.assignment_outlined,
+                                        // color:
+                                        //     GinaAppTheme.lightTertiaryContainer,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Reason for Visit',
+                                        style: ginaTheme.textTheme.titleSmall
+                                            ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   const Gap(15),
                                   Text(
                                     appointment.reasonForAppointment ??
                                         'Not specified',
                                     style: labelStyle?.copyWith(
-                                      color: GinaAppTheme.lightOnPrimaryColor,
+                                      color: GinaAppTheme.lightOnBackground
+                                          .withOpacity(0.7),
                                     ),
                                   ),
                                 ],

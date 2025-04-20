@@ -162,6 +162,13 @@ class PendingRequestStateBloc
       return;
     }
 
+    // Update the stored appointment with the decline reason if provided
+    if (event.declineReason != null) {
+      storedAppointment = storedAppointment!.copyWith(
+        declineReason: event.declineReason,
+      );
+    }
+
     debugPrint('Stored appointment details:');
     debugPrint('- Patient: ${storedAppointment!.patientName}');
     debugPrint('- Amount: ${storedAppointment!.amount}');
@@ -208,8 +215,11 @@ class PendingRequestStateBloc
     }
 
     debugPrint('Calling declinePendingPatientRequest...');
-    final result = await doctorAppointmentRequestController
-        .declinePendingPatientRequest(appointmentId: event.appointmentId);
+    final result =
+        await doctorAppointmentRequestController.declinePendingPatientRequest(
+      appointmentId: event.appointmentId,
+      declineReason: event.declineReason,
+    );
 
     result.fold(
       (failure) {

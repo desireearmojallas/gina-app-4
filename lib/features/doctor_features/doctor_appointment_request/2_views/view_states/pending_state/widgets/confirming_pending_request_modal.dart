@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -242,24 +244,44 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                     ),
                   ),
                 ),
-                onPressed: () {
-                  debugPrint('Doctor declined the appointment request');
+                onPressed: () async {
+                  debugPrint('Doctor is declining the appointment request');
+
+                  // First close the confirmation dialog
+                  Navigator.of(dialogContext).pop();
+
+                  // Show dialog to get decline reason
+                  final declineReason = await _showDeclineReasonDialog(context);
+
+                  // If reason dialog was cancelled or closed without submitting
+                  if (declineReason == null) {
+                    debugPrint('Decline cancelled - no reason provided');
+                    return;
+                  }
+
+                  debugPrint('Decline reason: $declineReason');
                   storedAppointment = appointment;
                   storedPatientData = patientData;
 
-                  // First close the dialog
-                  Navigator.of(dialogContext).pop();
+                  // Update the appointment model with the decline reason
+                  final updatedAppointment = appointment.copyWith(
+                    declineReason: declineReason,
+                  );
 
-                  // Then handle the decline action
+                  // Then handle the decline action with the reason
                   pendingRequestStateBloc.add(
-                      DeclineAppointmentEvent(appointmentId: appointmentId));
+                    DeclineAppointmentEvent(
+                      appointmentId: appointmentId,
+                      declineReason: declineReason,
+                    ),
+                  );
 
                   if (isFromHomePendingRequest == true) {
                     debugPrint('Navigating to declined screen from home');
                     Navigator.pushReplacement(context, MaterialPageRoute(
                       builder: (context) {
                         return DeclinedRequestDetailsScreenState(
-                          appointment: appointment,
+                          appointment: updatedAppointment,
                           patient: patientData,
                           appointmentStatus: 4,
                         );
@@ -276,7 +298,7 @@ Future<dynamic> showConfirmingPendingRequestDialog(
                     Navigator.pushReplacement(context, MaterialPageRoute(
                       builder: (context) {
                         return DeclinedRequestDetailsScreenState(
-                          appointment: appointment,
+                          appointment: updatedAppointment,
                           patient: patientData,
                           appointmentStatus: 4,
                         );
@@ -296,6 +318,107 @@ Future<dynamic> showConfirmingPendingRequestDialog(
           ],
         ),
       ),
+    ),
+  );
+}
+
+Future<String?> _showDeclineReasonDialog(BuildContext context) {
+  final TextEditingController reasonController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+
+  return showDialog<String>(
+    context: context,
+    barrierDismissible: false, // User must provide a reason or cancel
+    builder: (dialogContext) => AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      backgroundColor: GinaAppTheme.appbarColorLight,
+      shadowColor: Colors.black.withOpacity(0.5),
+      surfaceTintColor: GinaAppTheme.appbarColorLight,
+      title: Text(
+        'Reason for Declining',
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+      ),
+      content: SingleChildScrollView(
+        child: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Please provide a reason for declining this appointment request.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: GinaAppTheme.lightOutline,
+                    ),
+              ),
+              const Gap(15),
+              TextFormField(
+                controller: reasonController,
+                maxLines: 3,
+                minLines: 3,
+                textInputAction: TextInputAction.newline,
+                keyboardType: TextInputType.multiline,
+                style: Theme.of(context).textTheme.bodyMedium,
+                decoration: InputDecoration(
+                  hintText: 'Enter reason for declining...',
+                  contentPadding: const EdgeInsets.all(12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: GinaAppTheme.lightOutline.withOpacity(0.5),
+                    ),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter a reason for declining';
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(),
+          child: Text(
+            'Cancel',
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: GinaAppTheme.lightError,
+                ),
+          ),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: GinaAppTheme.lightTertiaryContainer,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+          onPressed: () {
+            if (formKey.currentState?.validate() ?? false) {
+              Navigator.of(dialogContext).pop(reasonController.text);
+            }
+          },
+          child: Text(
+            'Submit',
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+        ),
+      ],
     ),
   );
 }

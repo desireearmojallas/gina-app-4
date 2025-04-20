@@ -38,9 +38,13 @@ class ApproveAppointmentEvent extends PendingRequestStateEvent {
 
 class DeclineAppointmentEvent extends PendingRequestStateEvent {
   final String appointmentId;
+  final String? declineReason;
 
-  const DeclineAppointmentEvent({required this.appointmentId});
+  const DeclineAppointmentEvent({
+    required this.appointmentId,
+    this.declineReason,
+  });
 
   @override
-  List<Object> get props => [appointmentId];
+  List<Object> get props => [appointmentId, declineReason ?? ''];
 }
