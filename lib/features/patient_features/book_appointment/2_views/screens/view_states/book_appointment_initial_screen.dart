@@ -123,8 +123,51 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                               DateTime firstDayOfNextWeek = firstDayOfThisWeek
                                   .add(const Duration(days: 7));
 
+                              bool allCurrentWeekSlotsDisabled = true;
+
+                              for (int weekday = now.weekday;
+                                  weekday <= 7;
+                                  weekday++) {
+                                int doctorDayIndex = weekday % 7;
+
+                                // Skip days the doctor doesn't work
+                                if (!doctorAvailabilityModel.days
+                                    .contains(doctorDayIndex)) {
+                                  continue;
+                                }
+
+                                // Create date for this weekday
+                                DateTime checkDate = today.add(Duration(
+                                    days: doctorDayIndex - today.weekday % 7));
+
+                                // Check if at least one time slot is available on this day
+                                bool hasAvailableSlot = false;
+                                for (int i = 0;
+                                    i <
+                                        doctorAvailabilityModel
+                                            .startTimes.length;
+                                    i++) {
+                                  if (!doctorAvailabilityModel
+                                      .isTimeSlotDisabled(
+                                          doctorDayIndex,
+                                          doctorAvailabilityModel.startTimes[i],
+                                          doctorAvailabilityModel.endTimes[i],
+                                          selectedDate: checkDate)) {
+                                    hasAvailableSlot = true;
+                                    break;
+                                  }
+                                }
+
+                                if (hasAvailableSlot) {
+                                  allCurrentWeekSlotsDisabled = false;
+                                  break;
+                                }
+                              }
+
+                              // If all slots are unavailable, go to next week automatically
                               DateTime firstDate =
-                                  now.isAfter(lastDayOfThisWeek)
+                                  allCurrentWeekSlotsDisabled ||
+                                          now.isAfter(lastDayOfThisWeek)
                                       ? firstDayOfNextWeek
                                       : firstDayOfThisWeek;
                               DateTime lastDate =
@@ -134,7 +177,9 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                 context: context,
                                 firstDate: firstDate,
                                 lastDate: lastDate,
-                                helpText: 'Next week\'s dates out Sunday.',
+                                helpText: allCurrentWeekSlotsDisabled
+                                    ? 'This week\'s slots are full. Showing next week.'
+                                    : 'Select an appointment date.',
                                 selectableDayPredicate: (date) {
                                   return date.isAfter(today
                                           .subtract(const Duration(days: 1))) &&
@@ -273,6 +318,39 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                               final selectedIndex = currentState
                                                   .selectedTimeIndex;
 
+                                              // Get the selected date's weekday (0-6, where 0 is Sunday)
+                                              DateTime selectedDate = DateFormat(
+                                                      'EEEE, d \'of\' MMMM y')
+                                                  .parse(bookAppointmentBloc
+                                                      .dateController.text);
+                                              int selectedWeekday =
+                                                  selectedDate.weekday % 7;
+
+                                              // Check if the time slot is disabled
+                                              bool isDisabled =
+                                                  doctorAvailabilityModel
+                                                      .isTimeSlotDisabled(
+                                                selectedWeekday,
+                                                doctorAvailabilityModel
+                                                    .startTimes[index],
+                                                doctorAvailabilityModel
+                                                    .endTimes[index],
+                                                selectedDate: selectedDate,
+                                              );
+
+                                              if (isDisabled) {
+                                                // Show a message that the slot is not available
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        'This time slot is not available'),
+                                                    backgroundColor: Colors.red,
+                                                  ),
+                                                );
+                                                return;
+                                              }
+
                                               if (selectedIndex == index) {
                                                 bookAppointmentBloc.add(
                                                   const SelectTimeEvent(
@@ -304,17 +382,45 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                       is GetDoctorAvailabilityLoaded
                                                   ? state.selectedTimeIndex
                                                   : -1;
+
+                                              // Check if the time slot is disabled
+                                              bool isDisabled = false;
+                                              if (bookAppointmentBloc
+                                                  .dateController
+                                                  .text
+                                                  .isNotEmpty) {
+                                                DateTime selectedDate = DateFormat(
+                                                        'EEEE, d \'of\' MMMM y')
+                                                    .parse(bookAppointmentBloc
+                                                        .dateController.text);
+                                                int selectedWeekday =
+                                                    selectedDate.weekday % 7;
+                                                isDisabled =
+                                                    doctorAvailabilityModel
+                                                        .isTimeSlotDisabled(
+                                                  selectedWeekday,
+                                                  doctorAvailabilityModel
+                                                      .startTimes[index],
+                                                  doctorAvailabilityModel
+                                                      .endTimes[index],
+                                                  selectedDate: selectedDate,
+                                                );
+                                              }
+
                                               return Container(
                                                 decoration: BoxDecoration(
-                                                  color: selectedIndex == index
-                                                      ? GinaAppTheme
-                                                          .lightTertiaryContainer
-                                                      : Colors.transparent,
+                                                  color: isDisabled
+                                                      ? Colors.grey[300]
+                                                      : selectedIndex == index
+                                                          ? GinaAppTheme
+                                                              .lightTertiaryContainer
+                                                          : Colors.transparent,
                                                   borderRadius:
                                                       BorderRadius.circular(8),
                                                   border: Border.all(
-                                                    color:
-                                                        selectedIndex == index
+                                                    color: isDisabled
+                                                        ? Colors.grey[400]!
+                                                        : selectedIndex == index
                                                             ? Colors.transparent
                                                             : GinaAppTheme
                                                                 .lightOutline,
@@ -331,11 +437,13 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                               FontWeight.w600,
                                                           fontSize: 11,
                                                           letterSpacing: 0.001,
-                                                          color: selectedIndex ==
-                                                                  index
-                                                              ? Colors.white
-                                                              : GinaAppTheme
-                                                                  .lightOnPrimaryColor,
+                                                          color: isDisabled
+                                                              ? Colors.grey[600]
+                                                              : selectedIndex ==
+                                                                      index
+                                                                  ? Colors.white
+                                                                  : GinaAppTheme
+                                                                      .lightOnPrimaryColor,
                                                         ),
                                                   ),
                                                 ),
@@ -388,6 +496,42 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                 final afternoonIndex = index +
                                                     morningTimeslots.length;
 
+                                                // Get the selected date's weekday (0-6, where 0 is Sunday)
+                                                DateTime selectedDate = DateFormat(
+                                                        'EEEE, d \'of\' MMMM y')
+                                                    .parse(bookAppointmentBloc
+                                                        .dateController.text);
+                                                int selectedWeekday = selectedDate
+                                                        .weekday %
+                                                    7; // Convert to 0-6 format
+
+                                                // Check if the time slot is disabled
+                                                bool isDisabled =
+                                                    doctorAvailabilityModel
+                                                        .isTimeSlotDisabled(
+                                                  selectedWeekday,
+                                                  doctorAvailabilityModel
+                                                          .startTimes[
+                                                      afternoonIndex],
+                                                  doctorAvailabilityModel
+                                                      .endTimes[afternoonIndex],
+                                                  selectedDate: selectedDate,
+                                                );
+
+                                                if (isDisabled) {
+                                                  // Show a message that the slot is not available
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                          'This time slot is not available'),
+                                                      backgroundColor:
+                                                          Colors.red,
+                                                    ),
+                                                  );
+                                                  return;
+                                                }
+
                                                 if (selectedIndex ==
                                                     afternoonIndex) {
                                                   bookAppointmentBloc.add(
@@ -422,48 +566,80 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                         is GetDoctorAvailabilityLoaded
                                                     ? state.selectedTimeIndex
                                                     : -1;
+
+                                                final afternoonIndex = index +
+                                                    morningTimeslots.length;
+
+                                                // Check if the time slot is disabled
+                                                bool isDisabled = false;
+                                                if (bookAppointmentBloc
+                                                    .dateController
+                                                    .text
+                                                    .isNotEmpty) {
+                                                  DateTime selectedDate = DateFormat(
+                                                          'EEEE, d \'of\' MMMM y')
+                                                      .parse(bookAppointmentBloc
+                                                          .dateController.text);
+                                                  int selectedWeekday =
+                                                      selectedDate.weekday % 7;
+                                                  isDisabled =
+                                                      doctorAvailabilityModel
+                                                          .isTimeSlotDisabled(
+                                                    selectedWeekday,
+                                                    doctorAvailabilityModel
+                                                            .startTimes[
+                                                        afternoonIndex],
+                                                    doctorAvailabilityModel
+                                                            .endTimes[
+                                                        afternoonIndex],
+                                                    selectedDate: selectedDate,
+                                                  );
+                                                }
+
                                                 return Container(
                                                   decoration: BoxDecoration(
-                                                    color: selectedIndex ==
-                                                            (index +
-                                                                morningTimeslots
-                                                                    .length)
-                                                        ? GinaAppTheme
-                                                            .lightTertiaryContainer
-                                                        : Colors.transparent,
+                                                    color: isDisabled
+                                                        ? Colors.grey[300]
+                                                        : selectedIndex ==
+                                                                afternoonIndex
+                                                            ? GinaAppTheme
+                                                                .lightTertiaryContainer
+                                                            : Colors
+                                                                .transparent,
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             8),
                                                     border: Border.all(
-                                                      color: selectedIndex ==
-                                                              (index +
-                                                                  morningTimeslots
-                                                                      .length)
-                                                          ? Colors.transparent
-                                                          : GinaAppTheme
-                                                              .lightOutline,
+                                                      color: isDisabled
+                                                          ? Colors.grey[400]!
+                                                          : selectedIndex ==
+                                                                  afternoonIndex
+                                                              ? Colors
+                                                                  .transparent
+                                                              : GinaAppTheme
+                                                                  .lightOutline,
                                                     ),
                                                   ),
                                                   child: Center(
                                                     child: Text(
                                                       afternoonTimeslots[index],
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .labelSmall
-                                                          ?.copyWith(
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            fontSize: 11,
-                                                            letterSpacing:
-                                                                0.001,
-                                                            color: selectedIndex ==
-                                                                    (index +
-                                                                        morningTimeslots
-                                                                            .length)
-                                                                ? Colors.white
-                                                                : GinaAppTheme
-                                                                    .lightOnPrimaryColor,
-                                                          ),
+                                                      style:
+                                                          Theme.of(context)
+                                                              .textTheme
+                                                              .labelSmall
+                                                              ?.copyWith(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                fontSize: 11,
+                                                                letterSpacing:
+                                                                    0.001,
+                                                                color: isDisabled
+                                                                    ? Colors.grey[600]
+                                                                    : selectedIndex == afternoonIndex
+                                                                        ? Colors.white
+                                                                        : GinaAppTheme.lightOnPrimaryColor,
+                                                              ),
                                                     ),
                                                   ),
                                                 );
@@ -554,11 +730,9 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                         .lightSurfaceVariant,
                                           ),
                                         ),
-                                        height:
-                                            60, // Increased height to accommodate price
+                                        height: 60,
                                         child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
                                             Text(
                                               modeOfAppointmentList[index],
@@ -572,14 +746,11 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                     color: isSelected
                                                         ? Colors.white
                                                         : isAvailable
-                                                            ? GinaAppTheme
-                                                                .lightOnPrimaryColor
-                                                            : GinaAppTheme
-                                                                .lightOutline,
+                                                            ? GinaAppTheme.lightOnPrimaryColor
+                                                            : GinaAppTheme.lightOutline,
                                                   ),
                                             ),
-                                            if (price != null &&
-                                                isAvailable) ...[
+                                            if (price != null && isAvailable) ...[
                                               const Gap(4),
                                               Text(
                                                 '₱${NumberFormat('#,##0.00').format(price)}',
@@ -587,16 +758,13 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                     .textTheme
                                                     .labelSmall
                                                     ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.w500,
+                                                      fontWeight: FontWeight.w500,
                                                       fontSize: 10,
                                                       color: isSelected
                                                           ? Colors.white
                                                           : isAvailable
-                                                              ? GinaAppTheme
-                                                                  .lightOnPrimaryColor
-                                                              : GinaAppTheme
-                                                                  .lightOutline,
+                                                              ? GinaAppTheme.lightOnPrimaryColor
+                                                              : GinaAppTheme.lightOutline,
                                                     ),
                                               ),
                                             ],
@@ -712,9 +880,12 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                 builder: (context, state) {
                                   if (isRescheduleMode) {
                                     // Check if date and time are selected first
-                                    final hasDate = bookAppointmentBloc.dateController.text.isNotEmpty;
-                                    final hasTime = bookAppointmentBloc.selectedTimeIndex != -1;
-                                    
+                                    final hasDate = bookAppointmentBloc
+                                        .dateController.text.isNotEmpty;
+                                    final hasTime =
+                                        bookAppointmentBloc.selectedTimeIndex !=
+                                            -1;
+
                                     // If date and time aren't selected, don't show the button
                                     if (!hasDate || !hasTime) {
                                       return const SizedBox.shrink();
@@ -733,42 +904,60 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                           style: ButtonStyle(
                                             shape: MaterialStateProperty.all(
                                               RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(10),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
                                               ),
                                             ),
-                                            backgroundColor: MaterialStateProperty.all(
-                                              GinaAppTheme.lightTertiaryContainer,
+                                            backgroundColor:
+                                                MaterialStateProperty.all(
+                                              GinaAppTheme
+                                                  .lightTertiaryContainer,
                                             ),
                                           ),
                                           onPressed: () {
-                                            if (bookAppointmentBloc.selectedTimeIndex == -1 ||
-                                                bookAppointmentBloc.dateController.text.isEmpty) {
-                                              ScaffoldMessenger.of(context).showSnackBar(
+                                            if (bookAppointmentBloc
+                                                        .selectedTimeIndex ==
+                                                    -1 ||
+                                                bookAppointmentBloc
+                                                    .dateController
+                                                    .text
+                                                    .isEmpty) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
                                                 const SnackBar(
-                                                  content: Text('Please select date and time'),
+                                                  content: Text(
+                                                      'Please select date and time'),
                                                   backgroundColor: Colors.red,
                                                 ),
                                               );
                                               return;
                                             }
 
-                                            final currentState = bookAppointmentBloc.state;
-                                            if (currentState is GetDoctorAvailabilityLoaded) {
-                                              final selectedIndex = currentState.selectedTimeIndex!;
+                                            final currentState =
+                                                bookAppointmentBloc.state;
+                                            if (currentState
+                                                is GetDoctorAvailabilityLoaded) {
+                                              final selectedIndex = currentState
+                                                  .selectedTimeIndex!;
                                               final selectedTime =
                                                   '${doctorAvailabilityModel.startTimes[selectedIndex]} - ${doctorAvailabilityModel.endTimes[selectedIndex]}';
 
-                                              debugPrint('Rescheduling appointment...');
+                                              debugPrint(
+                                                  'Rescheduling appointment...');
                                               appointmentDetailsBloc.add(
                                                 RescheduleAppointmentEvent(
                                                   doctor: doctor,
-                                                  appointmentUid: appointmentUidToReschedule!,
-                                                  appointmentDate: bookAppointmentBloc.selectedFormattedDate,
+                                                  appointmentUid:
+                                                      appointmentUidToReschedule!,
+                                                  appointmentDate:
+                                                      bookAppointmentBloc
+                                                          .selectedFormattedDate,
                                                   appointmentTime: selectedTime,
                                                 ),
                                               );
 
-                                              debugPrint('Reschedule completed, showing success dialog...');
+                                              debugPrint(
+                                                  'Reschedule completed, showing success dialog...');
 
                                               showRescheduleAppointmentSuccessDialog(
                                                 context,
@@ -781,21 +970,27 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                     builder: (context) {
                                                       return ReviewRescheduledAppointmentScreen(
                                                         doctorDetails: doctor,
-                                                        currentPatient: currentActivePatient!,
-                                                        appointmentModel: appointmentDetailsForReschedule!,
+                                                        currentPatient:
+                                                            currentActivePatient!,
+                                                        appointmentModel:
+                                                            appointmentDetailsForReschedule!,
                                                       );
                                                     },
                                                   ),
                                                 );
                                               }).whenComplete(() {
                                                 isRescheduleMode = false;
-                                                debugPrint('isRescheduleMode set to false');
+                                                debugPrint(
+                                                    'isRescheduleMode set to false');
                                               });
                                             }
                                           },
                                           child: Text(
                                             'Reschedule Appointment',
-                                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium
+                                                ?.copyWith(
                                                   fontWeight: FontWeight.w600,
                                                   color: Colors.white,
                                                 ),

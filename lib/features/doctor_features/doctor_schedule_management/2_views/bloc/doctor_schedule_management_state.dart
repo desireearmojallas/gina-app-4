@@ -31,3 +31,13 @@ class GetScheduledFailedState extends DoctorScheduleManagementState {
   @override
   List<Object> get props => [message];
 }
+
+class EditScheduleState extends DoctorScheduleManagementState {
+  final bool isEditing;
+  final ScheduleModel schedule;
+
+  const EditScheduleState({required this.isEditing, required this.schedule});
+
+  @override
+  List<Object> get props => [isEditing, schedule];
+}
