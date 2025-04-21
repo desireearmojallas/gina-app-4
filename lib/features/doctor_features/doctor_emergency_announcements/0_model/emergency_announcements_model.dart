@@ -12,6 +12,7 @@ class EmergencyAnnouncementModel extends Equatable {
   final String createdBy;
   final String profileImage;
   final Timestamp createdAt;
+  final bool? clickedByPatient;
 
   const EmergencyAnnouncementModel({
     required this.emergencyId,
@@ -24,19 +25,22 @@ class EmergencyAnnouncementModel extends Equatable {
     required this.createdBy,
     required this.profileImage,
     required this.createdAt,
+    this.clickedByPatient,
   });
 
   static EmergencyAnnouncementModel empty = EmergencyAnnouncementModel(
-      emergencyId: '',
-      appointmentUid: '',
-      appointmentUids: const [],
-      doctorUid: '',
-      patientUids: const [],
-      patientNames: const [],
-      message: '',
-      createdBy: '',
-      profileImage: '',
-      createdAt: Timestamp.now());
+    emergencyId: '',
+    appointmentUid: '',
+    appointmentUids: const [],
+    doctorUid: '',
+    patientUids: const [],
+    patientNames: const [],
+    message: '',
+    createdBy: '',
+    profileImage: '',
+    createdAt: Timestamp.now(),
+    clickedByPatient: false,
+  );
 
   factory EmergencyAnnouncementModel.fromDocumentSnap(DocumentSnapshot snap) {
     Map<String, dynamic> json = {};
@@ -79,6 +83,7 @@ class EmergencyAnnouncementModel extends Equatable {
       createdBy: json['createdBy'] ?? '',
       profileImage: json['profileImage'] ?? '',
       createdAt: json['createdAt'] ?? Timestamp.now(),
+      clickedByPatient: json['clickedByPatient'] ?? false,
     );
   }
 
@@ -117,6 +122,7 @@ class EmergencyAnnouncementModel extends Equatable {
       createdBy: json['createdBy'] ?? '',
       profileImage: json['profileImage'] ?? '',
       createdAt: json['createdAt'] ?? Timestamp.now(),
+      clickedByPatient: json['clickedByPatient'] ?? false,
     );
   }
 
@@ -132,6 +138,7 @@ class EmergencyAnnouncementModel extends Equatable {
       'createdBy': createdBy,
       'profileImage': profileImage,
       'createdAt': createdAt,
+      'clickedByPatient': clickedByPatient,
     };
   }
 
@@ -147,5 +154,6 @@ class EmergencyAnnouncementModel extends Equatable {
         createdBy,
         profileImage,
         createdAt,
+        clickedByPatient!,
       ];
 }

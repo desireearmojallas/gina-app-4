@@ -17,11 +17,32 @@ class EmergencyAnnouncementsBloc
     extends Bloc<EmergencyAnnouncementsEvent, EmergencyAnnouncementsState> {
   final EmergencyAnnouncementsController emergencyController;
   final AppointmentController appointmentController;
+  StreamSubscription? _emergencySubscription;
   EmergencyAnnouncementsBloc({
     required this.emergencyController,
     required this.appointmentController,
   }) : super(EmergencyAnnouncementsInitial()) {
     on<GetEmergencyAnnouncements>(getEmergencyAnnouncements);
+    on<EmergencyNotificationReceivedEvent>(onEmergencyNotificationReceived);
+    on<MarkAnnouncementAsClickedEvent>(onMarkAnnouncementAsClicked);
+
+    listenForEmergencies();
+  }
+
+  void listenForEmergencies() {
+    _emergencySubscription?.cancel();
+
+    _emergencySubscription = emergencyController
+        .listenForEmergencyAnnouncements()
+        .listen((announcement) {
+      add(EmergencyNotificationReceivedEvent(announcement));
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _emergencySubscription?.cancel();
+    return super.close();
   }
 
   FutureOr<void> getEmergencyAnnouncements(GetEmergencyAnnouncements event,
@@ -53,5 +74,18 @@ class EmergencyAnnouncementsBloc
           appointment.appointmentStatus == AppointmentStatus.completed.index ||
           appointment.appointmentStatus == 2,
     );
+  }
+
+  FutureOr<void> onEmergencyNotificationReceived(
+      EmergencyNotificationReceivedEvent event,
+      Emitter<EmergencyAnnouncementsState> emit) {
+    emit(EmergencyNotificationReceivedState(event.announcement));
+  }
+
+  FutureOr<void> onMarkAnnouncementAsClicked(
+    MarkAnnouncementAsClickedEvent event,
+    Emitter<EmergencyAnnouncementsState> emit,
+  ) async {
+    await emergencyController.markAnnouncementAsClicked(event.announcementId);
   }
 }

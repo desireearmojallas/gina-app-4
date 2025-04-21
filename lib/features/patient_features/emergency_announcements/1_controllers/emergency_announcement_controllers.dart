@@ -112,4 +112,129 @@ class EmergencyAnnouncementsController with ChangeNotifier {
       return Left(Exception(e.toString()));
     }
   }
+
+  Stream<EmergencyAnnouncementModel> listenForEmergencyAnnouncements() {
+    if (currentPatient == null) {
+      return const Stream.empty();
+    }
+
+    final controller = StreamController<EmergencyAnnouncementModel>();
+
+    // Track processed announcement IDs to avoid duplicates
+    final Set<String> processedIds = {};
+
+    // Listen for new-format announcements (using patientUids array)
+    final newFormatSubscription = firestore
+        .collection('emergencyAnnouncements')
+        .where('patientUids', arrayContains: currentPatient!.uid)
+        .snapshots()
+        .listen((snapshot) async {
+      for (final change in snapshot.docChanges) {
+        // Only process newly added announcements
+        if (change.type == DocumentChangeType.added) {
+          final data = change.doc.data()!;
+          final id = data['id'] as String? ?? change.doc.id;
+
+          // Skip if already processed
+          if (processedIds.contains(id)) continue;
+          processedIds.add(id);
+
+          try {
+            // Get doctor information
+            final doctorModel = await firestore
+                .collection('doctors')
+                .doc(data['doctorUid'])
+                .get()
+                .then((value) => value.data() != null
+                    ? DoctorModel.fromJson(value.data()!)
+                    : null);
+
+            if (doctorModel != null) {
+              doctorMedicalSpecialty = doctorModel.medicalSpecialty;
+            }
+
+            final announcement = EmergencyAnnouncementModel.fromJson(data);
+            controller.add(announcement);
+            debugPrint(
+                'New emergency announcement received: ${announcement.emergencyId}');
+          } catch (e) {
+            debugPrint('Error processing announcement: $e');
+          }
+        }
+      }
+    });
+
+    // Listen for old-format announcements (using patientUid string)
+    final oldFormatSubscription = firestore
+        .collection('emergencyAnnouncements')
+        .where('patientUid', isEqualTo: currentPatient!.uid)
+        .snapshots()
+        .listen((snapshot) async {
+      for (final change in snapshot.docChanges) {
+        // Only process newly added announcements
+        if (change.type == DocumentChangeType.added) {
+          final data = change.doc.data()!;
+          final id = data['id'] as String? ?? change.doc.id;
+
+          // Skip if already processed
+          if (processedIds.contains(id)) continue;
+          processedIds.add(id);
+
+          try {
+            // Get doctor information
+            final doctorModel = await firestore
+                .collection('doctors')
+                .doc(data['doctorUid'])
+                .get()
+                .then((value) => value.data() != null
+                    ? DoctorModel.fromJson(value.data()!)
+                    : null);
+
+            if (doctorModel != null) {
+              doctorMedicalSpecialty = doctorModel.medicalSpecialty;
+            }
+
+            final announcement = EmergencyAnnouncementModel.fromJson(data);
+            controller.add(announcement);
+            debugPrint(
+                'New emergency announcement received: ${announcement.emergencyId}');
+          } catch (e) {
+            debugPrint('Error processing announcement: $e');
+          }
+        }
+      }
+    });
+
+    // Clean up the subscriptions when the stream is cancelled
+    controller.onCancel = () {
+      newFormatSubscription.cancel();
+      oldFormatSubscription.cancel();
+    };
+
+    return controller.stream;
+  }
+
+  Future<void> markAnnouncementAsClicked(String announcementId) async {
+    try {
+      if (announcementId.isEmpty) {
+        debugPrint(
+            'Cannot mark announcement as clicked: Empty announcement ID');
+        return;
+      }
+
+      await firestore
+          .collection('emergencyAnnouncements')
+          .where('id', isEqualTo: announcementId)
+          .get()
+          .then((querySnapshot) {
+        for (var doc in querySnapshot.docs) {
+          doc.reference.update({'clickedByPatient': true});
+          debugPrint(
+              'Marked announcement $announcementId as clicked by patient');
+        }
+      });
+    } catch (e) {
+      debugPrint('Error marking announcement as clicked: $e');
+    }
+  }
 }

@@ -11,14 +11,11 @@ import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/gina_p
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
-import 'package:gina_app_4/features/patient_features/appointment/2_views/screens/appointment_screen.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/screens/view_states/appointment_details_status_screen.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
-import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/alert_dialog_for_approved_appointments_payment/bloc/alert_dialog_for_approved_appointments_payment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/bloc/home_bloc.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/screens/home_screen.dart';
-import 'package:icons_plus/icons_plus.dart';
 
 class AlertDialogForApprovedAppointmentsPaymentProvider
     extends StatelessWidget {

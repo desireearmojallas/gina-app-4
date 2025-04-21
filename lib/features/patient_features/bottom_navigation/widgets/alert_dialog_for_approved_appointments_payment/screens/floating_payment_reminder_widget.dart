@@ -7,7 +7,6 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/alert_dialog_for_approved_appointments_payment/screens/alert_dialog_for_approved_appointments_payment.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/screens/home_screen.dart';
-import 'package:icons_plus/icons_plus.dart';
 
 class FloatingPaymentReminderProvider extends StatelessWidget {
   final AppointmentModel appointment;
