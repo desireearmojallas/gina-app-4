@@ -71,7 +71,7 @@ class DoctorEmergencyAnnouncementScreen extends StatelessWidget {
                       )
                     : null,
             title: state is DoctorEmergencyGetApprovedPatientList
-                ? 'Select a patient'
+                ? 'Select patients'
                 : state is CreateAnnouncementState
                     ? 'Create Announcement'
                     : 'Emergency Announcements',
@@ -126,9 +126,15 @@ class DoctorEmergencyAnnouncementScreen extends StatelessWidget {
                 return DoctorEmergencyAnnouncementPatientList(
                   approvedPatients: state.approvedPatientList,
                 );
-              } else if (state is SelectedAPatientState) {
+              } else if (state is SelectedPatientsState) {
+                debugPrint(
+                    '✅ Showing Create Announcement with Selected Patients: ${state.selectedAppointments.length}');
+                for (int i = 0; i < state.selectedAppointments.length; i++) {
+                  debugPrint(
+                      '👤 Selected patient #${i + 1}: ${state.selectedAppointments[i].patientName}');
+                }
                 return DoctorEmergencyAnnouncementCreateAnnouncementScreen(
-                  isLoading: state is CreateAnnouncementLoadingState,
+                  isLoading: false,
                 );
               } else if (state is NavigateToDoctorCreatedAnnouncementState) {
                 return DoctorEmergencyAnnouncementsLoadedDetailsScreen(

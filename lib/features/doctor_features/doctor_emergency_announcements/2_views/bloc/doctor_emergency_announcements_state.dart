@@ -56,13 +56,18 @@ class CreateAnnouncementState extends DoctorEmergencyAnnouncementsState {}
 class CreateAnnouncementLoadingState
     extends DoctorEmergencyAnnouncementsState {}
 
-class SelectedAPatientState extends DoctorEmergencyAnnouncementsState {
-  final AppointmentModel appointment;
+class SelectedPatientsState extends DoctorEmergencyAnnouncementsState {
+  final List<AppointmentModel> selectedAppointments;
 
-  const SelectedAPatientState({required this.appointment});
+  // For backwards compatibility with existing code that might expect a single appointment
+  AppointmentModel get appointment => selectedAppointments.isNotEmpty
+      ? selectedAppointments.first
+      : AppointmentModel();
+
+  const SelectedPatientsState({required this.selectedAppointments});
 
   @override
-  List<Object> get props => [appointment];
+  List<Object> get props => [selectedAppointments];
 }
 
 class CreateEmergencyAnnouncementPostSuccessState

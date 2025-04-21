@@ -75,16 +75,20 @@ class DoctorEmergencyAnnouncementsController with ChangeNotifier {
 
   Future<Either<Exception, bool>> createEmergencyAnnouncement({
     required String appointmentUid,
-    required String patientUid,
+    required List<String> patientUids,
     required String emergencyMessage,
-    required String patientName,
+    required List<String> patientNames,
+    List<String>? appointmentUids,
   }) async {
     try {
-      DocumentReference<Map<String, dynamic>> snap = firestore
-          .collection('emergencyAnnouncements')
-          .doc(currentUser!.uid)
-          .collection('createdAnnouncements')
-          .doc();
+      debugPrint(
+          'Creating emergency announcement for ${patientUids.length} patients');
+      debugPrint('Patient UIDs: $patientUids');
+      debugPrint('Patient Names: $patientNames');
+
+      // If appointmentUids is not provided, use the single appointmentUid
+      List<String> finalAppointmentUids = appointmentUids ?? [appointmentUid];
+      debugPrint('Appointment UIDs: $finalAppointmentUids');
 
       final currentUserModel = await firestore
           .collection('doctors')
@@ -92,18 +96,28 @@ class DoctorEmergencyAnnouncementsController with ChangeNotifier {
           .get()
           .then((value) => DoctorModel.fromJson(value.data()!));
 
-      await firestore.collection('emergencyAnnouncements').doc(snap.id).set({
-        'id': snap.id,
+      // Create a document reference at the root level
+      DocumentReference<Map<String, dynamic>> docRef = firestore
+          .collection('emergencyAnnouncements')
+          .doc(); // Let Firestore generate the ID
+
+      debugPrint('Created document reference with ID: ${docRef.id}');
+
+      // Save to the same reference we created
+      await docRef.set({
+        'id': docRef.id,
         'appointmentUid': appointmentUid,
+        'appointmentUids': finalAppointmentUids,
         'doctorUid': currentUser!.uid,
-        'patientUid': patientUid,
-        'patientName': patientName,
+        'patientUids': patientUids,
+        'patientNames': patientNames,
         'message': emergencyMessage,
         'createdBy': currentUserModel.name,
         'profileImage': '',
         'createdAt': Timestamp.now(),
       });
 
+      debugPrint('Successfully created emergency announcement document');
       return const Right(true);
     } on FirebaseAuthException catch (e) {
       debugPrint('FirebaseAuthException: ${e.message}');

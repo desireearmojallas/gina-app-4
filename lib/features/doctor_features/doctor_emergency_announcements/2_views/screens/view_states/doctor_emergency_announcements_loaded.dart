@@ -185,14 +185,39 @@ class DoctorEmergencyAnnouncementsLoadedScreen extends StatelessWidget {
                                                 ),
                                               ),
                                               const Gap(10),
-                                              Text(
-                                                announcement.patientName,
-                                                style: ginaTheme.bodyMedium
-                                                    ?.copyWith(
-                                                  fontWeight: FontWeight.bold,
+                                              if (announcement.patientNames.length == 1)
+                                                Text(
+                                                  announcement.patientNames.first,
+                                                  style: ginaTheme.bodyMedium
+                                                      ?.copyWith(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                  overflow: TextOverflow.ellipsis,
+                                                )
+                                              else
+                                                Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      '${announcement.patientNames.length} patients',
+                                                      style: ginaTheme.bodyMedium
+                                                          ?.copyWith(
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                    const Gap(4),
+                                                    Text(
+                                                      announcement.patientNames.join(', '),
+                                                      style: ginaTheme.bodySmall
+                                                          ?.copyWith(
+                                                        color: GinaAppTheme.lightOutline,
+                                                      ),
+                                                      maxLines: 1,
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ],
                                                 ),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
                                               const Gap(10),
                                               SizedBox(
                                                 width: size.width * 0.5,

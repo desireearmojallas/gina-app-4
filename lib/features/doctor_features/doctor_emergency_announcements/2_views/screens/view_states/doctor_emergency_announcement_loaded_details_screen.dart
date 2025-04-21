@@ -9,6 +9,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcemen
 import 'package:gina_app_4/features/doctor_features/doctor_emergency_announcements/2_views/widgets/dashed_line_painter_vertical.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 
 class DoctorEmergencyAnnouncementsLoadedDetailsScreen extends StatelessWidget {
@@ -44,171 +45,99 @@ class DoctorEmergencyAnnouncementsLoadedDetailsScreen extends StatelessWidget {
       padding: const EdgeInsets.all(20.0),
       child: Column(
         children: [
-          IntrinsicHeight(
-            child: Container(
-              width: size.width,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.white,
-                boxShadow: [
-                  GinaAppTheme.defaultBoxShadow,
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Appointment Details'.toUpperCase(),
-                              style: const TextStyle(
-                                fontSize: 12.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const Gap(10),
-                            Text(
-                              appointment.modeOfAppointment == 0
-                                  ? 'Online Consultation'.toUpperCase()
-                                  : 'Face-to-face Consultation'.toUpperCase(),
-                              style: const TextStyle(
-                                color: GinaAppTheme.lightTertiaryContainer,
-                                fontSize: 10.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Spacer(),
-                        AppointmentStatusContainer(
-                          appointmentStatus: appointment.appointmentStatus!,
-                        ),
-                      ],
+          Container(
+            width: size.width,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.white,
+              boxShadow: [
+                GinaAppTheme.defaultBoxShadow,
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'PATIENT APPOINTMENTS',
+                    style: TextStyle(
+                      fontSize: 12.0,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const Gap(20),
-                    Text(
-                      'Appointment ID: ${emergencyAnnouncement.appointmentUid}',
-                      style: ginaTheme.labelMedium?.copyWith(
-                        color: GinaAppTheme.lightOutline,
-                        fontSize: 10.0,
+                  ),
+                  const Divider(),
+                  // If we have multiple appointment UIDs, show patient count
+                  if (emergencyAnnouncement.appointmentUids.length > 1)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10.0),
+                      child: Text(
+                        'This announcement was sent to ${emergencyAnnouncement.patientNames.length} patients',
+                        style: const TextStyle(
+                          color: GinaAppTheme.lightOutline,
+                          fontSize: 12.0,
+                          fontStyle: FontStyle.italic,
+                        ),
                       ),
-                      maxLines: null,
                     ),
-                    const Gap(10),
-                    Row(
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+
+                  // Map over all patient names from the announcement
+                  ...List.generate(
+                    emergencyAnnouncement.patientNames.length,
+                    (index) {
+                      final patientName =
+                          emergencyAnnouncement.patientNames[index];
+
+                      // For appointment details, use the available info
+                      // If index exceeds appointmentUids length, use the first one as fallback
+                      final appointmentUid =
+                          index < emergencyAnnouncement.appointmentUids.length
+                              ? emergencyAnnouncement.appointmentUids[index]
+                              : emergencyAnnouncement.appointmentUids.first;
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Row(
                           children: [
-                            Row(
-                              children: [
-                                SizedBox(
-                                  width: size.width * 0.2,
-                                  child: const Text(
-                                    'Patient name',
-                                    style: TextStyle(
-                                      color: GinaAppTheme.lightOutline,
-                                      fontSize: 10.0,
+                            // Left: Patient name
+                            Expanded(
+                              flex: 3,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    patientName,
+                                    style: const TextStyle(
+                                      fontSize: 14.0,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                ),
-                                const Gap(5),
-                                SizedBox(
-                                  width: size.width * 0.3,
-                                  child: Flexible(
-                                    child: Text(
-                                      appointment.patientName!,
-                                      style: const TextStyle(
-                                        fontSize: 12.0,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                      softWrap: true,
-                                      overflow: TextOverflow.visible,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Gap(10),
-                            Row(
-                              children: [
-                                SizedBox(
-                                  width: size.width * 0.2,
-                                  child: const Text(
-                                    'Doctor name',
-                                    style: TextStyle(
+                                  const Gap(4),
+                                  Text(
+                                    'Appointment ID: $appointmentUid',
+                                    style: const TextStyle(
                                       color: GinaAppTheme.lightOutline,
                                       fontSize: 10.0,
-                                      fontWeight: FontWeight.w600,
                                     ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
-                                const Gap(5),
-                                SizedBox(
-                                  width: size.width * 0.3,
-                                  child: Flexible(
-                                    child: Text(
-                                      'Dr. ${appointment.doctorName}',
-                                      style: const TextStyle(
-                                        fontSize: 12.0,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                      softWrap: true,
-                                      overflow: TextOverflow.visible,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
+                            ),
+
+                            // Add icon to indicate this is a sent announcement
+                            const Icon(
+                              MingCute.checks_line,
+                              color: GinaAppTheme.lightTertiaryContainer,
+                              size: 16,
                             ),
                           ],
                         ),
-                        const Spacer(),
-                        CustomPaint(
-                          size: Size(1, size.height * 0.05),
-                          painter: DashedLinePainterVertical(
-                            color: Colors.grey,
-                          ),
-                        ),
-                        const Spacer(),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  appointment.appointmentTime!,
-                                  style: const TextStyle(
-                                    fontSize: 10.0,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Gap(10),
-                            Row(
-                              children: [
-                                Text(
-                                  appointment.appointmentDate!,
-                                  style: const TextStyle(
-                                    fontSize: 10.0,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const Gap(5),
-                  ],
-                ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           ),
@@ -239,7 +168,8 @@ class DoctorEmergencyAnnouncementsLoadedDetailsScreen extends StatelessWidget {
                         const Gap(15),
                         SizedBox(
                           width: size.width * 0.4,
-                          child: Expanded(
+                          child: SizedBox(
+                            width: double.infinity,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -252,14 +182,41 @@ class DoctorEmergencyAnnouncementsLoadedDetailsScreen extends StatelessWidget {
                                   ),
                                 ),
                                 const Gap(4),
-                                Text(
-                                  emergencyAnnouncement.patientName,
-                                  style: ginaTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
+                                if (emergencyAnnouncement.patientNames.length ==
+                                    1)
+                                  Text(
+                                    emergencyAnnouncement.patientNames.first,
+                                    style: ginaTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    overflow: TextOverflow.visible,
+                                    softWrap: true,
+                                  )
+                                else
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '${emergencyAnnouncement.patientNames.length} patients',
+                                        style: ginaTheme.bodyMedium?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        overflow: TextOverflow.visible,
+                                        softWrap: true,
+                                      ),
+                                      const Gap(4),
+                                      Text(
+                                        emergencyAnnouncement.patientNames
+                                            .join(', '),
+                                        style: ginaTheme.bodySmall?.copyWith(
+                                          color: GinaAppTheme.lightOutline,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
                                   ),
-                                  overflow: TextOverflow.visible,
-                                  softWrap: true,
-                                ),
                               ],
                             ),
                           ),

@@ -8,10 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_payment_feature/3_services/xendit_payment_service.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patients/0_models/user_appointment_period_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
-import 'package:gina_app_4/features/patient_features/payment_feature/3_services/patient_payment_service.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
 import 'package:intl/intl.dart';
 
@@ -32,6 +30,16 @@ class DoctorAppointmentRequestController with ChangeNotifier {
     authStream = auth.authStateChanges().listen((User? user) {
       currentUser = user;
       notifyListeners();
+
+      if (currentUser != null) {
+        // Run immediately on login
+        checkAndDeclineUnpaidAppointments();
+
+        // Then run every 15 minutes
+        Timer.periodic(const Duration(minutes: 15), (_) {
+          checkAndDeclineUnpaidAppointments();
+        });
+      }
     });
   }
 
@@ -841,6 +849,73 @@ class DoctorAppointmentRequestController with ChangeNotifier {
       debugPrint('FirebaseAuthException code: ${e.code}');
       error = e;
       return Left(Exception(e.message));
+    }
+  }
+
+  //---------- CHECK AND DECLINE UNPAID APPOINTMENTS -----------
+  Future<void> checkAndDeclineUnpaidAppointments() async {
+    try {
+      debugPrint('Checking for unpaid confirmed appointments...');
+
+      // Get confirmed appointments
+      QuerySnapshot<Map<String, dynamic>> appointmentSnapshot = await firestore
+          .collection('appointments')
+          .where('doctorUid', isEqualTo: currentUser!.uid)
+          .where('appointmentStatus',
+              isEqualTo: AppointmentStatus.confirmed.index)
+          .get();
+
+      final oneHourAgo = DateTime.now().subtract(const Duration(hours: 1));
+      int declinedCount = 0;
+
+      for (var doc in appointmentSnapshot.docs) {
+        final data = doc.data();
+        final appointmentId = doc.id;
+
+        // Check if lastUpdatedAt exists and is more than 1 hour ago
+        if (data['lastUpdatedAt'] != null) {
+          final lastUpdated = (data['lastUpdatedAt'] as Timestamp).toDate();
+
+          if (lastUpdated.isBefore(oneHourAgo)) {
+            debugPrint(
+                'Found appointment approved more than 1 hour ago: $appointmentId');
+
+            // Check if payment exists
+            final paymentsSnapshot = await firestore
+                .collection('appointments')
+                .doc(appointmentId)
+                .collection('payments')
+                .get();
+
+            if (paymentsSnapshot.docs.isEmpty) {
+              debugPrint(
+                  'No payment found for appointment $appointmentId, declining...');
+
+              // Decline the appointment
+              await firestore
+                  .collection('appointments')
+                  .doc(appointmentId)
+                  .update({
+                'appointmentStatus': AppointmentStatus.declined.index,
+                'declinedAt': FieldValue.serverTimestamp(),
+                'declineReason':
+                    'Automatically declined due to payment not received within 1 hour.',
+                'lastUpdatedAt': FieldValue.serverTimestamp(),
+                'isViewed': false,
+              });
+
+              declinedCount++;
+            } else {
+              debugPrint(
+                  'Payment found for appointment $appointmentId, keeping as confirmed');
+            }
+          }
+        }
+      }
+
+      debugPrint('Auto-declined $declinedCount unpaid appointments');
+    } catch (e) {
+      debugPrint('Error checking for unpaid appointments: $e');
     }
   }
 }

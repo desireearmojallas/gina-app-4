@@ -4,9 +4,10 @@ import 'package:equatable/equatable.dart';
 class EmergencyAnnouncementModel extends Equatable {
   final String emergencyId;
   final String appointmentUid;
+  final List<String> appointmentUids;
   final String doctorUid;
-  final String patientUid;
-  final String patientName;
+  final List<String> patientUids;
+  final List<String> patientNames;
   final String message;
   final String createdBy;
   final String profileImage;
@@ -15,9 +16,10 @@ class EmergencyAnnouncementModel extends Equatable {
   const EmergencyAnnouncementModel({
     required this.emergencyId,
     required this.appointmentUid,
+    required this.appointmentUids,
     required this.doctorUid,
-    required this.patientUid,
-    required this.patientName,
+    required this.patientUids,
+    required this.patientNames,
     required this.message,
     required this.createdBy,
     required this.profileImage,
@@ -27,9 +29,10 @@ class EmergencyAnnouncementModel extends Equatable {
   static EmergencyAnnouncementModel empty = EmergencyAnnouncementModel(
       emergencyId: '',
       appointmentUid: '',
+      appointmentUids: const [],
       doctorUid: '',
-      patientUid: '',
-      patientName: '',
+      patientUids: const [],
+      patientNames: const [],
       message: '',
       createdBy: '',
       profileImage: '',
@@ -42,12 +45,36 @@ class EmergencyAnnouncementModel extends Equatable {
       json = snap.data() as Map<String, dynamic>;
     }
 
+    // Handle both old format (single patient) and new format (multiple patients)
+    List<String> patientUids = [];
+    List<String> patientNames = [];
+    List<String> appointmentUids = [];
+
+    if (json['patientUid'] != null) {
+      // Old format - single patient
+      patientUids = [json['patientUid'] ?? ''];
+      patientNames = [json['patientName'] ?? ''];
+      appointmentUids = [json['appointmentUid'] ?? ''];
+    } else {
+      // New format - multiple patients
+      patientUids = List<String>.from(json['patientUids'] ?? []);
+      patientNames = List<String>.from(json['patientNames'] ?? []);
+
+      // Handle appointmentUids if it exists, otherwise use the single appointmentUid
+      if (json['appointmentUids'] != null) {
+        appointmentUids = List<String>.from(json['appointmentUids'] ?? []);
+      } else {
+        appointmentUids = [json['appointmentUid'] ?? ''];
+      }
+    }
+
     return EmergencyAnnouncementModel(
       emergencyId: snap.id,
       appointmentUid: json['appointmentUid'] ?? '',
+      appointmentUids: appointmentUids,
       doctorUid: json['doctorUid'] ?? '',
-      patientUid: json['patientUid'] ?? '',
-      patientName: json['patientName'] ?? '',
+      patientUids: patientUids,
+      patientNames: patientNames,
       message: json['message'] ?? '',
       createdBy: json['createdBy'] ?? '',
       profileImage: json['profileImage'] ?? '',
@@ -56,12 +83,36 @@ class EmergencyAnnouncementModel extends Equatable {
   }
 
   factory EmergencyAnnouncementModel.fromJson(Map<String, dynamic> json) {
+    // Handle both old format (single patient) and new format (multiple patients)
+    List<String> patientUids = [];
+    List<String> patientNames = [];
+    List<String> appointmentUids = [];
+
+    if (json['patientUid'] != null) {
+      // Old format - single patient
+      patientUids = [json['patientUid'] ?? ''];
+      patientNames = [json['patientName'] ?? ''];
+      appointmentUids = [json['appointmentUid'] ?? ''];
+    } else {
+      // New format - multiple patients
+      patientUids = List<String>.from(json['patientUids'] ?? []);
+      patientNames = List<String>.from(json['patientNames'] ?? []);
+
+      // Handle appointmentUids if it exists, otherwise use the single appointmentUid
+      if (json['appointmentUids'] != null) {
+        appointmentUids = List<String>.from(json['appointmentUids'] ?? []);
+      } else {
+        appointmentUids = [json['appointmentUid'] ?? ''];
+      }
+    }
+
     return EmergencyAnnouncementModel(
       emergencyId: json['id'],
       appointmentUid: json['appointmentUid'] ?? '',
+      appointmentUids: appointmentUids,
       doctorUid: json['doctorUid'] ?? '',
-      patientUid: json['patientUid'] ?? '',
-      patientName: json['patientName'] ?? '',
+      patientUids: patientUids,
+      patientNames: patientNames,
       message: json['message'] ?? '',
       createdBy: json['createdBy'] ?? '',
       profileImage: json['profileImage'] ?? '',
@@ -73,9 +124,10 @@ class EmergencyAnnouncementModel extends Equatable {
     return {
       'id': emergencyId,
       'appointmentUid': appointmentUid,
+      'appointmentUids': appointmentUids,
       'doctorUid': doctorUid,
-      'patientUid': patientUid,
-      'patientName': patientName,
+      'patientUids': patientUids,
+      'patientNames': patientNames,
       'message': message,
       'createdBy': createdBy,
       'profileImage': profileImage,
@@ -87,9 +139,10 @@ class EmergencyAnnouncementModel extends Equatable {
   List<Object> get props => [
         emergencyId,
         appointmentUid,
+        appointmentUids,
         doctorUid,
-        patientUid,
-        patientName,
+        patientUids,
+        patientNames,
         message,
         createdBy,
         profileImage,
