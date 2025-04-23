@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,6 +12,7 @@ import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/ap
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/alert_dialog_for_approved_appointments_payment/screens/alert_dialog_for_approved_appointments_payment.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/emergency_notifications_alert_dialog/emergency_notifications_alert_dialog.dart';
+import 'package:gina_app_4/features/patient_features/emergency_announcements/1_controllers/emergency_announcement_controllers.dart';
 import 'package:gina_app_4/features/patient_features/emergency_announcements/2_views/bloc/emergency_announcements_bloc.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/screens/view_states/home_screen_loaded.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/bloc/home_bloc.dart';
@@ -217,28 +219,36 @@ class HomeScreen extends StatelessWidget {
               if (state is EmergencyAnnouncementsLoaded &&
                   !_isEmergencyDialogShown) {
                 if (state.emergencyAnnouncements.isNotEmpty) {
-                  // Find all unread announcements
-                  _pendingAnnouncements = state.emergencyAnnouncements
-                      .where((announcement) =>
-                          announcement.clickedByPatient != true)
-                      .toList();
+                  // Get current patient UID directly from Firebase Auth
+                  final currentPatientUid =
+                      FirebaseAuth.instance.currentUser?.uid;
+
+                  debugPrint(
+                      '🔍 HOME: Current patient UID: $currentPatientUid');
+
+                  // Find all unread announcements for this patient
+                  _pendingAnnouncements =
+                      state.emergencyAnnouncements.where((announcement) {
+                    // Check if this patient has already clicked this announcement
+                    if (currentPatientUid == null) {
+                      return false; // If no patient ID, don't show any (changed from true to false)
+                    }
+
+                    bool? hasClicked =
+                        announcement.clickedByPatients[currentPatientUid];
+                    debugPrint(
+                        '🔍 HOME: Announcement ${announcement.emergencyId} clicked status: $hasClicked');
+
+                    return hasClicked != true; // Show if not clicked
+                  }).toList();
+
+                  debugPrint(
+                      '🔍 HOME: Found ${_pendingAnnouncements.length} pending announcements');
 
                   // Show the first one if available
                   if (_pendingAnnouncements.isNotEmpty) {
                     showNextEmergencyAnnouncement(context);
                   }
-                }
-              }
-
-              if (state is EmergencyNotificationReceivedState &&
-                  !_isEmergencyDialogShown &&
-                  state.announcement.clickedByPatient != true) {
-                // Add the new announcement to our pending list
-                _pendingAnnouncements.add(state.announcement);
-
-                // Show it if we're not already showing something
-                if (!_isEmergencyDialogShown) {
-                  showNextEmergencyAnnouncement(context);
                 }
               }
             },

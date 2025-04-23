@@ -27,13 +27,12 @@ class SelectPatientsEvent extends DoctorEmergencyAnnouncementsEvent {
 class NavigateToDoctorCreatedAnnouncementEvent
     extends DoctorEmergencyAnnouncementsEvent {
   final EmergencyAnnouncementModel emergencyAnnouncement;
-  final String appointmentUid;
 
   const NavigateToDoctorCreatedAnnouncementEvent(
-      {required this.emergencyAnnouncement, required this.appointmentUid});
+      {required this.emergencyAnnouncement});
 
   @override
-  List<Object> get props => [emergencyAnnouncement, appointmentUid];
+  List<Object> get props => [emergencyAnnouncement];
 }
 
 class CreateEmergencyAnnouncementEvent

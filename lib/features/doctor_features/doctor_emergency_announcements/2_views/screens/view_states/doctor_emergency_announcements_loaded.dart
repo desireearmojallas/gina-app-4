@@ -136,7 +136,6 @@ class DoctorEmergencyAnnouncementsLoadedScreen extends StatelessWidget {
                                 doctorEmergencyAnnouncementsBloc.add(
                                   NavigateToDoctorCreatedAnnouncementEvent(
                                     emergencyAnnouncement: announcement,
-                                    appointmentUid: announcement.appointmentUid,
                                   ),
                                 );
                               },
@@ -185,36 +184,47 @@ class DoctorEmergencyAnnouncementsLoadedScreen extends StatelessWidget {
                                                 ),
                                               ),
                                               const Gap(10),
-                                              if (announcement.patientNames.length == 1)
+                                              if (announcement
+                                                      .patientNames.length ==
+                                                  1)
                                                 Text(
-                                                  announcement.patientNames.first,
+                                                  announcement
+                                                      .patientNames.first,
                                                   style: ginaTheme.bodyMedium
                                                       ?.copyWith(
                                                     fontWeight: FontWeight.bold,
                                                   ),
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 )
                                               else
                                                 Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
                                                       '${announcement.patientNames.length} patients',
-                                                      style: ginaTheme.bodyMedium
+                                                      style: ginaTheme
+                                                          .bodyMedium
                                                           ?.copyWith(
-                                                        fontWeight: FontWeight.bold,
+                                                        fontWeight:
+                                                            FontWeight.bold,
                                                       ),
-                                                      overflow: TextOverflow.ellipsis,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
                                                     ),
                                                     const Gap(4),
                                                     Text(
-                                                      announcement.patientNames.join(', '),
+                                                      announcement.patientNames
+                                                          .join(', '),
                                                       style: ginaTheme.bodySmall
                                                           ?.copyWith(
-                                                        color: GinaAppTheme.lightOutline,
+                                                        color: GinaAppTheme
+                                                            .lightOutline,
                                                       ),
                                                       maxLines: 1,
-                                                      overflow: TextOverflow.ellipsis,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
                                                     ),
                                                   ],
                                                 ),

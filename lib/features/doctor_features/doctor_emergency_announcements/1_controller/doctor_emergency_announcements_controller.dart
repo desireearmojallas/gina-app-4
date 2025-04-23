@@ -74,21 +74,27 @@ class DoctorEmergencyAnnouncementsController with ChangeNotifier {
   }
 
   Future<Either<Exception, bool>> createEmergencyAnnouncement({
-    required String appointmentUid,
+    required List<String> appointmentUids,
     required List<String> patientUids,
     required String emergencyMessage,
     required List<String> patientNames,
-    List<String>? appointmentUids,
+    required Map<String, String>
+        patientToAppointmentMap, // Now required: Maps patientUid to appointmentUid
   }) async {
     try {
       debugPrint(
           'Creating emergency announcement for ${patientUids.length} patients');
       debugPrint('Patient UIDs: $patientUids');
       debugPrint('Patient Names: $patientNames');
+      debugPrint('Appointment UIDs: $appointmentUids');
 
-      // If appointmentUids is not provided, use the single appointmentUid
-      List<String> finalAppointmentUids = appointmentUids ?? [appointmentUid];
-      debugPrint('Appointment UIDs: $finalAppointmentUids');
+      // Validate that all patients have an appointment mapping
+      final unmappedPatients = patientUids.where(
+          (patientUid) => !patientToAppointmentMap.containsKey(patientUid));
+      if (unmappedPatients.isNotEmpty) {
+        return Left(Exception(
+            'Some patients are missing appointment mappings: ${unmappedPatients.join(", ")}'));
+      }
 
       final currentUserModel = await firestore
           .collection('doctors')
@@ -103,11 +109,16 @@ class DoctorEmergencyAnnouncementsController with ChangeNotifier {
 
       debugPrint('Created document reference with ID: ${docRef.id}');
 
+      // Initialize clickedByPatients map with all patients set to false (unclicked)
+      Map<String, bool> clickedByPatients = {};
+      for (String patientUid in patientUids) {
+        clickedByPatients[patientUid] = false;
+      }
+
       // Save to the same reference we created
       await docRef.set({
         'id': docRef.id,
-        'appointmentUid': appointmentUid,
-        'appointmentUids': finalAppointmentUids,
+        'appointmentUids': appointmentUids,
         'doctorUid': currentUser!.uid,
         'patientUids': patientUids,
         'patientNames': patientNames,
@@ -115,6 +126,8 @@ class DoctorEmergencyAnnouncementsController with ChangeNotifier {
         'createdBy': currentUserModel.name,
         'profileImage': '',
         'createdAt': Timestamp.now(),
+        'clickedByPatients': clickedByPatients,
+        'patientToAppointmentMap': patientToAppointmentMap,
       });
 
       debugPrint('Successfully created emergency announcement document');

@@ -214,27 +214,143 @@ class EmergencyAnnouncementsController with ChangeNotifier {
     return controller.stream;
   }
 
-  Future<void> markAnnouncementAsClicked(String announcementId) async {
+  Future<void> markAnnouncementAsClicked({
+    required String emergencyId,
+    required String patientUid,
+  }) async {
     try {
-      if (announcementId.isEmpty) {
+      debugPrint('⭐️ CONTROLLER: markAnnouncementAsClicked called');
+      debugPrint('⭐️ CONTROLLER: emergencyId = $emergencyId');
+      debugPrint('⭐️ CONTROLLER: patientUid = $patientUid');
+
+      if (emergencyId.isEmpty || patientUid.isEmpty) {
         debugPrint(
-            'Cannot mark announcement as clicked: Empty announcement ID');
+            '⛔️ CONTROLLER: Cannot mark announcement as clicked: Empty ID or UID');
         return;
       }
 
-      await firestore
-          .collection('emergencyAnnouncements')
-          .where('id', isEqualTo: announcementId)
-          .get()
-          .then((querySnapshot) {
-        for (var doc in querySnapshot.docs) {
-          doc.reference.update({'clickedByPatient': true});
-          debugPrint(
-              'Marked announcement $announcementId as clicked by patient');
-        }
+      // Direct reference to the exact document
+      final announcementRef =
+          firestore.collection('emergencyAnnouncements').doc(emergencyId);
+
+      debugPrint('⭐️ CONTROLLER: Getting document snapshot...');
+
+      // First fetch the current document
+      final docSnapshot = await announcementRef.get();
+      if (!docSnapshot.exists) {
+        debugPrint('⛔️ CONTROLLER: Document does not exist: $emergencyId');
+        return;
+      }
+
+      debugPrint('⭐️ CONTROLLER: Document exists! ID: ${docSnapshot.id}');
+
+      final data = docSnapshot.data();
+      if (data == null) {
+        debugPrint('⛔️ CONTROLLER: Document data is null');
+        return;
+      }
+
+      // Verify if clickedByPatients exists
+      if (data['clickedByPatients'] != null) {
+        debugPrint(
+            '⭐️ CONTROLLER: Current clickedByPatients: ${data['clickedByPatients']}');
+      } else {
+        debugPrint(
+            '⚠️ CONTROLLER: clickedByPatients does not exist in the document! Creating new map.');
+      }
+
+      // Get the existing clickedByPatients map or create a new one
+      Map<String, dynamic> clickedByPatients = {};
+      if (data['clickedByPatients'] != null) {
+        clickedByPatients =
+            Map<String, dynamic>.from(data['clickedByPatients']);
+      }
+
+      // Update the patient's status
+      clickedByPatients[patientUid] = true;
+      debugPrint(
+          '⭐️ CONTROLLER: Updated clickedByPatients: $clickedByPatients');
+
+      // Update the document with the modified map
+      await announcementRef.update({
+        'clickedByPatients': clickedByPatients,
       });
+
+      debugPrint('✅ CONTROLLER: Document updated successfully!');
+
+      // Verify the update
+      final verifyDoc = await firestore
+          .collection('emergencyAnnouncements')
+          .doc(emergencyId)
+          .get();
+      final verifyData = verifyDoc.data();
+      if (verifyData != null && verifyData['clickedByPatients'] != null) {
+        debugPrint(
+            '✅ CONTROLLER: Verified clickedByPatients after update: ${verifyData['clickedByPatients']}');
+      }
     } catch (e) {
-      debugPrint('Error marking announcement as clicked: $e');
+      debugPrint(
+          '❌ CONTROLLER ERROR: Failed to mark announcement as clicked: $e');
+      rethrow; // Re-throw to let the bloc handle it
     }
+  }
+
+  Future<String?> findAppointmentForPatient(
+      EmergencyAnnouncementModel announcement, String? patientUid) async {
+    if (patientUid == null) return null;
+
+    debugPrint('🔍 Finding appointment for patient: $patientUid');
+
+    // Strategy 1: Try the direct mapping (new format)
+    if (announcement.patientToAppointmentMap.containsKey(patientUid)) {
+      final appointmentUid = announcement.patientToAppointmentMap[patientUid];
+      debugPrint('✅ Found via patient map: $appointmentUid');
+      return appointmentUid;
+    }
+
+    // Strategy 2: Try array index matching
+    if (announcement.patientUids.isNotEmpty) {
+      int patientIndex =
+          announcement.patientUids.indexWhere((uid) => uid == patientUid);
+
+      if (patientIndex != -1 &&
+          patientIndex < announcement.appointmentUids.length) {
+        final appointmentUid = announcement.appointmentUids[patientIndex];
+        debugPrint('✅ Found via array index: $appointmentUid');
+        return appointmentUid;
+      }
+    }
+
+    // Strategy 3: Query appointments collection (for old format)
+    if (announcement.appointmentUids.isNotEmpty) {
+      try {
+        for (String appointmentUid in announcement.appointmentUids) {
+          final appointmentDoc = await firestore
+              .collection('appointments')
+              .doc(appointmentUid)
+              .get();
+
+          if (appointmentDoc.exists) {
+            final data = appointmentDoc.data();
+            if (data != null && data['patientUid'] == patientUid) {
+              debugPrint('✅ Found via Firestore query: $appointmentUid');
+              return appointmentUid;
+            }
+          }
+        }
+      } catch (e) {
+        debugPrint('⚠️ Error querying appointments: $e');
+      }
+    }
+
+    // Fallback: Just return the first appointment UID
+    if (announcement.appointmentUids.isNotEmpty) {
+      debugPrint(
+          '⚠️ Fallback to first appointment: ${announcement.appointmentUids.first}');
+      return announcement.appointmentUids.first;
+    }
+
+    debugPrint('❌ No appointment found for patient');
+    return null;
   }
 }

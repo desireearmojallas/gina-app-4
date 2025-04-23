@@ -19,10 +19,14 @@ class EmergencyNotificationReceivedEvent extends EmergencyAnnouncementsEvent {
 }
 
 class MarkAnnouncementAsClickedEvent extends EmergencyAnnouncementsEvent {
-  final String announcementId;
+  final String emergencyId;
+  final String patientUid;
 
-  const MarkAnnouncementAsClickedEvent(this.announcementId);
+  const MarkAnnouncementAsClickedEvent({
+    required this.emergencyId,
+    required this.patientUid,
+  });
 
   @override
-  List<Object> get props => [announcementId];
+  List<Object> get props => [emergencyId, patientUid];
 }

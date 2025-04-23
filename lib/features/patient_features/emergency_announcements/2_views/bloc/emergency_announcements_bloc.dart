@@ -86,6 +86,28 @@ class EmergencyAnnouncementsBloc
     MarkAnnouncementAsClickedEvent event,
     Emitter<EmergencyAnnouncementsState> emit,
   ) async {
-    await emergencyController.markAnnouncementAsClicked(event.announcementId);
+    debugPrint('📣 BLOC: onMarkAnnouncementAsClicked called');
+    debugPrint('📣 BLOC: emergencyId = ${event.emergencyId}');
+    debugPrint('📣 BLOC: patientUid = ${event.patientUid}');
+
+    try {
+      debugPrint('📣 BLOC: Calling controller.markAnnouncementAsClicked...');
+      await emergencyController.markAnnouncementAsClicked(
+        emergencyId: event.emergencyId,
+        patientUid: event.patientUid,
+      );
+      debugPrint('📣 BLOC: Controller method completed successfully');
+
+      // Optionally emit a success state or refresh announcements
+      // emit(AnnouncementMarkedAsClickedState(event.emergencyId, event.patientUid));
+
+      // Refresh the announcements list to show updated status
+      add(GetEmergencyAnnouncements());
+    } catch (e) {
+      debugPrint('❌ BLOC ERROR: Error marking announcement as clicked: $e');
+
+      // Optionally emit an error state
+      // emit(EmergencyAnnouncementsError('Failed to mark announcement as clicked: $e'));
+    }
   }
 }

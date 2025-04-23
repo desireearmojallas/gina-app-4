@@ -128,22 +128,33 @@ class DoctorEmergencyAnnouncementsBloc extends Bloc<
   FutureOr<void> navigateToDoctorCreatedAnnouncementEvent(
       NavigateToDoctorCreatedAnnouncementEvent event,
       Emitter<DoctorEmergencyAnnouncementsState> emit) async {
-    final appointment = await doctorEmergencyAnnouncementsController
-        .getChosenAppointment(event.appointmentUid);
+    // Now you have the whole announcement model
+    final announcement = event.emergencyAnnouncement;
 
-    chosenAppointment = appointment.fold(
-      (failure) {
-        emit(DoctorEmergencyAnnouncementsError(
-            errorMessage: failure.toString()));
-        return null;
-      },
-      (appointment) {
-        return appointment;
-      },
-    );
+    // You can access appointment IDs as needed:
+    final appointmentUids = announcement.appointmentUids;
 
+    // If you need a specific appointment for compatibility with existing code:
+    final firstAppointmentUid =
+        appointmentUids.isNotEmpty ? appointmentUids.first : null;
+
+    if (firstAppointmentUid != null) {
+      final appointmentResult = await doctorEmergencyAnnouncementsController
+          .getChosenAppointment(firstAppointmentUid);
+
+      chosenAppointment = appointmentResult.fold(
+        (failure) {
+          emit(DoctorEmergencyAnnouncementsError(
+              errorMessage: failure.toString()));
+          return null;
+        },
+        (appointment) => appointment,
+      );
+    }
+
+    // Continue with your navigation logic
     emit(NavigateToDoctorCreatedAnnouncementState(
-      emergencyAnnouncement: event.emergencyAnnouncement,
+      emergencyAnnouncement: announcement,
     ));
   }
 
@@ -197,25 +208,32 @@ class DoctorEmergencyAnnouncementsBloc extends Bloc<
     List<String> appointmentUids =
         selectedAppointments.map((a) => a.appointmentUid!).toList();
 
-    // Use the first appointment's UID as the appointmentUid (for backward compatibility)
-    String appointmentUid = selectedAppointments.first.appointmentUid!;
+    // Create patient to appointment mapping
+    Map<String, String> patientToAppointmentMap = {};
+    for (var appointment in selectedAppointments) {
+      if (appointment.patientUid != null &&
+          appointment.appointmentUid != null) {
+        patientToAppointmentMap[appointment.patientUid!] =
+            appointment.appointmentUid!;
+      }
+    }
 
     debugPrint('Creating emergency announcement with:');
-    debugPrint('- Appointment UID: $appointmentUid');
     debugPrint('- Appointment UIDs: $appointmentUids');
     debugPrint('- Patient UIDs: $patientUids');
     debugPrint('- Patient Names: $patientNames');
+    debugPrint('- Patient to Appointment Map: $patientToAppointmentMap');
     debugPrint('- Message: ${event.message}');
 
     // Create a single emergency announcement for all selected patients
     final createEmergencyAnnouncement =
         await doctorEmergencyAnnouncementsController
             .createEmergencyAnnouncement(
-      appointmentUid: appointmentUid,
       appointmentUids: appointmentUids,
       patientUids: patientUids,
       emergencyMessage: event.message,
       patientNames: patientNames,
+      patientToAppointmentMap: patientToAppointmentMap,
     );
 
     createEmergencyAnnouncement.fold(
