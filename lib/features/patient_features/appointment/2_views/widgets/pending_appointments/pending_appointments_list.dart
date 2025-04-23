@@ -23,13 +23,13 @@ class PendingAppointmentsList extends StatelessWidget {
     }
 
     final sortedYears = groupedAppointmentsByYear.keys.toList()
-      ..sort((a, b) => b.compareTo(a));
+      ..sort((a, b) => a.compareTo(b));
 
     for (var year in sortedYears) {
       groupedAppointmentsByYear[year]!.sort((a, b) {
         final dateA = DateFormat('MMMM d, yyyy').parse(a.appointmentDate!);
         final dateB = DateFormat('MMMM d, yyyy').parse(b.appointmentDate!);
-        return dateB.compareTo(dateA);
+        return dateA.compareTo(dateB);
       });
     }
 
