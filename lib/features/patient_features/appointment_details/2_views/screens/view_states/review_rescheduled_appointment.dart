@@ -130,7 +130,7 @@ class ReviewRescheduledAppointmentScreen extends StatelessWidget {
                                       Expanded(
                                         flex: 3,
                                         child: Text(
-                                          appointmentModel
+                                          updatedAppointmentModel
                                                   .reasonForAppointment ??
                                               'Not specified',
                                           style: valueStyle,
