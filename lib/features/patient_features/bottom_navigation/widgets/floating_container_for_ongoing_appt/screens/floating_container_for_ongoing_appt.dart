@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,7 +6,6 @@ import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
-import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/1_controllers/appointment_controller.dart';
@@ -63,6 +63,86 @@ class FloatingContainerForOnGoingAppointment extends StatelessWidget {
       final appointmentDetails =
           await appointmentController.getAppointmentDetailsNew(appointmentUid);
       if (appointmentDetails != null) {
+        // Add payment verification here
+        final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+        // Check both payment collections
+        final pendingPaymentDoc = await firestore
+            .collection('pending_payments')
+            .doc(appointmentUid)
+            .get();
+
+        final appointmentPaymentsSnapshot = await firestore
+            .collection('appointments')
+            .doc(appointmentUid)
+            .collection('payments')
+            .get();
+
+        bool isPaid = false;
+
+        // Check pending_payments first
+        if (pendingPaymentDoc.exists) {
+          final status = pendingPaymentDoc.data()?['status'] as String? ?? '';
+          isPaid = status.toLowerCase() == 'paid';
+        }
+
+        // If not found in pending_payments, check appointments/payments
+        if (!isPaid && appointmentPaymentsSnapshot.docs.isNotEmpty) {
+          final status = appointmentPaymentsSnapshot.docs.first.data()['status']
+                  as String? ??
+              '';
+          isPaid = status.toLowerCase() == 'paid';
+        }
+
+        if (!isPaid && context.mounted) {
+          // Show payment required dialog
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                title: Row(
+                  children: [
+                    const Icon(
+                      Icons.warning_amber_rounded,
+                      color: Colors.orange,
+                      size: 24,
+                    ),
+                    const Gap(8),
+                    Text(
+                      'Payment Required',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: GinaAppTheme.lightOnPrimaryColor,
+                          ),
+                    ),
+                  ],
+                ),
+                content: const Text(
+                  'Please complete the payment for this appointment before accessing the consultation room.',
+                  style: TextStyle(fontSize: 14),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(
+                      'OK',
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+          return; // Exit early if payment is not verified
+        }
+
+        // Continue with the existing code for time verification
         final DateFormat dateFormat = DateFormat('MMMM d, yyyy');
         final DateFormat timeFormat = DateFormat('hh:mm a');
         final DateTime now = DateTime.now();
@@ -80,9 +160,6 @@ class FloatingContainerForOnGoingAppointment extends StatelessWidget {
           endTime.hour,
           endTime.minute,
         );
-
-        debugPrint('Current time: $now');
-        debugPrint('Appointment end time: $appointmentEndDateTime');
 
         if (now.isBefore(appointmentEndDateTime)) {
           debugPrint('Marking appointment as visited for UID: $appointmentUid');
@@ -162,7 +239,6 @@ class FloatingContainerForOnGoingAppointment extends StatelessWidget {
   // Replace the build method in FloatingContainerForOnGoingAppointment class
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     final appointmentsBloc = context.read<AppointmentBloc>();
     final AppointmentController appointmentController = AppointmentController();
 
@@ -272,14 +348,27 @@ class FloatingContainerForOnGoingAppointment extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 2),
-                          Text(
-                            isToday(appointment.appointmentDate!)
-                                ? 'Today • ${appointment.appointmentTime}'
-                                : '${appointment.appointmentDate} • ${appointment.appointmentTime}',
-                            style: const TextStyle(
-                              fontSize: 9,
-                              color: Colors.grey,
-                            ),
+                          Row(
+                            children: [
+                              Text(
+                                isToday(appointment.appointmentDate!)
+                                    ? 'Today • ${appointment.appointmentTime}'
+                                    : '${appointment.appointmentDate} • ${appointment.appointmentTime}',
+                                style: const TextStyle(
+                                  fontSize: 9,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              const Gap(5),
+                              Text(
+                                '| ${appointment.appointmentUid}',
+                                style: const TextStyle(
+                                  fontSize: 9,
+                                  color: Colors.grey,
+                                  overflow: TextOverflow.fade,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),

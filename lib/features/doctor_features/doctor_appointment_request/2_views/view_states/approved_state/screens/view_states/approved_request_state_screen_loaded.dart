@@ -36,10 +36,10 @@ class ApprovedRequestStateScreenLoaded extends StatelessWidget {
       try {
         final parsedA = DateFormat('h:mm a').parse(startA);
         final parsedB = DateFormat('h:mm a').parse(startB);
-        return parsedB
-            .compareTo(parsedA); // Reversed comparison for descending order
+        return parsedA
+            .compareTo(parsedB); // Reversed comparison for descending order
       } catch (e) {
-        return startB.compareTo(startA); // Reversed for descending order
+        return startA.compareTo(startB); // Reversed for descending order
       }
     });
 
@@ -60,7 +60,7 @@ class ApprovedRequestStateScreenLoaded extends StatelessWidget {
     final approvedRequestBloc = context.read<ApprovedRequestStateBloc>();
     var dates = approvedRequests.keys.toList();
     // Sort dates in descending order (latest to earliest)
-    dates.sort((a, b) => b.compareTo(a));
+    dates.sort((a, b) => a.compareTo(b));
 
     final size = MediaQuery.of(context).size;
     final ginaTheme = Theme.of(context);

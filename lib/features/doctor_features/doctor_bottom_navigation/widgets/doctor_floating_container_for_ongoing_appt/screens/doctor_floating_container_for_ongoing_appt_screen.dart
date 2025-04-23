@@ -39,6 +39,90 @@ class DoctorFloatingContainerForOnGoingAppointment extends StatelessWidget {
       DoctorEconsultBloc doctorEConsultBloc) async {
     HapticFeedback.mediumImpact();
 
+    final appointmentUid = appointment.appointmentUid;
+
+    // Add payment verification here
+    if (appointmentUid != null) {
+      final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+      // Check both payment collections
+      final pendingPaymentDoc = await firestore
+          .collection('pending_payments')
+          .doc(appointmentUid)
+          .get();
+
+      final appointmentPaymentsSnapshot = await firestore
+          .collection('appointments')
+          .doc(appointmentUid)
+          .collection('payments')
+          .get();
+
+      bool isPaid = false;
+
+      // Check pending_payments first
+      if (pendingPaymentDoc.exists) {
+        final status = pendingPaymentDoc.data()?['status'] as String? ?? '';
+        isPaid = status.toLowerCase() == 'paid';
+      }
+
+      // If not found in pending_payments, check appointments/payments
+      if (!isPaid && appointmentPaymentsSnapshot.docs.isNotEmpty) {
+        final status = appointmentPaymentsSnapshot.docs.first.data()['status']
+                as String? ??
+            '';
+        isPaid = status.toLowerCase() == 'paid';
+      }
+
+      if (!isPaid && context.mounted) {
+        // Show payment required dialog
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Row(
+                children: [
+                  const Icon(
+                    Icons.warning_amber_rounded,
+                    color: Colors.orange,
+                    size: 24,
+                  ),
+                  const Gap(8),
+                  Text(
+                    'Payment Required',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: GinaAppTheme.lightOnPrimaryColor,
+                        ),
+                  ),
+                ],
+              ),
+              content: const Text(
+                'Patient has not completed payment for this appointment. Consultation cannot begin until payment is verified.',
+                style: TextStyle(fontSize: 14),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'OK',
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+        return; // Exit early if payment is not verified
+      }
+    }
+
+    // Continue with existing functionality if payment is verified
     selectedPatientUid = appointment.patientUid;
 
     doctorEConsultBloc
@@ -253,14 +337,27 @@ class DoctorFloatingContainerForOnGoingAppointment extends StatelessWidget {
                                   const Gap(2),
                                   SizedBox(
                                     width: size.width * 0.5,
-                                    child: Text(
-                                      isToday(appointment.appointmentDate!)
-                                          ? 'Today • ${appointment.appointmentTime}'
-                                          : '${appointment.appointmentDate} • ${appointment.appointmentTime}',
-                                      style: const TextStyle(
-                                        fontSize: 9,
-                                        color: Colors.grey,
-                                      ),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          isToday(appointment.appointmentDate!)
+                                              ? 'Today • ${appointment.appointmentTime}'
+                                              : '${appointment.appointmentDate} • ${appointment.appointmentTime}',
+                                          style: const TextStyle(
+                                            fontSize: 9,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        const Gap(5),
+                                        Text(
+                                          '| ${appointment.appointmentUid}',
+                                          style: const TextStyle(
+                                            fontSize: 9,
+                                            color: Colors.grey,
+                                            overflow: TextOverflow.fade,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
