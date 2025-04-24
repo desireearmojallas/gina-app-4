@@ -127,6 +127,12 @@ class ConsultationHistoryDetailScreen extends StatelessWidget {
                           onPaymentCreated: (invoiceUrl) {
                             bookAppointmentBloc.currentInvoiceUrl = invoiceUrl;
                           },
+                          platformFeePercentage:
+                              appointment.platformFeePercentage ?? 0.0,
+                          platformFeeAmount:
+                              appointment.platformFeeAmount ?? 0.0,
+                          totalAmount: appointment.totalAmount ??
+                              (appointment.amount ?? 0.0),
                         ),
                       );
                     }
@@ -260,6 +266,7 @@ class ConsultationHistoryDetailScreen extends StatelessWidget {
                             labelStyle!,
                             valueStyle!,
                             context,
+                            size,
                           ),
                           divider,
                           headerWidget(
@@ -444,6 +451,7 @@ class ConsultationHistoryDetailScreen extends StatelessWidget {
     TextStyle labelStyle,
     TextStyle valueStyle,
     BuildContext context,
+    Size size,
   ) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
@@ -452,57 +460,97 @@ class ConsultationHistoryDetailScreen extends StatelessWidget {
           .collection('payments')
           .snapshots(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(20.0),
-              child: CustomLoadingIndicator(),
-            ),
-          );
-        }
-
         if (snapshot.hasError) {
           debugPrint('Error loading payment details: ${snapshot.error}');
-          return Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Text(
-              'Unable to load payment details',
-              style: TextStyle(color: Colors.red[300]),
-            ),
-          );
+          return const SizedBox.shrink();
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           debugPrint('No payment details available');
-          return const Padding(
-            padding: EdgeInsets.all(20.0),
-            child: Text('No payment details available for this appointment'),
-          );
+          return const SizedBox.shrink();
         }
 
         final paymentData =
             snapshot.data!.docs.first.data() as Map<String, dynamic>;
         final paymentStatus = paymentData['status'] as String? ?? '';
         final refundStatus = paymentData['refundStatus'] as String?;
-        final amount = paymentData['amount'] as double? ?? 0.0;
+        final amount = appointment.amount ?? 0.0;
+        // Extract platform fee details
+        final platformFeePercentage =
+            paymentData['platformFeePercentage'] as double? ??
+                appointment.platformFeePercentage ??
+                0.0;
+        final platformFeeAmount = paymentData['platformFeeAmount'] as double? ??
+            appointment.platformFeeAmount ??
+            0.0;
+
+        // Calculate effective platform fee amount
+        final effectivePlatformFeeAmount = platformFeeAmount > 0
+            ? platformFeeAmount
+            : (platformFeePercentage > 0
+                ? amount * platformFeePercentage
+                : 0.0);
+
+        // Get the totalAmount with proper backward compatibility check
+        double? rawTotalAmount = paymentData['totalAmount'] as double?;
+        final totalAmount =
+            // If totalAmount exists and is not 0, use it directly
+            (rawTotalAmount != null && rawTotalAmount > 0.0)
+                ? rawTotalAmount
+                // Otherwise fall back to amount + platform fee
+                : amount + effectivePlatformFeeAmount;
         final refundAmount = paymentData['refundAmount'] as double?;
         final paymentMethod =
             paymentData['paymentMethod'] as String? ?? 'Xendit';
+        final invoiceId = paymentData['invoiceId'] as String?;
         final linkedAt = paymentData['linkedAt'] as Timestamp?;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Gap(20),
+            // Base Fee row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Amount Paid',
+                  'Base Fee',
                   style: labelStyle,
                 ),
                 Text(
                   '₱${NumberFormat('#,##0.00').format(amount)}',
+                  style: valueStyle,
+                ),
+              ],
+            ),
+            const Gap(15),
+            // Platform Fee row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Platform Fee (${(platformFeePercentage * 100).toInt()}%)',
+                  style: labelStyle,
+                ),
+                Text(
+                  '₱${NumberFormat('#,##0.00').format(platformFeeAmount)}',
+                  style: valueStyle,
+                ),
+              ],
+            ),
+            const Gap(15),
+            // Total Amount row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Total Amount',
+                  style: labelStyle.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '₱${NumberFormat('#,##0.00').format(totalAmount)}',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.green,
                         fontWeight: FontWeight.bold,
@@ -511,6 +559,7 @@ class ConsultationHistoryDetailScreen extends StatelessWidget {
               ],
             ),
             const Gap(15),
+            // Payment Status row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -546,10 +595,14 @@ class ConsultationHistoryDetailScreen extends StatelessWidget {
                   'Payment Method',
                   style: labelStyle,
                 ),
-                Text(
-                  paymentMethod,
-                  style: valueStyle.copyWith(
-                    fontWeight: FontWeight.bold,
+                SizedBox(
+                  width: size.width * 0.45,
+                  child: Text(
+                    paymentMethod,
+                    style: valueStyle.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.end,
                   ),
                 ),
               ],

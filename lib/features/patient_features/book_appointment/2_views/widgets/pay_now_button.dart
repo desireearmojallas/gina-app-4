@@ -20,6 +20,9 @@ class PayNowButton extends StatefulWidget {
   final String patientName;
   final int modeOfAppointment;
   final double amount;
+  final double platformFeePercentage;
+  final double platformFeeAmount;
+  final double totalAmount;
   final String appointmentDate;
   final String doctorId;
   final Function(String) onPaymentCreated;
@@ -34,6 +37,9 @@ class PayNowButton extends StatefulWidget {
     required this.appointmentDate,
     required this.doctorId,
     required this.onPaymentCreated,
+    required this.platformFeePercentage,
+    required this.platformFeeAmount,
+    required this.totalAmount,
   });
 
   @override
@@ -79,6 +85,9 @@ class _PayNowButtonState extends State<PayNowButton> {
         doctorName: widget.doctorName,
         patientName: widget.patientName,
         amount: widget.amount,
+        platformFeePercentage: widget.platformFeePercentage,
+        platformFeeAmount: widget.platformFeeAmount,
+        totalAmount: widget.totalAmount,
         appointmentDate: widget.appointmentDate,
         consultationType: widget.modeOfAppointment == 0
             ? 'Online Consultation'
@@ -215,6 +224,9 @@ class _PayNowButtonState extends State<PayNowButton> {
           await _paymentService.linkPaymentToAppointment(
             widget.appointmentId,
             widget.appointmentId,
+            widget.platformFeePercentage,
+            widget.platformFeeAmount,
+            widget.totalAmount,
             doctorId: widget.doctorId,
           );
 
@@ -247,7 +259,6 @@ class _PayNowButtonState extends State<PayNowButton> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final bookAppointmentBloc = context.read<BookAppointmentBloc>();
 
     return Container(
       width: size.width,
@@ -295,6 +306,9 @@ class _PayNowButtonState extends State<PayNowButton> {
                           patientName: widget.patientName,
                           modeOfAppointment: widget.modeOfAppointment,
                           amount: widget.amount,
+                          platformFeePercentage: widget.platformFeePercentage,
+                          platformFeeAmount: widget.platformFeeAmount,
+                          totalAmount: widget.totalAmount,
                           appointmentDate: widget.appointmentDate,
                           existingInvoiceUrl: _invoiceUrl,
                           showReceipt: true,
@@ -331,6 +345,10 @@ class _PayNowButtonState extends State<PayNowButton> {
                               patientName: widget.patientName,
                               modeOfAppointment: widget.modeOfAppointment,
                               amount: widget.amount,
+                              platformFeePercentage:
+                                  widget.platformFeePercentage,
+                              platformFeeAmount: widget.platformFeeAmount,
+                              totalAmount: widget.totalAmount,
                               appointmentDate: widget.appointmentDate,
                               existingInvoiceUrl: pendingPayment['invoiceUrl'],
                               showReceipt: true,
@@ -399,8 +417,20 @@ class _PayNowButtonState extends State<PayNowButton> {
                                 ),
                                 const Gap(8),
                                 _buildReceiptRow(
-                                  'Amount',
+                                  'Base Fee',
                                   '₱${NumberFormat('#,##0.00').format(widget.amount)}',
+                                  context,
+                                ),
+                                const Gap(8),
+                                _buildReceiptRow(
+                                  'Platform Fee (${(widget.platformFeePercentage * 100).toInt()}%)',
+                                  '₱${NumberFormat('#,##0.00').format(widget.platformFeeAmount)}',
+                                  context,
+                                ),
+                                const Gap(8),
+                                _buildReceiptRow(
+                                  'Total Amount',
+                                  '₱${NumberFormat('#,##0.00').format(widget.totalAmount)}',
                                   context,
                                   valueColor: Colors.green,
                                   valueBold: true,
@@ -476,10 +506,13 @@ class _PayNowButtonState extends State<PayNowButton> {
                                       modeOfAppointment:
                                           widget.modeOfAppointment,
                                       amount: widget.amount,
+                                      platformFeePercentage:
+                                          widget.platformFeePercentage,
+                                      platformFeeAmount:
+                                          widget.platformFeeAmount,
+                                      totalAmount: widget.totalAmount,
                                       appointmentDate: widget.appointmentDate,
-                                      existingInvoiceUrl: context
-                                          .read<BookAppointmentBloc>()
-                                          .currentInvoiceUrl,
+                                      existingInvoiceUrl: _invoiceUrl,
                                       showReceipt: true,
                                     ),
                                   ),
@@ -511,6 +544,9 @@ class _PayNowButtonState extends State<PayNowButton> {
                             patientName: widget.patientName,
                             modeOfAppointment: widget.modeOfAppointment,
                             amount: widget.amount,
+                            platformFeePercentage: widget.platformFeePercentage,
+                            platformFeeAmount: widget.platformFeeAmount,
+                            totalAmount: widget.totalAmount,
                             appointmentDate: widget.appointmentDate,
                             existingInvoiceUrl:
                                 bookAppointmentBloc.currentInvoiceUrl,

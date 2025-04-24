@@ -18,6 +18,9 @@ class PatientPaymentScreenInitial extends StatefulWidget {
   final String patientName;
   final int modeOfAppointment;
   final double amount;
+  final double platformFeePercentage;
+  final double platformFeeAmount;
+  final double totalAmount;
   final String appointmentDate;
   final String? existingInvoiceUrl;
   final bool showReceipt;
@@ -31,6 +34,9 @@ class PatientPaymentScreenInitial extends StatefulWidget {
     required this.modeOfAppointment,
     required this.amount,
     required this.appointmentDate,
+    required this.platformFeePercentage,
+    required this.platformFeeAmount,
+    required this.totalAmount,
     this.existingInvoiceUrl,
     this.showReceipt = false,
   });
@@ -83,9 +89,14 @@ class _PatientPaymentScreenInitialState
         appointmentId: widget.appointmentId,
         doctorName: widget.doctorName,
         patientName: widget.patientName,
-        consultationType:
-            widget.modeOfAppointment == 0 ? 'Face-to-face' : 'Online',
+        consultationType: widget.modeOfAppointment == 0
+            ? 'Online Consultation'
+            : 'Face-to-Face',
         amount: widget.amount,
+        platformFeePercentage: widget.platformFeePercentage,
+        platformFeeAmount: widget.platformFeeAmount,
+        totalAmount:
+            widget.totalAmount > 0 ? widget.totalAmount : widget.amount,
         appointmentDate: widget.appointmentDate,
         doctorId: widget.doctorId,
       );
@@ -553,22 +564,64 @@ class _PatientPaymentScreenInitialState
                       color:
                           GinaAppTheme.lightTertiaryContainer.withOpacity(0.2)),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
                   children: [
-                    Text(
-                      'Amount',
-                      style: ginaTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: GinaAppTheme.lightTertiaryContainer,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Base Fee',
+                          style: ginaTheme.bodyMedium?.copyWith(
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        Text(
+                          '₱${NumberFormat('#,##0.00').format(widget.amount)}',
+                          style: ginaTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      '₱${NumberFormat('#,##0.00').format(widget.amount)}',
-                      style: ginaTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: GinaAppTheme.lightTertiaryContainer,
+                    const Gap(12),
+                    if (widget.platformFeePercentage > 0) ...[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Platform Fee (${(widget.platformFeePercentage * 100).toInt()}%)',
+                            style: ginaTheme.bodyMedium?.copyWith(
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          Text(
+                            '₱${NumberFormat('#,##0.00').format(widget.platformFeeAmount)}',
+                            style: ginaTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
+                      const Gap(12),
+                    ],
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Total Amount',
+                          style: ginaTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: GinaAppTheme.lightTertiaryContainer,
+                          ),
+                        ),
+                        Text(
+                          '₱${NumberFormat('#,##0.00').format(widget.totalAmount > 0 ? widget.totalAmount : widget.amount)}',
+                          style: ginaTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: GinaAppTheme.lightTertiaryContainer,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -609,10 +662,13 @@ class _PatientPaymentScreenInitialState
                                 color: Colors.grey[600],
                               ),
                             ),
-                            Text(
-                              paymentMethod,
-                              style: ginaTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w500,
+                            SizedBox(
+                              width: size.width * 0.5,
+                              child: Text(
+                                paymentMethod,
+                                style: ginaTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ],

@@ -231,21 +231,22 @@ class BookAppointmentBloc
       debugPrint('Book Appointment button clicked');
       debugPrint('Event appointment ID: ${event.appointmentId}');
 
-      // debugPrint('Payment verified as paid, proceeding with booking...');
+      // Date formatting
       String dateString = dateController.text;
       DateTime parsedDate = DateFormat('EEEE, d of MMMM y').parse(dateString);
       String reformattedDate = DateFormat('MMMM d, yyyy').format(parsedDate);
       final newDateFormat = DateFormat('EEEE, d \'of\' MMMM y');
-      DateTime? newParsedDate;
-      newParsedDate = newDateFormat.parse(dateString);
+      DateTime? newParsedDate = newDateFormat.parse(dateString);
       debugPrint('Parsed new date: $newParsedDate');
 
+      // Debug appointment details
       debugPrint('Creating appointment with:');
       debugPrint('Doctor ID: ${event.doctorId}');
       debugPrint('Doctor Name: ${event.doctorName}');
       debugPrint('Date: $reformattedDate');
       debugPrint('Time: ${event.appointmentTime}');
       debugPrint('Mode: $selectedModeofAppointmentIndex');
+      debugPrint('Platform Fee Percentage: ${event.platformFeePercentage}');
 
       // Get doctor details to calculate amount
       final doctorDoc = await FirebaseFirestore.instance
@@ -254,7 +255,7 @@ class BookAppointmentBloc
           .get();
       final doctorData = doctorDoc.data();
 
-      // Calculate amount based on mode of appointment
+      // Calculate base amount based on mode of appointment
       final amount = selectedModeofAppointmentIndex == 0
           ? (doctorData != null
               ? doctorData['olInitialConsultationPrice'] ?? 0.0
@@ -263,7 +264,13 @@ class BookAppointmentBloc
               ? doctorData['f2fInitialConsultationPrice'] ?? 0.0
               : 0.0);
 
-      debugPrint('Calculated amount: $amount');
+      // Calculate platform fee and total amount
+      final platformFeeAmount = amount * event.platformFeePercentage;
+      final totalAmount = amount + platformFeeAmount;
+
+      debugPrint('Base amount: $amount');
+      debugPrint('Platform fee amount: $platformFeeAmount');
+      debugPrint('Total amount: $totalAmount');
 
       final result = await appointmentController.requestAnAppointment(
         doctorId: event.doctorId,
@@ -273,6 +280,9 @@ class BookAppointmentBloc
         appointmentTime: event.appointmentTime,
         modeOfAppointment: selectedModeofAppointmentIndex,
         amount: amount,
+        platformFeePercentage: event.platformFeePercentage,
+        platformFeeAmount: platformFeeAmount,
+        totalAmount: totalAmount,
         reasonForAppointment: event.reasonForAppointment,
       );
 
@@ -300,6 +310,9 @@ class BookAppointmentBloc
           appointmentTime: event.appointmentTime,
           modeOfAppointment: selectedModeofAppointmentIndex,
           amount: amount,
+          platformFeePercentage: event.platformFeePercentage,
+          platformFeeAmount: platformFeeAmount,
+          totalAmount: totalAmount,
           reasonForAppointment: event.reasonForAppointment,
         );
 

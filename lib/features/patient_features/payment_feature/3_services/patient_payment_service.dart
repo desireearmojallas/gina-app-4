@@ -87,6 +87,9 @@ class PatientPaymentService {
     required String appointmentDate,
     required String consultationType,
     required String doctorId,
+    double platformFeePercentage = 0.0,
+    double platformFeeAmount = 0.0,
+    double totalAmount = 0.0,
   }) async {
     try {
       debugPrint('=== Starting createPaymentInvoice ===');
@@ -161,10 +164,13 @@ class PatientPaymentService {
 
       final patient = await _ensureCurrentPatient();
 
+      // Calculate total amount if not provided
+      final effectiveTotalAmount = totalAmount > 0 ? totalAmount : amount;
+
       // Call the Firebase Function to create the invoice
       final result = await _createInvoiceViaFirebaseFunction(
         appointmentId: appointmentId,
-        amount: amount,
+        amount: effectiveTotalAmount, // Use total amount for the actual payment
         description: 'Appointment with $doctorName - $consultationType',
         customerEmail: patient.email,
         doctorXenditAccountId: doctorXenditAccountId,
@@ -184,7 +190,10 @@ class PatientPaymentService {
           .set({
         'invoiceId': invoiceId,
         'invoiceUrl': invoiceUrl,
-        'amount': amount,
+        'amount': amount, // Base fee
+        'platformFeePercentage': platformFeePercentage,
+        'platformFeeAmount': platformFeeAmount,
+        'totalAmount': effectiveTotalAmount,
         'appointmentId': appointmentId,
         'appointmentDate': appointmentDate,
         'consultationType': consultationType,
@@ -205,7 +214,7 @@ class PatientPaymentService {
 
       return {
         'invoiceUrl': invoiceUrl,
-        'invoiceNumber': invoiceId,
+        'invoiceId': invoiceId,
       };
     } catch (e) {
       debugPrint('Error creating payment invoice: $e');
@@ -293,13 +302,19 @@ class PatientPaymentService {
   // Add a method to link payment to appointment
   Future<void> linkPaymentToAppointment(
     String tempAppointmentId,
-    String finalAppointmentId, {
+    String finalAppointmentId,
+    double platformFeePercentage,
+    double platformFeeAmount,
+    double totalAmount, {
     String? doctorId,
   }) async {
     debugPrint('=== Starting Payment Linking Process ===');
     debugPrint('Temp Appointment ID: $tempAppointmentId');
     debugPrint('Final Appointment ID: $finalAppointmentId');
     debugPrint('Doctor ID: $doctorId');
+    debugPrint('Platform Fee Percentage: $platformFeePercentage');
+    debugPrint('Platform Fee Amount: $platformFeeAmount');
+    debugPrint('Total Amount: $totalAmount');
 
     try {
       // Get the payment document from pending_payments collection
@@ -327,6 +342,20 @@ class PatientPaymentService {
       final amount = paymentData['amount'] as double? ?? 0.0;
       final paymentMethod = paymentData['paymentMethod'] as String? ?? 'Xendit';
 
+      final docPlatformFeePercentage =
+          paymentData['platformFeePercentage'] as double? ?? 0.0;
+      final docPlatformFeeAmount =
+          paymentData['platformFeeAmount'] as double? ?? 0.0;
+      final docTotalAmount = paymentData['totalAmount'] as double? ?? amount;
+
+      final effectivePlatformFeePercentage = platformFeePercentage > 0
+          ? platformFeePercentage
+          : docPlatformFeePercentage;
+      final effectivePlatformFeeAmount =
+          platformFeeAmount > 0 ? platformFeeAmount : docPlatformFeeAmount;
+      final effectiveTotalAmount =
+          totalAmount > 0 ? totalAmount : docTotalAmount;
+
       if (invoiceId == null) {
         debugPrint('ERROR: Invoice ID is null in payment document');
         throw Exception('Invoice ID is null in payment document');
@@ -338,7 +367,10 @@ class PatientPaymentService {
       }
 
       debugPrint('Found paid payment with ID: $invoiceId');
-      debugPrint('Payment Amount: ₱$amount');
+      debugPrint('Base Payment Amount: ₱$amount');
+      debugPrint(
+          'Platform Fee: ₱$effectivePlatformFeeAmount (${effectivePlatformFeePercentage * 100}%)');
+      debugPrint('Total Amount: ₱$effectiveTotalAmount');
       debugPrint('Payment Method: $paymentMethod');
 
       // Get the appointment document
@@ -388,12 +420,19 @@ class PatientPaymentService {
       final doctorXenditAccountId = doctorData['xenditAccountId'] as String;
       debugPrint('Doctor Xendit Account ID: $doctorXenditAccountId');
 
+      // Calculate doctor's share (base amount minus platform fee)
+      final doctorAmount = amount;
+      debugPrint('Doctor receives: ₱$doctorAmount');
+      debugPrint('Platform keeps: ₱$effectivePlatformFeeAmount');
+
       // Create direct transfer to doctor's account
       debugPrint('Creating direct transfer to doctor...');
       final transferResult = await _createDirectTransfer(
         recipientId: doctorXenditAccountId,
-        amount: amount,
+        amount: doctorAmount,
         description: 'Payment for appointment $finalAppointmentId',
+        platformFeePercentage: effectivePlatformFeePercentage,
+        platformFeeAmount: effectivePlatformFeeAmount,
       );
 
       debugPrint('Transfer Result: $transferResult');
@@ -409,6 +448,10 @@ class PatientPaymentService {
           .set({
         'invoiceId': invoiceId,
         'amount': amount,
+        'platformFeePercentage': effectivePlatformFeePercentage,
+        'platformFeeAmount': effectivePlatformFeeAmount,
+        'totalAmount': effectiveTotalAmount,
+        'doctorAmount': doctorAmount,
         'status': status,
         'paymentMethod': paymentMethod,
         'linkedAt': FieldValue.serverTimestamp(),
@@ -425,6 +468,10 @@ class PatientPaymentService {
         'paymentStatus': status,
         'paymentMethod': paymentMethod,
         'paymentAmount': amount,
+        'platformFeePercentage': effectivePlatformFeePercentage,
+        'platformFeeAmount': effectivePlatformFeeAmount,
+        'totalAmount': effectiveTotalAmount,
+        'doctorAmount': doctorAmount,
         'paymentUpdatedAt': FieldValue.serverTimestamp(),
         'transferId': transferResult['id'],
         'transferStatus': transferResult['status'],
@@ -440,7 +487,10 @@ class PatientPaymentService {
           .set({
         'invoiceId': invoiceId,
         'appointmentId': finalAppointmentId,
-        'amount': amount,
+        'amount': doctorAmount,
+        'platformFeePercentage': effectivePlatformFeePercentage,
+        'platformFeeAmount': effectivePlatformFeeAmount,
+        'totalPatientPayment': effectiveTotalAmount,
         'status': status,
         'paymentMethod': paymentMethod,
         'linkedAt': FieldValue.serverTimestamp(),
@@ -466,11 +516,21 @@ class PatientPaymentService {
     required String recipientId,
     required double amount,
     required String description,
+    required platformFeePercentage,
+    required platformFeeAmount,
   }) async {
     try {
+      final doctorAmount = amount;
+      final effectivePlatformFee = platformFeeAmount > 0
+          ? platformFeeAmount
+          : (amount * platformFeePercentage);
+      final totalAmount = amount + effectivePlatformFee;
+
       debugPrint('Creating direct transfer to doctor...');
       debugPrint('Recipient ID: $recipientId');
-      debugPrint('Amount: $amount');
+      debugPrint('Total Amount: $totalAmount');
+      debugPrint('Doctor Amount: $doctorAmount');
+      debugPrint('Platform Fee: $effectivePlatformFee');
       debugPrint('Description: $description');
 
       // Reload environment variables
@@ -495,8 +555,9 @@ class PatientPaymentService {
         debugPrint('Using simulation mode for direct transfer');
         return _simulateDirectTransfer(
           recipientId: recipientId,
-          amount: amount,
+          amount: doctorAmount, // Only transfer doctor's amount
           description: description,
+          platformFee: effectivePlatformFee,
         );
       }
 
@@ -507,7 +568,7 @@ class PatientPaymentService {
           'reference': 'payment-${DateTime.now().millisecondsSinceEpoch}',
           'source_user_id': dotenv.env['XENDIT_SOURCE_USER_ID'],
           'destination_user_id': recipientId,
-          'amount': amount,
+          'amount': doctorAmount,
           'currency': 'PHP',
           'description': description,
         },
@@ -523,7 +584,13 @@ class PatientPaymentService {
       debugPrint('Direct transfer response: ${response.data}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return response.data;
+        // Add platform fee information to the response data
+        final responseData = response.data;
+        responseData['platformFee'] = effectivePlatformFee;
+        responseData['doctorAmount'] = doctorAmount;
+        responseData['totalAmount'] = totalAmount;
+
+        return responseData;
       } else {
         throw Exception('Failed to create direct transfer: ${response.data}');
       }
@@ -545,6 +612,7 @@ class PatientPaymentService {
     required String recipientId,
     required double amount,
     required String description,
+    required double platformFee,
   }) async {
     debugPrint('Simulating direct transfer...');
 
@@ -564,6 +632,9 @@ class PatientPaymentService {
       'status': 'COMPLETED',
       'created_at': DateTime.now().toIso8601String(),
       'simulated': true,
+      'platformFee': platformFee,
+      'totalAmount': amount + platformFee,
+      'doctorAmount': amount,
     };
   }
 

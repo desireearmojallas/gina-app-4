@@ -59,6 +59,11 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
 
     debugPrint('Inside Appointment Details Status Screen');
 
+    debugPrint('Platform Fee Percentage: ${appointment.platformFeePercentage}');
+    debugPrint('Platform Fee Amount: ${appointment.platformFeeAmount}');
+    debugPrint('Total Amount: ${appointment.totalAmount}');
+    debugPrint('Amount: ${appointment.amount}');
+
     return Stack(
       children: [
         ScrollbarCustom(
@@ -181,6 +186,12 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                             patientName: appointment.patientName ?? '',
                             modeOfAppointment: appointment.modeOfAppointment!,
                             amount: appointment.amount ?? 0.0,
+                            platformFeePercentage:
+                                appointment.platformFeePercentage ?? 0.0,
+                            platformFeeAmount:
+                                appointment.platformFeeAmount ?? 0.0,
+                            totalAmount: appointment.totalAmount ??
+                                (appointment.amount ?? 0.0),
                             appointmentDate: appointment.appointmentDate!,
                             onPaymentCreated: (invoiceUrl) {
                               bookAppointmentBloc.currentInvoiceUrl =
@@ -220,6 +231,7 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                   valueStyle,
                   divider,
                   bookAppointmentBloc,
+                  size,
                 ),
                 [2, 3, 4, 5].contains(appointment.appointmentStatus)
                     ? const SizedBox()
@@ -407,10 +419,12 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
   }
 
   Padding appointmentDetailsContent(
-      TextStyle? labelStyle,
-      TextStyle? valueStyle,
-      Padding divider,
-      BookAppointmentBloc bookAppointmentBloc) {
+    TextStyle? labelStyle,
+    TextStyle? valueStyle,
+    Padding divider,
+    BookAppointmentBloc bookAppointmentBloc,
+    Size size,
+  ) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
       child: IntrinsicHeight(
@@ -531,6 +545,7 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                   appointment,
                   labelStyle!,
                   valueStyle!,
+                  size,
                 ),
                 divider,
                 headerWidget(
@@ -618,6 +633,7 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
     AppointmentModel appointment,
     TextStyle labelStyle,
     TextStyle valueStyle,
+    Size size,
   ) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
@@ -640,7 +656,31 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
             snapshot.data!.docs.first.data() as Map<String, dynamic>;
         final paymentStatus = paymentData['status'] as String? ?? '';
         final refundStatus = paymentData['refundStatus'] as String?;
-        final amount = paymentData['amount'] as double? ?? 0.0;
+        final amount = appointment.amount ?? 0.0;
+        // Extract platform fee details
+        final platformFeePercentage =
+            paymentData['platformFeePercentage'] as double? ??
+                appointment.platformFeePercentage ??
+                0.0;
+        final platformFeeAmount = paymentData['platformFeeAmount'] as double? ??
+            appointment.platformFeeAmount ??
+            0.0;
+
+        // Calculate effective platform fee amount
+        final effectivePlatformFeeAmount = platformFeeAmount > 0
+            ? platformFeeAmount
+            : (platformFeePercentage > 0
+                ? amount * platformFeePercentage
+                : 0.0);
+
+        // Get the totalAmount with proper backward compatibility check
+        double? rawTotalAmount = paymentData['totalAmount'] as double?;
+        final totalAmount =
+            // If totalAmount exists and is not 0, use it directly
+            (rawTotalAmount != null && rawTotalAmount > 0.0)
+                ? rawTotalAmount
+                // Otherwise fall back to amount + platform fee
+                : amount + effectivePlatformFeeAmount;
         final refundAmount = paymentData['refundAmount'] as double?;
         final paymentMethod =
             paymentData['paymentMethod'] as String? ?? 'Xendit';
@@ -651,15 +691,48 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Gap(20),
+            // Base Fee row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Amount Paid',
+                  'Base Fee',
                   style: labelStyle,
                 ),
                 Text(
                   '₱${NumberFormat('#,##0.00').format(amount)}',
+                  style: valueStyle,
+                ),
+              ],
+            ),
+            const Gap(15),
+            // Platform Fee row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Platform Fee (${(platformFeePercentage * 100).toInt()}%)',
+                  style: labelStyle,
+                ),
+                Text(
+                  '₱${NumberFormat('#,##0.00').format(platformFeeAmount)}',
+                  style: valueStyle,
+                ),
+              ],
+            ),
+            const Gap(15),
+            // Total Amount row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Total Amount',
+                  style: labelStyle.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '₱${NumberFormat('#,##0.00').format(totalAmount)}',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.green,
                         fontWeight: FontWeight.bold,
@@ -668,6 +741,7 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
               ],
             ),
             const Gap(15),
+            // Payment Status row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -703,10 +777,14 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                   'Payment Method',
                   style: labelStyle,
                 ),
-                Text(
-                  paymentMethod,
-                  style: valueStyle.copyWith(
-                    fontWeight: FontWeight.bold,
+                SizedBox(
+                  width: size.width * 0.45,
+                  child: Text(
+                    paymentMethod,
+                    style: valueStyle.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.end,
                   ),
                 ),
               ],

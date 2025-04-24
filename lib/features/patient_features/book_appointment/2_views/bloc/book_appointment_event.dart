@@ -26,6 +26,7 @@ class BookForAnAppointmentEvent extends BookAppointmentEvent {
   final String appointmentDate;
   final String appointmentTime;
   final String reasonForAppointment;
+  final double platformFeePercentage;
 
   const BookForAnAppointmentEvent({
     required this.appointmentId,
@@ -35,6 +36,7 @@ class BookForAnAppointmentEvent extends BookAppointmentEvent {
     required this.appointmentDate,
     required this.appointmentTime,
     required this.reasonForAppointment,
+    required this.platformFeePercentage,
   });
 
   @override
@@ -46,6 +48,7 @@ class BookForAnAppointmentEvent extends BookAppointmentEvent {
         appointmentDate,
         appointmentTime,
         reasonForAppointment,
+        platformFeePercentage,
       ];
 }
 

@@ -46,6 +46,9 @@ class AppointmentController with ChangeNotifier {
     required int modeOfAppointment,
     required double amount,
     required String reasonForAppointment,
+    required double platformFeePercentage,
+    required double platformFeeAmount,
+    required double totalAmount,
   }) async {
     try {
       debugPrint('Fetching current user model');
@@ -74,6 +77,9 @@ class AppointmentController with ChangeNotifier {
         'appointmentStatus': 0,
         'hasVisitedConsultationRoom': false,
         'amount': amount,
+        'platformFeePercentage': platformFeePercentage,
+        'platformFeeAmount': platformFeeAmount,
+        'totalAmount': totalAmount,
         'lastUpdatedAt': FieldValue.serverTimestamp(),
         'isViewed': false,
         'reasonForAppointment': reasonForAppointment,

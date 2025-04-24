@@ -12,11 +12,9 @@ import 'package:gina_app_4/features/patient_features/appointment_details/2_views
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/reschedule_appointment_success.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/reschedule_filled_button.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
-import 'package:gina_app_4/features/patient_features/book_appointment/2_views/widgets/pay_now_button.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/0_model/doctor_availability_model.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BookAppointmentInitialScreen extends StatelessWidget {
@@ -34,6 +32,11 @@ class BookAppointmentInitialScreen extends StatelessWidget {
     final appointmentDetailsBloc = context.read<AppointmentDetailsBloc>();
     final size = MediaQuery.of(context).size;
     final ginaTheme = Theme.of(context).textTheme;
+    var selectedModeOfAppointmentIndex = -1;
+
+//TODO: TO CHANGE THIS, WILL MAKE THIS DYNAMIC ON THE ADMIN SIDE
+    const double onlinePlatformFeePercentage = 0.10;
+    const double f2fPlatformFeePercentage = 0.15;
 
     // Ensure modeOfAppointmentList always has both options
     final modeOfAppointmentList = ['Online Consultation', 'Face-to-Face'];
@@ -712,6 +715,8 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                           ? () {
                                               debugPrint(
                                                   'Clicked Index: $index');
+                                              selectedModeOfAppointmentIndex =
+                                                  index;
                                               debugPrint(
                                                   'Clicked Mode of Appointment: ${modeOfAppointmentList[index]}');
 
@@ -787,7 +792,7 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                 isAvailable) ...[
                                               const Gap(4),
                                               Text(
-                                                '₱${NumberFormat('#,##0.00').format(price)}',
+                                                '₱${NumberFormat('#,##0.00').format(price)} + ${((index == 0 ? onlinePlatformFeePercentage : f2fPlatformFeePercentage) * 100).toInt()}% PF',
                                                 style: Theme.of(context)
                                                     .textTheme
                                                     .labelSmall
@@ -1130,8 +1135,23 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                     final selectedTime =
                                                         '${doctorAvailabilityModel.startTimes[selectedIndex]} - ${doctorAvailabilityModel.endTimes[selectedIndex]}';
 
+                                                    final selectedModeIndex =
+                                                        selectedModeOfAppointmentIndex;
+
+                                                    debugPrint(
+                                                        'Selected mode index: $selectedModeIndex');
+
+                                                    final platformFeePercentage =
+                                                        selectedModeIndex == 0
+                                                            ? onlinePlatformFeePercentage
+                                                            : f2fPlatformFeePercentage;
+
                                                     debugPrint(
                                                         'Booking new appointment...');
+                                                    debugPrint(
+                                                        'Selected mode: ${selectedModeIndex == 0 ? "Online" : "Face-to-Face"}');
+                                                    debugPrint(
+                                                        'Using platform fee: ${(platformFeePercentage * 100).toInt()}%');
                                                     final tempAppointmentId =
                                                         bookAppointmentBloc
                                                             .tempAppointmentId;
@@ -1157,6 +1177,8 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                                 .reasonController
                                                                 .text
                                                                 .trim(),
+                                                        platformFeePercentage:
+                                                            platformFeePercentage,
                                                       ),
                                                     );
                                                   }

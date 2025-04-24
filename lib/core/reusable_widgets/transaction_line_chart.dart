@@ -55,7 +55,9 @@ class TransactionLineChart extends StatelessWidget {
     final minHeight = height + 60; // Add extra space for tooltips
 
     return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
       child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         scrollDirection: Axis.horizontal,
         child: Container(
           width: chartWidth,

@@ -12,6 +12,9 @@ class AppointmentPaymentWidgets extends StatelessWidget {
   final String consultationType;
   final double amount;
   final String appointmentDate;
+  final double platformFeePercentage;
+  final double platformFeeAmount;
+  final double totalAmount;
 
   const AppointmentPaymentWidgets({
     super.key,
@@ -22,6 +25,9 @@ class AppointmentPaymentWidgets extends StatelessWidget {
     required this.consultationType,
     required this.amount,
     required this.appointmentDate,
+    required this.platformFeePercentage,
+    required this.platformFeeAmount,
+    required this.totalAmount,
   });
 
   @override
@@ -43,6 +49,9 @@ class AppointmentPaymentWidgets extends StatelessWidget {
                   patientName: patientName,
                   modeOfAppointment: consultationType,
                   amount: amount,
+                  platformFeePercentage: platformFeePercentage,
+                  platformFeeAmount: platformFeeAmount,
+                  totalAmount: totalAmount,
                   appointmentDate: appointmentDate,
                 );
               }));

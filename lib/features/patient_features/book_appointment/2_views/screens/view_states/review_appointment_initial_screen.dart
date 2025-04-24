@@ -216,11 +216,43 @@ class ReviewAppointmentInitialScreen extends StatelessWidget {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      'Amount Paid',
+                                      'Base Fee', // Changed from 'Amount Paid'
                                       style: labelStyle,
                                     ),
                                     Text(
-                                      '₱${NumberFormat('#,##0.00').format(paymentData['amount'] ?? 0)}',
+                                      '₱${NumberFormat('#,##0.00').format(appointmentModel.amount ?? 0)}',
+                                      style: valueStyle,
+                                    ),
+                                  ],
+                                ),
+                                const Gap(15),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Platform Fee (${(appointmentModel.platformFeePercentage! * 100).toInt()}%)',
+                                      style: labelStyle,
+                                    ),
+                                    Text(
+                                      '₱${NumberFormat('#,##0.00').format(appointmentModel.platformFeeAmount ?? 0)}',
+                                      style: valueStyle,
+                                    ),
+                                  ],
+                                ),
+                                const Gap(15),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Total Amount',
+                                      style: labelStyle?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      '₱${NumberFormat('#,##0.00').format(appointmentModel.totalAmount ?? 0)}',
                                       style: valueStyle?.copyWith(
                                         color: Colors.green,
                                         fontWeight: FontWeight.bold,
@@ -277,10 +309,14 @@ class ReviewAppointmentInitialScreen extends StatelessWidget {
                                       'Payment Method',
                                       style: labelStyle,
                                     ),
-                                    Text(
-                                      paymentData['paymentMethod'] ?? 'Xendit',
-                                      style: valueStyle?.copyWith(
-                                        fontWeight: FontWeight.bold,
+                                    SizedBox(
+                                      width: size.width * 0.4,
+                                      child: Text(
+                                        paymentData['paymentMethod'] ??
+                                            'Xendit',
+                                        style: valueStyle?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
                                   ],

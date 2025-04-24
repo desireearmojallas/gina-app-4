@@ -41,6 +41,9 @@ class AppointmentModel extends Equatable {
   bool? hasPreviousPayment;
   final String? reasonForAppointment;
   final String? declineReason;
+  final double? platformFeePercentage;
+  final double? platformFeeAmount;
+  final double? totalAmount;
 
   AppointmentModel({
     this.appointmentUid,
@@ -79,6 +82,9 @@ class AppointmentModel extends Equatable {
     this.hasPreviousPayment,
     this.reasonForAppointment,
     this.declineReason,
+    this.platformFeePercentage,
+    this.platformFeeAmount,
+    this.totalAmount,
   });
 
   static AppointmentModel fromDocumentSnap(DocumentSnapshot snap) {
@@ -136,6 +142,9 @@ class AppointmentModel extends Equatable {
       reasonForAppointment:
           json['reasonForAppointment'] ?? json['reason'] ?? '',
       declineReason: json['declineReason'] ?? '',
+      platformFeePercentage: json['platformFeePercentage']?.toDouble() ?? 0.0,
+      platformFeeAmount: json['platformFeeAmount']?.toDouble() ?? 0.0,
+      totalAmount: json['totalAmount']?.toDouble() ?? 0.0,
     );
   }
 
@@ -193,6 +202,9 @@ class AppointmentModel extends Equatable {
       reasonForAppointment:
           json['reasonForAppointment'] ?? json['reason'] ?? '',
       declineReason: json['declineReason'] ?? '',
+      platformFeePercentage: json['platformFeePercentage']?.toDouble() ?? 0.0,
+      platformFeeAmount: json['platformFeeAmount']?.toDouble() ?? 0.0,
+      totalAmount: json['totalAmount']?.toDouble() ?? 0.0,
     );
   }
 
@@ -240,6 +252,9 @@ class AppointmentModel extends Equatable {
       'hasPreviousPayment': hasPreviousPayment,
       'reasonForAppointment': reasonForAppointment,
       'declineReason': declineReason,
+      'platformFeePercentage': platformFeePercentage,
+      'platformFeeAmount': platformFeeAmount,
+      'totalAmount': totalAmount,
     };
   }
 
@@ -281,6 +296,9 @@ class AppointmentModel extends Equatable {
         hasPreviousPayment,
         reasonForAppointment,
         declineReason,
+        platformFeePercentage,
+        platformFeeAmount,
+        totalAmount,
       ];
 
   AppointmentModel copyWith({
@@ -320,6 +338,9 @@ class AppointmentModel extends Equatable {
     bool? hasPreviousPayment,
     String? reasonForAppointment,
     String? declineReason,
+    double? platformFeePercentage,
+    double? platformFeeAmount,
+    double? totalAmount,
   }) {
     return AppointmentModel(
       appointmentUid: appointmentUid ?? this.appointmentUid,
@@ -364,6 +385,10 @@ class AppointmentModel extends Equatable {
       hasPreviousPayment: hasPreviousPayment ?? this.hasPreviousPayment,
       reasonForAppointment: reasonForAppointment ?? this.reasonForAppointment,
       declineReason: declineReason ?? this.declineReason,
+      platformFeePercentage:
+          platformFeePercentage ?? this.platformFeePercentage,
+      platformFeeAmount: platformFeeAmount ?? this.platformFeeAmount,
+      totalAmount: totalAmount ?? this.totalAmount,
     );
   }
 }

@@ -17,6 +17,9 @@ class PatientPaymentScreenProvider extends StatelessWidget {
   final String modeOfAppointment;
   final double amount;
   final String appointmentDate;
+  final double platformFeePercentage;
+  final double platformFeeAmount;
+  final double totalAmount;
 
   const PatientPaymentScreenProvider({
     super.key,
@@ -27,6 +30,9 @@ class PatientPaymentScreenProvider extends StatelessWidget {
     required this.modeOfAppointment,
     required this.amount,
     required this.appointmentDate,
+    required this.platformFeePercentage,
+    required this.platformFeeAmount,
+    required this.totalAmount,
   });
 
   @override
@@ -44,6 +50,9 @@ class PatientPaymentScreenProvider extends StatelessWidget {
         modeOfAppointment: modeOfAppointment,
         amount: amount,
         appointmentDate: appointmentDate,
+        platformFeePercentage: platformFeePercentage,
+        platformFeeAmount: platformFeeAmount,
+        totalAmount: totalAmount,
       ),
     );
   }
@@ -57,6 +66,9 @@ class PatientPaymentScreen extends StatelessWidget {
   final String modeOfAppointment;
   final double amount;
   final String appointmentDate;
+  final double platformFeePercentage;
+  final double platformFeeAmount;
+  final double totalAmount;
 
   const PatientPaymentScreen({
     super.key,
@@ -67,6 +79,9 @@ class PatientPaymentScreen extends StatelessWidget {
     required this.modeOfAppointment,
     required this.amount,
     required this.appointmentDate,
+    required this.platformFeePercentage,
+    required this.platformFeeAmount,
+    required this.totalAmount,
   });
 
   @override
@@ -108,6 +123,9 @@ class PatientPaymentScreen extends StatelessWidget {
                 doctorName: doctorName,
                 patientName: patientName,
                 amount: amount,
+                platformFeePercentage: platformFeePercentage,
+                platformFeeAmount: platformFeeAmount,
+                totalAmount: totalAmount,
                 appointmentDate: appointmentDate,
                 modeOfAppointment: modeOfAppointment == 'Face-to-Face' ? 0 : 1,
               ),

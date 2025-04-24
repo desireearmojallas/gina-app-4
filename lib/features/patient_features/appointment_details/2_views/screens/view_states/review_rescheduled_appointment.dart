@@ -308,11 +308,14 @@ class ReviewRescheduledAppointmentScreen extends StatelessWidget {
                                             'Payment Method',
                                             style: labelStyle,
                                           ),
-                                          Text(
-                                            paymentData['paymentMethod'] ??
-                                                'Xendit',
-                                            style: valueStyle?.copyWith(
-                                              fontWeight: FontWeight.bold,
+                                          SizedBox(
+                                            width: size.width * 0.4,
+                                            child: Text(
+                                              paymentData['paymentMethod'] ??
+                                                  'Xendit',
+                                              style: valueStyle?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ),
                                         ],

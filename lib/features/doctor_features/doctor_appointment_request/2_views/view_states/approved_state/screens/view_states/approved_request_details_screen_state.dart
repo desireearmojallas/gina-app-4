@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_doctor_app_bar/gina_doctor_app_bar.dart';
 import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
@@ -403,6 +404,8 @@ class ApprovedRequestDetailsScreenState extends StatelessWidget {
                                     appointment,
                                     labelStyle!,
                                     textStyle!,
+                                    context,
+                                    size,
                                   ),
                                 ],
                               ),
@@ -483,7 +486,12 @@ class ApprovedRequestDetailsScreenState extends StatelessWidget {
 
   // Add payment details widget
   Widget _buildPaymentDetails(
-      AppointmentModel appointment, TextStyle labelStyle, TextStyle textStyle) {
+    AppointmentModel appointment,
+    TextStyle labelStyle,
+    TextStyle valueStyle,
+    BuildContext context,
+    Size size,
+  ) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('appointments')
@@ -491,18 +499,36 @@ class ApprovedRequestDetailsScreenState extends StatelessWidget {
           .collection('payments')
           .snapshots(),
       builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: CustomLoadingIndicator(),
+            ),
+          );
+        }
+
         if (snapshot.hasError) {
           debugPrint('Error loading payment details: ${snapshot.error}');
-          return const SizedBox.shrink();
+          return Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Text(
+              'Unable to load payment details',
+              style: TextStyle(color: Colors.red[300]),
+            ),
+          );
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           debugPrint('No payment details available');
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12.0),
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20.0),
             child: Text(
-              'No payment details available',
-              style: labelStyle,
+              'No payment details available for this appointment',
+              style: TextStyle(
+                color: GinaAppTheme.lightOutline,
+                fontSize: 12,
+              ),
             ),
           );
         }
@@ -511,33 +537,85 @@ class ApprovedRequestDetailsScreenState extends StatelessWidget {
             snapshot.data!.docs.first.data() as Map<String, dynamic>;
         final paymentStatus = paymentData['status'] as String? ?? '';
         final refundStatus = paymentData['refundStatus'] as String?;
-        final amount = paymentData['amount'] is double
-            ? paymentData['amount'] as double
-            : (paymentData['amount'] is int
-                ? (paymentData['amount'] as int).toDouble()
-                : 0.0);
-        final refundAmount = paymentData['refundAmount'] is double
-            ? paymentData['refundAmount'] as double
-            : (paymentData['refundAmount'] is int
-                ? (paymentData['refundAmount'] as int).toDouble()
-                : null);
+
+        // Extract basic payment details
+        final amount = paymentData['amount'] as double? ?? 0.0;
+        final refundAmount = paymentData['refundAmount'] as double?;
         final paymentMethod =
             paymentData['paymentMethod'] as String? ?? 'Xendit';
         final linkedAt = paymentData['linkedAt'] as Timestamp?;
+
+        // Extract platform fee details
+        final platformFeePercentage =
+            paymentData['platformFeePercentage'] as double? ??
+                appointment.platformFeePercentage ??
+                0.0;
+        final platformFeeAmount = paymentData['platformFeeAmount'] as double? ??
+            appointment.platformFeeAmount ??
+            0.0;
+
+        // Calculate effective platform fee amount
+        final effectivePlatformFeeAmount = platformFeeAmount > 0
+            ? platformFeeAmount
+            : (platformFeePercentage > 0
+                ? amount * platformFeePercentage
+                : 0.0);
+
+        // Get the totalAmount with proper backward compatibility check
+        double? rawTotalAmount = paymentData['totalAmount'] as double?;
+        final totalAmount =
+            // If totalAmount exists and is not 0, use it directly
+            (rawTotalAmount != null && rawTotalAmount > 0.0)
+                ? rawTotalAmount
+                // Otherwise fall back to amount + platform fee
+                : amount + effectivePlatformFeeAmount;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Gap(20),
+            // Base Fee row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Amount Paid',
+                  'Base Fee',
                   style: labelStyle,
                 ),
                 Text(
                   '₱${NumberFormat('#,##0.00').format(amount)}',
+                  style: valueStyle,
+                ),
+              ],
+            ),
+            const Gap(15),
+            // Platform Fee row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Platform Fee (${(platformFeePercentage * 100).toInt()}%)',
+                  style: labelStyle,
+                ),
+                Text(
+                  '₱${NumberFormat('#,##0.00').format(platformFeeAmount)}',
+                  style: valueStyle,
+                ),
+              ],
+            ),
+            const Gap(15),
+            // Total Amount row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Total Amount',
+                  style: labelStyle.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '₱${NumberFormat('#,##0.00').format(totalAmount)}',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.green,
                         fontWeight: FontWeight.bold,
@@ -546,6 +624,7 @@ class ApprovedRequestDetailsScreenState extends StatelessWidget {
               ],
             ),
             const Gap(15),
+            // Payment Status row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -581,9 +660,15 @@ class ApprovedRequestDetailsScreenState extends StatelessWidget {
                   'Payment Method',
                   style: labelStyle,
                 ),
-                Text(
-                  paymentMethod,
-                  style: textStyle,
+                SizedBox(
+                  width: size.width * 0.45,
+                  child: Text(
+                    paymentMethod,
+                    style: valueStyle.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.end,
+                  ),
                 ),
               ],
             ),
@@ -600,7 +685,7 @@ class ApprovedRequestDetailsScreenState extends StatelessWidget {
                       ? DateFormat('MMMM d, yyyy h:mm a')
                           .format(linkedAt.toDate())
                       : 'N/A',
-                  style: textStyle,
+                  style: valueStyle,
                 ),
               ],
             ),
