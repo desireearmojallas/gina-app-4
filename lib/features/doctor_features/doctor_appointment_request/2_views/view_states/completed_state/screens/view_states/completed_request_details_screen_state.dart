@@ -9,8 +9,10 @@ import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/completed_state/bloc/completed_request_state_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/widgets/view_patient_data/view_patient_data.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/widgets/face_to_face_widgets/doctor_consultation_face_to_face_screen.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/2_views/bloc/doctor_econsult_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_upcoming_appointments/2_views/bloc/doctor_upcoming_appointments_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/appointment_status_container.dart';
@@ -78,33 +80,92 @@ class CompletedRequestDetailsScreenState extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 20.0),
         child: FloatingActionButton(
           onPressed: () {
-            HapticFeedback.mediumImpact();
+            if (appointment.modeOfAppointment == 0) {
+              HapticFeedback.mediumImpact();
 
-            selectedPatientUid = appointment.patientUid!;
-            debugPrint(
-                'doctor_upcoming_appointments_container selectedPatientUid: $selectedPatientUid');
+              selectedPatientUid = appointment.patientUid!;
+              debugPrint(
+                  'doctor_upcoming_appointments_container selectedPatientUid: $selectedPatientUid');
 
-            debugPrint(
-                'doctor_upcoming_appointments_container appointment: ${appointment.appointmentUid}');
+              debugPrint(
+                  'doctor_upcoming_appointments_container appointment: ${appointment.appointmentUid}');
 
-            doctorEConsultBloc
-                .add(GetPatientDataEvent(patientUid: appointment.patientUid!));
+              doctorEConsultBloc.add(
+                  GetPatientDataEvent(patientUid: appointment.patientUid!));
 
-            isFromChatRoomLists = false;
+              isFromChatRoomLists = false;
 
-            selectedPatientAppointment = appointment.appointmentUid;
-            selectedPatientUid = appointment.patientUid ?? '';
-            selectedPatientName = appointment.patientName ?? '';
-            selectedPatientAppointmentModel = appointment;
+              selectedPatientAppointment = appointment.appointmentUid;
+              selectedPatientUid = appointment.patientUid ?? '';
+              selectedPatientName = appointment.patientName ?? '';
+              selectedPatientAppointmentModel = appointment;
 
-            appointmentDataFromDoctorUpcomingAppointmentsBloc = appointment;
-            debugPrint(
-                'doctor_upcoming_appointments_container appointmentDataFromDoctorUpcomingAppointmentsBloc: $appointmentDataFromDoctorUpcomingAppointmentsBloc');
+              appointmentDataFromDoctorUpcomingAppointmentsBloc = appointment;
+              debugPrint(
+                  'doctor_upcoming_appointments_container appointmentDataFromDoctorUpcomingAppointmentsBloc: $appointmentDataFromDoctorUpcomingAppointmentsBloc');
 
-            Navigator.pushNamed(context, '/doctorOnlineConsultChat').then(
-                (value) => context
-                    .read<DoctorEconsultBloc>()
-                    .add(GetRequestedEconsultsDisplayEvent()));
+              Navigator.pushNamed(context, '/doctorOnlineConsultChat').then(
+                  (value) => context
+                      .read<DoctorEconsultBloc>()
+                      .add(GetRequestedEconsultsDisplayEvent()));
+            } else if (appointment.modeOfAppointment == 1) {
+              HapticFeedback.mediumImpact();
+
+              selectedPatientUid = appointment.patientUid!;
+              debugPrint(
+                  'doctor_upcoming_appointments_container selectedPatientUid: $selectedPatientUid');
+
+              debugPrint(
+                  'doctor_upcoming_appointments_container appointment: ${appointment.appointmentUid}');
+
+              doctorEConsultBloc.add(
+                  GetPatientDataEvent(patientUid: appointment.patientUid!));
+
+              isFromChatRoomLists = false;
+
+              selectedPatientAppointment = appointment.appointmentUid;
+              selectedPatientUid = appointment.patientUid ?? '';
+              selectedPatientName = appointment.patientName ?? '';
+              selectedPatientAppointmentModel = appointment;
+
+              appointmentDataFromDoctorUpcomingAppointmentsBloc = appointment;
+              debugPrint(
+                  'doctor_upcoming_appointments_container appointmentDataFromDoctorUpcomingAppointmentsBloc: $appointmentDataFromDoctorUpcomingAppointmentsBloc');
+
+              // Navigator.pushNamed(context, '/doctorFaceToFaceChat').then(
+              //     (value) => context
+              //         .read<DoctorEconsultBloc>()
+              //         .add(GetRequestedEconsultsDisplayEvent()));
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Scaffold(
+                    appBar: GinaDoctorAppBar(
+                      title: patientData.name,
+                    ),
+                    body: DoctorConsultationFaceToFaceScreen(
+                      patientAppointment: selectedPatientAppointmentModel!,
+                      patientDetails:
+                          patientDetailsForDoctorFaceToFaceScreenConsultationHistory ??
+                              UserModel(
+                                name: '',
+                                email: '',
+                                uid: '',
+                                gender: '',
+                                dateOfBirth: '',
+                                profileImage: '',
+                                headerImage: '',
+                                accountType: '',
+                                address: '',
+                                chatrooms: const [],
+                                appointmentsBooked: const [],
+                              ),
+                    ),
+                  ),
+                ),
+              );
+            }
           },
           backgroundColor: GinaAppTheme.lightTertiaryContainer,
           child: const Icon(

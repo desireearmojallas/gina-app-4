@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/floating_doctor_menu_bar/bloc/floating_doctor_menu_bar_bloc.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/floating_menu_bar/2_views/bloc/floating_menu_bloc.dart';
@@ -56,6 +57,7 @@ import 'package:gina_app_4/features/doctor_features/doctor_view_patients/1_contr
 import 'package:gina_app_4/features/doctor_features/doctor_view_patients/2_views/bloc/doctor_view_patients_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/bloc/home_dashboard_bloc.dart';
+import 'package:gina_app_4/features/doctor_features/home_dashboard/2_views/widgets/appointment_time_monitor.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/bloc/appointment_details_bloc.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/1_controllers/appointment_controller.dart';
@@ -100,6 +102,10 @@ Future<void> init() async {
   sl.registerFactory(() => sharedPreferences);
   sl.registerLazySingleton<SharedPreferencesManager>(
       () => SharedPreferencesManager());
+
+//----------------------------------------------------------------------------
+  //! Appointment Time Monitor - Doctor
+  sl.registerFactory(() => AppointmentTimeMonitor(child: Container()));
 
 //----------------------------------------------------------------------------
   //! Features - Splash

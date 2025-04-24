@@ -151,8 +151,6 @@ class HomeScreen extends StatelessWidget {
     final homeBloc = context.read<HomeBloc>();
     final periodTrackerBloc = context.read<PeriodTrackerBloc>();
 
-    BuildContext? dialogContext;
-
     return Scaffold(
       appBar: AppBar(
         title: GinaHeader(size: 45),
@@ -166,18 +164,6 @@ class HomeScreen extends StatelessWidget {
         elevation: 4,
         shadowColor: Colors.grey.withOpacity(0.1),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     showDialog(
-      //       context: context,
-      //       builder: (context) => const EmergencyNotificationsAlertDialog(),
-      //     );
-      //   },
-      //   child: const Icon(
-      //     Icons.add,
-      //     color: GinaAppTheme.lightSurfaceVariant,
-      //   ),
-      // ),
       body: MultiBlocListener(
         listeners: [
           BlocListener<PeriodTrackerBloc, PeriodTrackerState>(

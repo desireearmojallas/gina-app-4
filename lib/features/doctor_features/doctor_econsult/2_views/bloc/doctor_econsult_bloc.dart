@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/1_controllers/doctor_appointment_request_controller.dart';
+import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/view_states/completed_state/bloc/completed_request_state_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_econsult/1_controllers/doctor_e_consult_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_upcoming_appointments/2_views/bloc/doctor_upcoming_appointments_bloc.dart';
@@ -124,6 +125,8 @@ class DoctorEconsultBloc
         debugPrint('Error getting patient data: $failure');
       },
       (patientData) {
+        patientDetailsForDoctorFaceToFaceScreenConsultationHistory =
+            patientData;
         debugPrint('Patient data received: $patientData');
         patientDataFromDoctorUpcomingAppointmentsBloc = patientData;
       },

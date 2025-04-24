@@ -530,12 +530,30 @@ class DoctorAppointmentRequestController with ChangeNotifier {
     required String appointmentId,
   }) async {
     try {
+      final appointmentDoc =
+          await firestore.collection('appointments').doc(appointmentId).get();
+
+      if (!appointmentDoc.exists) {
+        debugPrint('Cannot conclude: Appointment not found');
+        return Left(Exception('Appointment not found'));
+      }
+
+      final data = appointmentDoc.data();
+      final bool isStarted = data?['f2fAppointmentStarted'] ?? false;
+
+      if (!isStarted) {
+        debugPrint('Cannot conclude: Appointment has not been started yet');
+        return Left(Exception(
+            'Appointment must be started before it can be concluded'));
+      }
+
       await firestore.collection('appointments').doc(appointmentId).update({
         'appointmentStatus': AppointmentStatus.completed.index,
         'f2fAppointmentConcluded': true,
         'f2fAppointmentConcludedTime': Timestamp.now(),
       });
 
+      debugPrint('Appointment concluded successfully');
       return const Right(true);
     } on FirebaseAuthException catch (e) {
       debugPrint('FirebaseAuthException: ${e.message}');

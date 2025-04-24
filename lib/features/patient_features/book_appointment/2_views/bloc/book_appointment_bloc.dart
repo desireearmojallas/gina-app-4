@@ -417,16 +417,60 @@ class BookAppointmentBloc
     return modeOfAppointmentList;
   }
 
-  int calculateAge(String dateOfBirth) {
-    final birthDate = DateFormat('MMMM dd, yyyy').parse(dateOfBirth);
-    int age = DateTime.now().year - birthDate.year;
+  // int calculateAge(String dateOfBirth) {
+  //   final birthDate = DateFormat('MMMM dd, yyyy').parse(dateOfBirth);
+  //   int age = DateTime.now().year - birthDate.year;
 
-    if (DateTime.now().month < birthDate.month ||
-        (DateTime.now().month == birthDate.month &&
-            DateTime.now().day < birthDate.day)) {
-      age--;
+  //   if (DateTime.now().month < birthDate.month ||
+  //       (DateTime.now().month == birthDate.month &&
+  //           DateTime.now().day < birthDate.day)) {
+  //     age--;
+  //   }
+
+  //   return age;
+  // }
+
+  int calculateAge(String? dateOfBirth) {
+    if (dateOfBirth == null || dateOfBirth.trim().isEmpty) {
+      debugPrint('Warning: Empty or null date of birth provided');
+      return 0; // Or handle differently based on your requirements
     }
 
-    return age;
+    try {
+      // Trim the string to remove any whitespace
+      final cleanDateString = dateOfBirth.trim();
+
+      // Try parsing with the expected format
+      DateTime birthDate;
+      try {
+        birthDate = DateFormat('MMMM dd, yyyy').parse(cleanDateString);
+      } catch (_) {
+        // Fallback to alternative formats if the first one fails
+        try {
+          birthDate = DateFormat('MMMM d, yyyy').parse(cleanDateString);
+        } catch (_) {
+          try {
+            birthDate = DateFormat('MM/dd/yyyy').parse(cleanDateString);
+          } catch (_) {
+            debugPrint('Error parsing date: $cleanDateString');
+            return 0; // Or handle differently
+          }
+        }
+      }
+
+      int age = DateTime.now().year - birthDate.year;
+
+      // Adjust age if birthday hasn't occurred yet this year
+      if (DateTime.now().month < birthDate.month ||
+          (DateTime.now().month == birthDate.month &&
+              DateTime.now().day < birthDate.day)) {
+        age--;
+      }
+
+      return age;
+    } catch (e) {
+      debugPrint('Error calculating age: $e');
+      return 0; // Or handle differently
+    }
   }
 }

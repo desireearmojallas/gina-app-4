@@ -46,9 +46,10 @@ class DoctorConsultationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final doctorConsultationBloc = context.read<DoctorConsultationBloc>();
-    final homeDashboardBloc = context.read<HomeDashboardBloc>();
+    context.read<HomeDashboardBloc>();
     return BlocBuilder<DoctorConsultationBloc, DoctorConsultationState>(
       builder: (context, state) {
+        // ignore: deprecated_member_use
         return WillPopScope(
           onWillPop: () async {
             if (state is NavigateToPatientDataState) {

@@ -75,3 +75,21 @@ class GetDoctorNameState extends HomeDashboardState {
   @override
   List<Object> get props => [doctorName];
 }
+
+class AppointmentExceededTimeState extends HomeDashboardActionState {
+  final String patientName;
+  final DateTime scheduledEndTime;
+  final DateTime currentTime;
+  final String appointmentId;
+
+  AppointmentExceededTimeState({
+    required this.patientName,
+    required this.scheduledEndTime,
+    required this.currentTime,
+    required this.appointmentId,
+  });
+
+  @override
+  List<Object> get props =>
+      [patientName, scheduledEndTime, currentTime, appointmentId];
+}

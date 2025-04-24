@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/1_controllers/doctor_appointment_request_controller.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_profile/1_controllers/doctor_profile_controller.dart';
-import 'package:gina_app_4/features/doctor_features/doctor_view_patients/2_views/bloc/doctor_view_patients_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/home_dashboard/1_controllers/doctor_home_dashboard_controllers.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/period_tracker/0_models/period_tracker_model.dart';
@@ -54,6 +53,8 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
         )) {
     on<HomeInitialEvent>(homeInitialEvent);
     on<GetDoctorNameEvent>(getDoctorName);
+    on<CheckForExceededAppointmentsEvent>(checkForExceededAppointments);
+    on<ResetExceededAppointmentDialogEvent>(_resetExceededAppointmentDialog);
   }
 
   FutureOr<void> homeInitialEvent(
@@ -237,5 +238,37 @@ class HomeDashboardBloc extends Bloc<HomeDashboardEvent, HomeDashboardState> {
     emit(GetDoctorNameState(
       doctorName: currentDoctorName,
     ));
+  }
+
+  FutureOr<void> checkForExceededAppointments(
+      CheckForExceededAppointmentsEvent event,
+      Emitter<HomeDashboardState> emit) async {
+    final result =
+        await doctorHomeDashboardController.checkForExceededAppointments();
+
+    result.fold(
+      (failure) {
+        // No action needed if there are no exceeded appointments
+        debugPrint(
+            'No appointments have exceeded their time or error: $failure');
+      },
+      (appointmentInfo) {
+        emit(AppointmentExceededTimeState(
+          patientName: appointmentInfo['patientName'],
+          scheduledEndTime: appointmentInfo['scheduledEndTime'],
+          currentTime: appointmentInfo['currentTime'],
+          appointmentId: appointmentInfo['appointmentId'],
+        ));
+      },
+    );
+  }
+
+  FutureOr<void> _resetExceededAppointmentDialog(
+      ResetExceededAppointmentDialogEvent event,
+      Emitter<HomeDashboardState> emit) async {
+    // Just emit the current state again to trigger a rebuild
+    if (state is HomeDashboardInitial) {
+      emit(state);
+    }
   }
 }

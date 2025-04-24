@@ -110,10 +110,7 @@ class DoctorHomeDashboardController extends ChangeNotifier {
             '${appointment.appointmentDate} ${appointment.appointmentTime?.split('-')[1].trim()}');
 
         if (now.isAfter(appointmentEndTime)) {
-          await firestore
-              .collection('appointments')
-              .doc(doc.id)
-              .update({
+          await firestore.collection('appointments').doc(doc.id).update({
             'appointmentStatus': AppointmentStatus.missed.index,
             'lastUpdatedAt': FieldValue.serverTimestamp(),
             'isViewed': false,
@@ -207,10 +204,7 @@ class DoctorHomeDashboardController extends ChangeNotifier {
             '${appointment.appointmentDate} ${appointment.appointmentTime?.split('-')[1].trim()}');
 
         if (now.isAfter(appointmentEndTime)) {
-          await firestore
-              .collection('appointments')
-              .doc(doc.id)
-              .update({
+          await firestore.collection('appointments').doc(doc.id).update({
             'appointmentStatus': AppointmentStatus.declined.index,
             'lastUpdatedAt': FieldValue.serverTimestamp(),
             'isViewed': false,
@@ -315,6 +309,71 @@ class DoctorHomeDashboardController extends ChangeNotifier {
       debugPrint('FirebaseAuthException code: ${e.code}');
       error = e;
       return Left(Exception(e.message));
+    }
+  }
+
+  Future<Either<Exception, Map<String, dynamic>>>
+      checkForExceededAppointments() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> appointmentSnapshot = await firestore
+          .collection('appointments')
+          .where('doctorUid', isEqualTo: currentUser!.uid)
+          .where('appointmentStatus',
+              isEqualTo: AppointmentStatus.confirmed.index)
+          .get();
+
+      if (appointmentSnapshot.docs.isEmpty) {
+        return Left(Exception('No confirmed appointments found'));
+      }
+
+      final DateTime now = DateTime.now();
+      final DateFormat dateTimeFormat = DateFormat('MMMM d, yyyy h:mm a');
+
+      final f2fAppointments = appointmentSnapshot.docs
+          .map((doc) => AppointmentModel.fromJson(doc.data()))
+          .where((appointment) =>
+              appointment.modeOfAppointment ==
+                  ModeOfAppointmentId.faceToFaceConsultation.index &&
+              appointment.f2fAppointmentStarted == true &&
+              (appointment.f2fAppointmentConcluded == false))
+          .toList();
+
+      if (f2fAppointments.isEmpty) {
+        return Left(Exception('No active F2F appointments found'));
+      }
+
+      for (var appointment in f2fAppointments) {
+        if (appointment.appointmentTime == null) continue;
+
+        final appointmentEndTime = dateTimeFormat.parse(
+            '${appointment.appointmentDate} ${appointment.appointmentTime!.split('-')[1].trim()}');
+
+        if (now.isAfter(appointmentEndTime)) {
+          final patientData = await getPatientData(appointment.patientUid!);
+          final patientName = patientData.fold(
+            (l) => 'Patient',
+            (r) => r.name,
+          );
+
+          debugPrint('🕒 Found exceeded appointment for: $patientName');
+          return Right({
+            'patientName': patientName,
+            'scheduledEndTime': appointmentEndTime,
+            'currentTime': now,
+            'appointmentId': appointment.appointmentUid,
+          });
+        }
+      }
+
+      return Left(Exception('No appointments have exceeded their time'));
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException: ${e.message}');
+      debugPrint('FirebaseAuthException code: ${e.code}');
+      error = e;
+      return Left(Exception(e.message));
+    } catch (e) {
+      debugPrint('Error checking for exceeded appointments: $e');
+      return Left(Exception(e.toString()));
     }
   }
 }
