@@ -192,7 +192,7 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
 
                       return const SizedBox.shrink();
                     }),
-                [2].contains(appointment.appointmentStatus)
+                [2, 3].contains(appointment.appointmentStatus)
                     ? const SizedBox()
                     : Column(
                         children: [
