@@ -85,6 +85,9 @@ class DoctorConsultationFaceToFaceScreen extends StatelessWidget {
     final is15MinutesBeforeTheStartTime =
         fifteenMinutesBeforeTheStartTime(patientAppointment.appointmentTime!);
 
+    debugPrint('Received patient details: $patientDetails');
+    debugPrint('Received appointment details: $patientAppointment');
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
