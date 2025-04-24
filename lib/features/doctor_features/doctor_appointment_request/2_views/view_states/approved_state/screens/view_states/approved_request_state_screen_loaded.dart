@@ -36,10 +36,9 @@ class ApprovedRequestStateScreenLoaded extends StatelessWidget {
       try {
         final parsedA = DateFormat('h:mm a').parse(startA);
         final parsedB = DateFormat('h:mm a').parse(startB);
-        return parsedA
-            .compareTo(parsedB); // Reversed comparison for descending order
+        return parsedA.compareTo(parsedB);
       } catch (e) {
-        return startA.compareTo(startB); // Reversed for descending order
+        return startA.compareTo(startB);
       }
     });
 
