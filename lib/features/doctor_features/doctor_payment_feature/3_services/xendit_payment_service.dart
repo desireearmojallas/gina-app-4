@@ -368,6 +368,22 @@ class XenditPaymentService {
     }
   }
 
+  Future<double> getBalanceForPeriod(String timePeriod) async {
+    final transactions = await getTransactionHistory(timePeriod: timePeriod);
+
+    // Sum up all transaction amounts for the period
+    double periodBalance = 0.0;
+    for (final transaction in transactions) {
+      // Only include successful/completed transactions
+      if (transaction['status'] == 'SUCCESS' ||
+          transaction['status'] == 'COMPLETED') {
+        periodBalance += transaction['amount'] as double;
+      }
+    }
+
+    return periodBalance;
+  }
+
   Future<double> getToBeDisbursedAmount() async {
     if (secretKey.isEmpty) {
       debugPrint('Error: Secret key is empty');

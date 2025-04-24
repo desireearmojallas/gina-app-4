@@ -38,6 +38,7 @@ class _DoctorPaymentScreenInitialState
   bool _isLoadingTransactions = false;
 
   final List<String> _timePeriods = [
+    'All Time',
     'This Week',
     'This Month',
     'Last Month',
@@ -49,6 +50,7 @@ class _DoctorPaymentScreenInitialState
   @override
   void initState() {
     super.initState();
+    _selectedTimePeriod = 'All Time';
     _checkXenditAccountStatus();
   }
 
@@ -99,12 +101,15 @@ class _DoctorPaymentScreenInitialState
     }
   }
 
-  Future<void> _loadTotalBalance() async {
+  Future<void> _loadTotalBalance({String? timePeriod}) async {
     if (!mounted) return;
 
     setState(() => _isLoadingBalance = true);
     try {
-      final balance = await _xenditService.getTotalBalance();
+      final balance = timePeriod == 'All Time' || timePeriod == null
+          ? await _xenditService.getTotalBalance()
+          : await _xenditService.getBalanceForPeriod(timePeriod);
+
       if (mounted) {
         setState(() => _totalBalance = balance);
       }
@@ -202,6 +207,7 @@ class _DoctorPaymentScreenInitialState
                     setState(() => _selectedTimePeriod = period);
                     Navigator.pop(context);
                     _loadTransactionHistory();
+                    _loadTotalBalance(timePeriod: period);
                   },
                 )),
           ],
@@ -263,37 +269,37 @@ class _DoctorPaymentScreenInitialState
                             color: Colors.white,
                           ),
                         ),
-                        // Container(
-                        //   padding: const EdgeInsets.symmetric(
-                        //     horizontal: 8,
-                        //     vertical: 4,
-                        //   ),
-                        //   decoration: BoxDecoration(
-                        //     color: Colors.white.withOpacity(0.3),
-                        //     borderRadius: BorderRadius.circular(12),
-                        //   ),
-                        //   child: InkWell(
-                        //     onTap: _showTimePeriodSelector,
-                        //     child: Row(
-                        //       mainAxisSize: MainAxisSize.min,
-                        //       children: [
-                        //         Text(
-                        //           _selectedTimePeriod,
-                        //           style: ginaTheme.bodySmall?.copyWith(
-                        //             color: Colors.white,
-                        //             fontWeight: FontWeight.w500,
-                        //           ),
-                        //         ),
-                        //         const Gap(4),
-                        //         const Icon(
-                        //           Icons.arrow_drop_down,
-                        //           color: Colors.white,
-                        //           size: 20,
-                        //         ),
-                        //       ],
-                        //     ),
-                        //   ),
-                        // ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: InkWell(
+                            onTap: _showTimePeriodSelector,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  _selectedTimePeriod,
+                                  style: ginaTheme.bodySmall?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const Gap(4),
+                                const Icon(
+                                  Icons.arrow_drop_down,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                     const Gap(16),
@@ -361,7 +367,9 @@ class _DoctorPaymentScreenInitialState
                                   ),
                                 ),
                               Text(
-                                'Total Balance',
+                                _selectedTimePeriod == 'All Time'
+                                    ? 'Total Balance'
+                                    : '$_selectedTimePeriod Balance',
                                 style: ginaTheme.bodySmall?.copyWith(
                                   color: Colors.white.withOpacity(0.7),
                                 ),
@@ -371,7 +379,6 @@ class _DoctorPaymentScreenInitialState
                         ),
                       ],
                     ),
-                    const Gap(24),
                     SizedBox(
                       height: 150,
                       child: _isLoadingTransactions
