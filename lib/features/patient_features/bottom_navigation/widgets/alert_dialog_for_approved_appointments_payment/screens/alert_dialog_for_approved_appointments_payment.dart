@@ -58,6 +58,7 @@ class AlertDialogForApprovedAppointmentsPaymentProvider
     final int secondsElapsed = now.difference(approvalTime).inSeconds;
 
     // If more than 1 hour has passed (3600 seconds), show the Time's Up dialog directly
+    //TODO: MAKE THIS TIME DYNAMIC
     if (secondsElapsed >= 3600) {
       _showTimesUpDialogStatic(context, appointment);
       return;

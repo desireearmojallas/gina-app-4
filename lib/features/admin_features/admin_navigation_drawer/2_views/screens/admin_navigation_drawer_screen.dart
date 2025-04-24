@@ -120,7 +120,21 @@ class AdminNavigationDrawer extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const Gap(330),
+                          NavigationDrawerDestination(
+                            icon: const Icon(
+                              Icons.settings_outlined,
+                            ),
+                            selectedIcon: const Icon(
+                              Icons.settings_rounded,
+                            ),
+                            label: Text(
+                              'Settings',
+                              style: ginaTheme.labelLarge?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          const Gap(250),
                           Center(
                             child: Text(
                               'Version 2.0.0\n© 2024 Desiree Armojallas',
