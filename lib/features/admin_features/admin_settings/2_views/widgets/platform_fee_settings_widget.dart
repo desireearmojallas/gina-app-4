@@ -72,7 +72,6 @@ class _PlatformFeeSettingsContentState
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     final ginaTheme = Theme.of(context).textTheme;
 
     return BlocConsumer<AdminSettingsBloc, AdminSettingsState>(

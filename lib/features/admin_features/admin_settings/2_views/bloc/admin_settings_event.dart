@@ -73,3 +73,21 @@ class UpdatePlatformFees extends AdminSettingsEvent {
   @override
   List<Object> get props => [onlinePercentage, f2fPercentage];
 }
+
+class LoadPaymentValiditySettings extends AdminSettingsEvent {
+  const LoadPaymentValiditySettings();
+
+  @override
+  List<Object> get props => [];
+}
+
+class UpdatePaymentValiditySettings extends AdminSettingsEvent {
+  final int paymentWindowMinutes;
+
+  const UpdatePaymentValiditySettings({
+    required this.paymentWindowMinutes,
+  });
+
+  @override
+  List<Object> get props => [paymentWindowMinutes];
+}

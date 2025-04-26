@@ -229,4 +229,103 @@ class AdminSettingsController {
       return PlatformFees.defaultValues();
     }
   }
+
+  Future<Either<Exception, PaymentValiditySettings>>
+      getPaymentValiditySettings() async {
+    try {
+      working = true;
+
+      final docRef =
+          firestore.collection('app-settings').doc('payment-validity');
+      final docSnapshot = await docRef.get();
+
+      if (!docSnapshot.exists) {
+        final defaultSettings = PaymentValiditySettings.defaultValues();
+
+        await docRef.set(defaultSettings.toJson());
+        debugPrint(
+            'Created default payment validity settings: ${defaultSettings.toJson()}');
+
+        working = false;
+        return Right(defaultSettings);
+      }
+
+      final data = docSnapshot.data() as Map<String, dynamic>;
+      final paymentValiditySettings = PaymentValiditySettings.fromJson(data);
+      debugPrint(
+          'Retrieved payment validity settings: ${paymentValiditySettings.toJson()}');
+
+      working = false;
+      return Right(paymentValiditySettings);
+    } catch (e) {
+      debugPrint('Error getting payment validity settings: $e');
+      working = false;
+      error = FirebaseAuthException(message: e.toString(), code: 'error');
+      return Left(Exception('Failed to load payment validity settings: $e'));
+    }
+  }
+
+  Future<Either<Exception, bool>> updatePaymentValiditySettings({
+    required int paymentWindowMinutes,
+  }) async {
+    try {
+      working = true;
+
+      // Validate values
+      if (paymentWindowMinutes <= 0) {
+        working = false;
+        return Left(Exception('Payment window must be greater than 0 minutes'));
+      }
+
+      if (paymentWindowMinutes > 1440) {
+        // Max 24 hours (1440 minutes)
+        working = false;
+        return Left(
+            Exception('Payment window cannot exceed 24 hours (1440 minutes)'));
+      }
+
+      final paymentValiditySettings = PaymentValiditySettings(
+        paymentWindowMinutes: paymentWindowMinutes,
+        updatedAt: Timestamp.now(),
+      );
+
+      await firestore
+          .collection('app-settings')
+          .doc('payment-validity')
+          .set(paymentValiditySettings.toJson(), SetOptions(merge: true));
+
+      debugPrint(
+          'Payment validity settings updated: ${paymentValiditySettings.toJson()}');
+      working = false;
+      return const Right(true);
+    } catch (e) {
+      debugPrint('Error updating payment validity settings: $e');
+      working = false;
+      error = FirebaseAuthException(message: e.toString(), code: 'error');
+      return Left(Exception('Failed to update payment validity settings: $e'));
+    }
+  }
+
+  static Future<PaymentValiditySettings>
+      getGlobalPaymentValiditySettings() async {
+    try {
+      final FirebaseFirestore firestore = FirebaseFirestore.instance;
+      final docRef =
+          firestore.collection('app-settings').doc('payment-validity');
+      final docSnapshot = await docRef.get();
+
+      // Return default values if document doesn't exist
+      if (!docSnapshot.exists) {
+        return PaymentValiditySettings.defaultValues();
+      }
+
+      // Return existing values using the model
+      final data = docSnapshot.data() as Map<String, dynamic>;
+      return PaymentValiditySettings.fromJson(data);
+    } catch (e) {
+      debugPrint('Error getting global payment validity settings: $e');
+      // Return default values on error
+      return PaymentValiditySettings.defaultValues();
+    }
+  }
 }

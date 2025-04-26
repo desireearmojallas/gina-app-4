@@ -19,6 +19,8 @@ class AdminSettingsBloc extends Bloc<AdminSettingsEvent, AdminSettingsState> {
     on<OptimisticDeleteUser>(_onOptimisticDeleteUser);
     on<LoadPlatformFees>(_onLoadPlatformFees);
     on<UpdatePlatformFees>(_onUpdatePlatformFees);
+    on<LoadPaymentValiditySettings>(_onLoadPaymentValiditySettings);
+    on<UpdatePaymentValiditySettings>(_onUpdatePaymentValiditySettings);
   }
 
   Future<void> _onLoadUsers(
@@ -140,6 +142,50 @@ class AdminSettingsBloc extends Bloc<AdminSettingsEvent, AdminSettingsState> {
           emit(PlatformFeesLoaded(
             onlinePercentage: event.onlinePercentage,
             f2fPercentage: event.f2fPercentage,
+          ));
+        },
+      );
+    } catch (e) {
+      emit(AdminSettingsError(message: e.toString()));
+    }
+  }
+
+  Future<void> _onLoadPaymentValiditySettings(LoadPaymentValiditySettings event,
+      Emitter<AdminSettingsState> emit) async {
+    emit(AdminSettingsLoading());
+
+    try {
+      final result = await adminSettingsController.getPaymentValiditySettings();
+
+      result.fold(
+        (exception) => emit(AdminSettingsError(message: exception.toString())),
+        (settings) => emit(PaymentValiditySettingsLoaded(
+          paymentWindowMinutes: settings.paymentWindowMinutes,
+        )),
+      );
+    } catch (e) {
+      emit(AdminSettingsError(message: e.toString()));
+    }
+  }
+
+  Future<void> _onUpdatePaymentValiditySettings(
+      UpdatePaymentValiditySettings event,
+      Emitter<AdminSettingsState> emit) async {
+    emit(AdminSettingsLoading());
+
+    try {
+      final result =
+          await adminSettingsController.updatePaymentValiditySettings(
+        paymentWindowMinutes: event.paymentWindowMinutes,
+      );
+
+      result.fold(
+        (exception) => emit(AdminSettingsError(message: exception.toString())),
+        (success) {
+          emit(const PaymentValiditySettingsUpdated());
+
+          emit(PaymentValiditySettingsLoaded(
+            paymentWindowMinutes: event.paymentWindowMinutes,
           ));
         },
       );

@@ -52,3 +52,21 @@ class PlatformFeesUpdated extends AdminSettingsState {
   @override
   List<Object> get props => [];
 }
+
+class PaymentValiditySettingsLoaded extends AdminSettingsState {
+  final int paymentWindowMinutes;
+
+  const PaymentValiditySettingsLoaded({
+    required this.paymentWindowMinutes,
+  });
+
+  @override
+  List<Object> get props => [paymentWindowMinutes];
+}
+
+class PaymentValiditySettingsUpdated extends AdminSettingsState {
+  const PaymentValiditySettingsUpdated();
+
+  @override
+  List<Object> get props => [];
+}
