@@ -16,8 +16,10 @@ import 'package:gina_app_4/features/patient_features/doctor_availability/0_model
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:gina_app_4/features/admin_features/admin_settings/1_controllers/admin_settings_controller.dart';
+import 'package:gina_app_4/features/admin_features/admin_settings/0_model/app_settings_model.dart';
 
-class BookAppointmentInitialScreen extends StatelessWidget {
+class BookAppointmentInitialScreen extends StatefulWidget {
   final DoctorAvailabilityModel doctorAvailabilityModel;
   final DoctorModel doctor;
   const BookAppointmentInitialScreen({
@@ -27,6 +29,33 @@ class BookAppointmentInitialScreen extends StatelessWidget {
   });
 
   @override
+  State<BookAppointmentInitialScreen> createState() => _BookAppointmentInitialScreenState();
+}
+
+class _BookAppointmentInitialScreenState extends State<BookAppointmentInitialScreen> {
+  double onlinePlatformFeePercentage = 0.10; // Default value
+  double f2fPlatformFeePercentage = 0.15; // Default value
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPlatformFees();
+  }
+
+  Future<void> _loadPlatformFees() async {
+    try {
+      final platformFees = await AdminSettingsController.getGlobalPlatformFees();
+      setState(() {
+        onlinePlatformFeePercentage = platformFees.onlinePercentage;
+        f2fPlatformFeePercentage = platformFees.f2fPercentage;
+      });
+    } catch (e) {
+      debugPrint('Error loading platform fees: $e');
+      // Keep using default values if there's an error
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bookAppointmentBloc = context.read<BookAppointmentBloc>();
     final appointmentDetailsBloc = context.read<AppointmentDetailsBloc>();
@@ -34,14 +63,10 @@ class BookAppointmentInitialScreen extends StatelessWidget {
     final ginaTheme = Theme.of(context).textTheme;
     var selectedModeOfAppointmentIndex = -1;
 
-//TODO: TO CHANGE THIS, WILL MAKE THIS DYNAMIC ON THE ADMIN SIDE
-    const double onlinePlatformFeePercentage = 0.10;
-    const double f2fPlatformFeePercentage = 0.15;
-
     // Ensure modeOfAppointmentList always has both options
     final modeOfAppointmentList = ['Online Consultation', 'Face-to-Face'];
     final availableModes =
-        bookAppointmentBloc.getModeOfAppointment(doctorAvailabilityModel);
+        bookAppointmentBloc.getModeOfAppointment(widget.doctorAvailabilityModel);
 
     // Debugging: Print the mode of appointment list
     debugPrint(
@@ -52,8 +77,8 @@ class BookAppointmentInitialScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            doctorNameWidget(size, ginaTheme, doctor),
-            doctorAvailabilityModel.startTimes.isEmpty
+            doctorNameWidget(size, ginaTheme, widget.doctor),
+            widget.doctorAvailabilityModel.startTimes.isEmpty
                 ? Padding(
                     padding: const EdgeInsets.all(40.0),
                     child: Center(
@@ -134,7 +159,7 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                 int doctorDayIndex = weekday % 7;
 
                                 // Skip days the doctor doesn't work
-                                if (!doctorAvailabilityModel.days
+                                if (!widget.doctorAvailabilityModel.days
                                     .contains(doctorDayIndex)) {
                                   continue;
                                 }
@@ -147,14 +172,14 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                 bool hasAvailableSlot = false;
                                 for (int i = 0;
                                     i <
-                                        doctorAvailabilityModel
+                                        widget.doctorAvailabilityModel
                                             .startTimes.length;
                                     i++) {
-                                  if (!doctorAvailabilityModel
+                                  if (!widget.doctorAvailabilityModel
                                       .isTimeSlotDisabled(
                                           doctorDayIndex,
-                                          doctorAvailabilityModel.startTimes[i],
-                                          doctorAvailabilityModel.endTimes[i],
+                                          widget.doctorAvailabilityModel.startTimes[i],
+                                          widget.doctorAvailabilityModel.endTimes[i],
                                           selectedDate: checkDate)) {
                                     hasAvailableSlot = true;
                                     break;
@@ -186,7 +211,7 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                 selectableDayPredicate: (date) {
                                   return date.isAfter(today
                                           .subtract(const Duration(days: 1))) &&
-                                      doctorAvailabilityModel.days
+                                      widget.doctorAvailabilityModel.days
                                           .contains(date.weekday % 7);
                                 },
                               );
@@ -262,11 +287,11 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                               final List<String> afternoonTimeslots = [];
 
                               for (var i = 0;
-                                  i < doctorAvailabilityModel.startTimes.length;
+                                  i < widget.doctorAvailabilityModel.startTimes.length;
                                   i++) {
                                 final timeslot =
-                                    '${doctorAvailabilityModel.startTimes[i]} - ${doctorAvailabilityModel.endTimes[i]}';
-                                if (doctorAvailabilityModel.startTimes[i]
+                                    '${widget.doctorAvailabilityModel.startTimes[i]} - ${widget.doctorAvailabilityModel.endTimes[i]}';
+                                if (widget.doctorAvailabilityModel.startTimes[i]
                                     .contains('AM')) {
                                   morningTimeslots.add(timeslot);
                                 } else {
@@ -346,12 +371,12 @@ class BookAppointmentInitialScreen extends StatelessWidget {
 
                                               // Check if the time slot is disabled
                                               bool isDisabled =
-                                                  doctorAvailabilityModel
+                                                  widget.doctorAvailabilityModel
                                                       .isTimeSlotDisabled(
                                                 selectedWeekday,
-                                                doctorAvailabilityModel
+                                                widget.doctorAvailabilityModel
                                                     .startTimes[index],
-                                                doctorAvailabilityModel
+                                                widget.doctorAvailabilityModel
                                                     .endTimes[index],
                                                 selectedDate: selectedDate,
                                               );
@@ -382,10 +407,10 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                   SelectTimeEvent(
                                                     index: index,
                                                     startingTime:
-                                                        doctorAvailabilityModel
+                                                        widget.doctorAvailabilityModel
                                                             .startTimes[index],
                                                     endingTime:
-                                                        doctorAvailabilityModel
+                                                        widget.doctorAvailabilityModel
                                                             .endTimes[index],
                                                   ),
                                                 );
@@ -414,12 +439,12 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                 int selectedWeekday =
                                                     selectedDate.weekday % 7;
                                                 isDisabled =
-                                                    doctorAvailabilityModel
+                                                    widget.doctorAvailabilityModel
                                                         .isTimeSlotDisabled(
                                                   selectedWeekday,
-                                                  doctorAvailabilityModel
+                                                  widget.doctorAvailabilityModel
                                                       .startTimes[index],
-                                                  doctorAvailabilityModel
+                                                  widget.doctorAvailabilityModel
                                                       .endTimes[index],
                                                   selectedDate: selectedDate,
                                                 );
@@ -540,13 +565,13 @@ class BookAppointmentInitialScreen extends StatelessWidget {
 
                                                 // Check if the time slot is disabled
                                                 bool isDisabled =
-                                                    doctorAvailabilityModel
+                                                    widget.doctorAvailabilityModel
                                                         .isTimeSlotDisabled(
                                                   selectedWeekday,
-                                                  doctorAvailabilityModel
+                                                  widget.doctorAvailabilityModel
                                                           .startTimes[
                                                       afternoonIndex],
-                                                  doctorAvailabilityModel
+                                                  widget.doctorAvailabilityModel
                                                       .endTimes[afternoonIndex],
                                                   selectedDate: selectedDate,
                                                 );
@@ -579,11 +604,11 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                     SelectTimeEvent(
                                                       index: afternoonIndex,
                                                       startingTime:
-                                                          doctorAvailabilityModel
+                                                          widget.doctorAvailabilityModel
                                                                   .startTimes[
                                                               afternoonIndex],
                                                       endingTime:
-                                                          doctorAvailabilityModel
+                                                          widget.doctorAvailabilityModel
                                                                   .endTimes[
                                                               afternoonIndex],
                                                     ),
@@ -616,13 +641,13 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                   int selectedWeekday =
                                                       selectedDate.weekday % 7;
                                                   isDisabled =
-                                                      doctorAvailabilityModel
+                                                      widget.doctorAvailabilityModel
                                                           .isTimeSlotDisabled(
                                                     selectedWeekday,
-                                                    doctorAvailabilityModel
+                                                    widget.doctorAvailabilityModel
                                                             .startTimes[
                                                         afternoonIndex],
-                                                    doctorAvailabilityModel
+                                                    widget.doctorAvailabilityModel
                                                             .endTimes[
                                                         afternoonIndex],
                                                     selectedDate: selectedDate,
@@ -705,8 +730,8 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                 final isAvailable = availableModes
                                     .contains(modeOfAppointmentList[index]);
                                 final price = index == 0
-                                    ? doctor.olInitialConsultationPrice
-                                    : doctor.f2fInitialConsultationPrice;
+                                    ? widget.doctor.olInitialConsultationPrice
+                                    : widget.doctor.f2fInitialConsultationPrice;
 
                                 return InkWell(
                                   onTap: isRescheduleMode
@@ -891,13 +916,13 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                   ? (appointmentDetailsForReschedule
                                               ?.modeOfAppointment ==
                                           0
-                                      ? doctor.olInitialConsultationPrice
-                                      : doctor.f2fInitialConsultationPrice)
+                                      ? widget.doctor.olInitialConsultationPrice
+                                      : widget.doctor.f2fInitialConsultationPrice)
                                   : (bookAppointmentBloc
                                               .selectedModeofAppointmentIndex ==
                                           0
-                                      ? doctor.olInitialConsultationPrice
-                                      : doctor.f2fInitialConsultationPrice);
+                                      ? widget.doctor.olInitialConsultationPrice
+                                      : widget.doctor.f2fInitialConsultationPrice);
 
                               debugPrint('Creating Pay Now Button with:');
                               debugPrint('Amount: $amount');
@@ -914,8 +939,8 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                     ? appointmentDetailsForReschedule!
                                         .appointmentUid!
                                     : bookAppointmentBloc.tempAppointmentId!,
-                                doctorId: doctor.uid,
-                                doctorName: doctor.name,
+                                doctorId: widget.doctor.uid,
+                                doctorName: widget.doctor.name,
                                 patientName: currentActivePatient!.name,
                                 modeOfAppointment: isRescheduleMode
                                     ? (appointmentDetailsForReschedule
@@ -1025,13 +1050,13 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                               final selectedIndex = currentState
                                                   .selectedTimeIndex!;
                                               final selectedTime =
-                                                  '${doctorAvailabilityModel.startTimes[selectedIndex]} - ${doctorAvailabilityModel.endTimes[selectedIndex]}';
+                                                  '${widget.doctorAvailabilityModel.startTimes[selectedIndex]} - ${widget.doctorAvailabilityModel.endTimes[selectedIndex]}';
 
                                               debugPrint(
                                                   'Rescheduling appointment...');
                                               appointmentDetailsBloc.add(
                                                 RescheduleAppointmentEvent(
-                                                  doctor: doctor,
+                                                  doctor: widget.doctor,
                                                   appointmentUid:
                                                       appointmentUidToReschedule!,
                                                   appointmentDate:
@@ -1051,14 +1076,14 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                               showRescheduleAppointmentSuccessDialog(
                                                 context,
                                                 appointmentUidToReschedule!,
-                                                doctor,
+                                                widget.doctor,
                                               ).then((_) {
                                                 Navigator.pushReplacement(
                                                   context,
                                                   MaterialPageRoute(
                                                     builder: (context) {
                                                       return ReviewRescheduledAppointmentScreen(
-                                                        doctorDetails: doctor,
+                                                        doctorDetails: widget.doctor,
                                                         currentPatient:
                                                             currentActivePatient!,
                                                         appointmentModel:
@@ -1133,7 +1158,7 @@ class BookAppointmentInitialScreen extends StatelessWidget {
                                                         currentState
                                                             .selectedTimeIndex!;
                                                     final selectedTime =
-                                                        '${doctorAvailabilityModel.startTimes[selectedIndex]} - ${doctorAvailabilityModel.endTimes[selectedIndex]}';
+                                                        '${widget.doctorAvailabilityModel.startTimes[selectedIndex]} - ${widget.doctorAvailabilityModel.endTimes[selectedIndex]}';
 
                                                     final selectedModeIndex =
                                                         selectedModeOfAppointmentIndex;
@@ -1160,10 +1185,10 @@ class BookAppointmentInitialScreen extends StatelessWidget {
 
                                                     bookAppointmentBloc.add(
                                                       BookForAnAppointmentEvent(
-                                                        doctorId: doctor.uid,
-                                                        doctorName: doctor.name,
+                                                        doctorId: widget.doctor.uid,
+                                                        doctorName: widget.doctor.name,
                                                         doctorClinicAddress:
-                                                            doctor
+                                                            widget.doctor
                                                                 .officeAddress,
                                                         appointmentDate:
                                                             bookAppointmentBloc
