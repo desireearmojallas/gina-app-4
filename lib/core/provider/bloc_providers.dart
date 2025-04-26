@@ -8,6 +8,7 @@ import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_v
 import 'package:gina_app_4/features/admin_features/admin_login/2_views/bloc/admin_login_bloc.dart';
 import 'package:gina_app_4/features/admin_features/admin_navigation_drawer/2_views/bloc/admin_navigation_drawer_bloc.dart';
 import 'package:gina_app_4/features/admin_features/admin_patient_list/2_views/bloc/admin_patient_list_bloc.dart';
+import 'package:gina_app_4/features/admin_features/admin_settings/2_views/bloc/admin_settings_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/screens/forgot_password/2_views/bloc/forgot_password_bloc.dart';
 import 'package:gina_app_4/features/doctor_features/create_doctor_schedule/2_views/bloc/create_doctor_schedule_bloc.dart';
@@ -94,6 +95,9 @@ List<BlocProvider> getBlocProviders() {
 
     BlocProvider<AdminPatientListBloc>(
       create: (context) => sl<AdminPatientListBloc>(),
+    ),
+    BlocProvider<AdminSettingsBloc>(
+      create: (context) => sl<AdminSettingsBloc>(),
     ),
 
     // Patient Blocs

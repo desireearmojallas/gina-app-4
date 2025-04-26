@@ -6,3 +6,50 @@ sealed class AdminSettingsEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+class LoadUsers extends AdminSettingsEvent {
+  final String userType;
+
+  const LoadUsers({required this.userType});
+
+  @override
+  List<Object> get props => [userType];
+}
+
+class SearchUsers extends AdminSettingsEvent {
+  final String userType;
+  final String query;
+
+  const SearchUsers({required this.userType, required this.query});
+
+  @override
+  List<Object> get props => [userType, query];
+}
+
+class SwitchUserType extends AdminSettingsEvent {
+  final String userType;
+
+  const SwitchUserType({required this.userType});
+
+  @override
+  List<Object> get props => [userType];
+}
+
+class DeleteUser extends AdminSettingsEvent {
+  final String userId;
+  final String userType;
+
+  const DeleteUser({required this.userId, required this.userType});
+
+  @override
+  List<Object> get props => [userId, userType];
+}
+
+class OptimisticDeleteUser extends AdminSettingsEvent {
+  final String userId;
+
+  const OptimisticDeleteUser({required this.userId});
+
+  @override
+  List<Object> get props => [userId];
+}

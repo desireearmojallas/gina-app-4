@@ -6,7 +6,7 @@ require("dotenv").config();
 /**
  * Import Firebase Functions SDK v2
  */
-const {onRequest} = require("firebase-functions/v2/https");
+const {onRequest, onCall} = require("firebase-functions/v2/https");
 const {setGlobalOptions} = require("firebase-functions/v2");
 
 /**
@@ -967,5 +967,152 @@ exports.processRefund = onRequest({timeoutSeconds: 60}, async (req, res) => {
       error: "Failed to process refund",
       details: error.message || "Unknown error",
     });
+  }
+});
+
+/**
+ * Delete User (Callable Function)
+ * Allows admins to delete users from Firebase Authentication
+ */
+exports.deleteUser = onCall(async (data, context) => {
+  // Debug logs
+  console.log("Auth context:", context.auth ? "User authenticated" : "No auth");
+  console.log("Admin claim:", context.auth?.token?.admin);
+  console.log("Attempting to delete user:", data.userId);
+  
+  const userId = data.userId;
+  
+  // Validate userId
+  if (!userId || typeof userId !== "string" || userId.length === 0 || userId.length > 128) {
+    console.error("Invalid user ID:", userId);
+    throw new Error("Invalid user ID: The ID must be a non-empty string with at most 128 characters");
+  }
+
+  try {
+    // First check if user exists
+    let userRecord;
+    try {
+      console.log("Checking if user exists in Authentication...");
+      userRecord = await admin.auth().getUser(userId);
+      console.log(`Found user to delete: ${userRecord.email || userId}`);
+    } catch (e) {
+      console.log(`User ${userId} does not exist in Authentication: ${e.message}`);
+      // Return success even if user doesn't exist in Auth, as they might exist in Firestore
+      return {success: true, message: "User not found in Authentication"};
+    }
+    
+    // Now attempt to delete from Authentication
+    let authDeleted = false;
+    try {
+      console.log("Attempting to delete user from Authentication...");
+      await admin.auth().deleteUser(userId);
+      console.log(`Successfully deleted user ${userId} from Authentication`);
+      authDeleted = true;
+    } catch (authError) {
+      console.error(`Error deleting user from Authentication: ${authError.message}`);
+      console.error(`Auth error code: ${authError.code}`);
+      console.error(`Auth error stack: ${authError.stack}`);
+      
+      // Check if this is a permission error
+      if (authError.code === "auth/insufficient-permission") {
+        console.error("Insufficient permissions to delete user from Authentication");
+        return {
+          success: false,
+          error: "Insufficient permissions to delete user from Authentication. " +
+                 "Please delete manually from Firebase Console.",
+          requiresManualDeletion: true,
+        };
+      }
+      
+      // Continue with Firestore deletion even if Auth deletion fails
+    }
+    
+    // Return success if at least one operation succeeded
+    if (authDeleted) {
+      return {success: true, message: "User deleted successfully from Authentication"};
+    } else {
+      return {
+        success: false,
+        error: "Failed to delete user from Authentication. Please delete manually from Firebase Console.",
+        requiresManualDeletion: true,
+      };
+    }
+  } catch (error) {
+    // Log detailed error info
+    console.error("Error in deleteUser function:", error);
+    console.error(`Error code: ${error.code}, message: ${error.message}`);
+    console.error(`Error stack: ${error.stack}`);
+    return {
+      success: false, 
+      error: error.message || "Unknown error occurred while deleting user",
+      requiresManualDeletion: true,
+    };
+  }
+});
+
+
+exports.setupAdmin = onCall(async (data, context) => {
+  // Get user ID from the request
+  const {userId} = data;
+  
+  // Debug logs
+  console.log("Setting up admin for user ID:", userId);
+  
+  // Validate userId
+  if (!userId || typeof userId !== "string" || userId.length === 0 || userId.length > 128) {
+    console.error("Invalid user ID:", userId);
+    throw new Error("Invalid user ID: The ID must be a non-empty string with at most 128 characters");
+  }
+  
+  try {
+    // First verify the user exists
+    console.log("Verifying user exists...");
+    const userRecord = await admin.auth().getUser(userId);
+    if (!userRecord) {
+      console.error("User not found:", userId);
+      throw new Error("User not found");
+    }
+    
+    console.log("User found:", userRecord.email || userId);
+    
+    // Set the admin claim for the user
+    console.log("Setting admin claim...");
+    try {
+      await admin.auth().setCustomUserClaims(userId, {admin: true});
+      console.log("Admin claim set successfully");
+    } catch (claimError) {
+      console.error("Error setting admin claim:", claimError);
+      // Continue with Firestore update even if claim setting fails
+    }
+    
+    // Also update the admin document in Firestore to keep them in sync
+    console.log("Updating Firestore admin document...");
+    try {
+      await admin.firestore().collection("admin").doc(userId).set({
+        isAdmin: true,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        email: userRecord.email || null,
+      });
+      console.log("Firestore admin document updated successfully");
+    } catch (firestoreError) {
+      console.error("Error updating Firestore:", firestoreError);
+      throw new Error("Failed to update Firestore: " + firestoreError.message);
+    }
+    
+    return { 
+      success: true, 
+      message: `User ${userId} is now an admin`, 
+    };
+  } catch (error) {
+    // Log detailed error info
+    console.error("Error setting admin claim:", error);
+    console.error("Error code:", error.code);
+    console.error("Error message:", error.message);
+    console.error("Error stack:", error.stack);
+    
+    return {
+      success: false, 
+      error: error.message || "Failed to set admin claim",
+    };
   }
 });
