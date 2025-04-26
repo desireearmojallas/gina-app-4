@@ -19,27 +19,27 @@ class CancelAppointmentEvent extends AppointmentDetailsEvent {
 }
 
 class RescheduleAppointmentEvent extends AppointmentDetailsEvent {
+  final DoctorModel doctor;
   final String appointmentUid;
   final String appointmentDate;
   final String appointmentTime;
-  final int modeOfAppointment;
-  final DoctorModel doctor;
+  final String reasonForAppointment;
 
   const RescheduleAppointmentEvent({
+    required this.doctor,
     required this.appointmentUid,
     required this.appointmentDate,
     required this.appointmentTime,
-    required this.modeOfAppointment,
-    required this.doctor,
+    required this.reasonForAppointment,
   });
 
   @override
   List<Object> get props => [
+        doctor,
         appointmentUid,
         appointmentDate,
         appointmentTime,
-        modeOfAppointment,
-        doctor,
+        reasonForAppointment,
       ];
 }
 

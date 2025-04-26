@@ -5,11 +5,13 @@ import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/firebase_options.dart';
 import 'package:gina_app_4/gina_app.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 bool? canVibrate;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await init();
   canVibrate = await Haptics.canVibrate();

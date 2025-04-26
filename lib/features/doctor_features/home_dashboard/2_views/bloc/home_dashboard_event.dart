@@ -17,3 +17,7 @@ class HomeInitialEvent extends HomeDashboardEvent {
 }
 
 class GetDoctorNameEvent extends HomeDashboardEvent {}
+
+class CheckForExceededAppointmentsEvent extends HomeDashboardEvent {}
+
+class ResetExceededAppointmentDialogEvent extends HomeDashboardEvent {}

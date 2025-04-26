@@ -17,18 +17,33 @@ class GetDoctorAvailabilityLoaded extends BookAppointmentState {
   final DoctorAvailabilityModel doctorAvailabilityModel;
   final int? selectedTimeIndex;
   final int? selectedModeofAppointmentIndex;
+  final String? appointmentId;
+  final String? doctorName;
+  final String? consultationType;
+  final double? amount;
+  final DateTime? appointmentDate;
 
   const GetDoctorAvailabilityLoaded({
     required this.doctorAvailabilityModel,
     required this.selectedTimeIndex,
     required this.selectedModeofAppointmentIndex,
+    this.appointmentId,
+    this.doctorName,
+    this.consultationType,
+    this.amount,
+    this.appointmentDate,
   });
 
   @override
   List<Object> get props => [
         doctorAvailabilityModel,
-        // selectedTimeIndex ?? -1,
-        // selectedModeofAppointmentIndex ?? -1
+        selectedTimeIndex ?? -1,
+        selectedModeofAppointmentIndex ?? -1,
+        appointmentId ?? '',
+        doctorName ?? '',
+        consultationType ?? '',
+        amount ?? 0.0,
+        appointmentDate ?? DateTime(1970, 1, 1),
       ];
 }
 
@@ -91,4 +106,15 @@ class SelectedModeOfAppointmentState extends BookAppointmentState {
 
   @override
   List<Object> get props => [index];
+}
+
+class BookForAnAppointmentReview extends BookAppointmentState {
+  final AppointmentModel appointmentModel;
+
+  const BookForAnAppointmentReview({
+    required this.appointmentModel,
+  });
+
+  @override
+  List<Object> get props => [appointmentModel];
 }

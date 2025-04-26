@@ -104,10 +104,45 @@ class DoctorProfileScreenLoaded extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                             ),
+                            const Gap(10),
+                            // Star rating display
+                            doctorData.doctorRatings.isNotEmpty
+                                ? Center(
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.star_rounded,
+                                          color: Colors.yellow[800],
+                                          size: 16,
+                                        ),
+                                        const Gap(3),
+                                        Text(
+                                          "${doctorData.averageRating?.toStringAsFixed(1)}",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 14,
+                                            color: Colors.yellow[800],
+                                          ),
+                                        ),
+                                        Text(
+                                          " (${doctorData.doctorRatings.length})",
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                            color: GinaAppTheme.lightOutline,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
                           ],
                         ),
 
-                        Gap(size.height * 0.025),
+                        Gap(size.height * 0.018),
 
                         //! -- Edit profile button --
                         SizedBox(

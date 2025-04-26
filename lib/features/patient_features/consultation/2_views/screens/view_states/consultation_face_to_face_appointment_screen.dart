@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/patient_features/consultation/1_controllers/chat_message_controllers.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
@@ -41,6 +43,13 @@ class _FaceToFaceAppointmentScreenState
   bool _isLoading = true;
   StreamSubscription<Position>? _positionStreamSubscription;
   BitmapDescriptor? _patientMarkerIcon;
+  StreamSubscription? _appointmentStatusSubscription;
+  final ChatMessageController chatController = ChatMessageController();
+
+  String get selectedDoctorUid => widget.doctor.uid;
+  AppointmentModel get appointment => widget.appointment;
+
+  bool _hasShownEndDialog = false;
 
   @override
   void initState() {
@@ -50,12 +59,128 @@ class _FaceToFaceAppointmentScreenState
     _getCurrentLocation();
     _listenToLocationChanges();
     _loadCustomMarker();
+    _monitorF2FAppointmentStatus();
   }
 
   @override
   void dispose() {
+    _appointmentStatusSubscription?.cancel();
     _positionStreamSubscription?.cancel();
     super.dispose();
+  }
+
+  void _monitorF2FAppointmentStatus() {
+    debugPrint(
+        'Monitoring F2F appointment status: ${widget.appointment.appointmentUid}');
+
+    // Create a stream subscription
+    StreamSubscription? appointmentStatusSubscription;
+
+    // Use Firestore directly to monitor changes
+    appointmentStatusSubscription = FirebaseFirestore.instance
+        .collection('appointments')
+        .doc(widget.appointment.appointmentUid)
+        .snapshots()
+        .listen((snapshot) {
+      if (!snapshot.exists || !mounted) {
+        debugPrint('Appointment document not found or widget unmounted');
+        return;
+      }
+
+      var data = snapshot.data()!;
+
+      // Get appointment status and concluded flag
+      int appointmentStatus = data['appointmentStatus'] ?? 0;
+      bool isF2FConcluded = data['f2fAppointmentConcluded'] == true;
+
+      debugPrint(
+          'Current appointment status: $appointmentStatus, isF2FConcluded: $isF2FConcluded');
+
+      if (!_hasShownEndDialog && isF2FConcluded && appointmentStatus == 2) {
+        debugPrint('F2F appointment concluded, showing dialog once');
+
+        _hasShownEndDialog = true;
+
+        showF2FConsultationEndedDialog();
+        appointmentStatusSubscription?.cancel();
+        _appointmentStatusSubscription = null;
+      }
+    });
+
+    // Store subscription for cleanup
+    _appointmentStatusSubscription = appointmentStatusSubscription;
+  }
+
+  void showF2FConsultationEndedDialog() {
+    // Track the selected rating
+    int selectedRating = 0;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Consultation Ended'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  'Your face-to-face consultation with the doctor has ended.',
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'How would you rate this consultation?',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(5, (index) {
+                    return IconButton(
+                      icon: Icon(
+                        index < selectedRating ? Icons.star : Icons.star_border,
+                        color:
+                            index < selectedRating ? Colors.amber : Colors.grey,
+                        size: 30,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          selectedRating = index + 1;
+                        });
+                      },
+                    );
+                  }),
+                ),
+                Text(
+                  selectedRating > 0
+                      ? '$selectedRating ${selectedRating == 1 ? 'star' : 'stars'}'
+                      : 'Tap to rate',
+                  style: TextStyle(
+                    color: selectedRating > 0 ? Colors.amber : Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  // Submit rating if selected
+                  if (selectedRating > 0) {
+                    chatController.submitRating(
+                        selectedRating, appointment, selectedDoctorUid);
+                  }
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop(); // Return to previous screen
+                },
+                child: const Text('Done'),
+              ),
+            ],
+          );
+        });
+      },
+    );
   }
 
   /// Load custom marker icon

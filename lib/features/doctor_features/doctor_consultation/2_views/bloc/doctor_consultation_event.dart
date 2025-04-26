@@ -60,11 +60,13 @@ class NavigateToPatientDataEvent extends DoctorConsultationEvent {
   final UserModel patientData;
   final AppointmentModel appointment;
   final List<AppointmentModel> completedAppointments;
+  final List<PeriodTrackerModel> patientPeriods;
 
   const NavigateToPatientDataEvent({
     required this.patientData,
     required this.appointment,
     required this.completedAppointments,
+    required this.patientPeriods,
   });
 
   @override
@@ -72,6 +74,7 @@ class NavigateToPatientDataEvent extends DoctorConsultationEvent {
         patientData,
         appointment,
         completedAppointments,
+        patientPeriods,
       ];
 }
 

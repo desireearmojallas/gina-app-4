@@ -74,9 +74,9 @@ class DoctorConsultationFeeBloc
     try {
       await doctorConsultationFeeController.updateDoctorConsultationFee(
         f2fInitialConsultationPrice: event.f2fInitialConsultationPrice,
-        f2fFollowUpConsultationPrice: event.f2fFollowUpConsultationPrice,
+        // f2fFollowUpConsultationPrice: event.f2fFollowUpConsultationPrice,
         olInitialConsultationPrice: event.olInitialConsultationPrice,
-        olFollowUpConsultationPrice: event.olFollowUpConsultationPrice,
+        // olFollowUpConsultationPrice: event.olFollowUpConsultationPrice,
       );
     } catch (e) {
       emit(DoctorConsultationFeeErrorState(errorMessage: e.toString()));

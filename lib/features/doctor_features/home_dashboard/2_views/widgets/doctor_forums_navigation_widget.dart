@@ -19,8 +19,8 @@ class DoctorForumsNavigationWidget extends StatelessWidget {
         Navigator.pushNamed(context, '/doctorForumsPost');
       },
       child: Container(
-        height: size.height * 0.16,
-        width: size.width / 2.9,
+        height: size.height * 0.08,
+        width: size.width / 2.18,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           // gradient: LinearGradient(
@@ -33,42 +33,46 @@ class DoctorForumsNavigationWidget extends StatelessWidget {
             GinaAppTheme.defaultBoxShadow,
           ],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                // CircleAvatar(
-                //   backgroundColor: GinaAppTheme.lightSecondary.withOpacity(1),
-                //   radius: 40,
-                // ),
-                Image.asset(
-                  Images.forumImage,
-                  width: 100,
-                  height: 80,
-                ),
-              ],
-            ),
-            const Gap(10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text(
-                  'Join the\nDiscussion',
-                  style: ginaTheme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: GinaAppTheme.lightOnPrimaryColor,
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  // CircleAvatar(
+                  //   backgroundColor: GinaAppTheme.lightSecondary.withOpacity(1),
+                  //   radius: 40,
+                  // ),
+                  Image.asset(
+                    Images.forumImage,
+                    width: 60,
+                    height: 40,
                   ),
-                ),
-                const Icon(
-                  Bootstrap.arrow_right_circle_fill,
-                  color: GinaAppTheme.lightSecondary,
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+              const Gap(15),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(
+                    'Join the\nDiscussion',
+                    style: ginaTheme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: GinaAppTheme.lightOnPrimaryColor,
+                      fontSize: 11,
+                    ),
+                  ),
+                  // const Icon(
+                  //   Bootstrap.arrow_right_circle_fill,
+                  //   color: GinaAppTheme.lightSecondary,
+                  // ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

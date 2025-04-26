@@ -6,14 +6,14 @@ import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/floati
 import 'package:gina_app_4/core/storage/shared_preferences/shared_preferences_manager.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/1_controllers/patient_auth_controller.dart';
-import 'package:badges/badges.dart' as badges;
+// import 'package:badges/badges.dart' as badges;
 import 'package:gina_app_4/features/patient_features/profile/2_views/screens/profile_screen.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class FloatingMenuWidget extends StatelessWidget {
-  bool?
+  final bool?
       hasNotification; //TODO: TO CHANGE THIS, ADD LOGIC TO NOTIFICATION INDICATOR FOR AVATAR MENU BUTTON
-  FloatingMenuWidget({super.key, this.hasNotification});
+  const FloatingMenuWidget({super.key, this.hasNotification});
 
   @override
   Widget build(BuildContext context) {

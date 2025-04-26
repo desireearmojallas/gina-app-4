@@ -6,6 +6,7 @@ import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
+import 'package:gina_app_4/features/admin_features/admin_settings/1_controllers/admin_settings_controller.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patients/0_models/user_appointment_period_model.dart';
@@ -30,6 +31,16 @@ class DoctorAppointmentRequestController with ChangeNotifier {
     authStream = auth.authStateChanges().listen((User? user) {
       currentUser = user;
       notifyListeners();
+
+      if (currentUser != null) {
+        // Run immediately on login
+        checkAndDeclineUnpaidAppointments();
+
+        // Then run every 15 minutes
+        Timer.periodic(const Duration(minutes: 15), (_) {
+          checkAndDeclineUnpaidAppointments();
+        });
+      }
     });
   }
 
@@ -413,10 +424,11 @@ class DoctorAppointmentRequestController with ChangeNotifier {
   }) async {
     debugPrint('Approving appointment with ID: $appointmentId');
     try {
-      await firestore
-          .collection('appointments')
-          .doc(appointmentId)
-          .update({'appointmentStatus': AppointmentStatus.confirmed.index});
+      await firestore.collection('appointments').doc(appointmentId).update({
+        'appointmentStatus': AppointmentStatus.confirmed.index,
+        'lastUpdatedAt': FieldValue.serverTimestamp(),
+        'isViewed': false,
+      });
       debugPrint('Appointment approved successfully');
 
       return const Right(true);
@@ -430,27 +442,61 @@ class DoctorAppointmentRequestController with ChangeNotifier {
     }
   }
 
-  //---------- Decline Doctor Appointment Request -----------
-
   Future<Either<Exception, bool>> declinePendingPatientRequest({
     required String appointmentId,
+    String? declineReason,
   }) async {
-    debugPrint('Declining appointment with ID: $appointmentId');
+    debugPrint('===== DECLINING APPOINTMENT =====');
+    debugPrint('Appointment ID: $appointmentId');
+    debugPrint('Decline Reason: ${declineReason ?? "No reason provided"}');
+    debugPrint('Timestamp: ${DateTime.now().toIso8601String()}');
+
     try {
+      // Get appointment details first
+      final appointmentDoc =
+          await firestore.collection('appointments').doc(appointmentId).get();
+
+      if (!appointmentDoc.exists) {
+        debugPrint('ERROR: Appointment document not found');
+        return Left(Exception('Appointment not found'));
+      }
+
+      final appointmentData = appointmentDoc.data();
+      debugPrint('Appointment data:');
+      debugPrint('- Status: ${appointmentData?['appointmentStatus']}');
+      debugPrint('- Patient: ${appointmentData?['patientName']}');
+
+      // Update appointment status and add decline reason
+      final Map<String, dynamic> updateData = {
+        'appointmentStatus': AppointmentStatus.declined.index,
+        'declinedAt': FieldValue.serverTimestamp(),
+        'declineReason': declineReason ?? '',
+        'lastUpdatedAt': FieldValue.serverTimestamp(),
+        'isViewed': false,
+      };
+
+      // Update the appointment document
       await firestore
           .collection('appointments')
           .doc(appointmentId)
-          .update({'appointmentStatus': AppointmentStatus.declined.index});
-      debugPrint('Appointment declined successfully');
+          .update(updateData);
 
+      debugPrint('Appointment declined successfully');
+      debugPrint('===== DECLINE APPOINTMENT COMPLETED =====');
       return const Right(true);
     } on FirebaseAuthException catch (e) {
-      debugPrint('FirebaseAuthException: ${e.message}');
-      debugPrint('FirebaseAuthException code: ${e.code}');
+      debugPrint('ERROR: FirebaseAuthException: ${e.message}');
+      debugPrint('ERROR: FirebaseAuthException code: ${e.code}');
+      debugPrint('ERROR: Stack trace: ${StackTrace.current}');
       error = e;
       notifyListeners();
-      debugPrint('Error declining appointment: $e');
+      debugPrint('===== DECLINE APPOINTMENT FAILED =====');
       return Left(Exception(e.message));
+    } catch (e) {
+      debugPrint('ERROR: Unexpected error: $e');
+      debugPrint('ERROR: Stack trace: ${StackTrace.current}');
+      debugPrint('===== DECLINE APPOINTMENT FAILED =====');
+      return Left(Exception('Failed to decline appointment: $e'));
     }
   }
 
@@ -485,12 +531,30 @@ class DoctorAppointmentRequestController with ChangeNotifier {
     required String appointmentId,
   }) async {
     try {
+      final appointmentDoc =
+          await firestore.collection('appointments').doc(appointmentId).get();
+
+      if (!appointmentDoc.exists) {
+        debugPrint('Cannot conclude: Appointment not found');
+        return Left(Exception('Appointment not found'));
+      }
+
+      final data = appointmentDoc.data();
+      final bool isStarted = data?['f2fAppointmentStarted'] ?? false;
+
+      if (!isStarted) {
+        debugPrint('Cannot conclude: Appointment has not been started yet');
+        return Left(Exception(
+            'Appointment must be started before it can be concluded'));
+      }
+
       await firestore.collection('appointments').doc(appointmentId).update({
         'appointmentStatus': AppointmentStatus.completed.index,
         'f2fAppointmentConcluded': true,
         'f2fAppointmentConcludedTime': Timestamp.now(),
       });
 
+      debugPrint('Appointment concluded successfully');
       return const Right(true);
     } on FirebaseAuthException catch (e) {
       debugPrint('FirebaseAuthException: ${e.message}');
@@ -804,6 +868,83 @@ class DoctorAppointmentRequestController with ChangeNotifier {
       debugPrint('FirebaseAuthException code: ${e.code}');
       error = e;
       return Left(Exception(e.message));
+    }
+  }
+
+  //---------- CHECK AND DECLINE UNPAID APPOINTMENTS -----------
+  Future<void> checkAndDeclineUnpaidAppointments() async {
+    try {
+      debugPrint('Checking for unpaid confirmed appointments...');
+
+      // Get the configured payment validity settings
+      final paymentValiditySettings =
+          await AdminSettingsController.getGlobalPaymentValiditySettings();
+      final paymentWindowMinutes = paymentValiditySettings.paymentWindowMinutes;
+
+      debugPrint('Payment validity window: $paymentWindowMinutes minutes');
+
+      // Get confirmed appointments
+      QuerySnapshot<Map<String, dynamic>> appointmentSnapshot = await firestore
+          .collection('appointments')
+          .where('doctorUid', isEqualTo: currentUser!.uid)
+          .where('appointmentStatus',
+              isEqualTo: AppointmentStatus.confirmed.index)
+          .get();
+
+      // Calculate dynamic time threshold based on settings
+      final paymentDeadline =
+          DateTime.now().subtract(Duration(minutes: paymentWindowMinutes));
+      int declinedCount = 0;
+
+      for (var doc in appointmentSnapshot.docs) {
+        final data = doc.data();
+        final appointmentId = doc.id;
+
+        // Check if lastUpdatedAt exists and is more than payment window ago
+        if (data['lastUpdatedAt'] != null) {
+          final lastUpdated = (data['lastUpdatedAt'] as Timestamp).toDate();
+
+          if (lastUpdated.isBefore(paymentDeadline)) {
+            debugPrint(
+                'Found appointment approved more than $paymentWindowMinutes minutes ago: $appointmentId');
+
+            // Check if payment exists
+            final paymentsSnapshot = await firestore
+                .collection('appointments')
+                .doc(appointmentId)
+                .collection('payments')
+                .get();
+
+            if (paymentsSnapshot.docs.isEmpty) {
+              debugPrint(
+                  'No payment found for appointment $appointmentId, declining...');
+
+              // Decline the appointment
+              await firestore
+                  .collection('appointments')
+                  .doc(appointmentId)
+                  .update({
+                'appointmentStatus': AppointmentStatus.declined.index,
+                'declinedAt': FieldValue.serverTimestamp(),
+                'declineReason':
+                    'Automatically declined due to payment not received within $paymentWindowMinutes minutes.',
+                'lastUpdatedAt': FieldValue.serverTimestamp(),
+                'isViewed': false,
+                'autoDeclined': true, // Match patient-side flag
+              });
+
+              declinedCount++;
+            } else {
+              debugPrint(
+                  'Payment found for appointment $appointmentId, keeping as confirmed');
+            }
+          }
+        }
+      }
+
+      debugPrint('Auto-declined $declinedCount unpaid appointments');
+    } catch (e) {
+      debugPrint('Error checking for unpaid appointments: $e');
     }
   }
 }

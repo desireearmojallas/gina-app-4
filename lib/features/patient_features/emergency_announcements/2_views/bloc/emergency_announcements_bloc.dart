@@ -17,11 +17,32 @@ class EmergencyAnnouncementsBloc
     extends Bloc<EmergencyAnnouncementsEvent, EmergencyAnnouncementsState> {
   final EmergencyAnnouncementsController emergencyController;
   final AppointmentController appointmentController;
+  StreamSubscription? _emergencySubscription;
   EmergencyAnnouncementsBloc({
     required this.emergencyController,
     required this.appointmentController,
   }) : super(EmergencyAnnouncementsInitial()) {
     on<GetEmergencyAnnouncements>(getEmergencyAnnouncements);
+    on<EmergencyNotificationReceivedEvent>(onEmergencyNotificationReceived);
+    on<MarkAnnouncementAsClickedEvent>(onMarkAnnouncementAsClicked);
+
+    listenForEmergencies();
+  }
+
+  void listenForEmergencies() {
+    _emergencySubscription?.cancel();
+
+    _emergencySubscription = emergencyController
+        .listenForEmergencyAnnouncements()
+        .listen((announcement) {
+      add(EmergencyNotificationReceivedEvent(announcement));
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _emergencySubscription?.cancel();
+    return super.close();
   }
 
   FutureOr<void> getEmergencyAnnouncements(GetEmergencyAnnouncements event,
@@ -53,5 +74,40 @@ class EmergencyAnnouncementsBloc
           appointment.appointmentStatus == AppointmentStatus.completed.index ||
           appointment.appointmentStatus == 2,
     );
+  }
+
+  FutureOr<void> onEmergencyNotificationReceived(
+      EmergencyNotificationReceivedEvent event,
+      Emitter<EmergencyAnnouncementsState> emit) {
+    emit(EmergencyNotificationReceivedState(event.announcement));
+  }
+
+  FutureOr<void> onMarkAnnouncementAsClicked(
+    MarkAnnouncementAsClickedEvent event,
+    Emitter<EmergencyAnnouncementsState> emit,
+  ) async {
+    debugPrint('📣 BLOC: onMarkAnnouncementAsClicked called');
+    debugPrint('📣 BLOC: emergencyId = ${event.emergencyId}');
+    debugPrint('📣 BLOC: patientUid = ${event.patientUid}');
+
+    try {
+      debugPrint('📣 BLOC: Calling controller.markAnnouncementAsClicked...');
+      await emergencyController.markAnnouncementAsClicked(
+        emergencyId: event.emergencyId,
+        patientUid: event.patientUid,
+      );
+      debugPrint('📣 BLOC: Controller method completed successfully');
+
+      // Optionally emit a success state or refresh announcements
+      // emit(AnnouncementMarkedAsClickedState(event.emergencyId, event.patientUid));
+
+      // Refresh the announcements list to show updated status
+      add(GetEmergencyAnnouncements());
+    } catch (e) {
+      debugPrint('❌ BLOC ERROR: Error marking announcement as clicked: $e');
+
+      // Optionally emit an error state
+      // emit(EmergencyAnnouncementsError('Failed to mark announcement as clicked: $e'));
+    }
   }
 }

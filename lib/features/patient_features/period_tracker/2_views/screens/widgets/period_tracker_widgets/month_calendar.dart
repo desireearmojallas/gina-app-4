@@ -90,14 +90,33 @@ class _MonthCalendarState extends State<MonthCalendar> {
                     d.month == date.month &&
                     d.day == date.day);
 
+                bool isAverageBasedPredictionDate =
+                    averageBasedPredictionDates.any((d) =>
+                        d.year == date.year &&
+                        d.month == date.month &&
+                        d.day == date.day);
+
+                bool is28DayPredictionDate = day28PredictionDates.any((d) =>
+                    d.year == date.year &&
+                    d.month == date.month &&
+                    d.day == date.day);
+
                 bool isSelectable = !date.isAfter(lastSelectableDay);
 
+                Color? backgroundColor;
+                if (!isEditMode) {
+                  if (isPeriodDate) {
+                    backgroundColor = GinaAppTheme.lightTertiaryContainer;
+                  } else if (isAverageBasedPredictionDate) {
+                    backgroundColor =
+                        GinaAppTheme.lightPrimaryColor.withOpacity(0.5);
+                  }
+                }
+
                 Widget child = Container(
-                  width: 36.0,
+                  width: 35.0,
                   decoration: BoxDecoration(
-                    color: isPeriodDate && !isEditMode
-                        ? GinaAppTheme.lightTertiaryContainer
-                        : Colors.transparent,
+                    color: backgroundColor,
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -110,20 +129,29 @@ class _MonthCalendarState extends State<MonthCalendar> {
                             style: TextStyle(
                               color: isPeriodDate
                                   ? Colors.white
-                                  : GinaAppTheme.lightTertiaryContainer,
+                                  : (isAverageBasedPredictionDate ||
+                                          is28DayPredictionDate)
+                                      ? GinaAppTheme.lightOnPrimaryColor
+                                      : GinaAppTheme.lightTertiaryContainer,
                               fontWeight: FontWeight.bold,
-                              fontSize: isPeriodDate ? 7.5 : 10.0,
+                              fontSize: 7.5,
                             ),
-                          )
-                        else
-                          const SizedBox.shrink(),
+                          ),
                         Text(
                           date.day.toString(),
                           style: TextStyle(
-                            color: isPeriodDate && !isEditMode
-                                ? Colors.white
+                            color: !isEditMode
+                                ? (isPeriodDate
+                                    ? Colors.white
+                                    : (isAverageBasedPredictionDate ||
+                                            is28DayPredictionDate)
+                                        ? GinaAppTheme.lightOnPrimaryColor
+                                        : GinaAppTheme.lightTertiaryContainer)
                                 : GinaAppTheme.lightTertiaryContainer,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: (isAverageBasedPredictionDate ||
+                                    is28DayPredictionDate)
+                                ? FontWeight.w600
+                                : FontWeight.bold,
                             fontSize: 16.0,
                           ),
                         ),
@@ -131,6 +159,22 @@ class _MonthCalendarState extends State<MonthCalendar> {
                     ),
                   ),
                 );
+
+                if (!isEditMode && is28DayPredictionDate) {
+                  child = Center(
+                    child: DottedBorder(
+                      borderType: BorderType.Circle,
+                      color: GinaAppTheme.lightTertiaryContainer,
+                      dashPattern: const [4, 2],
+                      child: Container(
+                        width: 35.0,
+                        height: 35.0,
+                        alignment: Alignment.center,
+                        child: child,
+                      ),
+                    ),
+                  );
+                }
 
                 if (isEditMode && isSelectable) {
                   return InkWell(

@@ -26,6 +26,7 @@ class PeriodTrackerBloc extends Bloc<PeriodTrackerEvent, PeriodTrackerState> {
     on<LogFirstMenstrualPeriodEvent>(logFirstMenstrualPeriod);
     on<GetFirstMenstrualPeriodDatesEvent>(getFirstMenstrualDatesPeriod);
     on<SelectDateEvent>(selectDateEvent);
+    on<DisplayDialogUpcomingPeriodEvent>(displayDialogUpcomingPeriodEvent);
   }
 
   FutureOr<void> logFirstMenstrualPeriod(LogFirstMenstrualPeriodEvent event,
@@ -103,5 +104,59 @@ class PeriodTrackerBloc extends Bloc<PeriodTrackerEvent, PeriodTrackerState> {
     emit(NavigateToPeriodTrackerEditDatesState(
         periodTrackerModel: periodTrackerModel,
         loggedPeriodDates: periodDates + loggedPeriodDates));
+  }
+
+  FutureOr<void> displayDialogUpcomingPeriodEvent(
+      DisplayDialogUpcomingPeriodEvent event,
+      Emitter<PeriodTrackerState> emit) async {
+    try {
+      // Fetch the periodTrackerModel
+      final getLogPeriods = await periodTrackerController.getMenstrualPeriods();
+      List<PeriodTrackerModel> fetchedPeriodTrackerModel = [];
+
+      getLogPeriods.fold(
+        (error) {
+          throw Exception('Error fetching period tracker model: $error');
+        },
+        (period) {
+          fetchedPeriodTrackerModel = period; // Assign the fetched model
+          loggedPeriodDates = period.expand((p) => p.periodDates).toList();
+        },
+      );
+
+      // Uncomment this block for real implementation
+
+      final result =
+          await periodTrackerController.isThreeDaysBeforePrediction();
+      final bool isWithinRange = result['isWithinRange'];
+      final DateTime? predictedStartDate = result['predictedStartDate'];
+
+      if (isWithinRange && predictedStartDate != null) {
+        emit(
+          DisplayDialogUpcomingPeriodState(
+            startDate: predictedStartDate,
+            periodTrackerModel: fetchedPeriodTrackerModel, // Pass the model
+          ),
+        );
+      }
+
+      //------------------------------------------------------------------------
+
+      // Dummy data for testing
+
+      // final DateTime dummyStartDate =
+      //     DateTime.now().add(const Duration(days: 3));
+
+      // final DateTime dummyStartDate = DateTime.now();
+
+      // emit(
+      //   DisplayDialogUpcomingPeriodState(
+      //     startDate: dummyStartDate,
+      //     periodTrackerModel: fetchedPeriodTrackerModel, // Pass the model
+      //   ),
+      // );
+    } catch (error) {
+      throw Exception('Unexpected error: $error');
+    }
   }
 }

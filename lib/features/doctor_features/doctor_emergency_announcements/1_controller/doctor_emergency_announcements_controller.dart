@@ -74,17 +74,27 @@ class DoctorEmergencyAnnouncementsController with ChangeNotifier {
   }
 
   Future<Either<Exception, bool>> createEmergencyAnnouncement({
-    required String appointmentUid,
-    required String patientUid,
+    required List<String> appointmentUids,
+    required List<String> patientUids,
     required String emergencyMessage,
-    required String patientName,
+    required List<String> patientNames,
+    required Map<String, String>
+        patientToAppointmentMap, // Now required: Maps patientUid to appointmentUid
   }) async {
     try {
-      DocumentReference<Map<String, dynamic>> snap = firestore
-          .collection('emergencyAnnouncements')
-          .doc(currentUser!.uid)
-          .collection('createdAnnouncements')
-          .doc();
+      debugPrint(
+          'Creating emergency announcement for ${patientUids.length} patients');
+      debugPrint('Patient UIDs: $patientUids');
+      debugPrint('Patient Names: $patientNames');
+      debugPrint('Appointment UIDs: $appointmentUids');
+
+      // Validate that all patients have an appointment mapping
+      final unmappedPatients = patientUids.where(
+          (patientUid) => !patientToAppointmentMap.containsKey(patientUid));
+      if (unmappedPatients.isNotEmpty) {
+        return Left(Exception(
+            'Some patients are missing appointment mappings: ${unmappedPatients.join(", ")}'));
+      }
 
       final currentUserModel = await firestore
           .collection('doctors')
@@ -92,18 +102,35 @@ class DoctorEmergencyAnnouncementsController with ChangeNotifier {
           .get()
           .then((value) => DoctorModel.fromJson(value.data()!));
 
-      await firestore.collection('emergencyAnnouncements').doc(snap.id).set({
-        'id': snap.id,
-        'appointmentUid': appointmentUid,
+      // Create a document reference at the root level
+      DocumentReference<Map<String, dynamic>> docRef = firestore
+          .collection('emergencyAnnouncements')
+          .doc(); // Let Firestore generate the ID
+
+      debugPrint('Created document reference with ID: ${docRef.id}');
+
+      // Initialize clickedByPatients map with all patients set to false (unclicked)
+      Map<String, bool> clickedByPatients = {};
+      for (String patientUid in patientUids) {
+        clickedByPatients[patientUid] = false;
+      }
+
+      // Save to the same reference we created
+      await docRef.set({
+        'id': docRef.id,
+        'appointmentUids': appointmentUids,
         'doctorUid': currentUser!.uid,
-        'patientUid': patientUid,
-        'patientName': patientName,
+        'patientUids': patientUids,
+        'patientNames': patientNames,
         'message': emergencyMessage,
         'createdBy': currentUserModel.name,
         'profileImage': '',
         'createdAt': Timestamp.now(),
+        'clickedByPatients': clickedByPatients,
+        'patientToAppointmentMap': patientToAppointmentMap,
       });
 
+      debugPrint('Successfully created emergency announcement document');
       return const Right(true);
     } on FirebaseAuthException catch (e) {
       debugPrint('FirebaseAuthException: ${e.message}');

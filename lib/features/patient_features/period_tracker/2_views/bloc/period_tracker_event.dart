@@ -73,3 +73,5 @@ class SelectDateEvent extends PeriodTrackerEvent {
   @override
   List<Object> get props => [periodDate];
 }
+
+class DisplayDialogUpcomingPeriodEvent extends PeriodTrackerEvent {}

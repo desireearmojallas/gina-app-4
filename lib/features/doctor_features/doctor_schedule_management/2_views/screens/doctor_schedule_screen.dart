@@ -56,6 +56,10 @@ class DoctorScheduleManagementScreen extends StatelessWidget {
             return DoctorScheduleScreenLoaded(
               schedule: state.schedule,
             );
+          } else if (state is EditScheduleState) {
+            return DoctorScheduleScreenLoaded(
+              schedule: state.schedule,
+            );
           } else if (state is GetScheduledFailedState) {
             return Center(
               child: Text(state.message),

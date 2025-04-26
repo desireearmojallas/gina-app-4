@@ -25,3 +25,12 @@ class GetDoctorsInTheNearestCityEvent extends FindEvent {}
 class GetAllDoctorsEvent extends FindEvent {}
 
 class ToggleOtherCitiesVisibilityEvent extends FindEvent {}
+
+class SetSearchRadiusEvent extends FindEvent {
+  final double radius;
+
+  const SetSearchRadiusEvent({required this.radius});
+
+  @override
+  List<Object> get props => [radius];
+}

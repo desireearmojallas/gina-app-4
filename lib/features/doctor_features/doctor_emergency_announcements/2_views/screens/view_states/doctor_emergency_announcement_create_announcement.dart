@@ -32,7 +32,7 @@ class DoctorEmergencyAnnouncementCreateAnnouncementScreen
       builder: (context, state) {
         final TextEditingController patientChosenController =
             TextEditingController(
-          text: state is SelectedAPatientState &&
+          text: state is SelectedPatientsState &&
                   state.appointment.patientName != null
               ? state.appointment.patientName
               : '',
@@ -49,233 +49,192 @@ class DoctorEmergencyAnnouncementCreateAnnouncementScreen
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    height: size.height * 0.05,
-                    child: Center(
-                      child: Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 20.0),
-                            child: Text(
-                              'To',
-                              style: ginaTheme.titleSmall?.copyWith(
-                                color: GinaAppTheme.lightOutline,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                          const Spacer(),
-                          SizedBox(
-                            width: size.width * 0.8,
-                            height: size.height * 0.05,
-                            child: TextFormField(
-                              readOnly: true,
-                              controller: patientChosenController,
-                              maxLines: 1,
-                              style: ginaTheme.titleSmall?.copyWith(
-                                color: GinaAppTheme.lightOnPrimaryColor,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                suffixIcon: IconButton(
-                                  onPressed: () {
-                                    debugPrint(
-                                        'Navigate to patient list clicked');
-                                    context
-                                        .read<
-                                            DoctorEmergencyAnnouncementsBloc>()
-                                        .add(NavigateToPatientList());
-                                    debugPrint(
-                                        'Successfully added NavigateToPatientList event to the bloc');
-                                  },
-                                  icon: const Icon(
-                                    MingCute.user_add_2_line,
-                                    color: GinaAppTheme.lightOnPrimaryColor,
-                                    size: 20,
-                                  ),
+                    width: size.width,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 15, 20, 0),
+                          child: Row(
+                            children: [
+                              Text(
+                                'To',
+                                style: ginaTheme.titleSmall?.copyWith(
+                                  color: GinaAppTheme.lightOutline,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
+                              const Spacer(),
+                              IconButton(
+                                onPressed: () {
+                                  debugPrint(
+                                      'Navigate to patient list clicked');
+                                  context
+                                      .read<DoctorEmergencyAnnouncementsBloc>()
+                                      .add(NavigateToPatientList());
+                                },
+                                icon: const Icon(
+                                  MingCute.user_add_2_line,
+                                  color: GinaAppTheme.lightOnPrimaryColor,
+                                  size: 20,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Divider(),
+                        if (state is SelectedPatientsState &&
+                            (state).selectedAppointments.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(15, 0, 15, 10),
+                            child: Wrap(
+                              spacing: 8.0,
+                              runSpacing: 8.0,
+                              children: (state)
+                                  .selectedAppointments
+                                  .map((appointment) => Chip(
+                                        backgroundColor: GinaAppTheme
+                                            .lightSurfaceVariant
+                                            .withOpacity(0.2),
+                                        label: Text(
+                                          appointment.patientName ?? 'Unknown',
+                                          style: ginaTheme.bodySmall?.copyWith(
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        deleteIcon: const Icon(
+                                          Icons.cancel,
+                                          size: 16,
+                                        ),
+                                        onDeleted: () {
+                                          context
+                                              .read<
+                                                  DoctorEmergencyAnnouncementsBloc>()
+                                              .add(
+                                                RemovePatientFromSelectionEvent(
+                                                    appointment: appointment),
+                                              );
+                                        },
+                                      ))
+                                  .toList(),
+                            ),
+                          )
+                        else
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 15),
+                            child: Text(
+                              'No patients selected',
+                              style: ginaTheme.bodySmall?.copyWith(
+                                color: GinaAppTheme.lightOutline,
+                                fontStyle: FontStyle.italic,
+                              ),
                             ),
                           ),
-                        ],
-                      ),
+                      ],
                     ),
                   ),
                   const Gap(20),
-                  if (state is SelectedAPatientState) ...[
-                    IntrinsicHeight(
-                      child: Container(
-                        width: size.width,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.white,
-                          boxShadow: [
-                            GinaAppTheme.defaultBoxShadow,
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Appointment Details'.toUpperCase(),
-                                        style: const TextStyle(
-                                          fontSize: 12.0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const Gap(10),
-                                      Text(
-                                        state.appointment.modeOfAppointment == 0
-                                            ? 'Online Consultation'
-                                                .toUpperCase()
-                                            : 'Face-to-face Consultation'
-                                                .toUpperCase(),
-                                        style: const TextStyle(
-                                          color: GinaAppTheme
-                                              .lightTertiaryContainer,
-                                          fontSize: 10.0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const Spacer(),
-                                  AppointmentStatusContainer(
-                                    appointmentStatus:
-                                        state.appointment.appointmentStatus!,
-                                  ),
-                                ],
+                  if (state is SelectedPatientsState) ...[
+                    Container(
+                      width: size.width,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.white,
+                        boxShadow: [
+                          GinaAppTheme.defaultBoxShadow,
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'SELECTED PATIENT APPOINTMENTS',
+                              style: TextStyle(
+                                fontSize: 12.0,
+                                fontWeight: FontWeight.bold,
                               ),
-                              const Gap(20),
-                              Text(
-                                'Appointment ID: ${state.appointment.appointmentUid}',
-                                style: ginaTheme.labelMedium?.copyWith(
-                                  color: GinaAppTheme.lightOutline,
-                                  fontSize: 10.0,
-                                ),
-                                maxLines: null,
-                              ),
-                              const Gap(10),
-                              Row(
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
+                            ),
+                            const Divider(),
+                            ...state.selectedAppointments.map((appointment) {
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Row(
+                                  children: [
+                                    // Left: Patient name and appointment type
+                                    Expanded(
+                                      flex: 3,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          SizedBox(
-                                            width: size.width * 0.2,
-                                            child: const Text(
-                                              'Patient name',
-                                              style: TextStyle(
-                                                color:
-                                                    GinaAppTheme.lightOutline,
-                                                fontSize: 10.0,
-                                                fontWeight: FontWeight.w600,
-                                              ),
+                                          Text(
+                                            appointment.patientName ??
+                                                'Unknown',
+                                            style: const TextStyle(
+                                              fontSize: 14.0,
+                                              fontWeight: FontWeight.w600,
                                             ),
                                           ),
-                                          const Gap(5),
-                                          SizedBox(
-                                            width: size.width * 0.3,
-                                            child: Flexible(
-                                              child: Text(
-                                                state.appointment.patientName!,
-                                                style: const TextStyle(
-                                                  fontSize: 12.0,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                                softWrap: true,
-                                                overflow: TextOverflow.visible,
-                                              ),
+                                          const Gap(4),
+                                          Text(
+                                            appointment.modeOfAppointment == 0
+                                                ? 'Online'
+                                                : 'Face-to-face',
+                                            style: const TextStyle(
+                                              color: GinaAppTheme
+                                                  .lightTertiaryContainer,
+                                              fontSize: 12.0,
                                             ),
                                           ),
                                         ],
                                       ),
-                                      const Gap(10),
-                                      Row(
-                                        children: [
-                                          SizedBox(
-                                            width: size.width * 0.2,
-                                            child: const Text(
-                                              'Doctor name',
-                                              style: TextStyle(
-                                                color:
-                                                    GinaAppTheme.lightOutline,
-                                                fontSize: 10.0,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ),
-                                          const Gap(5),
-                                          SizedBox(
-                                            width: size.width * 0.3,
-                                            child: Flexible(
-                                              child: Text(
-                                                'Dr. ${state.appointment.doctorName}',
-                                                style: const TextStyle(
-                                                  fontSize: 12.0,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                                softWrap: true,
-                                                overflow: TextOverflow.visible,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  const Spacer(),
-                                  CustomPaint(
-                                    size: Size(1, size.height * 0.05),
-                                    painter: DashedLinePainterVertical(
-                                      color: Colors.grey,
                                     ),
-                                  ),
-                                  const Spacer(),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Row(
+
+                                    // Right: Date/time and status
+                                    Expanded(
+                                      flex: 2,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
                                         children: [
                                           Text(
-                                            state.appointment.appointmentTime!,
+                                            appointment.appointmentDate ?? '',
                                             style: const TextStyle(
-                                              fontSize: 10.0,
-                                              fontWeight: FontWeight.w600,
+                                              fontSize: 12.0,
+                                              fontWeight: FontWeight.w500,
+                                              color: GinaAppTheme.lightOutline,
+                                            ),
+                                          ),
+                                          const Gap(4),
+                                          Text(
+                                            appointment.appointmentTime ?? '',
+                                            style: const TextStyle(
+                                              fontSize: 12.0,
+                                              color: GinaAppTheme.lightOutline,
                                             ),
                                           ),
                                         ],
                                       ),
-                                      const Gap(10),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            state.appointment.appointmentDate!,
-                                            style: const TextStyle(
-                                              fontSize: 10.0,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ],
+                                    ),
+
+                                    // Status indicator (small)
+                                    const Gap(8),
+                                    SizedBox(
+                                      height: 14,
+                                      width: 14,
+                                      child: AppointmentStatusContainer(
+                                        appointmentStatus:
+                                            appointment.appointmentStatus!,
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              const Gap(5),
-                            ],
-                          ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
+                          ],
                         ),
                       ),
                     ),
@@ -308,7 +267,7 @@ class DoctorEmergencyAnnouncementCreateAnnouncementScreen
                   const Gap(80),
                   SizedBox(
                     width: size.width * 0.9,
-                    height: size.height * 0.05,
+                    height: size.height * 0.06,
                     child: BlocConsumer<DoctorEmergencyAnnouncementsBloc,
                         DoctorEmergencyAnnouncementsState>(
                       listenWhen: (previous, current) =>
@@ -324,7 +283,7 @@ class DoctorEmergencyAnnouncementCreateAnnouncementScreen
                         }
                       },
                       builder: (context, state) {
-                        final appointment = state is SelectedAPatientState
+                        final appointment = state is SelectedPatientsState
                             ? state.appointment
                             : null;
                         final isLoading =
@@ -347,20 +306,22 @@ class DoctorEmergencyAnnouncementCreateAnnouncementScreen
                                   ),
                                 ),
                               );
-                            } else if (patientChosenController.text.isEmpty) {
+                            } else if (state is! SelectedPatientsState ||
+                                (state).selectedAppointments.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
-                                    'Please select a patient',
+                                    'Please select at least one patient',
                                   ),
                                 ),
                               );
                             } else {
-                              doctorEmergencyAnnouncementBloc
-                                  .add(CreateEmergencyAnnouncementEvent(
-                                message: emergencyMessageController.text,
-                                appointment: appointment!,
-                              ));
+                              doctorEmergencyAnnouncementBloc.add(
+                                CreateEmergencyAnnouncementEvent(
+                                  message: emergencyMessageController.text,
+                                  appointments: (state).selectedAppointments,
+                                ),
+                              );
                             }
                           },
                           child: isLoading

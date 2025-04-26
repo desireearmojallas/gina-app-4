@@ -25,6 +25,24 @@ class ViewPatientDataScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Debug prints for patient periods
+    debugPrint('================ ViewPatientDataScreen ================');
+    debugPrint('Patient name: ${patient.name}');
+    debugPrint('Patient periods count: ${patientPeriods.length}');
+    if (patientPeriods.isEmpty) {
+      debugPrint(
+          'WARNING: Patient periods list is EMPTY in ViewPatientDataScreen');
+    } else {
+      debugPrint('Patient periods sample in ViewPatientDataScreen:');
+      for (int i = 0;
+          i < (patientPeriods.length > 3 ? 3 : patientPeriods.length);
+          i++) {
+        final period = patientPeriods[i];
+        debugPrint(
+            'Period[$i] - startDate: ${period.startDate}, endDate: ${period.endDate}');
+      }
+    }
+    debugPrint('========================================================');
     final ginaTheme = Theme.of(context);
 
     debugPrint(

@@ -18,13 +18,18 @@ class ChatMessageController with ChangeNotifier {
   late StreamSubscription authStream;
   User? currentUser;
   UserModel? patient;
-  final StreamController<String?> controller = StreamController();
+  // final StreamController<String?> controller = StreamController();
+  final StreamController<String?> controller = StreamController.broadcast();
   Stream<String?> get stream => controller.stream;
   String? chatroom;
   late String recipient;
   List<ChatMessageModel> messages = [];
   Map<String, List<ChatMessageModel>> appointmentMessages = {};
   Map<String, Map<String, dynamic>> appointmentTimes = {};
+  final StreamController<List<dynamic>> _messageStreamController =
+      StreamController<List<dynamic>>.broadcast();
+  Stream<List<dynamic>> get messageStream => _messageStreamController.stream;
+  StreamSubscription? _appointmentStatusSubscription;
 
   bool _isDisposed = false;
 
@@ -53,6 +58,8 @@ class ChatMessageController with ChangeNotifier {
     authStream.cancel();
     controller.close();
     chatSub.cancel();
+    _messageStreamController.close();
+    _appointmentStatusSubscription?.cancel();
     super.dispose();
   }
 
@@ -66,19 +73,61 @@ class ChatMessageController with ChangeNotifier {
     monitorAppointmentStatus(selectedDoctorAppointmentModel!.appointmentUid!);
   }
 
-  getChatRoom(String room, String currentRecipient) {
+  getChatRoom(String room, String currentRecipient) async {
     if (_isDisposed) return;
     debugPrint('Getting chat room: $room for recipient: $currentRecipient');
-    UserModel.fromUid(uid: auth.currentUser!.uid).then((value) {
-      recipient = currentRecipient;
-      patient = value;
+
+    // Set recipient and chatroom values
+    recipient = currentRecipient;
+    chatroom = room;
+
+    try {
+      // 1. Get patient model
+      patient = await UserModel.fromUid(uid: auth.currentUser!.uid);
+
+      // 2. First check if patient already has this chatroom
       if (patient != null && patient!.chatrooms.contains(room)) {
+        debugPrint('Chatroom found in patient list, subscribing to updates');
         subscribe();
+        return;
+      }
+
+      // 3. If not in patient list, check if it exists in Firestore
+      DocumentSnapshot<Map<String, dynamic>> chatroomDoc =
+          await firestore.collection('consultation-chatrooms').doc(room).get();
+
+      if (chatroomDoc.exists) {
+        debugPrint('Chatroom exists in Firestore but not in patient list!');
+
+        // 4. Set up the listener for this room
+        chatSub = firestore
+            .collection('consultation-chatrooms')
+            .doc(room)
+            .snapshots()
+            .listen((snapshot) {
+          if (snapshot.exists) {
+            debugPrint('CRITICAL: Chatroom update detected!');
+            // When chatroom changes, call chatUpdateHandler
+            chatUpdateHandler([]);
+          }
+        });
+
+        // 5. Run initial check immediately
+        await chatUpdateHandler([]);
+
+        // 6. Set initial state to empty (will be updated by chatUpdateHandler if messages exist)
+        if (controller.hasListener) {
+          controller.add('empty');
+        }
       } else {
+        // Chatroom doesn't exist yet
+        debugPrint('Chatroom does not exist yet: $room');
         controller.add('empty');
       }
-      chatroom = room;
-    });
+    } catch (e) {
+      debugPrint('Error in getChatRoom: $e');
+      controller.add(e.toString());
+    }
   }
 
   Future<String?> initChatRoom(String room, String currentRecipient) async {
@@ -129,6 +178,105 @@ class ChatMessageController with ChangeNotifier {
 
   //! continue here... try to fix the seenby feature
 
+  // chatUpdateHandler(List<ChatMessageModel> update) async {
+  //   if (_isDisposed) return;
+  //   debugPrint('Handling chat update');
+  //   Map<String, List<ChatMessageModel>> allMessages = {};
+  //   Map<String, Map<String, dynamic>> allTimes = {};
+
+  //   // Fetch all appointments for the current chatroom
+  //   QuerySnapshot<Map<String, dynamic>> appointmentsSnapshot = await firestore
+  //       .collection('consultation-chatrooms')
+  //       .doc(chatroom)
+  //       .collection('appointments')
+  //       .get();
+
+  //   for (var appointmentDoc in appointmentsSnapshot.docs) {
+  //     String appointmentId = appointmentDoc.id;
+  //     Map<String, dynamic> appointmentData = appointmentDoc.data();
+
+  //     // Fetch messages for each appointment
+  //     QuerySnapshot<Map<String, dynamic>> messagesSnapshot = await firestore
+  //         .collection('consultation-chatrooms')
+  //         .doc(chatroom)
+  //         .collection('appointments')
+  //         .doc(appointmentId)
+  //         .collection('messages')
+  //         .orderBy('createdAt')
+  //         .get();
+
+  //     List<ChatMessageModel> messages = messagesSnapshot.docs.map((doc) {
+  //       ChatMessageModel message = ChatMessageModel.fromDocumentSnap(doc);
+  //       debugPrint('Fetched message with uid: ${message.uid}');
+  //       return message;
+  //     }).toList();
+
+  //     // Update seen status for messages
+  //     for (ChatMessageModel message in messages) {
+  //       if (message.hasNotSeenMessage(auth.currentUser!.uid)) {
+  //         try {
+  //           await message.individualUpdateSeen(
+  //               auth.currentUser!.uid, chatroom!, appointmentId);
+  //           debugPrint('Updated seenBy for message: ${message.uid}');
+  //         } catch (e) {
+  //           debugPrint(
+  //               'Failed to update seenBy for message: ${message.uid}, error: $e');
+  //         }
+  //       }
+  //     }
+
+  //     // Fetch the appointment status from the top-level collection
+  //     DocumentSnapshot<Map<String, dynamic>> appointmentStatusSnapshot =
+  //         await firestore.collection('appointments').doc(appointmentId).get();
+
+  //     bool isCompleted = appointmentStatusSnapshot.exists &&
+  //         appointmentStatusSnapshot.data()?['appointmentStatus'] ==
+  //             AppointmentStatus.completed.index;
+
+  //     allMessages[appointmentId] = messages;
+  //     allTimes[appointmentId] = {
+  //       'startTime': appointmentData['startTime'],
+  //       'scheduledEndTime': appointmentData['scheduledEndTime'],
+  //       'lastMessageTime':
+  //           isCompleted && messages.isNotEmpty ? messages.last.createdAt : null,
+  //     };
+  //   }
+
+  //   // Sort the appointments by startTime
+  //   var sortedEntries = allTimes.entries.toList()
+  //     ..sort((a, b) {
+  //       Timestamp? startTimeA = a.value['startTime'];
+  //       Timestamp? startTimeB = b.value['startTime'];
+
+  //       if (startTimeA == null || startTimeB == null) {
+  //         // Handle the case where either startTimeA or startTimeB is null
+  //         return 0; // or any other logic you want to apply
+  //       }
+
+  //       return startTimeA.compareTo(startTimeB);
+  //     });
+
+  //   // Create sorted maps
+  //   Map<String, List<ChatMessageModel>> sortedMessages = {};
+  //   Map<String, Map<String, dynamic>> sortedTimes = {};
+
+  //   for (var entry in sortedEntries) {
+  //     String appointmentId = entry.key;
+  //     sortedMessages[appointmentId] = allMessages[appointmentId]!;
+  //     sortedTimes[appointmentId] = allTimes[appointmentId]!;
+  //   }
+
+  //   if (appointmentMessages.isNotEmpty) {
+  //     String latestAppointmentId = sortedEntries.last.key;
+  //     _messageStreamController
+  //         .add(appointmentMessages[latestAppointmentId] ?? []);
+  //   }
+
+  //   appointmentMessages = sortedMessages;
+  //   appointmentTimes = sortedTimes;
+  //   notifyListeners();
+  // }
+
   chatUpdateHandler(List<ChatMessageModel> update) async {
     if (_isDisposed) return;
     debugPrint('Handling chat update');
@@ -141,6 +289,15 @@ class ChatMessageController with ChangeNotifier {
         .doc(chatroom)
         .collection('appointments')
         .get();
+
+    // Check if this is the first time the chatroom has been created
+    bool isFirstTimeSetup =
+        appointmentMessages.isEmpty && appointmentsSnapshot.docs.isNotEmpty;
+
+    if (isFirstTimeSetup) {
+      debugPrint(
+          'First-time chatroom setup detected - Doctor may have sent first message');
+    }
 
     for (var appointmentDoc in appointmentsSnapshot.docs) {
       String appointmentId = appointmentDoc.id;
@@ -215,6 +372,39 @@ class ChatMessageController with ChangeNotifier {
       String appointmentId = entry.key;
       sortedMessages[appointmentId] = allMessages[appointmentId]!;
       sortedTimes[appointmentId] = allTimes[appointmentId]!;
+    }
+
+    // Handle initial setup or ongoing chats
+    if (isFirstTimeSetup && sortedEntries.isNotEmpty) {
+      String firstAppointmentId = sortedEntries.first.key;
+      List<ChatMessageModel> firstMessages =
+          allMessages[firstAppointmentId] ?? [];
+
+      if (firstMessages.isNotEmpty) {
+        debugPrint(
+            'First-time setup: Found ${firstMessages.length} messages in new chatroom');
+
+        // Check if any message is from the doctor
+        bool doctorHasMessaged =
+            firstMessages.any((msg) => msg.authorUid == recipient);
+
+        if (doctorHasMessaged) {
+          debugPrint(
+              'CRITICAL: Doctor has sent the first message, transitioning to active chat');
+          // More forceful state update
+          controller.add('success'); // Update main controller state to success
+          _messageStreamController
+              .add(firstMessages); // Add messages to the stream
+
+          // Force a notification to listeners
+          notifyListeners();
+        }
+      }
+    } else if (appointmentMessages.isNotEmpty && sortedEntries.isNotEmpty) {
+      // Standard case for ongoing chats
+      String latestAppointmentId = sortedEntries.last.key;
+      _messageStreamController
+          .add(appointmentMessages[latestAppointmentId] ?? []);
     }
 
     appointmentMessages = sortedMessages;
@@ -471,19 +661,27 @@ class ChatMessageController with ChangeNotifier {
   //------------------------Monitor Appointment Status------------------------
   void monitorAppointmentStatus(String appointmentId) {
     if (_isDisposed) return;
-    debugPrint(
-        'Monitoring appointment status for appointment ID: $appointmentId');
-    firestore
-        .collection('appointments') // Top-level collection
-        .doc(appointmentId) // Appointment document
+    debugPrint('Monitoring appointment status for ID: $appointmentId');
+
+    // Cancel any existing subscription
+    _appointmentStatusSubscription?.cancel();
+
+    _appointmentStatusSubscription = firestore
+        .collection('appointments')
+        .doc(appointmentId)
         .snapshots()
         .listen((snapshot) async {
       if (snapshot.exists) {
         var data = snapshot.data()!;
-        debugPrint('Appointment data: $data');
+        debugPrint('Appointment status update received: $data');
+
         // Check if the status matches "completed"
         if (data['appointmentStatus'] == AppointmentStatus.completed.index) {
-          debugPrint('Appointment status is completed');
+          debugPrint('Appointment status changed to completed');
+          isAppointmentFinished = true;
+          notifyListeners(); // Notify listeners about the status change
+
+          // Still update the end time as before
           await _updateEndTime(
               appointmentId, data['appointmentDate'], data['appointmentTime']);
         }
@@ -568,5 +766,96 @@ class ChatMessageController with ChangeNotifier {
     }).toList();
 
     return messages;
+  }
+
+  // Add this method to the ChatMessageController class
+  Stream<AppointmentModel> getAppointmentStatusStream(String appointmentId) {
+    if (_isDisposed) return Stream.empty();
+    debugPrint(
+        'Patient: Starting appointment status stream for ID: $appointmentId');
+
+    return firestore
+        .collection('appointments')
+        .doc(appointmentId)
+        .snapshots()
+        .map((snapshot) {
+      if (!snapshot.exists) {
+        debugPrint('Patient: Appointment not found in stream: $appointmentId');
+        throw Exception('Appointment not found');
+      }
+
+      var data = snapshot.data()!;
+      debugPrint(
+          'Patient: Real-time appointment update received: Status=${data['appointmentStatus']}');
+
+      return AppointmentModel.fromDocumentSnap(snapshot);
+    });
+  }
+
+  Future<void> submitRating(int rating, AppointmentModel appointment,
+      String selectedDoctorUid) async {
+    try {
+      debugPrint(
+          'Submitting $rating star rating for doctor: $selectedDoctorUid');
+
+      // 1. Update the appointment with the rating - using field name "doctorRatings"
+      await FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(appointment.appointmentUid)
+          .update({
+        'doctorRatings': rating, // Using your existing field name
+        'ratedAt': FieldValue.serverTimestamp(),
+      });
+
+      // 2. Store rating in separate collection for analytics
+      await FirebaseFirestore.instance.collection('doctor-ratings').add({
+        'doctorUid': selectedDoctorUid,
+        'patientUid': FirebaseAuth.instance.currentUser!.uid,
+        'appointmentUid': appointment.appointmentUid,
+        'rating': rating,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      // 3. Update the doctor's document - using field name "doctorRatings" (List)
+      DocumentReference doctorRef = FirebaseFirestore.instance
+          .collection('doctors')
+          .doc(selectedDoctorUid);
+
+      // Use a transaction to safely update the ratings array and average
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        DocumentSnapshot doctorSnapshot = await transaction.get(doctorRef);
+
+        if (!doctorSnapshot.exists) {
+          throw Exception("Doctor document does not exist!");
+        }
+
+        // Get current data
+        Map<String, dynamic> doctorData =
+            doctorSnapshot.data() as Map<String, dynamic>;
+
+        // Get existing ratings array or create new one - using your field name "doctorRating"
+        List<dynamic> ratings =
+            List<dynamic>.from(doctorData['doctorRatings'] ?? []);
+
+        // Add new rating
+        ratings.add(rating);
+
+        // Calculate new average (rounded to 1 decimal place)
+        double average = ratings.reduce((a, b) => a + b) / ratings.length;
+        // double roundedAverage = (average * 10).round() / 10;
+
+        // Update the doctor document
+        transaction.update(doctorRef, {
+          'doctorRatings': ratings, // Using your existing field name
+          'averageRating': average, // Add calculated average for convenience
+          'ratingsCount': ratings.length, // Add count for convenience
+          'lastRatedAt': FieldValue.serverTimestamp(),
+        });
+      });
+
+      debugPrint('Rating submitted successfully: $rating stars');
+    } catch (e) {
+      debugPrint('Error submitting rating: $e');
+    }
   }
 }

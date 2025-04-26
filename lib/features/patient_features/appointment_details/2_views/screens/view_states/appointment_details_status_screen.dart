@@ -13,17 +13,21 @@ import 'package:gina_app_4/features/patient_features/appointment_details/2_views
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/reschedule_filled_button.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/2_views/widgets/pay_now_button.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AppointmentDetailsStatusScreen extends StatelessWidget {
   final DoctorModel doctorDetails;
   final AppointmentModel appointment;
   final UserModel currentPatient;
+  final bool? fromPendingPaymentDialog;
   const AppointmentDetailsStatusScreen({
     super.key,
     required this.doctorDetails,
     required this.appointment,
     required this.currentPatient,
+    this.fromPendingPaymentDialog,
   });
 
   @override
@@ -55,6 +59,11 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
 
     debugPrint('Inside Appointment Details Status Screen');
 
+    debugPrint('Platform Fee Percentage: ${appointment.platformFeePercentage}');
+    debugPrint('Platform Fee Amount: ${appointment.platformFeeAmount}');
+    debugPrint('Total Amount: ${appointment.totalAmount}');
+    debugPrint('Amount: ${appointment.amount}');
+
     return Stack(
       children: [
         ScrollbarCustom(
@@ -67,7 +76,134 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                 AppointmentStatusCard(
                   appointmentStatus: appointment.appointmentStatus!,
                 ),
-                [2].contains(appointment.appointmentStatus)
+                const Gap(5),
+
+                if (appointment.appointmentStatus ==
+                    AppointmentStatus.declined.index)
+                  StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('appointments')
+                        .doc(appointment.appointmentUid)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const SizedBox.shrink();
+                      }
+
+                      final appointmentData =
+                          snapshot.data!.data() as Map<String, dynamic>?;
+                      if (appointmentData == null) {
+                        return const SizedBox.shrink();
+                      }
+
+                      final bool autoDeclined =
+                          appointmentData['autoDeclined'] == true;
+                      final String declineReason =
+                          appointmentData['declineReason'] as String? ?? '';
+
+                      if (declineReason.isNotEmpty) {
+                        return Container(
+                          width: size.width,
+                          margin: const EdgeInsets.fromLTRB(15, 8, 15, 0),
+                          padding: const EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.white,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      autoDeclined
+                                          ? Icons.timer_off
+                                          : Icons.cancel_outlined,
+                                      color: GinaAppTheme.declinedTextColor,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Reason for Declining',
+                                      style: ginaTheme.titleSmall?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: GinaAppTheme.declinedTextColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const Gap(15),
+                                Text(
+                                  declineReason,
+                                  style: ginaTheme.bodySmall?.copyWith(
+                                    color: GinaAppTheme.lightOnBackground
+                                        .withOpacity(0.7),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('appointments')
+                        .doc(appointment.appointmentUid)
+                        .collection('payments')
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const SizedBox.shrink();
+                      }
+
+                      final hasPaymentHistory = snapshot.data!.docs.isNotEmpty;
+                      final paymentData = hasPaymentHistory
+                          ? snapshot.data!.docs.first.data()
+                              as Map<String, dynamic>
+                          : null;
+                      final paymentStatus =
+                          paymentData?['status'] as String? ?? '';
+                      final wasPreviouslyPaid =
+                          paymentStatus.toLowerCase() == 'paid';
+
+                      // Show Pay Now button only if:
+                      // 1. Appointment is approved (status == 1) and no previous payment
+                      // 2. OR if there was a previous payment (show as View Receipt)
+                      if (appointment.appointmentStatus == 1 ||
+                          wasPreviouslyPaid) {
+                        return Padding(
+                          padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
+                          child: PayNowButton(
+                            appointmentId: appointment.appointmentUid ?? '',
+                            doctorId: doctorDetails.uid,
+                            doctorName: doctorDetails.name,
+                            patientName: appointment.patientName ?? '',
+                            modeOfAppointment: appointment.modeOfAppointment!,
+                            amount: appointment.amount ?? 0.0,
+                            platformFeePercentage:
+                                appointment.platformFeePercentage ?? 0.0,
+                            platformFeeAmount:
+                                appointment.platformFeeAmount ?? 0.0,
+                            totalAmount: appointment.totalAmount ??
+                                (appointment.amount ?? 0.0),
+                            appointmentDate: appointment.appointmentDate!,
+                            onPaymentCreated: (invoiceUrl) {
+                              bookAppointmentBloc.currentInvoiceUrl =
+                                  invoiceUrl;
+                            },
+                          ),
+                        );
+                      }
+
+                      return const SizedBox.shrink();
+                    }),
+                [2, 3].contains(appointment.appointmentStatus)
                     ? const SizedBox()
                     : Column(
                         children: [
@@ -78,11 +214,24 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                           ),
                         ],
                       ),
+
+                // [1].contains(appointment.appointmentStatus!)
+                //     ? AppointmentPaymentWidgets(
+                //         appointmentId: appointment.appointmentUid ?? '',
+                //         doctorName: doctorDetails.name,
+                //         patientName: appointment.patientName ?? '',
+                //         consultationType: appointment.consultationType ?? '',
+                //         amount: appointment.amount ?? 0.0,
+                //         appointmentDate: appointment.appointmentDate!,
+                //       )
+                //     : const SizedBox.shrink(),
+
                 appointmentDetailsContent(
                   labelStyle,
                   valueStyle,
                   divider,
                   bookAppointmentBloc,
+                  size,
                 ),
                 [2, 3, 4, 5].contains(appointment.appointmentStatus)
                     ? const SizedBox()
@@ -223,7 +372,8 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
               )
             : appointment.modeOfAppointment == 0 &&
                     appointment.appointmentStatus ==
-                        AppointmentStatus.confirmed.index
+                        AppointmentStatus.confirmed.index &&
+                    fromPendingPaymentDialog != true
                 ? Positioned(
                     bottom: 175.0,
                     right: 70.0,
@@ -269,10 +419,12 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
   }
 
   Padding appointmentDetailsContent(
-      TextStyle? labelStyle,
-      TextStyle? valueStyle,
-      Padding divider,
-      BookAppointmentBloc bookAppointmentBloc) {
+    TextStyle? labelStyle,
+    TextStyle? valueStyle,
+    Padding divider,
+    BookAppointmentBloc bookAppointmentBloc,
+    Size size,
+  ) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
       child: IntrinsicHeight(
@@ -309,6 +461,27 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                 Column(
                   children: [
                     const Gap(20),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            'Reason for visit',
+                            style: labelStyle,
+                          ),
+                        ),
+                        Expanded(
+                          flex: 3,
+                          child: Text(
+                            appointment.reasonForAppointment ?? 'Not specified',
+                            style: valueStyle,
+                            textAlign: TextAlign.right,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Gap(15),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -362,6 +535,17 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                       ],
                     ),
                   ],
+                ),
+                divider,
+                headerWidget(
+                  Icons.payment,
+                  'Payment Details',
+                ),
+                _buildPaymentDetails(
+                  appointment,
+                  labelStyle!,
+                  valueStyle!,
+                  size,
                 ),
                 divider,
                 headerWidget(
@@ -443,5 +627,263 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Widget _buildPaymentDetails(
+    AppointmentModel appointment,
+    TextStyle labelStyle,
+    TextStyle valueStyle,
+    Size size,
+  ) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(appointment.appointmentUid)
+          .collection('payments')
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint('Error loading payment details: ${snapshot.error}');
+          return const SizedBox.shrink();
+        }
+
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          debugPrint('No payment details available');
+          return const SizedBox.shrink();
+        }
+
+        final paymentData =
+            snapshot.data!.docs.first.data() as Map<String, dynamic>;
+        final paymentStatus = paymentData['status'] as String? ?? '';
+        final refundStatus = paymentData['refundStatus'] as String?;
+        final amount = appointment.amount ?? 0.0;
+        // Extract platform fee details
+        final platformFeePercentage =
+            paymentData['platformFeePercentage'] as double? ??
+                appointment.platformFeePercentage ??
+                0.0;
+        final platformFeeAmount = paymentData['platformFeeAmount'] as double? ??
+            appointment.platformFeeAmount ??
+            0.0;
+
+        // Calculate effective platform fee amount
+        final effectivePlatformFeeAmount = platformFeeAmount > 0
+            ? platformFeeAmount
+            : (platformFeePercentage > 0
+                ? amount * platformFeePercentage
+                : 0.0);
+
+        // Get the totalAmount with proper backward compatibility check
+        double? rawTotalAmount = paymentData['totalAmount'] as double?;
+        final totalAmount =
+            // If totalAmount exists and is not 0, use it directly
+            (rawTotalAmount != null && rawTotalAmount > 0.0)
+                ? rawTotalAmount
+                // Otherwise fall back to amount + platform fee
+                : amount + effectivePlatformFeeAmount;
+        final refundAmount = paymentData['refundAmount'] as double?;
+        final paymentMethod =
+            paymentData['paymentMethod'] as String? ?? 'Xendit';
+        final invoiceId = paymentData['invoiceId'] as String?;
+        final linkedAt = paymentData['linkedAt'] as Timestamp?;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Gap(20),
+            // Base Fee row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Base Fee',
+                  style: labelStyle,
+                ),
+                Text(
+                  '₱${NumberFormat('#,##0.00').format(amount)}',
+                  style: valueStyle,
+                ),
+              ],
+            ),
+            const Gap(15),
+            // Platform Fee row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Platform Fee (${(platformFeePercentage * 100).toInt()}%)',
+                  style: labelStyle,
+                ),
+                Text(
+                  '₱${NumberFormat('#,##0.00').format(platformFeeAmount)}',
+                  style: valueStyle,
+                ),
+              ],
+            ),
+            const Gap(15),
+            // Total Amount row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Total Amount',
+                  style: labelStyle.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '₱${NumberFormat('#,##0.00').format(totalAmount)}',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
+            ),
+            const Gap(15),
+            // Payment Status row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Payment Status',
+                  style: labelStyle,
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color:
+                        _getPaymentStatusColor(paymentStatus).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    paymentStatus.toUpperCase(),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: _getPaymentStatusColor(paymentStatus),
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+              ],
+            ),
+            const Gap(15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Payment Method',
+                  style: labelStyle,
+                ),
+                SizedBox(
+                  width: size.width * 0.45,
+                  child: Text(
+                    paymentMethod,
+                    style: valueStyle.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+              ],
+            ),
+            const Gap(15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Payment Date',
+                  style: labelStyle,
+                ),
+                Text(
+                  linkedAt != null
+                      ? DateFormat('MMMM d, yyyy h:mm a')
+                          .format(linkedAt.toDate())
+                      : 'N/A',
+                  style: valueStyle,
+                ),
+              ],
+            ),
+            if (refundStatus != null) ...[
+              const Gap(15),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Refund Status',
+                    style: labelStyle,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color:
+                          _getRefundStatusColor(refundStatus).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      refundStatus.toUpperCase(),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: _getRefundStatusColor(refundStatus),
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ),
+                ],
+              ),
+              if (refundAmount != null) ...[
+                const Gap(15),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Refund Amount',
+                      style: labelStyle,
+                    ),
+                    Text(
+                      '₱${NumberFormat('#,##0.00').format(refundAmount)}',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.orange,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ],
+        );
+      },
+    );
+  }
+
+  Color _getPaymentStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'paid':
+        return Colors.green;
+      case 'pending':
+        return Colors.orange;
+      case 'failed':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Color _getRefundStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Colors.orange;
+      case 'succeeded':
+        return Colors.green;
+      case 'failed':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
   }
 }

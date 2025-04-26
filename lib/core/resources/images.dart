@@ -70,6 +70,8 @@ class Images {
       "assets/images/doctor_features/home/completed_appointments.png";
   static String completedAppointmentsIcon =
       "assets/images/doctor_features/home/completed_appointments_2.png";
+  static String myPaymentAccountIcon =
+      "assets/images/doctor_features/home/payment_account.png";
 
   //! Doctor Forum Badges Screen
   static String newDoctorForumBadgeBackground =

@@ -361,6 +361,39 @@ Padding appointmentDetailsCard(
                           ),
                         ),
                         Padding(
+                          padding: const EdgeInsets.only(top: 15.0),
+                          child: Row(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(left: 20.0),
+                                child: SizedBox(
+                                  width: size.width * 0.25,
+                                  child: Text(
+                                    'Reason for visit',
+                                    style: ginaTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: GinaAppTheme.lightOutline
+                                          .withOpacity(0.8),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 25.0),
+                                child: SizedBox(
+                                  width: size.width * 0.5,
+                                  child: Text(
+                                    updatedAppointment.reasonForAppointment!,
+                                    style: ginaTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
                           padding: const EdgeInsets.only(
                             top: 20.0,
                             bottom: 20.0,

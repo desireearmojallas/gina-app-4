@@ -78,7 +78,7 @@ class BookAppointmentScreen extends StatelessWidget {
                         },
                       )
                     : null,
-            title: state is ReviewAppointmentState
+            title: state is BookForAnAppointmentReview
                 ? 'Review Appointment'
                 : isRescheduleMode == true
                     ? 'Reschedule Appointment'
@@ -138,7 +138,7 @@ class BookAppointmentScreen extends StatelessWidget {
                 return const Center(child: CustomLoadingIndicator());
               } else if (state is BookAppointmentError) {
                 return Center(child: Text(state.errorMessage));
-              } else if (state is ReviewAppointmentState) {
+              } else if (state is BookForAnAppointmentReview) {
                 final appointmentModel = state.appointmentModel;
                 return ReviewAppointmentInitialScreen(
                   doctorDetails: doctor,

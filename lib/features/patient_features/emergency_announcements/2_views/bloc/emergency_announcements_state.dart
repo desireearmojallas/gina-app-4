@@ -32,3 +32,12 @@ class EmergencyAnnouncementsError extends EmergencyAnnouncementsState {
 }
 
 class EmergencyAnnouncementsLoading extends EmergencyAnnouncementsState {}
+
+class EmergencyNotificationReceivedState extends EmergencyAnnouncementsState {
+  final EmergencyAnnouncementModel announcement;
+
+  const EmergencyNotificationReceivedState(this.announcement);
+
+  @override
+  List<Object> get props => [announcement];
+}

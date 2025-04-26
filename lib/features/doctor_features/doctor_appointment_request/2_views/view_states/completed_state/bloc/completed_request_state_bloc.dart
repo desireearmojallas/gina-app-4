@@ -12,6 +12,8 @@ import 'package:gina_app_4/features/patient_features/period_tracker/0_models/per
 part 'completed_request_state_event.dart';
 part 'completed_request_state_state.dart';
 
+UserModel? patientDetailsForDoctorFaceToFaceScreenConsultationHistory;
+
 class CompletedRequestStateBloc
     extends Bloc<CompletedRequestStateEvent, CompletedRequestStateState> {
   final DoctorAppointmentRequestController doctorAppointmentRequestController;

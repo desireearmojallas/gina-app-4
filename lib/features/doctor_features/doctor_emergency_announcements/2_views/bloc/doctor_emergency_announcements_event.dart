@@ -15,37 +15,42 @@ class NavigateToDoctorEmergencyCreateAnnouncementEvent
 
 class NavigateToPatientList extends DoctorEmergencyAnnouncementsEvent {}
 
-class SelectPatientEvent extends DoctorEmergencyAnnouncementsEvent {
-  final AppointmentModel appointment;
+class SelectPatientsEvent extends DoctorEmergencyAnnouncementsEvent {
+  final List<AppointmentModel> selectedAppointments;
 
-  const SelectPatientEvent({required this.appointment});
+  const SelectPatientsEvent({required this.selectedAppointments});
 
   @override
-  List<Object> get props => [appointment];
+  List<Object> get props => [selectedAppointments];
 }
 
 class NavigateToDoctorCreatedAnnouncementEvent
     extends DoctorEmergencyAnnouncementsEvent {
   final EmergencyAnnouncementModel emergencyAnnouncement;
-  final String appointmentUid;
 
   const NavigateToDoctorCreatedAnnouncementEvent(
-      {required this.emergencyAnnouncement, required this.appointmentUid});
+      {required this.emergencyAnnouncement});
 
   @override
-  List<Object> get props => [emergencyAnnouncement, appointmentUid];
+  List<Object> get props => [emergencyAnnouncement];
 }
 
 class CreateEmergencyAnnouncementEvent
     extends DoctorEmergencyAnnouncementsEvent {
   final String message;
-  final AppointmentModel appointment;
+  final List<AppointmentModel> appointments;
 
-  const CreateEmergencyAnnouncementEvent(
-      {required this.message, required this.appointment});
+  const CreateEmergencyAnnouncementEvent({
+    required this.message,
+    required this.appointments,
+  });
+
+  // For backwards compatibility with code that expects a single appointment
+  AppointmentModel? get appointment =>
+      appointments.isNotEmpty ? appointments.first : null;
 
   @override
-  List<Object> get props => [message, appointment];
+  List<Object> get props => [message, appointments];
 }
 
 class DeleteEmergencyAnnouncementEvent
@@ -56,4 +61,36 @@ class DeleteEmergencyAnnouncementEvent
 
   @override
   List<Object> get props => [emergencyAnnouncement];
+}
+
+class AddPatientToSelectionEvent extends DoctorEmergencyAnnouncementsEvent {
+  final AppointmentModel appointment;
+
+  const AddPatientToSelectionEvent({required this.appointment});
+
+  @override
+  List<Object> get props => [appointment];
+}
+
+class RemovePatientFromSelectionEvent
+    extends DoctorEmergencyAnnouncementsEvent {
+  final AppointmentModel appointment;
+
+  const RemovePatientFromSelectionEvent({required this.appointment});
+
+  @override
+  List<Object> get props => [appointment];
+}
+
+class TogglePatientSelectionEvent extends DoctorEmergencyAnnouncementsEvent {
+  final AppointmentModel appointment;
+  final bool isSelected;
+
+  const TogglePatientSelectionEvent({
+    required this.appointment,
+    required this.isSelected,
+  });
+
+  @override
+  List<Object> get props => [appointment, isSelected];
 }

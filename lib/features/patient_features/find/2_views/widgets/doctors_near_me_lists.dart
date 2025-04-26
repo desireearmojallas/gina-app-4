@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/resources/images.dart';
+import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/doctor_rating_badge/doctor_rating_badge.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/2_views/bloc/doctor_availability_bloc.dart';
+import 'package:gina_app_4/features/patient_features/find/1_controllers/find_controllers.dart';
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 
@@ -19,6 +21,7 @@ class DoctorsNearMe extends StatelessWidget {
     final doctorAvailabilityBloc = context.read<DoctorAvailabilityBloc>();
     final width = MediaQuery.of(context).size.width;
     final ginaTheme = Theme.of(context);
+    final findController = FindController();
 
     return GestureDetector(
       onTap: () {},
@@ -38,6 +41,8 @@ class DoctorsNearMe extends StatelessWidget {
               itemCount: doctorLists.length,
               itemBuilder: (context, index) {
                 final doctor = doctorLists[index];
+                final distance = findController
+                    .calculateDistanceToDoctor(doctor.officeLatLngAddress);
                 return BlocProvider(
                   create: (context) => sl<DoctorAvailabilityBloc>()
                     ..add(GetDoctorAvailabilityEvent(doctorId: doctor.uid)),
@@ -84,6 +89,72 @@ class DoctorsNearMe extends StatelessWidget {
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
+                                          SizedBox(
+                                            // Set a fixed width that matches the parent width
+                                            width: width -
+                                                160, // Adjust this value based on your layout
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                DoctorRatingBadge(
+                                                  doctorRating:
+                                                      doctor.doctorRatingId,
+                                                ),
+                                                // Star rating display
+                                                doctor.doctorRatings.isNotEmpty
+                                                    ? Row(
+                                                        children: [
+                                                          Icon(
+                                                            Icons.star_rounded,
+                                                            color: Colors
+                                                                .yellow[800],
+                                                            size: 14,
+                                                          ),
+                                                          const Gap(3),
+                                                          Row(
+                                                            children: [
+                                                              Text(
+                                                                "${doctor.averageRating?.toStringAsFixed(1)}",
+                                                                style: ginaTheme
+                                                                    .textTheme
+                                                                    .bodySmall
+                                                                    ?.copyWith(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  color: Colors
+                                                                          .yellow[
+                                                                      800],
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                " (${doctor.doctorRatings.length})",
+                                                                style: ginaTheme
+                                                                    .textTheme
+                                                                    .bodySmall
+                                                                    ?.copyWith(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                  color: GinaAppTheme
+                                                                      .lightOutline,
+                                                                ),
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          const Gap(10),
+                                                        ],
+                                                      )
+                                                    : const SizedBox.shrink(),
+                                              ],
+                                            ),
+                                          ),
+                                          const Gap(5),
                                           Row(
                                             children: [
                                               Text(
@@ -103,7 +174,7 @@ class DoctorsNearMe extends StatelessWidget {
                                               ),
                                             ],
                                           ),
-                                          const Gap(5),
+                                          const Gap(10),
                                           Container(
                                             height: 19,
                                             decoration: BoxDecoration(
@@ -131,30 +202,68 @@ class DoctorsNearMe extends StatelessWidget {
                                               ),
                                             ),
                                           ),
-                                          const Gap(8),
-                                          Row(
-                                            children: [
-                                              Image.asset(
-                                                Images.officeAddressLogo,
-                                                width: 10,
-                                              ),
-                                              const Gap(5),
-                                              Text(
-                                                doctor.officeAddress,
-                                                style: const TextStyle(
-                                                  color: GinaAppTheme
-                                                      .lightInverseSurface,
-                                                  fontSize: 10,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ],
-                                          ),
                                         ],
                                       ),
                                     ),
                                   ],
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(20, 0, 20, 10),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                        Images.officeAddressLogo,
+                                        width: 20,
+                                      ),
+                                      const Gap(12),
+                                      SizedBox(
+                                        width: width / 1.4,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '$distance km away',
+                                              style: ginaTheme
+                                                  .textTheme.bodySmall
+                                                  ?.copyWith(
+                                                color:
+                                                    GinaAppTheme.lightOutline,
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 10.0,
+                                              ),
+                                            ),
+                                            const Gap(2),
+                                            Text(
+                                              doctor.officeAddress,
+                                              style: const TextStyle(
+                                                color: GinaAppTheme
+                                                    .lightInverseSurface,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              overflow: TextOverflow.visible,
+                                            ),
+                                            const Gap(2),
+                                            Text(
+                                              doctor.officeMapsLocationAddress,
+                                              style: TextStyle(
+                                                color: GinaAppTheme
+                                                    .lightInverseSurface
+                                                    .withOpacity(0.6),
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                              overflow: TextOverflow.visible,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                                 BlocBuilder<DoctorAvailabilityBloc,
                                     DoctorAvailabilityState>(
@@ -186,6 +295,7 @@ class DoctorsNearMe extends StatelessWidget {
                                               style: TextStyle(
                                                 color:
                                                     GinaAppTheme.lightOutline,
+                                                fontSize: 12.0,
                                               ),
                                             ),
                                           ),
@@ -239,7 +349,7 @@ class DoctorsNearMe extends StatelessWidget {
                                                 ),
                                               ),
                                             ),
-                                            const Gap(10),
+                                            const Gap(5),
                                             if (doctorAvailabilityBloc
                                                 .getModeOfAppointment(state
                                                     .doctorAvailabilityModel)
@@ -251,6 +361,7 @@ class DoctorsNearMe extends StatelessWidget {
                                                   style: TextStyle(
                                                     color: GinaAppTheme
                                                         .lightOutline,
+                                                    fontSize: 12.0,
                                                   ),
                                                 ),
                                               ),
@@ -271,6 +382,15 @@ class DoctorsNearMe extends StatelessWidget {
                                                           const Gap(5),
                                                           Text(
                                                             mode,
+                                                            style: ginaTheme
+                                                                .textTheme
+                                                                .bodySmall
+                                                                ?.copyWith(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              fontSize: 11.0,
+                                                            ),
                                                           ),
                                                           const Gap(10),
                                                         ],
@@ -296,6 +416,7 @@ class DoctorsNearMe extends StatelessWidget {
                                                           ?.copyWith(
                                                         fontWeight:
                                                             FontWeight.w700,
+                                                        fontSize: 12.0,
                                                       ),
                                                     ),
                                                   ],

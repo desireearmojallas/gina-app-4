@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gina_app_4/core/resources/images.dart';
@@ -43,23 +45,241 @@ class _ConsultationOnGoingAppointmentScreenState
 
   @override
   void initState() {
+    debugPrint('InitState - Initial isDisabled value: $isDisabled');
     super.initState();
+
+    // Set up chatroom
     chatController.getChatRoom(
         chatController.generateRoomId(selectedDoctorUid), selectedDoctorUid);
+
+    // Start polling for new chatroom creation
+    Future.delayed(const Duration(milliseconds: 500), () {
+      startChatroomPolling();
+    });
+
+    bool initialAppointmentStatus = isAppointmentFinished;
+    debugPrint('Initial appointment status: $initialAppointmentStatus');
+
+    chatController.addListener(() {
+      if (isAppointmentFinished && mounted && !initialAppointmentStatus) {
+        debugPrint('Appointment finished, closing consultation screen');
+        _showConsultationEndedDialog();
+        initialAppointmentStatus = true;
+      }
+    });
+
+    chatController.stream.listen((status) {
+      debugPrint('STREAM STATUS CHANGED: $status');
+      if (status == 'success' && mounted) {
+        // Force UI update if needed
+        setState(() {});
+      }
+    });
+
     chatController.addListener(scrollToBottom);
     messageFN.addListener(scrollToBottom);
     checkIfDoctorMessagedFirst();
+
+    // Enhanced listener for first-time message detection
+    chatController.messageStream.listen((messages) {
+      debugPrint('MessageStream - Received ${messages.length} messages');
+
+      if (messages.isNotEmpty) {
+        // Check if this is the first message from doctor (transition from empty to active chat)
+        bool wasDisabled = isDisabled;
+        updateIsDisabled(messages);
+
+        if (wasDisabled && !isDisabled) {
+          debugPrint('First doctor message detected! Transitioning UI state');
+
+          // Force scroll to bottom when first message appears
+          Future.delayed(const Duration(milliseconds: 300), () {
+            scrollToBottom();
+          });
+        }
+      }
+    });
+  }
+
+  void startChatroomPolling() {
+    debugPrint('Starting chatroom polling for first-time creation');
+
+    // Create a local variable to track current state
+    String? currentState;
+    StreamSubscription? stateSubscription;
+
+    // Set up a subscription to track state changes
+    Timer? timer; // Declare timer before its first use
+    stateSubscription = chatController.stream.listen((state) {
+      currentState = state;
+
+      // Cancel polling if state changes from empty
+      if (state != 'empty' && timer != null) {
+        debugPrint('State changed to $state - stopping polling');
+        timer?.cancel(); // Replace ?. with .
+        stateSubscription?.cancel();
+      }
+    });
+
+    // Wait briefly to allow initial state to be set
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (currentState != 'empty' || !mounted) {
+        debugPrint('No need for polling: chat state is $currentState');
+        stateSubscription?.cancel();
+        return;
+      }
+
+      debugPrint('Chat state is empty, starting periodic polling');
+      // Check every 5 seconds if the chatroom was created
+      timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+        if (currentState != 'empty' || !mounted) {
+          debugPrint('Stopping polling: chat state changed to $currentState');
+          timer.cancel();
+          stateSubscription?.cancel();
+          return;
+        }
+
+        debugPrint('Polling: re-checking for chatroom creation');
+        // Re-trigger chatroom check
+        chatController.getChatRoom(
+            chatController.generateRoomId(selectedDoctorUid),
+            selectedDoctorUid);
+      });
+    });
+  }
+
+  void _showConsultationEndedDialog() {
+    // Track the selected rating
+    int selectedRating = 0;
+    bool isOnlineConsultation = appointment.modeOfAppointment == 0;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Consultation Ended'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  isOnlineConsultation
+                      ? 'The doctor has ended this consultation. You can still view the messages, but no new messages can be sent.'
+                      : 'Your face-to-face consultation with the doctor has ended.',
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'How would you rate this consultation?',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                // Rating stars code remains the same
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(5, (index) {
+                    return IconButton(
+                      icon: Icon(
+                        index < selectedRating ? Icons.star : Icons.star_border,
+                        color:
+                            index < selectedRating ? Colors.amber : Colors.grey,
+                        size: 30,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          selectedRating = index + 1;
+                        });
+                      },
+                    );
+                  }),
+                ),
+                Text(
+                  selectedRating > 0
+                      ? '$selectedRating ${selectedRating == 1 ? 'star' : 'stars'}'
+                      : 'Tap to rate',
+                  style: TextStyle(
+                    color: selectedRating > 0 ? Colors.amber : Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              if (isOnlineConsultation)
+                TextButton(
+                  onPressed: () {
+                    // Submit rating if selected
+                    if (selectedRating > 0) {
+                      chatController.submitRating(
+                          selectedRating, appointment, selectedDoctorUid);
+                    }
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: const Text('Continue Reading'),
+                ),
+              TextButton(
+                onPressed: () {
+                  // Submit rating if selected
+                  if (selectedRating > 0) {
+                    chatController.submitRating(
+                        selectedRating, appointment, selectedDoctorUid);
+                  }
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop(); // Close the consultation screen
+                },
+                child: const Text('Leave Consultation'),
+              ),
+            ],
+          );
+        });
+      },
+    );
   }
 
   Future<void> checkIfDoctorMessagedFirst() async {
-    final messages = await chatController.getMessagesForSpecificAppointment(
-      chatroom,
-      appointment.appointmentUid!,
-    );
-    setState(() {
-      isDisabled =
-          !messages.any((message) => message.authorUid == selectedDoctorUid);
-    });
+    debugPrint('CheckIfDoctorMessagedFirst - Starting check...');
+
+    // This handles both existing appointments and potential new ones
+    try {
+      final messages = await chatController.getMessagesForSpecificAppointment(
+        chatroom,
+        appointment.appointmentUid!,
+      );
+
+      debugPrint(
+          'CheckIfDoctorMessagedFirst - Found ${messages.length} messages');
+
+      if (messages.isNotEmpty) {
+        updateIsDisabled(messages);
+      } else {
+        // No messages yet - ensure we're listening for updates
+        debugPrint('No messages yet - ensuring listener is active');
+      }
+    } catch (e) {
+      // This might happen if the appointment document doesn't exist yet
+      debugPrint('Error checking first messages: $e');
+    }
+  }
+
+  void updateIsDisabled(List<dynamic> messages) {
+    debugPrint('UpdateIsDisabled - Current isDisabled value: $isDisabled');
+
+    // Only process if we have messages
+    if (messages.isEmpty) {
+      return;
+    }
+
+    bool hasDocMessage =
+        messages.any((message) => message.authorUid == selectedDoctorUid);
+
+    debugPrint('UpdateIsDisabled - Doctor has messaged: $hasDocMessage');
+
+    if (isDisabled && hasDocMessage) {
+      debugPrint('Doctor sent first message - enabling patient replies');
+      setState(() {
+        isDisabled = false;
+      });
+    }
   }
 
   @override
@@ -130,6 +350,7 @@ class _ConsultationOnGoingAppointmentScreenState
                       },
                       appointment: appointment,
                       disabled: isDisabled,
+                      chatController: chatController,
                     );
                   } else if (snapshot.data == 'empty') {
                     debugPrint(
@@ -147,7 +368,7 @@ class _ConsultationOnGoingAppointmentScreenState
                       },
                       appointment: appointment,
                       // disabled: true,
-                      disabled: isDisabled,
+                      disabled: isDisabled, chatController: chatController,
                     );
                   }
                 } else if (snapshot.hasError) {
@@ -212,5 +433,15 @@ class _ConsultationOnGoingAppointmentScreenState
         debugPrint(e.toString());
       }
     }
+  }
+
+  @override
+  void dispose() {
+    chatController.removeListener(scrollToBottom);
+    messageFN.removeListener(scrollToBottom);
+    messageController.dispose();
+    messageFN.dispose();
+    scrollController.dispose();
+    super.dispose();
   }
 }

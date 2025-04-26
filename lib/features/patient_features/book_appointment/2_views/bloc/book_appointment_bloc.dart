@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,6 +11,7 @@ import 'package:gina_app_4/features/patient_features/book_appointment/1_controll
 import 'package:gina_app_4/features/patient_features/doctor_availability/0_model/doctor_availability_model.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/1_controller/doctor_availability_controller.dart';
 import 'package:gina_app_4/features/patient_features/doctor_availability/2_views/bloc/doctor_availability_bloc.dart';
+import 'package:gina_app_4/features/patient_features/payment_feature/3_services/patient_payment_service.dart';
 import 'package:gina_app_4/features/patient_features/profile/1_controllers/profile_controller.dart';
 import 'package:intl/intl.dart';
 
@@ -25,20 +27,36 @@ class BookAppointmentBloc
   final DoctorAvailabilityController doctorAvailabilityController;
   final AppointmentController appointmentController;
   final ProfileController profileController;
+  final TextEditingController reasonController = TextEditingController();
   int selectedTimeIndex = -1;
   int selectedModeofAppointmentIndex = -1;
+  String selectedFormattedDate = '';
   TextEditingController dateController = TextEditingController();
+  String? currentInvoiceUrl;
+  String? tempAppointmentId;
+  bool isBookAppointmentClicked = false;
 
   BookAppointmentBloc({
     required this.doctorAvailabilityController,
     required this.appointmentController,
     required this.profileController,
   }) : super(BookAppointmentInitial()) {
+    // Generate temporary appointment ID when bloc is created
+    tempAppointmentId = 'temp-${DateTime.now().millisecondsSinceEpoch}';
+    debugPrint('Generated temporary appointment ID: $tempAppointmentId');
+
     on<NavigateToReviewAppointmentEvent>(navigateToReviewAppointmentEvent);
     on<GetDoctorAvailabilityEvent>(getDoctorAvailabilityEvent);
     on<BookForAnAppointmentEvent>(bookForAnAppointmentEvent);
     on<SelectTimeEvent>(selectTimeEvent);
     on<SelectedModeOfAppointmentEvent>(selectModeOfAppointmentEvent);
+  }
+
+  @override
+  Future<void> close() {
+    reasonController.dispose();
+    // Dispose other controllers
+    return super.close();
   }
 
   FutureOr<void> navigateToReviewAppointmentEvent(
@@ -73,26 +91,187 @@ class BookAppointmentBloc
           doctorAvailabilityModel: doctorAvailabilityModel,
           selectedTimeIndex: null,
           selectedModeofAppointmentIndex: null,
+          appointmentId: currentAppointmentModel?.appointmentUid ??
+              'temp-${DateTime.now().millisecondsSinceEpoch}',
+          doctorName: currentAppointmentModel?.doctorName!,
+          consultationType: currentAppointmentModel?.consultationType,
+          amount: currentAppointmentModel?.amount,
+          appointmentDate: currentAppointmentModel?.appointmentDate != null
+              ? DateFormat('EEEE, d of MMMM y')
+                  .parse(currentAppointmentModel!.appointmentDate!)
+              : null,
         ));
       },
     );
   }
 
-  FutureOr<void> bookForAnAppointmentEvent(BookForAnAppointmentEvent event,
-      Emitter<BookAppointmentState> emit) async {
-    emit(BookAppointmentRequestLoading());
-
-    debugPrint('BookForAnAppointmentEvent triggered');
-
-    String dateString = dateController.text;
-    DateTime parsedDate = DateFormat('EEEE, d of MMMM y').parse(dateString);
-    String reformattedDate = DateFormat('MMMM d, yyyy').format(parsedDate);
-
-    debugPrint('datestring: $dateString');
-    debugPrint('parsedDate: $parsedDate');
-    debugPrint('reformattedDate: $reformattedDate');
-
+  Future<String> _checkPaymentStatus(String tempAppointmentId) async {
     try {
+      debugPrint('=== Checking Payment Status ===');
+      debugPrint('Temp Appointment ID: $tempAppointmentId');
+      debugPrint('Current Invoice URL: $currentInvoiceUrl');
+
+      debugPrint('Fetching payment document from Firestore...');
+      final paymentDoc = await FirebaseFirestore.instance
+          .collection('pending_payments')
+          .doc(tempAppointmentId)
+          .get();
+
+      if (!paymentDoc.exists) {
+        debugPrint('Payment document not found in pending_payments');
+        return 'not_found';
+      }
+
+      final paymentData = paymentDoc.data()!;
+      final invoiceId = paymentData['invoiceId'] as String;
+      final currentStatus = paymentData['status'] as String? ?? 'pending';
+      final lastCheckedAt = paymentData['lastCheckedAt'] as Timestamp?;
+      final updatedAt = paymentData['updatedAt'] as Timestamp?;
+
+      debugPrint('Payment Document Details:');
+      debugPrint('Invoice ID: $invoiceId');
+      debugPrint('Current Status in Firestore: $currentStatus');
+      debugPrint('Last Checked At: ${lastCheckedAt?.toDate()}');
+      debugPrint('Last Updated At: ${updatedAt?.toDate()}');
+
+      if (currentStatus.toLowerCase() == 'paid') {
+        debugPrint('Payment is marked as paid in Firestore');
+        return 'paid';
+      }
+
+      debugPrint('Verifying with Xendit...');
+      final paymentService = PatientPaymentService();
+      final xenditStatus =
+          await paymentService.checkXenditPaymentStatus(invoiceId);
+
+      debugPrint('Xendit Payment Status: $xenditStatus');
+
+      if (xenditStatus.toLowerCase() != currentStatus.toLowerCase()) {
+        debugPrint(
+            'Updating payment status in Firestore from $currentStatus to $xenditStatus');
+        await FirebaseFirestore.instance
+            .collection('pending_payments')
+            .doc(tempAppointmentId)
+            .update({
+          'status': xenditStatus.toLowerCase(),
+          'updatedAt': FieldValue.serverTimestamp(),
+          'lastCheckedAt': FieldValue.serverTimestamp(),
+        });
+        debugPrint('Successfully updated payment status in Firestore');
+      } else {
+        debugPrint('Payment status unchanged in Firestore');
+      }
+
+      return xenditStatus.toLowerCase();
+    } catch (e) {
+      debugPrint('Error checking payment status: $e');
+      throw Exception('Failed to check payment status: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>?> fetchPendingPayment(
+      String appointmentId) async {
+    try {
+      debugPrint('=== Fetching Pending Payment ===');
+      debugPrint('Appointment ID: $appointmentId');
+
+      // First, check the payments subcollection to get the tempAppointmentId
+      final paymentsSnapshot = await FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(appointmentId)
+          .collection('payments')
+          .get();
+
+      if (paymentsSnapshot.docs.isEmpty) {
+        debugPrint('No payment documents found in subcollection');
+        return null;
+      }
+
+      // Get the first payment document (assuming there's only one)
+      final paymentDoc = paymentsSnapshot.docs.first;
+      final paymentData = paymentDoc.data();
+      final tempAppointmentId = paymentData['appointmentId'] as String?;
+
+      if (tempAppointmentId == null) {
+        debugPrint('No tempAppointmentId found in payment document');
+        return null;
+      }
+
+      debugPrint('Found tempAppointmentId: $tempAppointmentId');
+
+      // Now fetch the pending payment using the tempAppointmentId
+      final pendingPaymentDoc = await FirebaseFirestore.instance
+          .collection('pending_payments')
+          .doc(tempAppointmentId)
+          .get();
+
+      if (!pendingPaymentDoc.exists) {
+        debugPrint(
+            'No pending payment found for tempAppointmentId: $tempAppointmentId');
+        return null;
+      }
+
+      final pendingPaymentData = pendingPaymentDoc.data();
+      debugPrint(
+          'Found pending payment with status: ${pendingPaymentData?['status']}');
+      return pendingPaymentData;
+    } catch (e) {
+      debugPrint('Error fetching pending payment: $e');
+      return null;
+    }
+  }
+
+  Future<void> bookForAnAppointmentEvent(
+    BookForAnAppointmentEvent event,
+    Emitter<BookAppointmentState> emit,
+  ) async {
+    try {
+      emit(BookAppointmentLoading());
+      isBookAppointmentClicked = true;
+      debugPrint('Book Appointment button clicked');
+      debugPrint('Event appointment ID: ${event.appointmentId}');
+
+      // Date formatting
+      String dateString = dateController.text;
+      DateTime parsedDate = DateFormat('EEEE, d of MMMM y').parse(dateString);
+      String reformattedDate = DateFormat('MMMM d, yyyy').format(parsedDate);
+      final newDateFormat = DateFormat('EEEE, d \'of\' MMMM y');
+      DateTime? newParsedDate = newDateFormat.parse(dateString);
+      debugPrint('Parsed new date: $newParsedDate');
+
+      // Debug appointment details
+      debugPrint('Creating appointment with:');
+      debugPrint('Doctor ID: ${event.doctorId}');
+      debugPrint('Doctor Name: ${event.doctorName}');
+      debugPrint('Date: $reformattedDate');
+      debugPrint('Time: ${event.appointmentTime}');
+      debugPrint('Mode: $selectedModeofAppointmentIndex');
+      debugPrint('Platform Fee Percentage: ${event.platformFeePercentage}');
+
+      // Get doctor details to calculate amount
+      final doctorDoc = await FirebaseFirestore.instance
+          .collection('doctors')
+          .doc(event.doctorId)
+          .get();
+      final doctorData = doctorDoc.data();
+
+      // Calculate base amount based on mode of appointment
+      final amount = selectedModeofAppointmentIndex == 0
+          ? (doctorData != null
+              ? doctorData['olInitialConsultationPrice'] ?? 0.0
+              : 0.0)
+          : (doctorData != null
+              ? doctorData['f2fInitialConsultationPrice'] ?? 0.0
+              : 0.0);
+
+      // Calculate platform fee and total amount
+      final platformFeeAmount = amount * event.platformFeePercentage;
+      final totalAmount = amount + platformFeeAmount;
+
+      debugPrint('Base amount: $amount');
+      debugPrint('Platform fee amount: $platformFeeAmount');
+      debugPrint('Total amount: $totalAmount');
+
       final result = await appointmentController.requestAnAppointment(
         doctorId: event.doctorId,
         doctorName: event.doctorName,
@@ -100,44 +279,56 @@ class BookAppointmentBloc
         appointmentDate: reformattedDate,
         appointmentTime: event.appointmentTime,
         modeOfAppointment: selectedModeofAppointmentIndex,
+        amount: amount,
+        platformFeePercentage: event.platformFeePercentage,
+        platformFeeAmount: platformFeeAmount,
+        totalAmount: totalAmount,
+        reasonForAppointment: event.reasonForAppointment,
       );
 
-      debugPrint('result: $result');
+      if (result.isRight()) {
+        final appointmentId = result.fold(
+          (error) => '',
+          (id) => id,
+        );
 
-      result.fold(
-        (failure) {
-          debugPrint('Booking failed: $failure');
-          emit(BookAppointmentError(errorMessage: failure.toString()));
-        },
-        (snapId) {
-          currentAppointmentModel = AppointmentModel(
-            appointmentUid: snapId,
-            doctorUid: event.doctorId,
-            doctorName: event.doctorName,
-            doctorClinicAddress: event.doctorClinicAddress,
-            appointmentDate: dateString,
-            appointmentTime: event.appointmentTime,
-            modeOfAppointment: selectedModeofAppointmentIndex,
-          );
-          debugPrint('Booking successful: $snapId');
+        emit(GetDoctorAvailabilityLoaded(
+          doctorAvailabilityModel: bookDoctorAvailabilityModel!,
+          appointmentId: appointmentId,
+          doctorName: event.doctorName,
+          appointmentDate: newParsedDate,
+          selectedTimeIndex: selectedTimeIndex,
+          selectedModeofAppointmentIndex: selectedModeofAppointmentIndex,
+        ));
 
-          emit(
-            ReviewAppointmentState(
-              appointmentModel: AppointmentModel(
-                appointmentUid: snapId,
-                doctorUid: event.doctorId,
-                doctorName: event.doctorName,
-                doctorClinicAddress: event.doctorClinicAddress,
-                appointmentDate: dateString,
-                appointmentTime: event.appointmentTime,
-                modeOfAppointment: selectedModeofAppointmentIndex,
-              ),
-            ),
-          );
-        },
-      );
+        final appointmentModel = AppointmentModel(
+          appointmentUid: appointmentId,
+          doctorUid: event.doctorId,
+          doctorName: event.doctorName,
+          doctorClinicAddress: event.doctorClinicAddress,
+          appointmentDate: reformattedDate,
+          appointmentTime: event.appointmentTime,
+          modeOfAppointment: selectedModeofAppointmentIndex,
+          amount: amount,
+          platformFeePercentage: event.platformFeePercentage,
+          platformFeeAmount: platformFeeAmount,
+          totalAmount: totalAmount,
+          reasonForAppointment: event.reasonForAppointment,
+        );
+
+        emit(BookForAnAppointmentReview(
+          appointmentModel: appointmentModel,
+        ));
+      } else {
+        emit(BookAppointmentError(
+          errorMessage: result.fold(
+            (error) => error.toString(),
+            (_) => 'Failed to book appointment',
+          ),
+        ));
+      }
     } catch (e) {
-      debugPrint('Exception occurred: $e');
+      debugPrint('Error in bookForAnAppointmentEvent: $e');
       emit(BookAppointmentError(errorMessage: e.toString()));
     }
   }
@@ -152,10 +343,20 @@ class BookAppointmentBloc
 
     selectedTimeIndex = event.index;
 
+    DateTime? selectedDate;
+    if (dateController.text.isNotEmpty) {
+      selectedDate = DateFormat('EEEE, d of MMMM y').parse(dateController.text);
+    }
+
     emit(GetDoctorAvailabilityLoaded(
       doctorAvailabilityModel: bookDoctorAvailabilityModel!,
       selectedTimeIndex: event.index,
       selectedModeofAppointmentIndex: selectedModeofAppointmentIndex,
+      appointmentId: currentAppointmentModel?.appointmentUid!,
+      doctorName: currentAppointmentModel?.doctorName!,
+      consultationType: currentAppointmentModel?.consultationType,
+      amount: currentAppointmentModel?.amount,
+      appointmentDate: selectedDate,
     ));
   }
 
@@ -169,16 +370,21 @@ class BookAppointmentBloc
 
     selectedModeofAppointmentIndex = event.index;
 
-    // Debugging: Print the selected mode of appointment
-    debugPrint(
-        'Selected Mode of Appointment Index: $selectedModeofAppointmentIndex');
-    debugPrint(
-        'Selected Mode of Appointment: ${modeOfAppointment[event.index]}');
+    DateTime? selectedDate;
+    if (dateController.text.isNotEmpty) {
+      selectedDate = DateFormat('EEEE, d of MMMM y').parse(dateController.text);
+    }
 
     emit(GetDoctorAvailabilityLoaded(
       doctorAvailabilityModel: bookDoctorAvailabilityModel!,
       selectedTimeIndex: selectedTimeIndex,
       selectedModeofAppointmentIndex: event.index,
+      appointmentId: currentAppointmentModel?.appointmentUid ??
+          'temp-${DateTime.now().millisecondsSinceEpoch}',
+      doctorName: currentAppointmentModel?.doctorName!,
+      consultationType: currentAppointmentModel?.consultationType,
+      amount: currentAppointmentModel?.amount,
+      appointmentDate: selectedDate,
     ));
   }
 
@@ -213,30 +419,71 @@ class BookAppointmentBloc
       }
     }
 
-    // Ensure the list is ordered correctly
     modeOfAppointmentList.sort((a, b) {
       if (a == 'Online Consultation') return -1;
       if (b == 'Online Consultation') return 1;
       return 0;
     });
 
-    // Debugging: Print the mode of appointment list
     debugPrint('Mode of Appointment List: $modeOfAppointmentList');
 
     return modeOfAppointmentList;
   }
 
-  int calculateAge(String dateOfBirth) {
-    final birthDate = DateFormat('MMMM dd, yyyy').parse(dateOfBirth);
-    int age = DateTime.now().year - birthDate.year;
+  // int calculateAge(String dateOfBirth) {
+  //   final birthDate = DateFormat('MMMM dd, yyyy').parse(dateOfBirth);
+  //   int age = DateTime.now().year - birthDate.year;
 
-    // If the birthday hasn't occurred yet this year, subtract one from age
-    if (DateTime.now().month < birthDate.month ||
-        (DateTime.now().month == birthDate.month &&
-            DateTime.now().day < birthDate.day)) {
-      age--;
+  //   if (DateTime.now().month < birthDate.month ||
+  //       (DateTime.now().month == birthDate.month &&
+  //           DateTime.now().day < birthDate.day)) {
+  //     age--;
+  //   }
+
+  //   return age;
+  // }
+
+  int calculateAge(String? dateOfBirth) {
+    if (dateOfBirth == null || dateOfBirth.trim().isEmpty) {
+      debugPrint('Warning: Empty or null date of birth provided');
+      return 0; // Or handle differently based on your requirements
     }
 
-    return age;
+    try {
+      // Trim the string to remove any whitespace
+      final cleanDateString = dateOfBirth.trim();
+
+      // Try parsing with the expected format
+      DateTime birthDate;
+      try {
+        birthDate = DateFormat('MMMM dd, yyyy').parse(cleanDateString);
+      } catch (_) {
+        // Fallback to alternative formats if the first one fails
+        try {
+          birthDate = DateFormat('MMMM d, yyyy').parse(cleanDateString);
+        } catch (_) {
+          try {
+            birthDate = DateFormat('MM/dd/yyyy').parse(cleanDateString);
+          } catch (_) {
+            debugPrint('Error parsing date: $cleanDateString');
+            return 0; // Or handle differently
+          }
+        }
+      }
+
+      int age = DateTime.now().year - birthDate.year;
+
+      // Adjust age if birthday hasn't occurred yet this year
+      if (DateTime.now().month < birthDate.month ||
+          (DateTime.now().month == birthDate.month &&
+              DateTime.now().day < birthDate.day)) {
+        age--;
+      }
+
+      return age;
+    } catch (e) {
+      debugPrint('Error calculating age: $e');
+      return 0; // Or handle differently
+    }
   }
 }

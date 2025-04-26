@@ -36,6 +36,25 @@ class FindScreenLoaded extends StatelessWidget {
                   physics: const BouncingScrollPhysics(),
                   child: Column(
                     children: [
+                      // Row(
+                      //   children: [
+                      //     const Gap(10),
+                      //     Image.asset(
+                      //       Images.officeAddressLogo,
+                      //       width: 20,
+                      //     ),
+                      //     const Gap(10),
+                      //     Text(
+                      //       'Near me',
+                      //       style: ginaTheme.textTheme.bodyLarge?.copyWith(
+                      //         color: GinaAppTheme.lightOnPrimaryColor,
+                      //         fontWeight: FontWeight.bold,
+                      //       ),
+                      //     ),
+                      //     // ADD INPUT FIELD HERE FOR THE DYNAMIC KM RADIUS OF NEARBY DOCTORS
+                      //   ],
+                      // ),
+
                       Row(
                         children: [
                           const Gap(10),
@@ -50,6 +69,127 @@ class FindScreenLoaded extends StatelessWidget {
                               color: GinaAppTheme.lightOnPrimaryColor,
                               fontWeight: FontWeight.bold,
                             ),
+                          ),
+                          const Spacer(),
+                          // Radius input field
+                          BlocBuilder<FindBloc, FindState>(
+                            buildWhen: (previous, current) =>
+                                previous.searchRadius != current.searchRadius,
+                            builder: (context, state) {
+                              debugPrint(
+                                  'Building radius UI with: ${state.searchRadius}');
+                              final radiusController = TextEditingController(
+                                  text: state.searchRadius.toStringAsFixed(0));
+
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.7),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'Radius:',
+                                      style: ginaTheme.textTheme.bodySmall
+                                          ?.copyWith(
+                                        color: GinaAppTheme.lightOnPrimaryColor,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const Gap(8),
+                                    SizedBox(
+                                      width: 45,
+                                      child: TextField(
+                                        controller: radiusController,
+                                        keyboardType: TextInputType.number,
+                                        textAlign: TextAlign.center,
+                                        decoration: InputDecoration(
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 8.0,
+                                                  horizontal: 4.0),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
+                                            borderSide: BorderSide(
+                                              color: GinaAppTheme.lightOutline
+                                                  .withOpacity(0.3),
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
+                                            borderSide: BorderSide(
+                                              color: GinaAppTheme.lightOutline
+                                                  .withOpacity(0.2),
+                                            ),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
+                                            borderSide: const BorderSide(
+                                              color: GinaAppTheme
+                                                  .lightTertiaryContainer,
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                          isDense: true,
+                                          filled: true,
+                                          fillColor: Colors.grey.shade50,
+                                        ),
+                                        style: ginaTheme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                          color:
+                                              GinaAppTheme.lightOnPrimaryColor,
+                                        ),
+                                        onSubmitted: (value) {
+                                          _applyRadius(context, value);
+                                        },
+                                      ),
+                                    ),
+                                    const Gap(4),
+                                    Text(
+                                      'km',
+                                      style: ginaTheme.textTheme.bodySmall
+                                          ?.copyWith(
+                                        color: GinaAppTheme.lightOnPrimaryColor,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const Gap(10),
+                                    Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(8),
+                                        onTap: () {
+                                          _applyRadius(
+                                              context, radiusController.text);
+                                        },
+                                        child: Container(
+                                          height: 32,
+                                          width: 32,
+                                          decoration: BoxDecoration(
+                                            color: GinaAppTheme
+                                                .lightTertiaryContainer,
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: const Icon(
+                                            Icons.search,
+                                            size: 16,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -73,7 +213,10 @@ class FindScreenLoaded extends StatelessWidget {
                                       fontSize: 18,
                                     ),
                                   ),
-                                  const TextSpan(text: ' doctor(s) near you!'),
+                                  TextSpan(
+                                    text:
+                                        ' doctor(s) within ${state.searchRadius.toStringAsFixed(0)}km!',
+                                  ),
                                 ],
                               ),
                             ),
@@ -319,5 +462,22 @@ class FindScreenLoaded extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _applyRadius(BuildContext context, String value) {
+    double? radius = double.tryParse(value);
+    if (radius != null && radius > 0) {
+      // Show loading indicator
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              'Updating search radius to ${radius.toStringAsFixed(0)}km...'),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+
+      // Apply the radius change
+      context.read<FindBloc>().add(SetSearchRadiusEvent(radius: radius));
+    }
   }
 }

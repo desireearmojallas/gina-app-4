@@ -1,1 +1,40 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"gina-app-4","appId":"1:808546057934:android:d57a9a9ad94982d1dada9f","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"gina-app-4","configurations":{"android":"1:808546057934:android:d57a9a9ad94982d1dada9f","ios":"1:808546057934:ios:cc5d6aeb9bbba1f2dada9f","macos":"1:808546057934:ios:cc5d6aeb9bbba1f2dada9f","web":"1:808546057934:web:88e29d147c6d3224dada9f"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "gina-app-4",
+          "appId": "1:808546057934:android:d57a9a9ad94982d1dada9f",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "gina-app-4",
+          "configurations": {
+            "android": "1:808546057934:android:d57a9a9ad94982d1dada9f",
+            "ios": "1:808546057934:ios:cc5d6aeb9bbba1f2dada9f",
+            "macos": "1:808546057934:ios:cc5d6aeb9bbba1f2dada9f",
+            "web": "1:808546057934:web:88e29d147c6d3224dada9f"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ]
+    }
+  ]
+}

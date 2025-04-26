@@ -71,3 +71,19 @@ class SelectedPeriodDates extends PeriodTrackerState {
   @override
   List<Object> get props => [selectedPeriodDates];
 }
+
+class DisplayDialogUpcomingPeriodState extends PeriodTrackerActionState {
+  final DateTime startDate;
+  final List<PeriodTrackerModel> periodTrackerModel;
+
+  DisplayDialogUpcomingPeriodState({
+    required this.startDate,
+    required this.periodTrackerModel,
+  });
+
+  @override
+  List<Object> get props => [
+        startDate,
+        periodTrackerModel,
+      ];
+}

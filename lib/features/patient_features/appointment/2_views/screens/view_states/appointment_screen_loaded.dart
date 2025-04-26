@@ -218,7 +218,7 @@ class AppointmentScreenLoaded extends StatelessWidget {
       text.toUpperCase(),
       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             fontWeight: FontWeight.bold,
-            fontSize: 14,
+            fontSize: 16,
           ),
       textAlign: TextAlign.left,
     );
