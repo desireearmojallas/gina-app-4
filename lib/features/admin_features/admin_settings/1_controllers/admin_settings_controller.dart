@@ -96,8 +96,8 @@ class AdminSettingsController {
 
         // Filter doctors by name (case-insensitive)
         users = doctorList
-            .where((doctor) =>
-                doctor.name.toLowerCase().contains(normalizedQuery))
+            .where(
+                (doctor) => doctor.name.toLowerCase().contains(normalizedQuery))
             .map((doctor) {
           final data = doctor.json;
           data['id'] = doctor.uid;
@@ -333,17 +333,14 @@ class AdminSettingsController {
           firestore.collection('app-settings').doc('payment-validity');
       final docSnapshot = await docRef.get();
 
-      // Return default values if document doesn't exist
       if (!docSnapshot.exists) {
         return PaymentValiditySettings.defaultValues();
       }
 
-      // Return existing values using the model
       final data = docSnapshot.data() as Map<String, dynamic>;
       return PaymentValiditySettings.fromJson(data);
     } catch (e) {
       debugPrint('Error getting global payment validity settings: $e');
-      // Return default values on error
       return PaymentValiditySettings.defaultValues();
     }
   }

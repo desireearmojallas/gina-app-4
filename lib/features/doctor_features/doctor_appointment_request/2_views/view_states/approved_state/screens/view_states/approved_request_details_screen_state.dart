@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,6 +13,7 @@ import 'package:gina_app_4/core/reusable_widgets/doctor_reusable_widgets/gina_do
 import 'package:gina_app_4/core/reusable_widgets/gradient_background.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/admin_features/admin_settings/1_controllers/admin_settings_controller.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_appointment_request/2_views/widgets/view_patient_data/view_patient_data.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation/2_views/bloc/doctor_consultation_bloc.dart';
@@ -770,7 +773,10 @@ class ApprovedRequestDetailsScreenState extends StatelessWidget {
     }
   }
 
-  void _showPaymentRequiredDialog(BuildContext context, String message) {
+  void _showPaymentRequiredDialog(BuildContext context, String message) async {
+    // Start with default message while we fetch settings
+    String loadingMessage = "Loading payment deadline...";
+
     // Get the lastUpdatedAt timestamp from appointment
     final lastUpdatedAt = appointment.lastUpdatedAt;
     if (lastUpdatedAt == null) {
@@ -779,115 +785,130 @@ class ApprovedRequestDetailsScreenState extends StatelessWidget {
       return;
     }
 
-    // Calculate expiry time (48 hours from lastUpdatedAt)
-    final expiryTime = lastUpdatedAt.add(const Duration(hours: 48));
-    final now = DateTime.now();
+    try {
+      // Fetch the dynamic payment window minutes from admin settings
+      final settings =
+          await AdminSettingsController.getGlobalPaymentValiditySettings();
+      final paymentWindowMinutes = settings.paymentWindowMinutes;
 
-    // If already expired, show regular dialog with expired message
-    if (now.isAfter(expiryTime)) {
-      _showRegularPaymentDialog(context,
-          "The payment window for this appointment has expired. The appointment will be automatically declined soon.");
-      return;
-    }
+      // Calculate expiry time based on admin settings
+      final expiryTime =
+          lastUpdatedAt.add(Duration(minutes: paymentWindowMinutes));
+      final now = DateTime.now();
 
-    // Show dialog with countdown
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(builder: (context, setState) {
-          Timer? countdownTimer;
-          Duration remaining = expiryTime.difference(DateTime.now());
+      // If already expired, show regular dialog with expired message
+      if (now.isAfter(expiryTime)) {
+        _showRegularPaymentDialog(context,
+            "The payment window for this appointment has expired. The appointment will be automatically declined soon.");
+        return;
+      }
 
-          // Start the timer when dialog is shown
-          countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-            if (context.mounted) {
-              setState(() {
-                remaining = expiryTime.difference(DateTime.now());
-                // If time expired during viewing, update message
-                if (remaining.isNegative) {
+      // Show dialog with countdown
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext dialogContext) {
+            return StatefulBuilder(builder: (context, setState) {
+              Timer? countdownTimer;
+              Duration remaining = expiryTime.difference(DateTime.now());
+
+              // Start the timer when dialog is shown
+              countdownTimer =
+                  Timer.periodic(const Duration(seconds: 1), (timer) {
+                if (context.mounted) {
+                  setState(() {
+                    remaining = expiryTime.difference(DateTime.now());
+                    // If time expired during viewing, update message
+                    if (remaining.isNegative) {
+                      timer.cancel();
+                    }
+                  });
+                } else {
                   timer.cancel();
                 }
               });
-            } else {
-              timer.cancel();
-            }
-          });
 
-          // Format the remaining time
-          String remainingTimeFormatted = _formatDuration(remaining);
+              // Format the remaining time
+              String remainingTimeFormatted = _formatDuration(remaining);
 
-          // Dispose timer when dialog is dismissed
-          return WillPopScope(
-            onWillPop: () {
-              countdownTimer?.cancel();
-              return Future.value(true);
-            },
-            child: AlertDialog(
-              title: const Text('Payment Required'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(message),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Time remaining:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: remaining.inHours > 24
-                          ? Colors.green.withOpacity(0.1)
-                          : remaining.inHours > 6
-                              ? Colors.orange.withOpacity(0.1)
-                              : Colors.red.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Center(
-                      child: Text(
-                        remainingTimeFormatted,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+              // Dispose timer when dialog is dismissed
+              return WillPopScope(
+                onWillPop: () {
+                  countdownTimer?.cancel();
+                  return Future.value(true);
+                },
+                child: AlertDialog(
+                  title: const Text('Payment Required'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(message),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Time remaining:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
                           color: remaining.inHours > 24
-                              ? Colors.green
+                              ? Colors.green.withOpacity(0.1)
                               : remaining.inHours > 6
-                                  ? Colors.orange
-                                  : Colors.red,
+                                  ? Colors.orange.withOpacity(0.1)
+                                  : Colors.red.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Center(
+                          child: Text(
+                            remainingTimeFormatted,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: remaining.inHours > 24
+                                  ? Colors.green
+                                  : remaining.inHours > 6
+                                      ? Colors.orange
+                                      : Colors.red,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'After this time expires, the appointment will be automatically declined.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'After this time expires, the appointment will be automatically declined.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                      fontStyle: FontStyle.italic,
-                    ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ],
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    countdownTimer?.cancel();
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('OK'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        countdownTimer?.cancel();
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          );
-        });
-      },
-    );
+              );
+            });
+          },
+        );
+      }
+    } catch (e) {
+      // If there's an error fetching settings, fall back to regular dialog
+      debugPrint('Error fetching payment window settings: $e');
+      _showRegularPaymentDialog(context, message);
+    }
   }
 
   // Helper method for regular dialog without countdown

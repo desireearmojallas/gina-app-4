@@ -10,6 +10,7 @@ import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/core/reusable_widgets/patient_reusable_widgets/gina_patient_app_bar/gina_patient_app_bar.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/dependencies_injection.dart';
+import 'package:gina_app_4/features/admin_features/admin_settings/1_controllers/admin_settings_controller.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/appointment_bloc.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/screens/view_states/appointment_details_status_screen.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
@@ -41,25 +42,22 @@ class AlertDialogForApprovedAppointmentsPaymentProvider
 
 // Static method to show the dialog as an overlay
   static void show(BuildContext context,
-      {required AppointmentModel appointment}) {
-    // Get the navigator context that will be used later
+      {required AppointmentModel appointment}) async {
     final navigatorContext = context;
 
-    // Get the AppointmentBloc from parent context
     final AppointmentBloc appointmentBloc =
         BlocProvider.of<AppointmentBloc>(context);
 
-    // Get HomeBloc for state reset
     final HomeBloc homeBloc = BlocProvider.of<HomeBloc>(context);
 
-    // Check if the appointment has already timed out (more than 1 hour since lastUpdatedAt)
+    final int paymentValidityInSeconds = await getPaymentValidityTime();
+
+    // Check if the appointment has already timed out
     final DateTime now = DateTime.now();
     final DateTime approvalTime = appointment.lastUpdatedAt ?? now;
     final int secondsElapsed = now.difference(approvalTime).inSeconds;
 
-    // If more than 1 hour has passed (3600 seconds), show the Time's Up dialog directly
-    //TODO: MAKE THIS TIME DYNAMIC
-    if (secondsElapsed >= 3600) {
+    if (secondsElapsed >= paymentValidityInSeconds) {
       _showTimesUpDialogStatic(context, appointment);
       return;
     }
@@ -69,7 +67,6 @@ class AlertDialogForApprovedAppointmentsPaymentProvider
       context: context,
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
-        // Rest of the dialog building code remains the same
         return MultiBlocProvider(
           providers: [
             BlocProvider<AlertDialogForApprovedAppointmentsBloc>(
@@ -79,7 +76,6 @@ class AlertDialogForApprovedAppointmentsPaymentProvider
                 return alertDialogForApprovedAppointmentsBloc;
               },
             ),
-            // Provide the parent's AppointmentBloc to the dialog context
             BlocProvider.value(
               value: appointmentBloc,
             ),
@@ -91,10 +87,24 @@ class AlertDialogForApprovedAppointmentsPaymentProvider
         );
       },
     ).then((_) {
-      // When dialog is dismissed by any means, reset state
       HomeScreen.resetPaymentDialogShown();
       homeBloc.add(ResetHomeStateAfterDialogEvent());
     });
+  }
+
+  static Future<int> getPaymentValidityTime() async {
+    try {
+      final settings =
+          await AdminSettingsController.getGlobalPaymentValiditySettings();
+
+      // Access the property directly from the settings object
+      final validityInSeconds = settings.paymentWindowMinutes * 60;
+      debugPrint('Payment validity time fetched: $validityInSeconds seconds');
+      return validityInSeconds;
+    } catch (e) {
+      debugPrint('Error fetching payment validity time: $e');
+      return 3600; // Default to 1 hour if any error occurs
+    }
   }
 
   // Static version of the _showTimesUpDialog method
@@ -216,12 +226,14 @@ class AlertDialogForApprovedAppointments extends StatefulWidget {
 
 class _AlertDialogForApprovedAppointmentsState
     extends State<AlertDialogForApprovedAppointments> {
-  // Total allowed time in seconds (1 hour)
-  final int _totalAllowedSeconds = 3600;
+// Total allowed time in seconds (fetched from admin settings)
+  late int _totalAllowedSeconds;
 
-  // Remaining seconds will be calculated based on lastUpdatedAt
-  late int _remainingSeconds;
-  late Timer _timer;
+  bool _isInitializing = true;
+
+  // Initialize with default values instead of using late
+  int _remainingSeconds = 3600; // Default to 1 hour until properly initialized
+  Timer? _timer; // Make nullable so we can check if initialized
 
   Future<bool> _isAppointmentPaid() async {
     try {
@@ -267,37 +279,50 @@ class _AlertDialogForApprovedAppointmentsState
   @override
   void initState() {
     super.initState();
+    _initializeTimer();
+  }
 
-    // Calculate time elapsed since appointment was approved
+  Future<void> _initializeTimer() async {
+    _totalAllowedSeconds =
+        await AlertDialogForApprovedAppointmentsPaymentProvider
+            .getPaymentValidityTime();
+
     DateTime now = DateTime.now();
     DateTime approvalTime = widget.appointment.lastUpdatedAt ?? now;
 
-    // Calculate seconds elapsed since approval
     int secondsElapsed = now.difference(approvalTime).inSeconds;
 
-    // Calculate remaining seconds (cap at 0 if more than allowed time has passed)
     _remainingSeconds = _totalAllowedSeconds - secondsElapsed;
     if (_remainingSeconds < 0) _remainingSeconds = 0;
 
-    // Start the countdown timer
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        if (_remainingSeconds > 0) {
-          _remainingSeconds--;
-        } else {
-          _timer.cancel();
-          // Auto-close dialog when time expires
-          Navigator.of(context).pop();
-          _showTimesUpDialog();
+    // Only proceed if widget is still mounted
+    if (mounted) {
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (mounted) {
+          setState(() {
+            if (_remainingSeconds > 0) {
+              _remainingSeconds--;
+            } else {
+              _timer?.cancel();
+              // Auto-close dialog when time expires
+              Navigator.of(context).pop();
+              _showTimesUpDialog();
+            }
+          });
         }
       });
-    });
 
-    // Log information for debugging
-    debugPrint('Appointment approved at: $approvalTime');
-    debugPrint('Current time: $now');
-    debugPrint('Seconds elapsed since approval: $secondsElapsed');
-    debugPrint('Remaining seconds: $_remainingSeconds');
+      // Update loading state
+      setState(() {
+        _isInitializing = false;
+      });
+
+      debugPrint('Payment validity: $_totalAllowedSeconds seconds');
+      debugPrint('Appointment approved at: $approvalTime');
+      debugPrint('Current time: $now');
+      debugPrint('Seconds elapsed since approval: $secondsElapsed');
+      debugPrint('Remaining seconds: $_remainingSeconds');
+    }
   }
 
   void _showTimesUpDialog() {
@@ -403,7 +428,7 @@ class _AlertDialogForApprovedAppointmentsState
 
   @override
   void dispose() {
-    _timer.cancel(); // Cancel the timer to prevent memory leaks
+    _timer?.cancel(); // Cancel the timer to prevent memory leaks
     super.dispose();
   }
 
@@ -424,6 +449,25 @@ class _AlertDialogForApprovedAppointmentsState
       builder: (context, state) {
         // Get whether the appointment is already paid from the model
         final bool isPaid = widget.appointment.hasPreviousPayment ?? false;
+
+        // Show loading indicator while initializing
+        if (_isInitializing) {
+          return AlertDialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            contentPadding: const EdgeInsets.all(20),
+            content: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text("Loading appointment details..."),
+              ],
+            ),
+          );
+        }
 
         return AlertDialog(
           backgroundColor: Colors.white,
@@ -570,9 +614,9 @@ class _AlertDialogForApprovedAppointmentsState
                         ],
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        "Unpaid bookings will be auto-declined after 1 hour and the slot will be released to others.",
-                        style: TextStyle(
+                      Text(
+                        "Unpaid bookings will be auto-declined after ${_totalAllowedSeconds ~/ 60} minutes and the slot will be released to others.",
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black87,
                         ),

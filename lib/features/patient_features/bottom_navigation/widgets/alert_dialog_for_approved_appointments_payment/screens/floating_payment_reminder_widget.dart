@@ -43,22 +43,53 @@ class FloatingPaymentReminder extends StatefulWidget {
 }
 
 class _FloatingPaymentReminderState extends State<FloatingPaymentReminder> {
-  // Total allowed time in seconds (1 hour)
-  final int _totalAllowedSeconds = 3600;
+  // Total allowed time in seconds (fetched from admin settings)
+  late int _totalAllowedSeconds;
+
+  bool _isInitializing = true;
 
   // Remaining seconds will be calculated based on approval time
-  late int _remainingSeconds;
-  late Timer _timer;
-  late Timer _statusCheckTimer;
+  int _remainingSeconds = 3600; // Default until properly initialized
+  Timer? _timer;
+  Timer? _statusCheckTimer;
   bool _isAppointmentCancelled = false;
 
   @override
   void initState() {
     super.initState();
-    _startCountdown();
-    _startStatusCheck();
+    _initialize();
     debugPrint(
         'FloatingPaymentReminder initialized for appointment: ${widget.appointment.appointmentUid}');
+  }
+
+  Future<void> _initialize() async {
+    // First, fetch the payment validity time
+    await _fetchPaymentValidityTime();
+
+    // Then start the countdown and status check (now _totalAllowedSeconds is initialized)
+    _startCountdown();
+    _startStatusCheck();
+
+    // Update loading state
+    if (mounted) {
+      setState(() {
+        _isInitializing = false;
+      });
+    }
+  }
+
+  Future<void> _fetchPaymentValidityTime() async {
+    try {
+      _totalAllowedSeconds =
+          await AlertDialogForApprovedAppointmentsPaymentProvider
+              .getPaymentValidityTime();
+
+      debugPrint(
+          'Payment validity time fetched: $_totalAllowedSeconds seconds');
+    } catch (e) {
+      debugPrint('Error fetching payment validity time: $e');
+      _totalAllowedSeconds = 3600; // Default to 1 hour if any error occurs
+    }
   }
 
   void _startCountdown() {
@@ -82,7 +113,7 @@ class _FloatingPaymentReminderState extends State<FloatingPaymentReminder> {
         if (_remainingSeconds > 0) {
           _remainingSeconds--;
         } else {
-          _timer.cancel();
+          _timer?.cancel();
           // If time's up, reset the reminder in HomeScreen
           HomeScreen.resetPaymentDialogShown();
         }
@@ -133,8 +164,8 @@ class _FloatingPaymentReminderState extends State<FloatingPaymentReminder> {
 
   @override
   void dispose() {
-    _timer.cancel();
-    _statusCheckTimer.cancel();
+    _timer?.cancel();
+    _statusCheckTimer?.cancel();
     debugPrint('FloatingPaymentReminder disposed');
     super.dispose();
   }
@@ -150,7 +181,11 @@ class _FloatingPaymentReminderState extends State<FloatingPaymentReminder> {
 
   @override
   Widget build(BuildContext context) {
-    // If appointment is cancelled or declined, don't show the widget
+    // Show loading or empty widget while initializing
+    if (_isInitializing) {
+      return const SizedBox.shrink(); // Don't show anything while initializing
+    }
+
     if (_isAppointmentCancelled) {
       debugPrint('💰 PAYMENT REMINDER: Appointment cancelled, not showing');
       return const SizedBox.shrink();

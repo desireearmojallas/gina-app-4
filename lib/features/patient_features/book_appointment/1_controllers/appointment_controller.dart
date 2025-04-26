@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
+import 'package:gina_app_4/features/admin_features/admin_settings/1_controllers/admin_settings_controller.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
@@ -1055,10 +1056,16 @@ class AppointmentController with ChangeNotifier {
     }
   }
 
-  // Add this new method to automatically decline unpaid appointments
   Future<void> autoDeclineUnpaidAppointments() async {
     try {
       debugPrint('Checking for unpaid appointments to auto-decline...');
+
+      // Get the configured payment validity settings
+      final paymentValiditySettings =
+          await AdminSettingsController.getGlobalPaymentValiditySettings();
+      final paymentWindowMinutes = paymentValiditySettings.paymentWindowMinutes;
+
+      debugPrint('Payment validity window: $paymentWindowMinutes minutes');
 
       // Query approved appointments
       final querySnapshot = await firestore
@@ -1078,11 +1085,12 @@ class AppointmentController with ChangeNotifier {
         final currentTime = DateTime.now();
         final lastUpdatedTime = lastUpdatedAt.toDate();
 
-        // Calculate time difference
-        final difference = currentTime.difference(lastUpdatedTime);
+        // Calculate time difference in minutes
+        final differenceInMinutes =
+            currentTime.difference(lastUpdatedTime).inMinutes;
 
-        // Check if it's been more than 1 hour
-        if (difference.inHours >= 1) {
+        // Check if it's been more than the configured payment window time
+        if (differenceInMinutes >= paymentWindowMinutes) {
           // Check if payments subcollection exists and has documents
           final paymentsSnapshot = await firestore
               .collection('appointments')

@@ -6,6 +6,7 @@ import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
+import 'package:gina_app_4/features/admin_features/admin_settings/1_controllers/admin_settings_controller.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_view_patients/0_models/user_appointment_period_model.dart';
@@ -875,6 +876,13 @@ class DoctorAppointmentRequestController with ChangeNotifier {
     try {
       debugPrint('Checking for unpaid confirmed appointments...');
 
+      // Get the configured payment validity settings
+      final paymentValiditySettings =
+          await AdminSettingsController.getGlobalPaymentValiditySettings();
+      final paymentWindowMinutes = paymentValiditySettings.paymentWindowMinutes;
+
+      debugPrint('Payment validity window: $paymentWindowMinutes minutes');
+
       // Get confirmed appointments
       QuerySnapshot<Map<String, dynamic>> appointmentSnapshot = await firestore
           .collection('appointments')
@@ -883,20 +891,22 @@ class DoctorAppointmentRequestController with ChangeNotifier {
               isEqualTo: AppointmentStatus.confirmed.index)
           .get();
 
-      final oneHourAgo = DateTime.now().subtract(const Duration(hours: 1));
+      // Calculate dynamic time threshold based on settings
+      final paymentDeadline =
+          DateTime.now().subtract(Duration(minutes: paymentWindowMinutes));
       int declinedCount = 0;
 
       for (var doc in appointmentSnapshot.docs) {
         final data = doc.data();
         final appointmentId = doc.id;
 
-        // Check if lastUpdatedAt exists and is more than 1 hour ago
+        // Check if lastUpdatedAt exists and is more than payment window ago
         if (data['lastUpdatedAt'] != null) {
           final lastUpdated = (data['lastUpdatedAt'] as Timestamp).toDate();
 
-          if (lastUpdated.isBefore(oneHourAgo)) {
+          if (lastUpdated.isBefore(paymentDeadline)) {
             debugPrint(
-                'Found appointment approved more than 1 hour ago: $appointmentId');
+                'Found appointment approved more than $paymentWindowMinutes minutes ago: $appointmentId');
 
             // Check if payment exists
             final paymentsSnapshot = await firestore
@@ -917,9 +927,10 @@ class DoctorAppointmentRequestController with ChangeNotifier {
                 'appointmentStatus': AppointmentStatus.declined.index,
                 'declinedAt': FieldValue.serverTimestamp(),
                 'declineReason':
-                    'Automatically declined due to payment not received within 1 hour.',
+                    'Automatically declined due to payment not received within $paymentWindowMinutes minutes.',
                 'lastUpdatedAt': FieldValue.serverTimestamp(),
                 'isViewed': false,
+                'autoDeclined': true, // Match patient-side flag
               });
 
               declinedCount++;
