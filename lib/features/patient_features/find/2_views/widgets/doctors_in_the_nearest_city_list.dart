@@ -93,29 +93,53 @@ class DoctorsInTheNearestCity extends StatelessWidget {
                                                   doctor.doctorRatingId,
                                             ),
                                             // Star rating display
-                                            Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.star_rounded,
-                                                  color: Colors.yellow[800],
-                                                  size: 14,
-                                                ),
-                                                const Gap(3),
-                                                Text(
-                                                  doctor.averageRating
-                                                      .toString(),
-                                                  style: ginaTheme
-                                                      .textTheme.bodySmall
-                                                      ?.copyWith(
-                                                    fontWeight: FontWeight.w700,
-                                                    color: Colors.yellow[800],
-                                                  ),
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                                const Gap(10),
-                                              ],
-                                            ),
+                                            doctor.doctorRatings.isNotEmpty
+                                                ? Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.star_rounded,
+                                                        color:
+                                                            Colors.yellow[800],
+                                                        size: 14,
+                                                      ),
+                                                      const Gap(3),
+                                                      Row(
+                                                        children: [
+                                                          Text(
+                                                            "${doctor.averageRating?.toStringAsFixed(1)}",
+                                                            style: ginaTheme
+                                                                .textTheme
+                                                                .bodySmall
+                                                                ?.copyWith(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w700,
+                                                              color: Colors
+                                                                  .yellow[800],
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            " (${doctor.doctorRatings.length})",
+                                                            style: ginaTheme
+                                                                .textTheme
+                                                                .bodySmall
+                                                                ?.copyWith(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              color: GinaAppTheme
+                                                                  .lightOutline,
+                                                            ),
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      const Gap(10),
+                                                    ],
+                                                  )
+                                                : const SizedBox.shrink(),
                                           ],
                                         ),
                                       ),

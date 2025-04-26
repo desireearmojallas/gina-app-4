@@ -150,7 +150,9 @@ class DoctorModel extends Equatable {
       xenditAccountCreated: json['xenditAccountCreated'],
       doctorRatings: json['doctorRatings'] != null
           ? List<int>.from(json['doctorRatings'])
-          : <int>[],
+          : json['doctorRating'] != null
+              ? List<int>.from(json['doctorRating'])
+              : <int>[],
       averageRating: json['averageRating'] ?? 0,
     );
   }
@@ -208,7 +210,9 @@ class DoctorModel extends Equatable {
       xenditAccountCreated: json['xenditAccountCreated'],
       doctorRatings: json['doctorRatings'] != null
           ? List<int>.from(json['doctorRatings'])
-          : <int>[],
+          : json['doctorRating'] != null
+              ? List<int>.from(json['doctorRating'])
+              : <int>[],
       averageRating: json['averageRating'] ?? 0,
     );
   }

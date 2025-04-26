@@ -663,12 +663,13 @@ class _PatientPaymentScreenInitialState
                               ),
                             ),
                             SizedBox(
-                              width: size.width * 0.5,
+                              width: size.width * 0.4,
                               child: Text(
                                 paymentMethod,
                                 style: ginaTheme.bodyMedium?.copyWith(
                                   fontWeight: FontWeight.w500,
                                 ),
+                                textAlign: TextAlign.end,
                               ),
                             ),
                           ],

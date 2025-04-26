@@ -798,12 +798,12 @@ class ChatMessageController with ChangeNotifier {
       debugPrint(
           'Submitting $rating star rating for doctor: $selectedDoctorUid');
 
-      // 1. Update the appointment with the rating - using field name "doctorRating"
+      // 1. Update the appointment with the rating - using field name "doctorRatings"
       await FirebaseFirestore.instance
           .collection('appointments')
           .doc(appointment.appointmentUid)
           .update({
-        'doctorRating': rating, // Using your existing field name
+        'doctorRatings': rating, // Using your existing field name
         'ratedAt': FieldValue.serverTimestamp(),
       });
 
@@ -816,7 +816,7 @@ class ChatMessageController with ChangeNotifier {
         'timestamp': FieldValue.serverTimestamp(),
       });
 
-      // 3. Update the doctor's document - using field name "doctorRating" (List)
+      // 3. Update the doctor's document - using field name "doctorRatings" (List)
       DocumentReference doctorRef = FirebaseFirestore.instance
           .collection('doctors')
           .doc(selectedDoctorUid);
@@ -835,7 +835,7 @@ class ChatMessageController with ChangeNotifier {
 
         // Get existing ratings array or create new one - using your field name "doctorRating"
         List<dynamic> ratings =
-            List<dynamic>.from(doctorData['doctorRating'] ?? []);
+            List<dynamic>.from(doctorData['doctorRatings'] ?? []);
 
         // Add new rating
         ratings.add(rating);
@@ -846,7 +846,7 @@ class ChatMessageController with ChangeNotifier {
 
         // Update the doctor document
         transaction.update(doctorRef, {
-          'doctorRating': ratings, // Using your existing field name
+          'doctorRatings': ratings, // Using your existing field name
           'averageRating': average, // Add calculated average for convenience
           'ratingsCount': ratings.length, // Add count for convenience
           'lastRatedAt': FieldValue.serverTimestamp(),
