@@ -17,6 +17,8 @@ class AdminSettingsBloc extends Bloc<AdminSettingsEvent, AdminSettingsState> {
     on<SwitchUserType>(_onSwitchUserType);
     on<DeleteUser>(_onDeleteUser);
     on<OptimisticDeleteUser>(_onOptimisticDeleteUser);
+    on<LoadPlatformFees>(_onLoadPlatformFees);
+    on<UpdatePlatformFees>(_onUpdatePlatformFees);
   }
 
   Future<void> _onLoadUsers(
@@ -98,6 +100,51 @@ class AdminSettingsBloc extends Bloc<AdminSettingsEvent, AdminSettingsState> {
         users: updatedUsers,
         userType: currentState.userType,
       ));
+    }
+  }
+
+  Future<void> _onLoadPlatformFees(
+      LoadPlatformFees event, Emitter<AdminSettingsState> emit) async {
+    emit(AdminSettingsLoading());
+
+    try {
+      final result = await adminSettingsController.getPlatformFees();
+
+      result.fold(
+        (exception) => emit(AdminSettingsError(message: exception.toString())),
+        (platformFees) => emit(PlatformFeesLoaded(
+          onlinePercentage: platformFees.onlinePercentage,
+          f2fPercentage: platformFees.f2fPercentage,
+        )),
+      );
+    } catch (e) {
+      emit(AdminSettingsError(message: e.toString()));
+    }
+  }
+
+  Future<void> _onUpdatePlatformFees(
+      UpdatePlatformFees event, Emitter<AdminSettingsState> emit) async {
+    emit(AdminSettingsLoading());
+
+    try {
+      final result = await adminSettingsController.updatePlatformFees(
+        onlinePercentage: event.onlinePercentage,
+        f2fPercentage: event.f2fPercentage,
+      );
+
+      result.fold(
+        (exception) => emit(AdminSettingsError(message: exception.toString())),
+        (success) {
+          emit(const PlatformFeesUpdated());
+
+          emit(PlatformFeesLoaded(
+            onlinePercentage: event.onlinePercentage,
+            f2fPercentage: event.f2fPercentage,
+          ));
+        },
+      );
+    } catch (e) {
+      emit(AdminSettingsError(message: e.toString()));
     }
   }
 }

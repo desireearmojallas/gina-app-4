@@ -32,3 +32,23 @@ final class AdminSettingsError extends AdminSettingsState {
   @override
   List<Object> get props => [message];
 }
+
+class PlatformFeesLoaded extends AdminSettingsState {
+  final double onlinePercentage;
+  final double f2fPercentage;
+
+  const PlatformFeesLoaded({
+    required this.onlinePercentage,
+    required this.f2fPercentage,
+  });
+
+  @override
+  List<Object> get props => [onlinePercentage, f2fPercentage];
+}
+
+class PlatformFeesUpdated extends AdminSettingsState {
+  const PlatformFeesUpdated();
+
+  @override
+  List<Object> get props => [];
+}

@@ -53,3 +53,23 @@ class OptimisticDeleteUser extends AdminSettingsEvent {
   @override
   List<Object> get props => [userId];
 }
+
+class LoadPlatformFees extends AdminSettingsEvent {
+  const LoadPlatformFees();
+
+  @override
+  List<Object> get props => [];
+}
+
+class UpdatePlatformFees extends AdminSettingsEvent {
+  final double onlinePercentage;
+  final double f2fPercentage;
+
+  const UpdatePlatformFees({
+    required this.onlinePercentage,
+    required this.f2fPercentage,
+  });
+
+  @override
+  List<Object> get props => [onlinePercentage, f2fPercentage];
+}

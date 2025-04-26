@@ -42,9 +42,9 @@ class AdminSettingsScreenLoaded extends StatelessWidget {
                     children: [
                       TabBar(
                         tabs: const [
+                          Tab(text: 'User Management'),
                           Tab(text: 'Platform Fee'),
                           Tab(text: 'Payment Validity'),
-                          Tab(text: 'User Management'),
                         ],
                         labelStyle: ginaTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
@@ -61,9 +61,9 @@ class AdminSettingsScreenLoaded extends StatelessWidget {
                       const Expanded(
                         child: TabBarView(
                           children: [
+                            UserManagementWidget(),
                             PlatformFeeSettingsWidget(),
                             PaymentValidityWidget(),
-                            UserManagementWidget(),
                           ],
                         ),
                       ),

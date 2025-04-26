@@ -5,6 +5,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gina_app_4/features/admin_features/admin_settings/0_model/app_settings_model.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 
@@ -115,7 +116,6 @@ class AdminSettingsController {
     try {
       working = true;
 
-      // Fix: Ensure plural collection names
       String collectionName;
       if (userType.toLowerCase() == "patient") {
         collectionName = "patients";
@@ -133,10 +133,100 @@ class AdminSettingsController {
       working = false;
       return const Right(true);
     } catch (e) {
-      // Error handling remains the same
       working = false;
       error = FirebaseAuthException(message: e.toString(), code: 'error');
       return Left(Exception(e.toString()));
+    }
+  }
+
+  Future<Either<Exception, PlatformFees>> getPlatformFees() async {
+    try {
+      working = true;
+
+      final docRef = firestore.collection('app-settings').doc('platform-fees');
+      final docSnapshot = await docRef.get();
+
+      if (!docSnapshot.exists) {
+        final defaultFees = PlatformFees.defaultValues();
+
+        await docRef.set(defaultFees.toJson());
+        debugPrint('Created default platform fees: ${defaultFees.toJson()}');
+
+        working = false;
+        return Right(defaultFees);
+      }
+
+      final data = docSnapshot.data() as Map<String, dynamic>;
+      final platformFees = PlatformFees.fromJson(data);
+      debugPrint('Retrieved platform fees: ${platformFees.toJson()}');
+
+      working = false;
+      return Right(platformFees);
+    } catch (e) {
+      debugPrint('Error getting platform fees: $e');
+      working = false;
+      error = FirebaseAuthException(message: e.toString(), code: 'error');
+      return Left(Exception('Failed to load platform fees: $e'));
+    }
+  }
+
+  Future<Either<Exception, bool>> updatePlatformFees({
+    required double onlinePercentage,
+    required double f2fPercentage,
+  }) async {
+    try {
+      working = true;
+
+      // Validate values
+      if (onlinePercentage <= 0 || onlinePercentage > 1) {
+        working = false;
+        return Left(Exception('Online percentage must be between 0 and 100%'));
+      }
+
+      if (f2fPercentage <= 0 || f2fPercentage > 1) {
+        working = false;
+        return Left(
+            Exception('Face-to-face percentage must be between 0 and 100%'));
+      }
+
+      // Create the platform fees object with current timestamp
+      final platformFees = PlatformFees(
+        onlinePercentage: onlinePercentage,
+        f2fPercentage: f2fPercentage,
+        updatedAt: Timestamp.now(),
+      );
+
+      await firestore
+          .collection('app-settings')
+          .doc('platform-fees')
+          .set(platformFees.toJson(), SetOptions(merge: true));
+
+      debugPrint('Platform fees updated: ${platformFees.toJson()}');
+      working = false;
+      return const Right(true);
+    } catch (e) {
+      debugPrint('Error updating platform fees: $e');
+      working = false;
+      error = FirebaseAuthException(message: e.toString(), code: 'error');
+      return Left(Exception('Failed to update platform fees: $e'));
+    }
+  }
+
+  static Future<PlatformFees> getGlobalPlatformFees() async {
+    try {
+      final FirebaseFirestore firestore = FirebaseFirestore.instance;
+      final docRef = firestore.collection('app-settings').doc('platform-fees');
+      final docSnapshot = await docRef.get();
+
+      if (!docSnapshot.exists) {
+        return PlatformFees.defaultValues();
+      }
+
+      final data = docSnapshot.data() as Map<String, dynamic>;
+      return PlatformFees.fromJson(data);
+    } catch (e) {
+      debugPrint('Error getting global platform fees: $e');
+      return PlatformFees.defaultValues();
     }
   }
 }
