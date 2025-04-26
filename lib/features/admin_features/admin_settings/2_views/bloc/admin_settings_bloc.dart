@@ -39,16 +39,20 @@ class AdminSettingsBloc extends Bloc<AdminSettingsEvent, AdminSettingsState> {
       SearchUsers event, Emitter<AdminSettingsState> emit) async {
     emit(AdminSettingsLoading());
 
-    final result = event.query.isEmpty
-        ? await adminSettingsController.getUsers(event.userType)
-        : await adminSettingsController.searchUsers(
-            event.userType, event.query);
+    try {
+      final result = event.query.isEmpty
+          ? await adminSettingsController.getUsers(event.userType)
+          : await adminSettingsController.searchUsers(
+              event.userType, event.query);
 
-    result.fold(
-        (exception) => emit(AdminSettingsError(
-            message: 'Error searching users: ${exception.toString()}')),
-        (users) =>
-            emit(AdminSettingsLoaded(users: users, userType: event.userType)));
+      result.fold(
+          (exception) => emit(AdminSettingsError(
+              message: 'Error searching users: ${exception.toString()}')),
+          (users) => emit(
+              AdminSettingsLoaded(users: users, userType: event.userType)));
+    } catch (e) {
+      emit(AdminSettingsError(message: 'Search error: ${e.toString()}'));
+    }
   }
 
   Future<void> _onSwitchUserType(

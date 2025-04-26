@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,18 +12,52 @@ import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/admin_features/admin_settings/2_views/bloc/admin_settings_bloc.dart';
 import 'package:intl/intl.dart';
 
-class UserManagementWidget extends StatelessWidget {
+class UserManagementWidget extends StatefulWidget {
   const UserManagementWidget({super.key});
+
+  @override
+  State<UserManagementWidget> createState() => _UserManagementWidgetState();
+}
+
+class _UserManagementWidgetState extends State<UserManagementWidget> {
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUsers();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Only load users if we haven't initialized yet
+    if (!_isInitialized) {
+      _loadUsers();
+      _isInitialized = true;
+    }
+  }
+
+  void _loadUsers() {
+    // Use addPostFrameCallback to avoid setState during build errors
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Get the current state to determine what type of users to load
+      final state = context.read<AdminSettingsBloc>().state;
+      final userType =
+          state is AdminSettingsLoaded ? state.userType : 'Patients';
+
+      // Load users only if we're not in a loaded state
+      if (state is! AdminSettingsLoaded) {
+        context.read<AdminSettingsBloc>().add(LoadUsers(userType: userType));
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AdminSettingsBloc, AdminSettingsState>(
       builder: (context, state) {
-        // Initialize the bloc when first building
-        if (state is AdminSettingsInitial) {
-          context
-              .read<AdminSettingsBloc>()
-              .add(const LoadUsers(userType: 'Patients'));
+        if (state is AdminSettingsLoading && !_isInitialized) {
           return const Center(
             child: CustomLoadingIndicator(),
           );
@@ -45,6 +81,8 @@ class _UserManagementContentState extends State<UserManagementContent>
   final TextEditingController _searchController = TextEditingController();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+  Timer? _debounce;
+  bool _isSearching = false;
 
   @override
   void initState() {
@@ -62,23 +100,39 @@ class _UserManagementContentState extends State<UserManagementContent>
     _animationController.forward();
   }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _animationController.dispose();
-    super.dispose();
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      
+      final bloc = context.read<AdminSettingsBloc>();
+      final state = bloc.state;
+
+      if (state is AdminSettingsLoaded) {
+        setState(() {
+          _isSearching = _searchController.text.trim().isNotEmpty;
+        });
+        
+        // Only trigger search if the query is not empty, otherwise load all users
+        if (_isSearching) {
+          bloc.add(SearchUsers(
+            userType: state.userType,
+            query: _searchController.text.trim(),
+          ));
+        } else {
+          bloc.add(LoadUsers(userType: state.userType));
+        }
+      }
+    });
   }
 
-  void _onSearchChanged() {
-    final bloc = context.read<AdminSettingsBloc>();
-    final state = bloc.state;
-
-    if (state is AdminSettingsLoaded) {
-      bloc.add(SearchUsers(
-        userType: state.userType,
-        query: _searchController.text,
-      ));
-    }
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    _animationController.dispose();
+    _debounce?.cancel();
+    super.dispose();
   }
 
   @override
@@ -335,7 +389,9 @@ class _UserManagementContentState extends State<UserManagementContent>
                             const CustomLoadingIndicator(),
                             const Gap(16),
                             Text(
-                              'Loading users...',
+                              _searchController.text.isNotEmpty
+                                  ? 'Searching for "${_searchController.text}"...'
+                                  : 'Loading users...',
                               style: ginaTheme.bodyMedium?.copyWith(
                                 color: GinaAppTheme.lightOnSurfaceVariant,
                               ),
@@ -766,25 +822,25 @@ class _UserManagementContentState extends State<UserManagementContent>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // View details button
-                        IconButton(
-                          icon: const Icon(
-                            Icons.visibility_outlined,
-                            color: GinaAppTheme.lightTertiaryContainer,
-                            size: 20,
-                          ),
-                          onPressed: () {
-                            // View user details
-                          },
-                          tooltip: 'View details',
-                          style: IconButton.styleFrom(
-                            backgroundColor: GinaAppTheme.lightPrimaryColor
-                                .withOpacity(0.05),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                        const Gap(8),
+                        // IconButton(
+                        //   icon: const Icon(
+                        //     Icons.visibility_outlined,
+                        //     color: GinaAppTheme.lightTertiaryContainer,
+                        //     size: 20,
+                        //   ),
+                        //   onPressed: () {
+                        //     // View user details
+                        //   },
+                        //   tooltip: 'View details',
+                        //   style: IconButton.styleFrom(
+                        //     backgroundColor: GinaAppTheme.lightPrimaryColor
+                        //         .withOpacity(0.05),
+                        //     shape: RoundedRectangleBorder(
+                        //       borderRadius: BorderRadius.circular(8),
+                        //     ),
+                        //   ),
+                        // ),
+                        // const Gap(8),
                         // Delete button
                         IconButton(
                           icon: const Icon(

@@ -71,38 +71,57 @@ class AdminSettingsController {
     }
   }
 
-  // Search users by name for a specific type
   Future<Either<Exception, List<Map<String, dynamic>>>> searchUsers(
       String userType, String query) async {
     try {
       working = true;
+      // Normalize the collection name and query for Firebase
       final collectionName = userType.toLowerCase();
-      final queryLower = query.toLowerCase();
+      final normalizedQuery = query.toLowerCase();
 
-      // First get users of the specified type
-      final usersResult = await getUsers(userType);
+      // Get all users first (since Firebase doesn't support case-insensitive search directly)
+      final snapshot = await firestore.collection(collectionName).get();
 
-      // Return early if there was an error
-      if (usersResult.isLeft()) {
+      if (snapshot.docs.isEmpty) {
         working = false;
-        return usersResult;
+        return const Right([]);
       }
 
-      // Extract the users list and filter by name
-      final users = usersResult.getOrElse(() => []);
-      final filteredUsers = users.where((user) {
-        final name = (user['name'] as String?)?.toLowerCase() ?? '';
-        return name.contains(queryLower);
-      }).toList();
+      List<Map<String, dynamic>> users = [];
+
+      if (collectionName == 'doctors') {
+        final doctorList = snapshot.docs
+            .map((doc) => DoctorModel.fromJson(doc.data()))
+            .toList();
+
+        // Filter doctors by name (case-insensitive)
+        users = doctorList
+            .where((doctor) =>
+                doctor.name.toLowerCase().contains(normalizedQuery))
+            .map((doctor) {
+          final data = doctor.json;
+          data['id'] = doctor.uid;
+          data['type'] = 'Doctor';
+          return data;
+        }).toList();
+      } else if (collectionName == 'patients') {
+        final patientList =
+            snapshot.docs.map((doc) => UserModel.fromJson(doc.data())).toList();
+
+        // Filter patients by name (case-insensitive)
+        users = patientList
+            .where((patient) =>
+                patient.name.toLowerCase().contains(normalizedQuery))
+            .map((patient) {
+          final data = patient.json;
+          data['id'] = patient.uid;
+          data['type'] = 'Patient';
+          return data;
+        }).toList();
+      }
 
       working = false;
-      return Right(filteredUsers);
-    } on FirebaseAuthException catch (e) {
-      debugPrint(e.message);
-      debugPrint(e.code);
-      working = false;
-      error = e;
-      return Left(Exception(e.message));
+      return Right(users);
     } catch (e) {
       debugPrint(e.toString());
       working = false;
