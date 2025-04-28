@@ -81,3 +81,12 @@ class DisplayApprovedAppointmentPaymentDialogState extends HomeActionState {
   @override
   List<Object> get props => [appointment];
 }
+
+class ConsultationHistoryErrorState extends HomeState {
+  final String errorMessage;
+
+  const ConsultationHistoryErrorState({required this.errorMessage});
+
+  @override
+  List<Object> get props => [errorMessage];
+}

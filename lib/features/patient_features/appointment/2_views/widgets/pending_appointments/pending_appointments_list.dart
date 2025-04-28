@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/patient_features/appointment/2_views/widgets/pending_appointments/pending_appointments_container.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
@@ -33,66 +34,66 @@ class PendingAppointmentsList extends StatelessWidget {
       });
     }
 
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(
-        decelerationRate: ScrollDecelerationRate.fast,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 20, 10, 10),
-            child: _title(context, 'Pending Appointments'),
-          ),
-          if (appointments.isEmpty)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Text(
-                  'No pending appointments',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: GinaAppTheme.lightOutline.withOpacity(0.4),
-                      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(10, 20, 10, 10),
+          child: _title(context, 'Pending Appointments'),
+        ),
+        Expanded(
+          child: appointments.isEmpty
+              ? Center(
+                  child: Text(
+                    'No pending appointments',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: GinaAppTheme.lightOutline.withOpacity(0.4),
+                        ),
+                  ),
+                )
+              : ScrollbarCustom(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ...sortedYears.map(
+                          (year) {
+                            final yearAppointments =
+                                groupedAppointmentsByYear[year]!;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0, vertical: 10.0),
+                                  child: Text(
+                                    year.toString(),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: GinaAppTheme.lightOutline
+                                              .withOpacity(0.4),
+                                        ),
+                                  ),
+                                ),
+                                ...yearAppointments.map((appointment) =>
+                                    PendingAppointmentsContainer(
+                                      appointment: appointment,
+                                    )),
+                              ],
+                            );
+                          },
+                        ),
+                        const Gap(60),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            )
-          else
-            ...sortedYears.map(
-              (year) {
-                final yearAppointments = groupedAppointmentsByYear[year]!;
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10.0, vertical: 10.0),
-                      child: Text(
-                        year.toString(),
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: GinaAppTheme.lightOutline.withOpacity(0.4),
-                            ),
-                      ),
-                    ),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      padding: EdgeInsets.zero,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: yearAppointments.length,
-                      itemBuilder: (context, index) {
-                        final appointment = yearAppointments[index];
-                        return PendingAppointmentsContainer(
-                          appointment: appointment,
-                        );
-                      },
-                    ),
-                  ],
-                );
-              },
-            ),
-          const Gap(60),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

@@ -12,7 +12,6 @@ import 'package:gina_app_4/features/patient_features/appointment/2_views/bloc/ap
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/alert_dialog_for_approved_appointments_payment/screens/alert_dialog_for_approved_appointments_payment.dart';
 import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/emergency_notifications_alert_dialog/emergency_notifications_alert_dialog.dart';
-import 'package:gina_app_4/features/patient_features/emergency_announcements/1_controllers/emergency_announcement_controllers.dart';
 import 'package:gina_app_4/features/patient_features/emergency_announcements/2_views/bloc/emergency_announcements_bloc.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/screens/view_states/home_screen_loaded.dart';
 import 'package:gina_app_4/features/patient_features/home/2_views/bloc/home_bloc.dart';

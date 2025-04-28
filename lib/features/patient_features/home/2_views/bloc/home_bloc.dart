@@ -78,7 +78,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     final result = await appointmentController.getAllCompletedAppointments();
 
     result.fold(
-      (failure) {},
+      (failure) {
+        emit(ConsultationHistoryErrorState(errorMessage: failure.toString()));
+      },
       (completedAppointments) {
         storedCompletedAppointments = completedAppointments;
         emit(HomeInitial(

@@ -64,9 +64,12 @@ class GinaAppTheme {
   // *****************
   // Backdrop Filter Blur
   static final BackdropFilter blurFilter = BackdropFilter(
-    filter: ImageFilter.blur(sigmaX: 100.0, sigmaY: 100.0),
+    filter: ImageFilter.blur(
+      sigmaX: 100.0,
+      sigmaY: 100.0,
+    ),
     child: Container(
-      decoration: const BoxDecoration(color: Colors.transparent),
+      color: Colors.white.withOpacity(0.8),
     ),
   );
 

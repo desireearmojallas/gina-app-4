@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/enum/enum.dart';
+import 'package:gina_app_4/core/reusable_widgets/custom_loading_indicator.dart';
 import 'package:gina_app_4/core/reusable_widgets/scrollbar_custom.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
@@ -10,6 +11,7 @@ import 'package:gina_app_4/features/auth/0_model/user_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_consultation_fee/2_views/widgets/doctor_name_widget.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/appointment_status_card.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/cancel_appointment_widgets/cancel_modal_dialog.dart';
+import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/payment_details_widget.dart';
 import 'package:gina_app_4/features/patient_features/appointment_details/2_views/widgets/reschedule_filled_button.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:gina_app_4/features/patient_features/book_appointment/2_views/bloc/book_appointment_bloc.dart';
@@ -86,6 +88,12 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                         .doc(appointment.appointmentUid)
                         .snapshots(),
                     builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const SizedBox(
+                          height: 80,
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
                       if (!snapshot.hasData) {
                         return const SizedBox.shrink();
                       }
@@ -158,7 +166,21 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                         .collection('payments')
                         .snapshots(),
                     builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: SizedBox(
+                            height: 50,
+                            width: 50,
+                            child: CustomLoadingIndicator(),
+                          ),
+                        );
+                      }
+
+                      if (snapshot.hasError) {
+                        return const Center(child: Text('Error loading data'));
+                      }
+
+                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                         return const SizedBox.shrink();
                       }
 
@@ -386,12 +408,12 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: GinaAppTheme.lightTertiaryContainer,
                               borderRadius: BorderRadius.circular(30.0),
-                              boxShadow: [
+                              boxShadow: const [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
+                                  color: Colors.black12,
                                   blurRadius: 6.0,
                                   spreadRadius: 1.0,
-                                  offset: const Offset(0, 2),
+                                  offset: Offset(0, 2),
                                 ),
                               ],
                             ),
@@ -427,180 +449,202 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
   ) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
-      child: IntrinsicHeight(
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: 15.0,
+            horizontal: 20.0,
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 15.0,
-              horizontal: 20.0,
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      'Appointment ID:',
-                      style: labelStyle,
-                    ),
-                    const Gap(10),
-                    Text(
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Text(
+                    'Appointment ID:',
+                    style: labelStyle,
+                  ),
+                  const Gap(10),
+                  Expanded(
+                    child: Text(
                       '${appointment.appointmentUid}',
                       style: valueStyle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ],
-                ),
-                divider,
-                headerWidget(
-                  Icons.medical_services_outlined,
-                  'Appointment Detail',
-                ),
-                Column(
-                  children: [
-                    const Gap(20),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: Text(
-                            'Reason for visit',
-                            style: labelStyle,
-                          ),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Text(
-                            appointment.reasonForAppointment ?? 'Not specified',
-                            style: valueStyle,
-                            textAlign: TextAlign.right,
-                          ),
-                        ),
-                      ],
+                  ),
+                ],
+              ),
+              divider,
+              headerWidget(
+                Icons.medical_services_outlined,
+                'Appointment Detail',
+              ),
+              const Gap(20),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Flexible(
+                    flex: 1,
+                    child: Text(
+                      'Reason for visit',
+                      style: labelStyle,
                     ),
-                    const Gap(15),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  ),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    flex: 2,
+                    child: Text(
+                      appointment.reasonForAppointment ?? 'Not specified',
+                      style: valueStyle,
+                      textAlign: TextAlign.right,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 3,
+                    ),
+                  ),
+                ],
+              ),
+              const Gap(15),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    flex: 2,
+                    child: Text(
+                      'Mode of appointment',
+                      style: labelStyle,
+                    ),
+                  ),
+                  const Gap(10),
+                  Flexible(
+                    flex: 3,
+                    child: Text(
+                      appointment.modeOfAppointment == 0
+                          ? 'Online Consultation'
+                          : 'Face-to-Face Consultation',
+                      style: valueStyle,
+                      textAlign: TextAlign.right,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                    ),
+                  ),
+                ],
+              ),
+              const Gap(15),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    flex: 2,
+                    child: Text(
+                      'Date & time',
+                      style: labelStyle,
+                    ),
+                  ),
+                  const Gap(10),
+                  Flexible(
+                    flex: 3,
+                    child: Column(
                       children: [
                         Text(
-                          'Clinic location',
-                          style: labelStyle,
-                        ),
-                        Text(
-                          '${appointment.doctorClinicAddress}',
+                          '${appointment.appointmentDate}',
                           style: valueStyle,
-                        ),
-                      ],
-                    ),
-                    const Gap(15),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Mode of appointment',
-                          style: labelStyle,
+                          textAlign: TextAlign.right,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
                         ),
                         Text(
-                          appointment.modeOfAppointment == 0
-                              ? 'Online Consultation'
-                              : 'Face-to-Face Consultation',
+                          '${appointment.appointmentTime}',
                           style: valueStyle,
+                          textAlign: TextAlign.right,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
                         ),
                       ],
                     ),
-                    const Gap(15),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Date & time',
-                          style: labelStyle,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '${appointment.appointmentDate}',
-                              style: valueStyle,
-                            ),
-                            Text(
-                              '${appointment.appointmentTime}',
-                              style: valueStyle,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                divider,
-                headerWidget(
-                  Icons.payment,
-                  'Payment Details',
-                ),
-                _buildPaymentDetails(
-                  appointment,
-                  labelStyle!,
-                  valueStyle!,
-                  size,
-                ),
-                divider,
-                headerWidget(
-                  Icons.person_3,
-                  'Patient Personal Information',
-                ),
-                Column(
-                  children: [
-                    const Gap(20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Name',
-                          style: labelStyle,
-                        ),
-                        Text(
+                  ),
+                ],
+              ),
+              divider,
+              headerWidget(
+                Icons.payment,
+                'Payment Details',
+              ),
+              PaymentDetailsWidget(
+                appointment: appointment,
+                labelStyle: labelStyle!,
+                valueStyle: valueStyle!,
+              ),
+              divider,
+              headerWidget(
+                Icons.person_3,
+                'Patient Personal Information',
+              ),
+              Column(
+                children: [
+                  const Gap(20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(flex: 1, child: Text('Name', style: labelStyle)),
+                      const SizedBox(width: 10),
+                      Flexible(
+                        flex: 2,
+                        child: Text(
                           currentPatient.name,
                           style: valueStyle,
+                          textAlign: TextAlign.right,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
                         ),
-                      ],
-                    ),
-                    const Gap(15),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Age',
-                          style: labelStyle,
-                        ),
-                        Text(
+                      ),
+                    ],
+                  ),
+                  const Gap(15),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(flex: 1, child: Text('Age', style: labelStyle)),
+                      const SizedBox(width: 10),
+                      Flexible(
+                        flex: 2,
+                        child: Text(
                           '${bookAppointmentBloc.calculateAge(currentPatient.dateOfBirth)} years old',
                           style: valueStyle,
+                          textAlign: TextAlign.right,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
                         ),
-                      ],
-                    ),
-                    const Gap(15),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Location',
-                          style: labelStyle,
-                        ),
-                        Text(
+                      ),
+                    ],
+                  ),
+                  const Gap(15),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                          flex: 1, child: Text('Location', style: labelStyle)),
+                      const SizedBox(width: 10),
+                      Flexible(
+                        flex: 2,
+                        child: Text(
                           currentPatient.address,
                           style: valueStyle,
+                          textAlign: TextAlign.right,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
                         ),
-                      ],
-                    ),
-                    const Gap(15),
-                  ],
-                ),
-              ],
-            ),
+                      ),
+                    ],
+                  ),
+                  const Gap(15),
+                ],
+              ),
+            ],
           ),
         ),
       ),
@@ -627,263 +671,5 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  Widget _buildPaymentDetails(
-    AppointmentModel appointment,
-    TextStyle labelStyle,
-    TextStyle valueStyle,
-    Size size,
-  ) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('appointments')
-          .doc(appointment.appointmentUid)
-          .collection('payments')
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          debugPrint('Error loading payment details: ${snapshot.error}');
-          return const SizedBox.shrink();
-        }
-
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          debugPrint('No payment details available');
-          return const SizedBox.shrink();
-        }
-
-        final paymentData =
-            snapshot.data!.docs.first.data() as Map<String, dynamic>;
-        final paymentStatus = paymentData['status'] as String? ?? '';
-        final refundStatus = paymentData['refundStatus'] as String?;
-        final amount = appointment.amount ?? 0.0;
-        // Extract platform fee details
-        final platformFeePercentage =
-            paymentData['platformFeePercentage'] as double? ??
-                appointment.platformFeePercentage ??
-                0.0;
-        final platformFeeAmount = paymentData['platformFeeAmount'] as double? ??
-            appointment.platformFeeAmount ??
-            0.0;
-
-        // Calculate effective platform fee amount
-        final effectivePlatformFeeAmount = platformFeeAmount > 0
-            ? platformFeeAmount
-            : (platformFeePercentage > 0
-                ? amount * platformFeePercentage
-                : 0.0);
-
-        // Get the totalAmount with proper backward compatibility check
-        double? rawTotalAmount = paymentData['totalAmount'] as double?;
-        final totalAmount =
-            // If totalAmount exists and is not 0, use it directly
-            (rawTotalAmount != null && rawTotalAmount > 0.0)
-                ? rawTotalAmount
-                // Otherwise fall back to amount + platform fee
-                : amount + effectivePlatformFeeAmount;
-        final refundAmount = paymentData['refundAmount'] as double?;
-        final paymentMethod =
-            paymentData['paymentMethod'] as String? ?? 'Xendit';
-        final invoiceId = paymentData['invoiceId'] as String?;
-        final linkedAt = paymentData['linkedAt'] as Timestamp?;
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Gap(20),
-            // Base Fee row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Base Fee',
-                  style: labelStyle,
-                ),
-                Text(
-                  '₱${NumberFormat('#,##0.00').format(amount)}',
-                  style: valueStyle,
-                ),
-              ],
-            ),
-            const Gap(15),
-            // Platform Fee row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Platform Fee (${(platformFeePercentage * 100).toInt()}%)',
-                  style: labelStyle,
-                ),
-                Text(
-                  '₱${NumberFormat('#,##0.00').format(platformFeeAmount)}',
-                  style: valueStyle,
-                ),
-              ],
-            ),
-            const Gap(15),
-            // Total Amount row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Total Amount',
-                  style: labelStyle.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  '₱${NumberFormat('#,##0.00').format(totalAmount)}',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ],
-            ),
-            const Gap(15),
-            // Payment Status row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Payment Status',
-                  style: labelStyle,
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color:
-                        _getPaymentStatusColor(paymentStatus).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    paymentStatus.toUpperCase(),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: _getPaymentStatusColor(paymentStatus),
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-            const Gap(15),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Payment Method',
-                  style: labelStyle,
-                ),
-                SizedBox(
-                  width: size.width * 0.45,
-                  child: Text(
-                    paymentMethod,
-                    style: valueStyle.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.end,
-                  ),
-                ),
-              ],
-            ),
-            const Gap(15),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Payment Date',
-                  style: labelStyle,
-                ),
-                Text(
-                  linkedAt != null
-                      ? DateFormat('MMMM d, yyyy h:mm a')
-                          .format(linkedAt.toDate())
-                      : 'N/A',
-                  style: valueStyle,
-                ),
-              ],
-            ),
-            if (refundStatus != null) ...[
-              const Gap(15),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Refund Status',
-                    style: labelStyle,
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color:
-                          _getRefundStatusColor(refundStatus).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      refundStatus.toUpperCase(),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: _getRefundStatusColor(refundStatus),
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ),
-                ],
-              ),
-              if (refundAmount != null) ...[
-                const Gap(15),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Refund Amount',
-                      style: labelStyle,
-                    ),
-                    Text(
-                      '₱${NumberFormat('#,##0.00').format(refundAmount)}',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.orange,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ],
-                ),
-              ],
-            ],
-          ],
-        );
-      },
-    );
-  }
-
-  Color _getPaymentStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'paid':
-        return Colors.green;
-      case 'pending':
-        return Colors.orange;
-      case 'failed':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  Color _getRefundStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'pending':
-        return Colors.orange;
-      case 'succeeded':
-        return Colors.green;
-      case 'failed':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
   }
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: sized_box_for_whitespace
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -118,29 +120,41 @@ class AppointmentConsultationHistoryContainer extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
+                      Container(
                         width: width * 0.4,
-                        child: Text(
-                          'Appt ID: ${appointment.appointmentUid}',
-                          style: ginaTheme.textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 9.5,
-                            color: GinaAppTheme.lightOutline,
-                          ),
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                'Appt ID: ${appointment.appointmentUid}',
+                                style: ginaTheme.textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 9.5,
+                                  color: GinaAppTheme.lightOutline,
+                                ),
+                                softWrap: true,
+                                overflow: TextOverflow.visible,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const Gap(5),
-                      SizedBox(
+                      Container(
                         width: width * 0.4,
-                        child: Flexible(
-                          child: Text(
-                            'Dr. ${appointment.doctorName}',
-                            style: ginaTheme.textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                'Dr. ${appointment.doctorName}',
+                                style: ginaTheme.textTheme.bodyLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                softWrap: true,
+                                overflow: TextOverflow.visible,
+                              ),
                             ),
-                            softWrap: true,
-                            overflow: TextOverflow.visible,
-                          ),
+                          ],
                         ),
                       ),
                       Row(

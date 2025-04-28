@@ -185,13 +185,25 @@ class AppointmentDetailsScreen extends StatelessWidget {
           debugPrint('State being built: $state');
           if (state is AppointmentDetailsStatusState) {
             final appointment = state.appointment;
-            return appointment.appointmentUid == null
-                ? const AppointmentDetailsInitialScreen()
-                : AppointmentDetailsStatusScreen(
-                    doctorDetails: doctorDetails!,
-                    appointment: appointment,
-                    currentPatient: currentActivePatient!,
-                  );
+            if (appointment.appointmentUid == null) {
+              return const AppointmentDetailsInitialScreen();
+            }
+
+// Safe null checks
+            final doctor = doctorDetails;
+            final patient = currentActivePatient;
+
+            if (doctor == null || patient == null) {
+              return const Center(
+                child: Text('Missing doctor or patient information'),
+              );
+            }
+
+            return AppointmentDetailsStatusScreen(
+              doctorDetails: doctor,
+              appointment: appointment,
+              currentPatient: patient,
+            );
           } else if (state is AppointmentDetailsLoading) {
             return const Center(
               child: CustomLoadingIndicator(),

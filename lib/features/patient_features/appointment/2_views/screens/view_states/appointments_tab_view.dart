@@ -214,68 +214,66 @@ class AppointmentsTabView extends StatelessWidget {
       ),
     ];
 
-    return Expanded(
-      child: DynamicTabBarWidget(
-        physicsTabBarView: const BouncingScrollPhysics(),
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.zero,
-        isScrollable: true,
-        showBackIcon: false,
-        showNextIcon: false,
-        leading: null,
-        trailing: null,
-        dynamicTabs: tabs,
-        enableFeedback: true,
-        splashBorderRadius: BorderRadius.circular(10.0),
-        splashFactory: InkSparkle.splashFactory,
-        indicatorColor: GinaAppTheme.lightTertiaryContainer,
-        labelColor: GinaAppTheme.lightTertiaryContainer,
-        labelStyle: ginaTheme.titleSmall?.copyWith(
-          fontWeight: FontWeight.bold,
-          fontSize: 14.0,
-        ),
-        unselectedLabelStyle: ginaTheme.titleSmall?.copyWith(
-          fontWeight: FontWeight.bold,
-          fontSize: 11.5,
-        ),
-        unselectedLabelColor: GinaAppTheme.lightOutline.withAlpha(204),
-        labelPadding: const EdgeInsets.symmetric(horizontal: 15.0),
-        indicatorPadding: EdgeInsets.zero,
-        onTabControllerUpdated: (controller) {
-          controller.index = initialIndex;
-        },
-        onTabChanged: (index) async {
-          HapticFeedback.heavyImpact();
-          debugPrint('Tab changed to: $index');
-
-          // Mark appointments as viewed when tab is selected
-          List<AppointmentModel> appointmentsToMark;
-          switch (index) {
-            case 0:
-              appointmentsToMark = cancelledAppointments;
-              break;
-            case 1:
-              appointmentsToMark = missedAppointments;
-              break;
-            case 2:
-              appointmentsToMark = pendingAppointments;
-              break;
-            case 3:
-              appointmentsToMark = ongoingAppointments;
-              break;
-            case 4:
-              appointmentsToMark = completedAppointments;
-              break;
-            case 5:
-              appointmentsToMark = declinedAppointments;
-              break;
-            default:
-              appointmentsToMark = [];
-          }
-
-          await _markAppointmentsAsViewed(appointmentsToMark);
-        },
+    return DynamicTabBarWidget(
+      physicsTabBarView: const BouncingScrollPhysics(),
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.zero,
+      isScrollable: true,
+      showBackIcon: false,
+      showNextIcon: false,
+      leading: null,
+      trailing: null,
+      dynamicTabs: tabs,
+      enableFeedback: true,
+      splashBorderRadius: BorderRadius.circular(10.0),
+      splashFactory: InkSparkle.splashFactory,
+      indicatorColor: GinaAppTheme.lightTertiaryContainer,
+      labelColor: GinaAppTheme.lightTertiaryContainer,
+      labelStyle: ginaTheme.titleSmall?.copyWith(
+        fontWeight: FontWeight.bold,
+        fontSize: 14.0,
       ),
+      unselectedLabelStyle: ginaTheme.titleSmall?.copyWith(
+        fontWeight: FontWeight.bold,
+        fontSize: 11.5,
+      ),
+      unselectedLabelColor: GinaAppTheme.lightOutline.withAlpha(204),
+      labelPadding: const EdgeInsets.symmetric(horizontal: 15.0),
+      indicatorPadding: EdgeInsets.zero,
+      onTabControllerUpdated: (controller) {
+        controller.index = initialIndex;
+      },
+      onTabChanged: (index) async {
+        HapticFeedback.heavyImpact();
+        debugPrint('Tab changed to: $index');
+
+        // Mark appointments as viewed when tab is selected
+        List<AppointmentModel> appointmentsToMark;
+        switch (index) {
+          case 0:
+            appointmentsToMark = cancelledAppointments;
+            break;
+          case 1:
+            appointmentsToMark = missedAppointments;
+            break;
+          case 2:
+            appointmentsToMark = pendingAppointments;
+            break;
+          case 3:
+            appointmentsToMark = ongoingAppointments;
+            break;
+          case 4:
+            appointmentsToMark = completedAppointments;
+            break;
+          case 5:
+            appointmentsToMark = declinedAppointments;
+            break;
+          default:
+            appointmentsToMark = [];
+        }
+
+        await _markAppointmentsAsViewed(appointmentsToMark);
+      },
     );
   }
 }

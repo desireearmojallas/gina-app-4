@@ -24,6 +24,18 @@ class ConsultationHistoryContainer extends StatelessWidget {
 
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
+        if (state is ConsultationHistoryErrorState) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 60.0),
+              child: Text(
+                'Error loading consultation history',
+                style: TextStyle(color: Colors.red),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
+        }
         return GestureDetector(
           onTap: () {
             HapticFeedback.mediumImpact();
