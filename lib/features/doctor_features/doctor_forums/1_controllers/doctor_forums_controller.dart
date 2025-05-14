@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gina_app_4/core/enum/enum.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/doctor_features/doctor_forums/0_models/doctor_forum_models.dart';
 import 'package:gina_app_4/features/patient_features/forums/0_models/forums_model.dart';
@@ -62,6 +63,34 @@ class DoctorForumsController with ChangeNotifier {
           .get()
           .then((value) => DoctorModel.fromJson(value.data()!));
 
+      // Get current post count and rating
+      final doctorDoc = await FirebaseFirestore.instance
+          .collection('doctors')
+          .doc(currentUser!.uid)
+          .get();
+
+      final currentRating = doctorDoc.data()?['doctorRatingId'] ?? 0;
+      final currentPosts =
+          (doctorDoc.data()?['createdPosts'] as List<dynamic>?)?.length ?? 0;
+
+      // Determine new rating based on post count and current rating
+      int newRating;
+      if (currentRating == 0 || currentRating == 4) {
+        // For new or inactive doctors, start as contributing
+        newRating = DoctorRating.contributingDoctor.index;
+      } else {
+        // For active doctors, check post count
+        if (currentPosts >= 50) {
+          newRating = DoctorRating.topDoctor.index;
+        } else if (currentPosts >= 10) {
+          newRating = DoctorRating.activeDoctor.index;
+        } else if (currentPosts >= 1) {
+          newRating = DoctorRating.contributingDoctor.index;
+        } else {
+          newRating = DoctorRating.newDoctor.index;
+        }
+      }
+
       await FirebaseFirestore.instance.collection('forums').doc(snap.id).set(
         {
           'id': snap.id,
@@ -72,7 +101,7 @@ class DoctorForumsController with ChangeNotifier {
           // 'profileImage': currentUserModel.profileImage,
           'postedAt': postedAt,
           'isDoctor': true,
-          'doctorRatingId': 2,
+          'doctorRatingId': newRating,
           'replies': [],
         },
         SetOptions(merge: true),
@@ -84,8 +113,7 @@ class DoctorForumsController with ChangeNotifier {
 
       await docRef.update({
         'createdPosts': FieldValue.arrayUnion([snap.id]),
-        //TODO: KEEP IN MIND THIS PART OF FORUMS THE DOCTOR RATING ID IN CASE THIS CAUSES BUGS
-        'doctorRatingId': 2,
+        'doctorRatingId': newRating,
       });
 
       return const Right(true);

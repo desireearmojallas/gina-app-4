@@ -203,7 +203,7 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
           },
           child: Container(
             height: size.height * 0.14,
-            width: size.width / 1.05,
+            width: double.infinity,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               color: GinaAppTheme.lightOnTertiary,
@@ -228,13 +228,12 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                     backgroundColor: Colors.white,
                   ),
                 ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: size.width * 0.4,
-                      child: Flexible(
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Flexible(
                         child: Text(
                           pendingAppointment != null &&
                                   pendingAppointment!.appointmentUid != null
@@ -250,49 +249,50 @@ class PendingRequestsNavigationWidget extends StatelessWidget {
                           softWrap: true,
                         ),
                       ),
-                    ),
-                    const Gap(5),
-                    SizedBox(
-                      width: size.width * 0.33,
-                      child: Text(
-                        pendingAppointment?.patientName ?? 'No Patient',
-                        style: ginaTheme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
+                      const Gap(5),
+                      SizedBox(
+                        width: size.width * 0.33,
+                        child: Text(
+                          pendingAppointment?.patientName ?? 'No Patient',
+                          style: ginaTheme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: pendingRequests == 0
+                                ? Colors.grey[300]
+                                : GinaAppTheme.lightOnPrimaryColor,
+                          ),
+                          overflow: TextOverflow.visible,
+                          softWrap: true,
+                        ),
+                      ),
+                      const Gap(5),
+                      Text(
+                        appointmentType.toUpperCase(),
+                        style: ginaTheme.textTheme.labelSmall?.copyWith(
                           color: pendingRequests == 0
                               ? Colors.grey[300]
-                              : GinaAppTheme.lightOnPrimaryColor,
+                              : GinaAppTheme.lightTertiaryContainer,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
                         ),
-                        overflow: TextOverflow.visible,
-                        softWrap: true,
                       ),
-                    ),
-                    const Gap(5),
-                    Text(
-                      appointmentType.toUpperCase(),
-                      style: ginaTheme.textTheme.labelSmall?.copyWith(
-                        color: pendingRequests == 0
-                            ? Colors.grey[300]
-                            : GinaAppTheme.lightTertiaryContainer,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
+                      const Gap(5),
+                      Text(
+                        '$formattedDate\n$formattedTime',
+                        style: ginaTheme.textTheme.labelMedium?.copyWith(
+                          color: pendingRequests == 0
+                              ? Colors.grey[300]
+                              : GinaAppTheme.lightOutline,
+                          fontSize: 10,
+                        ),
                       ),
-                    ),
-                    const Gap(5),
-                    Text(
-                      '$formattedDate\n$formattedTime',
-                      style: ginaTheme.textTheme.labelMedium?.copyWith(
-                        color: pendingRequests == 0
-                            ? Colors.grey[300]
-                            : GinaAppTheme.lightOutline,
-                        fontSize: 10,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                const Spacer(),
+                // const Spacer(),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 12, 0),
+                  padding: const EdgeInsets.only(right: 8.0),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
                         onPressed: pendingRequests == 0 ||
