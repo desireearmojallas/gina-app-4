@@ -32,36 +32,75 @@ class OnGoingAppointmentsContainer extends StatelessWidget {
 
     final currentUserUid = FirebaseAuth.instance.currentUser?.uid;
 
-    final appointmentEndTime = DateFormat('hh:mm a')
-        .parse(appointment.appointmentTime!.split(' - ')[1]);
-    final appointmentDate =
-        DateFormat('MMMM dd, yyyy').parse(appointment.appointmentDate!);
-    final appointmentEndDateTime = DateTime(
-      appointmentDate.year,
-      appointmentDate.month,
-      appointmentDate.day,
-      appointmentEndTime.hour,
-      appointmentEndTime.minute,
-    );
+    // Safely handle potentially null appointment time and date
+    late final DateTime appointmentEndTime;
+    late final DateTime appointmentDate;
+    late final bool isAppointmentFinished;
 
-    final isAppointmentFinished = appointment.appointmentStatus == 2 ||
-        appointment.appointmentStatus == 5 ||
-        appointmentEndDateTime.isBefore(DateTime.now());
+    try {
+      // Only attempt to parse if the values are not null
+      if (appointment.appointmentTime != null &&
+          appointment.appointmentDate != null) {
+        final times = appointment.appointmentTime!.split(' - ');
+        if (times.length >= 2) {
+          appointmentEndTime = DateFormat('hh:mm a').parse(times[1]);
+          appointmentDate =
+              DateFormat('MMMM dd, yyyy').parse(appointment.appointmentDate!);
+
+          // Create combined date time
+          final appointmentEndDateTime = DateTime(
+            appointmentDate.year,
+            appointmentDate.month,
+            appointmentDate.day,
+            appointmentEndTime.hour,
+            appointmentEndTime.minute,
+          );
+
+          // Now safely use appointmentEndDateTime
+          isAppointmentFinished = appointment.appointmentStatus == 2 ||
+              appointment.appointmentStatus == 5 ||
+              appointmentEndDateTime.isBefore(DateTime.now());
+        } else {
+          // Handle invalid time format
+          appointmentEndTime = DateTime.now();
+          appointmentDate = DateTime.now();
+          isAppointmentFinished = appointment.appointmentStatus == 2 ||
+              appointment.appointmentStatus == 5;
+        }
+      } else {
+        // Handle null values
+        appointmentEndTime = DateTime.now();
+        appointmentDate = DateTime.now();
+        isAppointmentFinished = appointment.appointmentStatus == 2 ||
+            appointment.appointmentStatus == 5;
+      }
+    } catch (e) {
+      debugPrint('Error parsing appointment date/time: $e');
+      // Provide fallback behavior
+      appointmentEndTime = DateTime.now();
+      appointmentDate = DateTime.now();
+      isAppointmentFinished = appointment.appointmentStatus == 2 ||
+          appointment.appointmentStatus == 5;
+    }
 
     final isRead =
         isAppointmentFinished || chatRoom.seenBy.contains(currentUserUid);
 
     DateTime now = DateTime.now();
-    DateTime createdAt = chatRoom.createdAt!.toDate();
     String time;
-    if (now.difference(createdAt).inHours < 24) {
-      time = DateFormat.jm().format(createdAt);
-    } else if (now.difference(createdAt).inDays == 1) {
-      time = 'Yesterday';
-    } else if (now.difference(createdAt).inDays <= 7) {
-      time = DateFormat('EEEE').format(createdAt);
+    if (chatRoom.createdAt != null) {
+      DateTime createdAt = chatRoom.createdAt!.toDate();
+      if (now.difference(createdAt).inHours < 24) {
+        time = DateFormat.jm().format(createdAt);
+      } else if (now.difference(createdAt).inDays == 1) {
+        time = 'Yesterday';
+      } else if (now.difference(createdAt).inDays <= 7) {
+        time = DateFormat('EEEE').format(createdAt);
+      } else {
+        time = DateFormat.yMd().format(createdAt);
+      }
     } else {
-      time = DateFormat.yMd().format(createdAt);
+      time = "Just now";
     }
 
     return GestureDetector(

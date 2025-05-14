@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
+import 'package:gina_app_4/features/auth/1_controllers/doctor_auth_controller.dart';
 import 'package:gina_app_4/features/auth/2_views/bloc/auth_bloc.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_account_verification/doctor_upload_status.dart';
 import 'package:gina_app_4/features/auth/2_views/widgets/signup_widgets/doctor/doctor_account_verification/submitting_medical_license_dialog.dart';
@@ -190,9 +191,23 @@ class DoctorVerificationStatusScreen extends StatelessWidget {
                               ),
                             ),
                             onPressed: () {
+                              final doctorId =
+                                  registeredDoctorUid ?? currentDoctor?.uid;
+
+                              if (doctorId == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        'User not authenticated. Please log in again.'),
+                                    backgroundColor: GinaAppTheme.lightError,
+                                  ),
+                                );
+                                return;
+                              }
+
                               authBloc.add(
                                 SubmitDoctorMedicalVerificationEvent(
-                                  doctorUid: registeredDoctorUid!,
+                                  doctorUid: doctorId,
                                   medicalLicenseImage: image,
                                   medicalLicenseImageTitle:
                                       title.path.split('/').last,

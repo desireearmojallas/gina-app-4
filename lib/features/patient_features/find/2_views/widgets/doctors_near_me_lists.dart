@@ -90,9 +90,7 @@ class DoctorsNearMe extends StatelessWidget {
                                             MainAxisAlignment.center,
                                         children: [
                                           SizedBox(
-                                            // Set a fixed width that matches the parent width
-                                            width: width -
-                                                160, // Adjust this value based on your layout
+                                            width: width - 160,
                                             child: Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment

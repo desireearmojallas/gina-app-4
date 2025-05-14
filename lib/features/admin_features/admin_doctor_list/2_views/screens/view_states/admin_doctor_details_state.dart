@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
@@ -5,21 +7,27 @@ import 'package:gina_app_4/core/resources/images.dart';
 import 'package:gina_app_4/core/reusable_widgets/square_avatar.dart';
 import 'package:gina_app_4/core/theme/theme_service.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_list/2_views/bloc/admin_doctor_list_bloc.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/appointments_history_data_list.dart';
+import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/appointments_history_table_label.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/detailed_view_icon.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/submissions_data_list.dart';
 import 'package:gina_app_4/features/admin_features/admin_doctor_verification/2_views/widgets/doctor_details_state_widgets/submitted_requirements_table_label.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_model.dart';
 import 'package:gina_app_4/features/auth/0_model/doctor_verification_model.dart';
+import 'package:gina_app_4/features/patient_features/book_appointment/0_model/appointment_model.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 
 class AdminDoctorDetailsState extends StatelessWidget {
   final DoctorModel approvedDoctorDetails;
   final List<DoctorVerificationModel> doctorVerification;
-  const AdminDoctorDetailsState(
-      {super.key,
-      required this.approvedDoctorDetails,
-      required this.doctorVerification});
+  final List<AppointmentModel> appointments;
+  const AdminDoctorDetailsState({
+    super.key,
+    required this.approvedDoctorDetails,
+    required this.doctorVerification,
+    required this.appointments,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,11 +49,10 @@ class AdminDoctorDetailsState extends StatelessWidget {
 
     final adminDoctorListBloc = context.read<AdminDoctorListBloc>();
 
-    return FittedBox(
+    return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 22.0),
         child: Container(
-          height: size.height * 1.02,
           width: size.width / 1.15,
           decoration: BoxDecoration(
             color: Colors.white,
@@ -54,6 +61,7 @@ class AdminDoctorDetailsState extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               // Back button
               Padding(
@@ -235,7 +243,7 @@ class AdminDoctorDetailsState extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            const Gap(450),
+                            const Gap(200),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -594,10 +602,50 @@ class AdminDoctorDetailsState extends StatelessWidget {
                         ),
                       ),
                     )
-                  : SubmissionsDataList(
-                      doctorVerification: doctorVerification,
-                      doctorDetails: approvedDoctorDetails,
+                  : SizedBox(
+                      // Calculate height based on number of items with min/max constraints
+                      height: doctorVerification.length > 3
+                          ? min(doctorVerification.length * 80.0,
+                              400.0) // 80px per item, max 400px
+                          : doctorVerification.length *
+                              80.0, // Use exact height for 1-3 items
+                      child: SubmissionsDataList(
+                        doctorVerification: doctorVerification,
+                        doctorDetails: approvedDoctorDetails,
+                      ),
                     ),
+              divider(size.width * 1),
+              const Gap(20),
+              Padding(
+                padding: const EdgeInsets.only(left: 60.0, right: 40.0),
+                child: Text(
+                  'Appointments History (${appointments.length})',
+                  style: headingText,
+                ),
+              ),
+              const Gap(20),
+              appointmentsHistoryTableLabel(size, ginaTheme),
+              appointments.isEmpty
+                  ? Center(
+                      child: Text(
+                        'No appointments yet',
+                        style: ginaTheme.bodySmall?.copyWith(
+                          color: GinaAppTheme.lightOutline,
+                        ),
+                      ),
+                    )
+                  : SizedBox(
+                      // Calculate height based on number of items with min/max constraints
+                      height: appointments.length > 3
+                          ? min(appointments.length * 80.0,
+                              400.0) // 80px per item, max 400px
+                          : appointments.length *
+                              80.0, // Use exact height for 1-3 items
+                      child: AppointmentsHistoryDataList(
+                        appointments: appointments,
+                      ),
+                    ),
+              const Gap(20),
             ],
           ),
         ),

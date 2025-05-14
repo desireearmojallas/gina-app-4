@@ -61,17 +61,19 @@ class ForumScreen extends StatelessWidget {
                       ? state.forumPost.title
                       : 'Forums',
             ),
-            floatingActionButton: Padding(
-              padding: const EdgeInsets.only(bottom: 78),
-              child: FloatingActionButton(
-                onPressed: () {
-                  forumsBloc.add(NavigateToForumsCreatePostEvent());
-                },
-                child: const Icon(
-                  CupertinoIcons.add,
-                ),
-              ),
-            ),
+            floatingActionButton: state is NavigateToForumsReplyPostState
+                ? null
+                : Padding(
+                    padding: const EdgeInsets.only(bottom: 78),
+                    child: FloatingActionButton(
+                      onPressed: () {
+                        forumsBloc.add(NavigateToForumsCreatePostEvent());
+                      },
+                      child: const Icon(
+                        CupertinoIcons.add,
+                      ),
+                    ),
+                  ),
             body: BlocConsumer<ForumsBloc, ForumsState>(
               listenWhen: (previous, current) => current is ForumsActionState,
               buildWhen: (previous, current) => current is! ForumsActionState,

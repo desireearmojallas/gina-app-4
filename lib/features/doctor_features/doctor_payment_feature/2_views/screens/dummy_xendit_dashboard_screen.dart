@@ -150,23 +150,77 @@ class _DummyXenditDashboardScreenState
     }
   }
 
+  void _simulateSuccessfulWithdrawal() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    double? amount = double.tryParse(_amountController.text);
+    if (amount == null || amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid amount'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    await Future.delayed(const Duration(seconds: 3));
+
+    if (mounted) {
+      setState(() => _isLoading = false);
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            icon: const Icon(
+              Icons.check_circle,
+              color: Colors.green,
+              size: 80,
+            ),
+            title: const Text('Withdrawal Successful'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Amount: ₱${NumberFormat('#,##0.00').format(amount)}'),
+                Text('Bank: $_selectedBank'),
+                Text('Account Number: ${_accountNumberController.text}'),
+                Text('Account Name: ${_accountNameController.text}'),
+                const Gap(8),
+                const Text(
+                  'Your withdrawal request has been submitted successfully. The amount will be credited to your bank account within 1-2 business days.',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+            actions: [
+              FilledButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _amountController.clear();
+                },
+                style: FilledButton.styleFrom(
+                  backgroundColor: GinaAppTheme.lightTertiaryContainer,
+                ),
+                child: const Text('Done'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   Future<void> _processWithdrawal() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
-
     try {
       final amount = double.parse(_amountController.text);
-      if (amount > _balance) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Insufficient balance'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
-
       final bankName =
           _selectedBank == 'Other' ? _bankNameController.text : _selectedBank;
       final bankCode = _xenditService.getBankCode(bankName);
@@ -185,24 +239,49 @@ class _DummyXenditDashboardScreenState
       await _loadTransactionHistory();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Withdrawal request submitted successfully',
-              style: TextStyle(
-                color: Colors.white,
+        // Show success dialog
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Withdrawal Successful'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Amount: ₱${NumberFormat('#,##0.00').format(amount)}'),
+                  Text('Bank: $bankName'),
+                  Text('Account Number: ${_accountNumberController.text}'),
+                  Text('Account Name: ${_accountNameController.text}'),
+                  const Gap(8),
+                  const Text(
+                    'Your withdrawal request has been submitted successfully. The amount will be credited to your bank account within 1-2 business days.',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ],
               ),
-            ),
-            backgroundColor: Colors.green,
-          ),
+              actions: [
+                FilledButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close dialog
+                    // Clear form fields
+                    _amountController.clear();
+                    _accountNumberController.clear();
+                    _accountNameController.clear();
+                    if (_selectedBank == 'Other') {
+                      _bankNameController.clear();
+                    }
+                  },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: GinaAppTheme.lightTertiaryContainer,
+                  ),
+                  child: const Text('Done'),
+                ),
+              ],
+            );
+          },
         );
-        // Clear form fields
-        _amountController.clear();
-        _accountNumberController.clear();
-        _accountNameController.clear();
-        if (_selectedBank == 'Other') {
-          _bankNameController.clear();
-        }
       }
     } catch (e) {
       if (mounted) {
@@ -482,7 +561,12 @@ class _DummyXenditDashboardScreenState
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton(
-                        onPressed: _isLoading ? null : _processWithdrawal,
+                        // onPressed: _isLoading ? null : _processWithdrawal,
+                        onPressed: _isLoading
+                            ? null
+                            : () {
+                                _simulateSuccessfulWithdrawal();
+                              },
                         style: FilledButton.styleFrom(
                           backgroundColor: GinaAppTheme.lightTertiaryContainer,
                           padding: const EdgeInsets.symmetric(vertical: 16),

@@ -3,7 +3,7 @@ part of 'find_bloc.dart';
 abstract class FindState extends Equatable {
   final double searchRadius;
 
-  const FindState({this.searchRadius = 25.0}); // Default 10km radius
+  const FindState({this.searchRadius = 5.0});
 
   @override
   List<Object> get props => [searchRadius];

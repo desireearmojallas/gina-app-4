@@ -64,6 +64,56 @@ class FindController {
     }
   }
 
+  double calculateDoctorScore({
+    required double rating,
+    required double distance,
+    required int badgeId,
+    required double radius,
+  }) {
+    final normalizedRating = rating / 5.0;
+    final logDistance = math.log(1 + distance);
+    final logRadius = math.log(1 + radius);
+    final distanceRatio = logDistance / logRadius;
+    final normalizedDistance = 1 - distanceRatio.clamp(0.0, 1.0);
+    final badgeScore = getBadgeScore(badgeId);
+
+    return (normalizedRating * 0.5) +
+        (normalizedDistance * 0.4) +
+        (badgeScore * 0.1);
+  }
+
+  void debugDoctorScore({
+    required String doctorName,
+    required double rating,
+    required double distance,
+    required int badgeId,
+    required double radius,
+  }) {
+    final score = calculateDoctorScore(
+      rating: rating,
+      distance: distance,
+      badgeId: badgeId,
+      radius: radius,
+    );
+
+    // Print detailed calculation
+    debugPrint('=== Score Calculation for $doctorName ===');
+    debugPrint('Rating: $rating → Normalized: ${rating / 5.0}');
+    debugPrint('Distance: ${distance}km');
+    debugPrint(
+        '  log(1 + distance) = ${math.log(1 + distance)}');
+    debugPrint(
+        '  log(1 + radius) = ${math.log(1 + radius)}');
+    debugPrint(
+        '  distanceRatio = ${math.log(1 + distance) / math.log(1 + radius)}');
+    debugPrint(
+        '  Normalized Distance = ${1 - (math.log(1 + distance) / math.log(1 + radius)).clamp(0.0, 1.0)}');
+    debugPrint('Badge Score: ${getBadgeScore(badgeId)}');
+    debugPrint(
+        'Final Score = (${rating / 5.0} * 0.5) + (${1 - (math.log(1 + distance) / math.log(1 + radius)).clamp(0.0, 1.0)} * 0.4) + (${getBadgeScore(badgeId)} * 0.1) = $score');
+    debugPrint('=====================================');
+  }
+
   Future<Either<Exception, List<DoctorModel>>> getDoctorsNearMe({
     required double radius,
   }) async {
@@ -96,46 +146,39 @@ class FindController {
             .toList();
 
         doctorList.sort((a, b) {
-          // --- Get values ---
-          double ratingA = a!.averageRating ?? 0.0;
-          double ratingB = b!.averageRating ?? 0.0;
+          final scoreA = calculateDoctorScore(
+              rating: a!.averageRating ?? 0.0,
+              distance: calculateDistanceToDoctor(a.officeLatLngAddress),
+              badgeId: a.doctorRatingId,
+              radius: radius);
 
-          double distanceA =
-              double.parse(calculateDistanceToDoctor(a.officeLatLngAddress));
-          double distanceB =
-              double.parse(calculateDistanceToDoctor(b.officeLatLngAddress));
+          final scoreB = calculateDoctorScore(
+            rating: b!.averageRating ?? 0.0,
+            distance: calculateDistanceToDoctor(b.officeLatLngAddress),
+            badgeId: b.doctorRatingId,
+            radius: radius,
+          );
 
-          double badgeScoreA = getBadgeScore(a.doctorRatingId);
-          double badgeScoreB = getBadgeScore(b.doctorRatingId);
-
-          // --- Normalize values ---
-          double normalizedRatingA = ratingA / 5.0;
-          double normalizedRatingB = ratingB / 5.0;
-
-          double normalizedDistanceA = 1 -
-              (math.log(1 + distanceA) / math.log(1 + maxDistance))
-                  .clamp(0.0, 1.0);
-          double normalizedDistanceB = 1 -
-              (math.log(1 + distanceB) / math.log(1 + maxDistance))
-                  .clamp(0.0, 1.0);
-
-          // --- Calculate final scores ---
-          double scoreA = (normalizedRatingA * 0.5) +
-              (normalizedDistanceA * 0.4) +
-              (badgeScoreA * 0.1);
-
-          double scoreB = (normalizedRatingB * 0.5) +
-              (normalizedDistanceB * 0.4) +
-              (badgeScoreB * 0.1);
-
-          debugPrint('Max Distance: $maxDistance');
-
+          debugPrint('=== Comparing ${a.name} vs ${b.name} ===');
+          debugPrint('${a.name}:');
           debugPrint(
-              "Doctor ${a.name}: Rating=$ratingA ($normalizedRatingA), Distance=${distanceA}km ($normalizedDistanceA), Badge=${a.doctorRatingId} ($badgeScoreA)");
+              '  Rating: ${a.averageRating} → ${(a.averageRating ?? 0.0) / 5.0}');
           debugPrint(
-              "Formula components: Rating=${normalizedRatingA * 0.5}, Distance=${normalizedDistanceA * 0.4}, Badge=${badgeScoreA * 0.1}");
+              '  Distance: ${calculateDistanceToDoctor(a.officeLatLngAddress)}km → ${1 - (math.log(1 + calculateDistanceToDoctor(a.officeLatLngAddress)) / math.log(1 + radius)).clamp(0.0, 1.0)}');
+          debugPrint(
+              '  Badge: ${a.doctorRatingId} → ${getBadgeScore(a.doctorRatingId)}');
+          debugPrint('  Final Score: $scoreA');
+          debugPrint('${b.name}:');
+          debugPrint(
+              '  Rating: ${b.averageRating} → ${(b.averageRating ?? 0.0) / 5.0}');
+          debugPrint(
+              '  Distance: ${calculateDistanceToDoctor(b.officeLatLngAddress)}km → ${1 - (math.log(1 + calculateDistanceToDoctor(b.officeLatLngAddress)) / math.log(1 + radius)).clamp(0.0, 1.0)}');
+          debugPrint(
+              '  Badge: ${b.doctorRatingId} → ${getBadgeScore(b.doctorRatingId)}');
+          debugPrint('  Final Score: $scoreB');
+          debugPrint('Comparison result: ${scoreB.compareTo(scoreA)}');
+          debugPrint('=====================================');
 
-          // --- Compare by score (descending) ---
           return scoreB.compareTo(scoreA);
         });
 
@@ -144,7 +187,6 @@ class FindController {
         return const Right([]);
       }
     } catch (e) {
-      // Error handling remains the same
       debugPrint(e.toString());
       working = false;
       error = FirebaseAuthException(code: 'error', message: e.toString());
@@ -216,10 +258,8 @@ class FindController {
           double ratingA = a.averageRating ?? 0.0;
           double ratingB = b.averageRating ?? 0.0;
 
-          double distanceA =
-              double.parse(calculateDistanceToDoctor(a.officeLatLngAddress));
-          double distanceB =
-              double.parse(calculateDistanceToDoctor(b.officeLatLngAddress));
+          double distanceA = calculateDistanceToDoctor(a.officeLatLngAddress);
+          double distanceB = calculateDistanceToDoctor(b.officeLatLngAddress);
 
           double badgeScoreA = getBadgeScore(a.doctorRatingId);
           double badgeScoreB = getBadgeScore(b.doctorRatingId);
@@ -261,11 +301,22 @@ class FindController {
     }
   }
 
-  String calculateDistanceToDoctor(String doctorLatLngString) {
-    final doctorLatLng = parseLatLngFromString(doctorLatLngString);
-    final distance = geo.Geodesy().distanceBetweenTwoGeoPoints(
-        storePatientCurrentGeoLatLng!, doctorLatLng);
-    return (distance / 1000).toStringAsFixed(
-        2); // Convert meters to kilometers and format to 2 decimal places
+  double calculateDistanceToDoctor(String doctorLatLngString) {
+    try {
+      final doctorLatLng = parseLatLngFromString(doctorLatLngString);
+
+      if (storePatientCurrentGeoLatLng == null) {
+        debugPrint('ERROR: storePatientCurrentGeoLatLng is null');
+        return 0.0;
+      }
+
+      final distance = geo.Geodesy().distanceBetweenTwoGeoPoints(
+          storePatientCurrentGeoLatLng!, doctorLatLng);
+
+      return double.parse((distance / 1000).toStringAsFixed(2));
+    } catch (e) {
+      debugPrint('ERROR calculating distance: ${e.toString()}');
+      return 0.0;
+    }
   }
 }

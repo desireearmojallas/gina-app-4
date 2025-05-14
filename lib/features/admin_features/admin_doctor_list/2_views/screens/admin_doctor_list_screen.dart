@@ -47,6 +47,7 @@ class AdminDoctorListScreen extends StatelessWidget {
           return AdminDoctorDetailsState(
             approvedDoctorDetails: state.approvedDoctorDetails,
             doctorVerification: state.doctorVerification,
+            appointments: state.appointmentDetails,
           );
         }
         return Container();

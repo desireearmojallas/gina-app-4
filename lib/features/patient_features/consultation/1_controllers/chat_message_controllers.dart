@@ -816,7 +816,23 @@ class ChatMessageController with ChangeNotifier {
         'timestamp': FieldValue.serverTimestamp(),
       });
 
-      // 3. Update the doctor's document - using field name "doctorRatings" (List)
+      // 3. Get ALL historical ratings from doctor-ratings collection for complete synchronization
+      QuerySnapshot historicalRatingsSnapshot = await FirebaseFirestore.instance
+          .collection('doctor-ratings')
+          .where('doctorUid', isEqualTo: selectedDoctorUid)
+          .get();
+
+      List<int> historicalRatings = [];
+      for (var doc in historicalRatingsSnapshot.docs) {
+        var data = doc.data() as Map<String, dynamic>;
+        if (data.containsKey('rating') && data['rating'] is num) {
+          historicalRatings.add((data['rating'] as num).toInt());
+        }
+      }
+
+      debugPrint('Found ${historicalRatings.length} historical ratings in doctor-ratings collection');
+
+      // 4. Update the doctor's document with all ratings
       DocumentReference doctorRef = FirebaseFirestore.instance
           .collection('doctors')
           .doc(selectedDoctorUid);
@@ -829,31 +845,21 @@ class ChatMessageController with ChangeNotifier {
           throw Exception("Doctor document does not exist!");
         }
 
-        // Get current data
-        Map<String, dynamic> doctorData =
-            doctorSnapshot.data() as Map<String, dynamic>;
+        // Calculate average from all historical ratings (including duplicates)
+        double average = historicalRatings.isEmpty
+            ? 0.0
+            : historicalRatings.reduce((a, b) => a + b) / historicalRatings.length;
 
-        // Get existing ratings array or create new one - using your field name "doctorRating"
-        List<dynamic> ratings =
-            List<dynamic>.from(doctorData['doctorRatings'] ?? []);
-
-        // Add new rating
-        ratings.add(rating);
-
-        // Calculate new average (rounded to 1 decimal place)
-        double average = ratings.reduce((a, b) => a + b) / ratings.length;
-        // double roundedAverage = (average * 10).round() / 10;
-
-        // Update the doctor document
+        // Update the doctor document with all historical ratings
         transaction.update(doctorRef, {
-          'doctorRatings': ratings, // Using your existing field name
-          'averageRating': average, // Add calculated average for convenience
-          'ratingsCount': ratings.length, // Add count for convenience
+          'doctorRatings': historicalRatings, // Keep all ratings, including duplicates
+          'averageRating': average,
+          'ratingsCount': historicalRatings.length, // Total count of all ratings
           'lastRatedAt': FieldValue.serverTimestamp(),
         });
       });
 
-      debugPrint('Rating submitted successfully: $rating stars');
+      debugPrint('Rating submitted and synchronized successfully: $rating stars');
     } catch (e) {
       debugPrint('Error submitting rating: $e');
     }

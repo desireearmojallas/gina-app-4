@@ -245,8 +245,8 @@ class DoctorHomeDashboardController extends ChangeNotifier {
       QuerySnapshot<Map<String, dynamic>> appointmentSnapshot = await firestore
           .collection('appointments')
           .where('doctorUid', isEqualTo: currentUser!.uid)
-          // .where('appointmentStatus',
-          //     isEqualTo: AppointmentStatus.completed.index)
+          .where('appointmentStatus',
+              isEqualTo: AppointmentStatus.completed.index)
           .get();
 
       var patientCompletedAppointment = appointmentSnapshot.docs

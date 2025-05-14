@@ -18,8 +18,13 @@ class OnGoingAppointmentsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appointmentsWithChat = appointments.where((appointment) {
+      return chatRooms
+          .any((room) => room.appointmentId == appointment.appointmentUid);
+    }).toList();
+
     final Map<int, List<AppointmentModel>> groupedAppointmentsByYear = {};
-    for (var appointment in appointments) {
+    for (var appointment in appointmentsWithChat) {
       final date =
           DateFormat('MMMM d, yyyy').parse(appointment.appointmentDate!);
       final year = date.year;
@@ -45,13 +50,14 @@ class OnGoingAppointmentsList extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(10, 20, 10, 10),
-          child: _title(context, 'Pending Appointments'),
+          child: _title(
+              context, 'On-going Appointments', appointmentsWithChat.length),
         ),
         Expanded(
-          child: appointments.isEmpty
+          child: appointmentsWithChat.isEmpty
               ? Center(
                   child: Text(
-                    'No pending appointments',
+                    'No on-going appointments',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: GinaAppTheme.lightOutline.withOpacity(0.4),
                         ),
@@ -112,9 +118,9 @@ class OnGoingAppointmentsList extends StatelessWidget {
     );
   }
 
-  Widget _title(BuildContext context, String text) {
+  Widget _title(BuildContext context, String text, int count) {
     return Text(
-      '$text (${appointments.length})'.toUpperCase(),
+      '$text ($count)'.toUpperCase(),
       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             fontWeight: FontWeight.bold,
             fontSize: 14,
