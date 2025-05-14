@@ -106,46 +106,26 @@ class AppointmentScreenLoaded extends StatelessWidget {
 
       try {
         final List<String> times = appointmentTimeStr.split(' - ');
-
         if (times.length != 2) {
           throw const FormatException('Invalid time format');
         }
 
         final DateTime appointmentDate = dateFormat.parse(appointmentDateStr);
-        final DateTime startTime = timeFormat.parse(times[0]);
-        final DateTime endTime = timeFormat.parse(times[1]);
-
-        // Adjust the parsed time to today's date
-        final DateTime appointmentStartDateTime = DateTime(
-          appointmentDate.year,
-          appointmentDate.month,
-          appointmentDate.day,
-          startTime.hour,
-          startTime.minute,
-        );
-
-        final DateTime appointmentEndDateTime = DateTime(
-          appointmentDate.year,
-          appointmentDate.month,
-          appointmentDate.day,
-          endTime.hour,
-          endTime.minute,
-        );
-
         final DateTime now = DateTime.now();
 
+        // Consider an appointment "ongoing" if it's confirmed AND
+        // 1. It's happening today (same date)
+        // 2. OR it's scheduled for a future date but still within a reasonable window (e.g., next 24 hours)
         return appointmentStatus == AppointmentStatus.confirmed.index &&
-            appointmentDate
-                .isAtSameMomentAs(DateTime(now.year, now.month, now.day)) &&
-            now.isAfter(appointmentStartDateTime) &&
-            now.isBefore(appointmentEndDateTime);
+            (appointmentDate
+                    .isAtSameMomentAs(DateTime(now.year, now.month, now.day)) ||
+                (appointmentDate.isAfter(now) &&
+                    appointmentDate.difference(now).inHours < 24));
       } catch (e) {
-        // Handle the parsing error
         debugPrint('Error parsing date: $e');
         return false;
       }
     }).toList();
-    sortAppointmentsByDate(ongoingAppointments);
 
     return RefreshIndicator(
       onRefresh: () async {

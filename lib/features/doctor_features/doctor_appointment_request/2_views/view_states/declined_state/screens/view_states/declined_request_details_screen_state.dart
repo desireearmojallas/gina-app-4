@@ -352,7 +352,7 @@ class DeclinedRequestDetailsScreenState extends StatelessWidget {
                                     ),
                                   )
                                 : const SizedBox.shrink(),
-                            // const Gap(20),
+                            const Gap(20),
                             Container(
                               width: size.width / 1.12,
                               padding: const EdgeInsets.all(15),

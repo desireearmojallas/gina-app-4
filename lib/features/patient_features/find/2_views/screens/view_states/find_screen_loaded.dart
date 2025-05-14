@@ -467,7 +467,6 @@ class FindScreenLoaded extends StatelessWidget {
   void _applyRadius(BuildContext context, String value) {
     double? radius = double.tryParse(value);
     if (radius != null && radius > 0) {
-      // Show loading indicator
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -476,7 +475,6 @@ class FindScreenLoaded extends StatelessWidget {
         ),
       );
 
-      // Apply the radius change
       context.read<FindBloc>().add(SetSearchRadiusEvent(radius: radius));
     }
   }

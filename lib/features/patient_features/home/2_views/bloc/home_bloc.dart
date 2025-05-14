@@ -213,29 +213,31 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
     approvedAppointmentsResult.fold(
       (failure) {
-        // Handle error if needed
         debugPrint(
             "[HOME_BLOC] ERROR: Failed to fetch approved appointments: ${failure.toString()}");
       },
       (appointments) {
-        // Debug print the number of appointments found
         debugPrint(
             "[HOME_BLOC] SUCCESS: Found ${appointments.length} recently approved appointments");
 
-        // If we have any approved appointments waiting for payment
         if (appointments.isNotEmpty) {
-          // Get the most recent one
+          // Sort by lastUpdatedAt timestamp (most recent first)
+          appointments.sort((a, b) {
+            // If either doesn't have lastUpdatedAt, use creation time or default to current time
+            final timeA = a.lastUpdatedAt ?? DateTime.now();
+            final timeB = b.lastUpdatedAt ?? DateTime.now();
+            return timeB.compareTo(timeA); // Descending order (newest first)
+          });
+
+          // Now get the most recently updated/approved appointment
           final mostRecentApproved = appointments.first;
 
-          // Print details of the most recent appointment
           debugPrint("[HOME_BLOC] Most recent approved appointment details:");
           debugPrint("[HOME_BLOC] ID: ${mostRecentApproved.appointmentUid}");
           debugPrint("[HOME_BLOC] Doctor: ${mostRecentApproved.doctorName}");
-          debugPrint("[HOME_BLOC] Date: ${mostRecentApproved.appointmentDate}");
           debugPrint(
-              "[HOME_BLOC] Status: ${mostRecentApproved.appointmentStatus}");
+              "[HOME_BLOC] Last Updated: ${mostRecentApproved.lastUpdatedAt?.toString()}");
 
-          // Trigger the payment dialog event
           add(DisplayApprovedAppointmentPaymentDialogEvent(
               appointment: mostRecentApproved));
         } else {

@@ -27,7 +27,7 @@ class EmergencyAnnouncementModel extends Equatable {
     required this.profileImage,
     required this.createdAt,
     required this.clickedByPatients,
-    required this.patientToAppointmentMap, // Now required
+    required this.patientToAppointmentMap,
   });
 
   static EmergencyAnnouncementModel empty = EmergencyAnnouncementModel(

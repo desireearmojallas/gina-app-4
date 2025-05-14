@@ -79,6 +79,149 @@ class PatientPaymentService {
     return _currentPatient!;
   }
 
+  // Future<Map<String, dynamic>> createPaymentInvoice({
+  //   required String appointmentId,
+  //   required String doctorName,
+  //   required String patientName,
+  //   required double amount,
+  //   required String appointmentDate,
+  //   required String consultationType,
+  //   required String doctorId,
+  //   double platformFeePercentage = 0.0,
+  //   double platformFeeAmount = 0.0,
+  //   double totalAmount = 0.0,
+  // }) async {
+  //   try {
+  //     debugPrint('=== Starting createPaymentInvoice ===');
+  //     debugPrint(
+  //         'Checking for existing payment with appointment ID: $appointmentId');
+
+  //     // Check for existing payment in Firestore
+  //     final existingPaymentDoc = await FirebaseFirestore.instance
+  //         .collection('pending_payments')
+  //         .doc(appointmentId)
+  //         .get();
+
+  //     if (existingPaymentDoc.exists) {
+  //       final paymentData = existingPaymentDoc.data()!;
+  //       final invoiceId = paymentData['invoiceId'] as String;
+  //       final invoiceUrl = paymentData['invoiceUrl'] as String;
+  //       final currentStatus = paymentData['status'] as String? ?? 'pending';
+
+  //       debugPrint('Found existing payment:');
+  //       debugPrint('Invoice ID: $invoiceId');
+  //       debugPrint('Current status: $currentStatus');
+
+  //       // Check status with Xendit
+  //       final xenditStatus = await checkXenditPaymentStatus(invoiceId);
+  //       debugPrint('Xendit payment status: $xenditStatus');
+
+  //       // If status has changed, update it in Firestore
+  //       if (xenditStatus.toLowerCase() != currentStatus.toLowerCase()) {
+  //         debugPrint(
+  //             'Updating payment status from $currentStatus to $xenditStatus');
+  //         await FirebaseFirestore.instance
+  //             .collection('pending_payments')
+  //             .doc(appointmentId)
+  //             .update({
+  //           'status': xenditStatus.toLowerCase(),
+  //           'updatedAt': FieldValue.serverTimestamp(),
+  //         });
+  //       }
+
+  //       // If payment is still valid (not expired or failed), return existing invoice
+  //       if (xenditStatus.toLowerCase() != 'expired' &&
+  //           xenditStatus.toLowerCase() != 'failed') {
+  //         debugPrint('=== Returning existing invoice ===');
+  //         return {
+  //           'invoiceUrl': invoiceUrl,
+  //           'invoiceNumber': invoiceId,
+  //         };
+  //       }
+  //     }
+
+  //     // Get doctor's Xendit account ID
+  //     final doctorDoc = await FirebaseFirestore.instance
+  //         .collection('doctors')
+  //         .doc(doctorId)
+  //         .get();
+
+  //     if (!doctorDoc.exists) {
+  //       throw Exception('Doctor document not found');
+  //     }
+
+  //     final doctorData = doctorDoc.data();
+  //     if (doctorData == null || doctorData['xenditAccountId'] == null) {
+  //       throw Exception('Xendit account ID not found for this doctor');
+  //     }
+
+  //     final doctorXenditAccountId = doctorData['xenditAccountId'] as String;
+  //     debugPrint('Doctor Xendit Account ID: $doctorXenditAccountId');
+
+  //     // Create new payment invoice using Firebase Function
+  //     debugPrint('=== Creating new payment invoice via Firebase Function ===');
+  //     debugPrint('Current patient initialized: ${_currentPatient?.email}');
+
+  //     final patient = await _ensureCurrentPatient();
+
+  //     // Calculate total amount if not provided
+  //     final effectiveTotalAmount = totalAmount > 0 ? totalAmount : amount;
+
+  //     // Call the Firebase Function to create the invoice
+  //     final result = await _createInvoiceViaFirebaseFunction(
+  //       appointmentId: appointmentId,
+  //       amount: effectiveTotalAmount, // Use total amount for the actual payment
+  //       description: 'Appointment with $doctorName - $consultationType',
+  //       customerEmail: patient.email,
+  //       doctorXenditAccountId: doctorXenditAccountId,
+  //     );
+
+  //     debugPrint('Firebase Function Response: $result');
+
+  //     final invoiceUrl = result['invoiceUrl'];
+  //     final invoiceId = result['invoiceId'];
+
+  //     debugPrint('Invoice URL: $invoiceUrl');
+
+  //     debugPrint('Storing payment in Firestore...');
+  //     await FirebaseFirestore.instance
+  //         .collection('pending_payments')
+  //         .doc(appointmentId)
+  //         .set({
+  //       'invoiceId': invoiceId,
+  //       'invoiceUrl': invoiceUrl,
+  //       'amount': amount, // Base fee
+  //       'platformFeePercentage': platformFeePercentage,
+  //       'platformFeeAmount': platformFeeAmount,
+  //       'totalAmount': effectiveTotalAmount,
+  //       'appointmentId': appointmentId,
+  //       'appointmentDate': appointmentDate,
+  //       'consultationType': consultationType,
+  //       'status': 'pending',
+  //       'isLinkedToAppointment': false,
+  //       'createdAt': FieldValue.serverTimestamp(),
+  //       'patientId': patient.uid,
+  //       'patientName': patientName,
+  //       'doctorId': doctorId,
+  //       'doctorName': doctorName,
+  //       'lastCheckedAt': FieldValue.serverTimestamp(),
+  //       'paymentMethod': 'Xendit',
+  //     });
+
+  //     debugPrint('=== Successfully created new invoice ===');
+  //     debugPrint('Invoice URL: $invoiceUrl');
+  //     debugPrint('Invoice Number: $invoiceId');
+
+  //     return {
+  //       'invoiceUrl': invoiceUrl,
+  //       'invoiceId': invoiceId,
+  //     };
+  //   } catch (e) {
+  //     debugPrint('Error creating payment invoice: $e');
+  //     throw Exception('Failed to create payment invoice: $e');
+  //   }
+  // }
+
   Future<Map<String, dynamic>> createPaymentInvoice({
     required String appointmentId,
     required String doctorName,
@@ -96,7 +239,6 @@ class PatientPaymentService {
       debugPrint(
           'Checking for existing payment with appointment ID: $appointmentId');
 
-      // Check for existing payment in Firestore
       final existingPaymentDoc = await FirebaseFirestore.instance
           .collection('pending_payments')
           .doc(appointmentId)
@@ -112,11 +254,9 @@ class PatientPaymentService {
         debugPrint('Invoice ID: $invoiceId');
         debugPrint('Current status: $currentStatus');
 
-        // Check status with Xendit
         final xenditStatus = await checkXenditPaymentStatus(invoiceId);
         debugPrint('Xendit payment status: $xenditStatus');
 
-        // If status has changed, update it in Firestore
         if (xenditStatus.toLowerCase() != currentStatus.toLowerCase()) {
           debugPrint(
               'Updating payment status from $currentStatus to $xenditStatus');
@@ -129,7 +269,6 @@ class PatientPaymentService {
           });
         }
 
-        // If payment is still valid (not expired or failed), return existing invoice
         if (xenditStatus.toLowerCase() != 'expired' &&
             xenditStatus.toLowerCase() != 'failed') {
           debugPrint('=== Returning existing invoice ===');
@@ -140,7 +279,6 @@ class PatientPaymentService {
         }
       }
 
-      // Get doctor's Xendit account ID
       final doctorDoc = await FirebaseFirestore.instance
           .collection('doctors')
           .doc(doctorId)
@@ -158,19 +296,16 @@ class PatientPaymentService {
       final doctorXenditAccountId = doctorData['xenditAccountId'] as String;
       debugPrint('Doctor Xendit Account ID: $doctorXenditAccountId');
 
-      // Create new payment invoice using Firebase Function
       debugPrint('=== Creating new payment invoice via Firebase Function ===');
       debugPrint('Current patient initialized: ${_currentPatient?.email}');
 
       final patient = await _ensureCurrentPatient();
 
-      // Calculate total amount if not provided
       final effectiveTotalAmount = totalAmount > 0 ? totalAmount : amount;
 
-      // Call the Firebase Function to create the invoice
       final result = await _createInvoiceViaFirebaseFunction(
         appointmentId: appointmentId,
-        amount: effectiveTotalAmount, // Use total amount for the actual payment
+        amount: effectiveTotalAmount,
         description: 'Appointment with $doctorName - $consultationType',
         customerEmail: patient.email,
         doctorXenditAccountId: doctorXenditAccountId,

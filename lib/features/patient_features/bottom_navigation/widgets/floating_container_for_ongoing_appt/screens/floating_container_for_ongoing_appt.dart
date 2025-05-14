@@ -13,7 +13,7 @@ import 'package:gina_app_4/features/patient_features/bottom_navigation/widgets/f
 import 'package:gina_app_4/features/patient_features/find/2_views/bloc/find_bloc.dart';
 import 'package:intl/intl.dart';
 
-// Replace this class completely
+
 class FloatingContainerForOnGoingAppointmentProvider extends StatelessWidget {
   const FloatingContainerForOnGoingAppointmentProvider({super.key});
 
@@ -21,8 +21,6 @@ class FloatingContainerForOnGoingAppointmentProvider extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint('💬 FLOATING PROVIDER: Building provider widget');
 
-    // Use BlocBuilder instead of creating a new BlocProvider
-    // This will use the existing bloc from the parent widget
     return BlocBuilder<FloatingContainerForOngoingApptBloc,
         FloatingContainerForOngoingApptState>(
       builder: (context, state) {
@@ -34,7 +32,6 @@ class FloatingContainerForOnGoingAppointmentProvider extends StatelessWidget {
           debugPrint(
               '💬 FLOATING PROVIDER: Rendering container for ${appointment.appointmentUid}');
 
-          // Use your existing container component
           return const FloatingContainerForOnGoingAppointment();
         }
 

@@ -487,28 +487,30 @@ class XenditPaymentService {
         }
 
         final now = DateTime.now();
-        DateTime startDate;
-        switch (timePeriod) {
-          case 'This Week':
-            startDate = now.subtract(const Duration(days: 7));
-            break;
-          case 'This Month':
-            startDate = DateTime(now.year, now.month, 1);
-            break;
-          case 'Last Month':
-            startDate = DateTime(now.year, now.month - 1, 1);
-            break;
-          case 'Last 3 Months':
-            startDate = DateTime(now.year, now.month - 3, 1);
-            break;
-          case 'Last 6 Months':
-            startDate = DateTime(now.year, now.month - 6, 1);
-            break;
-          case 'This Year':
-            startDate = DateTime(now.year, 1, 1);
-            break;
-          default:
-            startDate = DateTime(now.year, now.month, 1);
+        DateTime? startDate;
+        if (timePeriod != 'All Time') {
+          switch (timePeriod) {
+            case 'This Week':
+              startDate = now.subtract(const Duration(days: 7));
+              break;
+            case 'This Month':
+              startDate = DateTime(now.year, now.month, 1);
+              break;
+            case 'Last Month':
+              startDate = DateTime(now.year, now.month - 1, 1);
+              break;
+            case 'Last 3 Months':
+              startDate = DateTime(now.year, now.month - 3, 1);
+              break;
+            case 'Last 6 Months':
+              startDate = DateTime(now.year, now.month - 6, 1);
+              break;
+            case 'This Year':
+              startDate = DateTime(now.year, 1, 1);
+              break;
+            default:
+              startDate = DateTime(now.year, now.month, 1);
+          }
         }
 
         final List<Map<String, dynamic>> result = [];
@@ -516,7 +518,9 @@ class XenditPaymentService {
           try {
             final transactionDate = DateTime.parse(
                 transaction['created_at'] ?? transaction['created']);
-            if (transactionDate.isBefore(startDate)) continue;
+            
+            // Only filter by date if we have a startDate (not 'All Time')
+            if (startDate != null && transactionDate.isBefore(startDate)) continue;
 
             final date = transactionDate.toIso8601String().split('T')[0];
             final amount = (transaction['amount'] as num).toDouble();

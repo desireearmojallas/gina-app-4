@@ -60,6 +60,8 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
     final bookAppointmentBloc = context.read<BookAppointmentBloc>();
 
     debugPrint('Inside Appointment Details Status Screen');
+    debugPrint('Appointment Status: ${appointment.appointmentStatus}');
+    debugPrint('Appointment ID: ${appointment.appointmentUid}');
 
     debugPrint('Platform Fee Percentage: ${appointment.platformFeePercentage}');
     debugPrint('Platform Fee Amount: ${appointment.platformFeeAmount}');
@@ -180,11 +182,9 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                         return const Center(child: Text('Error loading data'));
                       }
 
-                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                        return const SizedBox.shrink();
-                      }
-
-                      final hasPaymentHistory = snapshot.data!.docs.isNotEmpty;
+                      // Check for empty payment history, but don't return early
+                      final hasPaymentHistory =
+                          snapshot.hasData && snapshot.data!.docs.isNotEmpty;
                       final paymentData = hasPaymentHistory
                           ? snapshot.data!.docs.first.data()
                               as Map<String, dynamic>
@@ -197,7 +197,8 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                       // Show Pay Now button only if:
                       // 1. Appointment is approved (status == 1) and no previous payment
                       // 2. OR if there was a previous payment (show as View Receipt)
-                      if (appointment.appointmentStatus == 1 ||
+                      if (appointment.appointmentStatus ==
+                              AppointmentStatus.confirmed.index ||
                           wasPreviouslyPaid) {
                         return Padding(
                           padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
@@ -486,7 +487,7 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
               ),
               const Gap(20),
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Flexible(
                     flex: 1,
@@ -495,7 +496,7 @@ class AppointmentDetailsStatusScreen extends StatelessWidget {
                       style: labelStyle,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const Gap(10),
                   Flexible(
                     flex: 2,
                     child: Text(

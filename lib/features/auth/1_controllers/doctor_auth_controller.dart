@@ -203,55 +203,142 @@ class DoctorAuthenticationController with ChangeNotifier {
   }
 
   //----------Doctor Verification----------
+  // Future<bool> submissionOfDoctorVerification({
+  //   required String? doctorUid,
+  //   required String medicalLicenseImageTitle,
+  //   required File medicalLicenseImageFile,
+  // }) async {
+  //   try {
+  //     DocumentReference<Map<String, dynamic>> snap = FirebaseFirestore.instance
+  //         .collection('doctors')
+  //         .doc(currentDoctor!.uid)
+  //         .collection('doctorSubmittedDocuments')
+  //         .doc();
+
+  //     final ref = FirebaseStorage.instance
+  //         .ref()
+  //         .child('doctorMedicalLicenseImages')
+  //         .child(doctorUid ?? currentDoctor!.uid)
+  //         .child(medicalLicenseImageFile.path.split('/').last);
+
+  //     await ref.putFile(medicalLicenseImageFile);
+
+  //     final uploadTask = ref.putFile(medicalLicenseImageFile);
+  //     final taskSnapshot = await uploadTask.whenComplete(() => null);
+  //     final medicalLicenseImageUrl = await taskSnapshot.ref.getDownloadURL();
+
+  //     await FirebaseFirestore.instance
+  //         .collection('doctors')
+  //         .doc(doctorUid ?? currentDoctor!.uid)
+  //         .update({
+  //       'verifiedDate': Timestamp.now(),
+  //       'doctorVerificationStatus': DoctorVerificationStatus.pending.index,
+  //     });
+
+  //     await FirebaseFirestore.instance
+  //         .collection('doctors')
+  //         .doc(doctorUid ?? currentDoctor!.uid)
+  //         .collection('doctorSubmittedDocuments')
+  //         .doc(snap.id)
+  //         .set({
+  //       'uid': snap.id,
+  //       'dateSubmitted': Timestamp.now(),
+  //       'doctorUid': doctorUid ?? currentDoctor!.uid,
+  //       'medicalLicenseImage': medicalLicenseImageUrl,
+  //       'medicalLicenseImageTitle': medicalLicenseImageTitle,
+  //       'verificationStatus': DoctorVerificationStatus.pending.index,
+  //     });
+
+  //     return true;
+  //   } catch (e) {
+  //     debugPrint(e.toString());
+  //     return false;
+  //   }
+  // }
+
   Future<bool> submissionOfDoctorVerification({
     required String? doctorUid,
     required String medicalLicenseImageTitle,
     required File medicalLicenseImageFile,
   }) async {
+    debugPrint('STARTING submissionOfDoctorVerification');
+    debugPrint(
+        'Parameters: doctorUid=$doctorUid, title=$medicalLicenseImageTitle');
+    debugPrint('currentDoctor=${currentDoctor?.uid ?? "NULL"}');
+
     try {
+      if (currentDoctor == null) {
+        debugPrint('ERROR: currentDoctor is null');
+        return false;
+      }
+
+      debugPrint('Creating document reference...');
       DocumentReference<Map<String, dynamic>> snap = FirebaseFirestore.instance
           .collection('doctors')
           .doc(currentDoctor!.uid)
           .collection('doctorSubmittedDocuments')
           .doc();
+      debugPrint('Document reference created with ID: ${snap.id}');
 
+      final String uidToUse = doctorUid ?? currentDoctor!.uid;
+      debugPrint('Using UID: $uidToUse');
+
+      debugPrint('Preparing storage reference...');
       final ref = FirebaseStorage.instance
           .ref()
           .child('doctorMedicalLicenseImages')
-          .child(doctorUid ?? currentDoctor!.uid)
+          .child(uidToUse)
           .child(medicalLicenseImageFile.path.split('/').last);
+      debugPrint('Storage reference prepared');
 
+      debugPrint('Starting file upload...');
       await ref.putFile(medicalLicenseImageFile);
+      debugPrint('Initial file put completed');
 
+      debugPrint('Starting upload task...');
       final uploadTask = ref.putFile(medicalLicenseImageFile);
-      final taskSnapshot = await uploadTask.whenComplete(() => null);
-      final medicalLicenseImageUrl = await taskSnapshot.ref.getDownloadURL();
+      debugPrint('Waiting for upload to complete...');
+      final taskSnapshot = await uploadTask
+          .whenComplete(() => debugPrint('Upload task completed'));
 
+      debugPrint('Getting download URL...');
+      final medicalLicenseImageUrl = await taskSnapshot.ref.getDownloadURL();
+      debugPrint('Got download URL: $medicalLicenseImageUrl');
+
+      debugPrint('Updating doctor document...');
       await FirebaseFirestore.instance
           .collection('doctors')
-          .doc(doctorUid ?? currentDoctor!.uid)
+          .doc(uidToUse)
           .update({
         'verifiedDate': Timestamp.now(),
         'doctorVerificationStatus': DoctorVerificationStatus.pending.index,
       });
+      debugPrint('Doctor document updated');
 
+      debugPrint('Creating submission document...');
       await FirebaseFirestore.instance
           .collection('doctors')
-          .doc(doctorUid ?? currentDoctor!.uid)
+          .doc(uidToUse)
           .collection('doctorSubmittedDocuments')
           .doc(snap.id)
           .set({
         'uid': snap.id,
         'dateSubmitted': Timestamp.now(),
-        'doctorUid': doctorUid ?? currentDoctor!.uid,
+        'doctorUid': uidToUse,
         'medicalLicenseImage': medicalLicenseImageUrl,
         'medicalLicenseImageTitle': medicalLicenseImageTitle,
         'verificationStatus': DoctorVerificationStatus.pending.index,
       });
+      debugPrint('Submission document created successfully');
 
+      debugPrint('COMPLETED: submissionOfDoctorVerification');
       return true;
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrint('ERROR in submissionOfDoctorVerification: ${e.toString()}');
+      if (e is FirebaseException) {
+        debugPrint('Firebase Error Code: ${e.code}');
+        debugPrint('Firebase Error Message: ${e.message}');
+      }
       return false;
     }
   }
@@ -282,13 +369,16 @@ class DoctorAuthenticationController with ChangeNotifier {
 
       if (querySnapshot.docs.isNotEmpty) {
         final doc = querySnapshot.docs.first;
-        final declinedReason = doc['declineReason'];
-        return declinedReason;
+        if (doc.data().containsKey('declineReason') &&
+            doc['declineReason'] != null) {
+          return doc['declineReason'];
+        }
+        return 'No reason provided';
       }
-      return 'No reason found';
+      return 'No declined documents found';
     } catch (e) {
-      debugPrint(e.toString());
-      return 'Unknown error occured';
+      debugPrint('Error getting decline reason: ${e.toString()}');
+      return 'Unknown error occurred';
     }
   }
 }

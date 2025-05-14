@@ -245,7 +245,7 @@ class AdminDoctorDetailsDeclinedState extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            const Gap(450),
+                            const Gap(200),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [

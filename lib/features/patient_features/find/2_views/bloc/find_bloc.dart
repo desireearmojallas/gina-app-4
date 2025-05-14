@@ -151,27 +151,20 @@ class FindBloc extends Bloc<FindEvent, FindState> {
 
   FutureOr<void> setSearchRadius(
       SetSearchRadiusEvent event, Emitter<FindState> emit) async {
-    // First emit a loading state with the new radius
     emit(GetDoctorNearMeLoadingState(searchRadius: event.radius));
 
-    // Then fetch doctors with the new radius
     final doctorLists =
         await findController.getDoctorsNearMe(radius: event.radius);
 
     doctorLists.fold(
       (failure) {
         emit(GetDoctorNearMeFailedState(
-            errorMessage: failure.toString(),
-            searchRadius: event.radius // Important: maintain the radius here
-            ));
+            errorMessage: failure.toString(), searchRadius: event.radius));
       },
       (doctorLists) {
         doctorNearMeLists = doctorLists;
         emit(GetDoctorNearMeSuccessState(
-            doctorLists: doctorLists,
-            searchRadius: event.radius // Important: maintain the radius here
-            ));
-        // Don't emit another state here as it can override your radius state
+            doctorLists: doctorLists, searchRadius: event.radius));
       },
     );
   }
